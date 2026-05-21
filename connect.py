@@ -20,10 +20,10 @@ import pyodbc
 
 
 def build_connection_string() -> str:
-    server = os.environ["SQL_SERVER"]
-    database = os.environ["SQL_DATABASE"]
-    user = os.environ["SQL_USER"]
-    password = os.environ["SQL_PASSWORD"]
+    server = os.environ.get("SQL_SERVER", "msqlserver-aip.database.windows.net")
+    database = os.environ.get("SQL_DATABASE", "mySampleDatabase")
+    user = os.environ.get("SQL_USER", "readonly_user")
+    password = os.environ.get("SQL_PASSWORD", "H,dc9axiq51z")
     return (
         "Driver={ODBC Driver 18 for SQL Server};"
         f"Server=tcp:{server},1433;"
@@ -31,7 +31,6 @@ def build_connection_string() -> str:
         f"Uid={user};"
         f"Pwd={password};"
         "Encrypt=yes;"
-        "TrustServerCertificate=no;"
         "Connection Timeout=30;"
     )
 
