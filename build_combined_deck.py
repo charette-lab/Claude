@@ -1063,7 +1063,7 @@ rows = [
     ("8%", "+83 bps", "+60 bps"),
 ]
 tl = Inches(8.05); cw = [Inches(1.5), Inches(1.55), Inches(1.95)]
-rh = Inches(0.5); yy = top + Inches(0.7)
+rh = Inches(0.46); yy = top + Inches(0.62)
 for ri, row in enumerate(rows):
     head = ri == 0
     cx = tl
@@ -1080,19 +1080,23 @@ for ri, row in enumerate(rows):
              after=0, track=0)
         cx = Emu(int(cx) + int(cw[ci]))
     yy = Emu(int(yy) + int(rh))
-# takeaway under the table
-para(tbox(s, Inches(8.05), Emu(int(yy) + int(Inches(0.2))), Inches(4.6), Inches(1.7)),
-     "A 5% sleeve in Athanase rather than a long-only global fund adds roughly "
-     "half a percent (≈52 bps) to total-portfolio return every year — and "
-     "compounds: the sleeve itself reaches ~2.5× the long-only outcome over a "
-     "decade, with the diversification and downside profile shown earlier.",
-     12.5, BODY, first=True, after=0, lead=1.2, track=0)
+# how the path is earned (ties to Fig. 4 average monthly returns, p.17)
+hy = Emu(int(yy) + int(Inches(0.16)))
+para(tbox(s, Inches(8.05), hy, Inches(4.6), Inches(0.3)),
+     "HOW THE PATH IS EARNED", 11, SLATE, first=True, bold=True, after=0, track=0)
+hp = tbox(s, Inches(8.05), Emu(int(hy) + int(Inches(0.3))), Inches(4.6), Inches(2.2))
+para(hp, "The smooth line is not won by chasing rallies. On average monthly "
+     "returns (p.17), Athanase roughly matches the market up (1.2% vs 1.3%) but "
+     "protects sharply down (+0.2% vs −1.7%).", 11.5, BODY,
+     first=True, after=7, lead=1.15, track=0)
+para(hp, "Losing less in the down months — not winning more up — is what "
+     "compounds the lines apart: a steadier path, not just a higher one.",
+     11.5, BODY, after=0, lead=1.15, track=0)
 # assumptions footnote
-para(tbox(s, Inches(0.6), Inches(6.9), Inches(10.8), Inches(0.45)),
+para(tbox(s, Inches(0.6), Inches(7.15), Inches(8.9), Inches(0.4)),
      "Illustrative only; not a projection. Athanase 18% (headline net IRR); "
-     "other activist 10.5%; long-only global 7.6% (MSCI IMI since inception). "
-     "Uplift = sleeve size × return spread; growth = annual compounding. "
-     "Past performance is not indicative of future results.",
+     "other activist 10.5%; long-only 7.6% (MSCI IMI). Uplift = sleeve × return "
+     "spread; growth = annual compounding. Past performance ≠ future results.",
      8.5, FOOT, first=True, after=0, track=0, lead=1.15)
 
 # ---- II.7 ESG / responsible ownership ----
