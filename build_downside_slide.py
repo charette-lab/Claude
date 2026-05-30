@@ -71,11 +71,55 @@ _msci_x, _ath_x = load_series()
 MSCI, ATH = stats(_msci_x), stats(_ath_x)
 N = NormalDist()
 
-# Bridgewater All Weather — PUBLIC ESTIMATE (no return series supplied).
-# Risk-parity design targets a smooth, low-volatility ride: modest return with
-# tight, roughly symmetric deviation. Figures are illustrative placeholders.
-ALLW = dict(ann_ret=0.070, ann_ud=0.065, ann_dd=0.070,
-            ann_vol=0.090, n=ATH["n"], estimate=True)
+
+# ---- Allocator-relevant pair statistics (Athanase relative to MSCI) --------
+def pair_stats(a, m):
+    n = len(a)
+
+    def geo(xs):
+        g = 1.0
+        for x in xs:
+            g *= (1 + x)
+        return g ** (1 / len(xs)) - 1 if xs else 0.0
+
+    up = [i for i in range(n) if m[i] > 0]
+    dn = [i for i in range(n) if m[i] < 0]
+    up_cap = geo([a[i] for i in up]) / geo([m[i] for i in up])
+    dn_cap = geo([a[i] for i in dn]) / geo([m[i] for i in dn])
+    mb, ab = sum(m) / n, sum(a) / n
+    cov = sum((m[i] - mb) * (a[i] - ab) for i in range(n)) / (n - 1)
+    vm = sum((x - mb) ** 2 for x in m) / (n - 1)
+    va = sum((x - ab) ** 2 for x in a) / (n - 1)
+    corr = cov / math.sqrt(vm * va)
+    beta = cov / vm
+
+    def maxdd(xs):
+        idx = peak = 1.0
+        mdd = 0.0
+        for x in xs:
+            idx *= (1 + x); peak = max(peak, idx); mdd = min(mdd, idx / peak - 1)
+        return mdd
+
+    def cum(xs):
+        g = 1.0
+        for x in xs:
+            g *= (1 + x)
+        return g
+
+    def roll_win(months):
+        w = t = 0
+        for i in range(0, n - months + 1):
+            t += 1
+            w += cum(a[i:i + months]) > cum(m[i:i + months])
+        return w / t if t else 0.0
+
+    return dict(up_cap=up_cap, dn_cap=dn_cap, corr=corr, beta=beta,
+                mdd_a=maxdd(a), mdd_m=maxdd(m),
+                roll={y: roll_win(y * 12) for y in (3, 5, 7)},
+                n_up=len(up), n_dn=len(dn))
+
+
+PAIR = pair_stats(_ath_x, _msci_x)
 
 
 def project(T, r, dd):
@@ -276,76 +320,47 @@ for _f in ("Arial", "Liberation Sans", "DejaVu Sans"):
         continue
 
 
-def _cone(st, k=1.0):
-    """Asymmetric ±k-deviation envelope (real up/down deviation) over 10y."""
-    r, ud, dd = st["ann_ret"], st["ann_ud"], st["ann_dd"]
-    yrs = np.linspace(0, 10, 121)
-    expected = 100 * (1 + r) ** yrs
-    with np.errstate(invalid="ignore"):
-        upper = 100 * (1 + np.minimum(r + k * ud / np.sqrt(yrs), 3.0)) ** yrs
-        lower = 100 * (1 + np.maximum(r - k * dd / np.sqrt(yrs), -0.95)) ** yrs
-    upper[0] = lower[0] = 100
-    return yrs, expected, upper, lower
-
-
-def combined_cone(path_png, ymax):
-    """One chart, three series overlaid on shared axes (±1-deviation cones)."""
-    ya, ea, ua, la = _cone(ATH, 1.0)
-    ym, em, um, lm = _cone(MSCI, 1.0)
-    yw, ew, uw, lw_ = _cone(ALLW, 1.0)
-
-    fig, ax = plt.subplots(figsize=(9.4, 4.5), dpi=200)
-    # --- MSCI (mid blue) ---
-    ax.fill_between(ym, lm, um, color=H_BLUE4, alpha=0.16, zorder=2)
-    ax.plot(ym, em, color=H_BLUE4, lw=2.0, ls=(0, (6, 3)), zorder=4,
-            label=f"MSCI World IMI — expected ({MSCI['ann_ret']*100:.0f}%)")
-    ax.plot(ym, um, color=H_BLUE4, lw=0.9, alpha=0.8, zorder=3)
-    ax.plot(ym, lm, color=H_BLUE4, lw=0.9, alpha=0.8, zorder=3)
-    # --- All Weather (slate, estimate) — tightest cone ---
-    ax.fill_between(yw, lw_, uw, color=H_BLUE3, alpha=0.14, zorder=5)
-    ax.plot(yw, ew, color=H_BLUE3, lw=2.0, ls=(0, (1, 1.4)), zorder=7,
-            label=f"All Weather* — expected ({ALLW['ann_ret']*100:.0f}%, est.)")
-    ax.plot(yw, uw, color=H_BLUE3, lw=0.9, alpha=0.8, zorder=6)
-    ax.plot(yw, lw_, color=H_BLUE3, lw=0.9, alpha=0.8, zorder=6)
-    # --- Athanase (navy), on top ---
-    ax.fill_between(ya, la, ua, color=H_NAVY, alpha=0.18, zorder=8)
-    ax.plot(ya, ea, color=H_NAVY, lw=2.8, ls=(0, (6, 3)), zorder=10,
-            label=f"Athanase — expected ({ATH['ann_ret']*100:.0f}%)")
-    ax.plot(ya, ua, color=H_NAVY, lw=1.2, alpha=0.85, zorder=9)
-    ax.plot(ya, la, color=H_NAVY, lw=1.2, alpha=0.85, zorder=9)
-    # reference line at break-even
-    ax.axhline(100, color=H_BLUE5, lw=1.0, zorder=1)
-
-    # end-of-horizon value labels (y_anchor lets close values be staggered)
-    def _lab(y, txt, col, weight="bold", yoff=None):
-        ax.annotate(txt, (10, y if yoff is None else yoff), color=col,
-                    fontsize=9.5, fontweight=weight, va="center", ha="left",
-                    xytext=(6, 0), textcoords="offset points")
-    _lab(ua[-1], f"{ua[-1]:.0f}", H_NAVY)
-    _lab(ea[-1], f"{ea[-1]:.0f}", H_NAVY)
-    _lab(la[-1], f"{la[-1]:.0f}  Athanase downside", H_NAVY)
-    # the three low values are close — stagger them so they don't overlap
-    _lab(um[-1], f"{um[-1]:.0f}  MSCI upside", H_BLUE4, "normal", yoff=268)
-    _lab(uw[-1], f"{uw[-1]:.0f}  All Weather upside*", H_BLUE3, "normal", yoff=210)
-    _lab(lw_[-1], f"{lw_[-1]:.0f}  All Weather downside*", H_BLUE3, "normal", yoff=152)
-    _lab(lm[-1], f"{lm[-1]:.0f}  MSCI downside", H_BLUE4, "normal", yoff=100)
-
-    ax.set_xlabel("Years", color=H_BODY, fontsize=11)
-    ax.set_ylabel("Value of 100 invested", color=H_BODY, fontsize=11)
-    ax.set_xlim(0, 12.2); ax.set_ylim(0, ymax)
-    ax.tick_params(colors=H_BODY, labelsize=10)
+def capture_chart(path_png):
+    """The allocator's question: how much of the market's up vs down do we get?
+    Two grouped bars — up-capture (good high) and down-capture (good low)."""
+    fig, ax = plt.subplots(figsize=(5.1, 4.3), dpi=200)
+    cats = ["Up markets\n(rallies)", "Down markets\n(selloffs)"]
+    xm = [0, 1.6]
+    w = 0.62
+    mvals = [100, 100]                       # market = 100 by definition
+    avals = [PAIR["up_cap"] * 100, PAIR["dn_cap"] * 100]
+    ax.bar([x - w / 2 for x in xm], mvals, w, color=H_BLUE4, alpha=0.55,
+           label="MSCI World IMI (= market)")
+    ax.bar([x + w / 2 for x in xm], avals, w, color=H_NAVY,
+           label="Athanase")
+    ax.axhline(100, color=H_BLUE5, lw=1.0, zorder=0)
+    for x, v in zip([x + w / 2 for x in xm], avals):
+        ax.annotate(f"{v:.0f}%", (x, v), ha="center", va="bottom",
+                    fontsize=15, fontweight="bold", color=H_NAVY,
+                    xytext=(0, 3), textcoords="offset points")
+    for x in [x - w / 2 for x in xm]:
+        ax.annotate("100%", (x, 100), ha="center", va="bottom", fontsize=11,
+                    color=H_BLUE4, xytext=(0, 3), textcoords="offset points")
+    ax.set_xticks(xm); ax.set_xticklabels(cats, fontsize=11, color=H_BODY)
+    ax.set_ylabel("Share of the market’s move captured", color=H_BODY, fontsize=10.5)
+    ax.set_ylim(0, 120); ax.set_xlim(-0.7, 2.3)
+    ax.set_yticks([0, 50, 100])
+    ax.set_yticklabels(["0%", "50%", "100%"], fontsize=10, color=H_BODY)
+    ax.tick_params(colors=H_BODY)
     for sp in ("top", "right"):
         ax.spines[sp].set_visible(False)
     for sp in ("left", "bottom"):
         ax.spines[sp].set_color(H_BLUE5)
-    ax.grid(True, axis="y", color=H_BLUE5, lw=0.6, alpha=0.7)
-    ax.legend(loc="upper left", fontsize=10, frameon=False, labelcolor=H_BODY)
+    ax.grid(True, axis="y", color=H_BLUE5, lw=0.6, alpha=0.6)
+    ax.legend(loc="lower left", fontsize=9.5, frameon=False, labelcolor=H_BODY)
+    ax.set_title("Up- vs down-market capture", color=H_NAVY, fontsize=13,
+                 fontweight="bold", pad=10)
     fig.tight_layout()
     fig.savefig(path_png, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 
 
-combined_cone("/tmp/cone_combined.png", 900)
+capture_chart("/tmp/capture.png")
 
 s2 = prs.slides.add_slide(prs.slide_layouts[6])
 s2.shapes.add_picture(MARK_DARK, Inches(0.55), Inches(0.24), height=Inches(0.26),
@@ -356,28 +371,61 @@ para(tbox(s2, Inches(9.9), Inches(0.27), Inches(2.85), Inches(0.3)),
      "Figure 2", 11, SLATE_LT, first=True, bold=True, align=PP_ALIGN.RIGHT, after=0)
 rect(s2, 0, Inches(0.62), SW, Inches(1.45), fill=HEADERBG)
 para(tbox(s2, Inches(0.6), Inches(0.74), Inches(12.1), Inches(0.85)),
-     "The path through time — upside and downside envelope", 30, NAVY_TX,
+     "A complement to global equities, not a duplicate", 30, NAVY_TX,
      first=True, after=2, font=SERIF)
 para(tbox(s2, Inches(0.62), Inches(1.55), Inches(11.9), Inches(0.5)),
-     "Three strategies, one scale. All Weather rides smooth but low; the market "
-     "is symmetric and middling; Athanase fans wide up yet holds firm below.",
+     "What a global-equity holder asks of a new manager: do you keep up in "
+     "rallies, lose less in selloffs, and add something the index can’t?",
      13, SUBTLE, first=True, italic=True, after=0)
-# single combined chart
-s2.shapes.add_picture("/tmp/cone_combined.png", Inches(0.85), Inches(2.2),
+
+# left: the hero capture chart
+s2.shapes.add_picture("/tmp/capture.png", Inches(0.55), Inches(2.25),
                       height=Inches(4.1))
+
+# right: three allocator metric cards
+cardx = Inches(6.55); cardw = Inches(6.2); cardh = Inches(1.2)
+cy = Inches(2.3)
+cards = [
+    ("CAPTURE ASYMMETRY",
+     f"{PAIR['up_cap']*100:.0f}% up  /  {PAIR['dn_cap']*100:.0f}% down",
+     "Keeps pace with rallies but takes less than half of selloffs — the "
+     "essence of the edge."),
+    ("DIVERSIFICATION",
+     f"{PAIR['corr']:.2f} correlation  ·  {PAIR['beta']:.2f} beta",
+     "Low correlation to your existing equity book — a genuine diversifier, "
+     "not levered beta."),
+    ("RELIABILITY OVER TIME",
+     f"Beat MSCI in {PAIR['roll'][5]*100:.0f}% of 5-yr and "
+     f"{PAIR['roll'][7]*100:.0f}% of 7-yr windows",
+     "Over every rolling 7-year holding period in 20 years, Athanase "
+     "out-returned the index."),
+]
+for title, big, body in cards:
+    rect(s2, cardx, cy, cardw, cardh, fill=HEADERBG)
+    para(tbox(s2, Emu(int(cardx) + int(Inches(0.22))), cy + Inches(0.12),
+              Emu(int(cardw) - int(Inches(0.44))), Inches(0.25)),
+         title, 10.5, SLATE, first=True, bold=True, after=0, track=0)
+    para(tbox(s2, Emu(int(cardx) + int(Inches(0.22))), cy + Inches(0.36),
+              Emu(int(cardw) - int(Inches(0.44))), Inches(0.35)),
+         big, 17, NAVY_TX, first=True, bold=True, after=0, font=SERIF, track=0)
+    para(tbox(s2, Emu(int(cardx) + int(Inches(0.22))), cy + Inches(0.74),
+              Emu(int(cardw) - int(Inches(0.44))), Inches(0.45)),
+         body, 10.5, BODY, first=True, after=0, lead=1.12, track=0)
+    cy = Emu(int(cy) + int(cardh) + int(Inches(0.12)))
+
 # takeaway strip
-rect(s2, Inches(0.6), Inches(6.5), Inches(12.13), Inches(0.5), fill=NAVY)
-para(tbox(s2, Inches(0.78), Inches(6.5), Inches(11.8), Inches(0.5),
+rect(s2, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s2, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
           anchor=MSO_ANCHOR.MIDDLE),
-     "All Weather’s tight cone delivers the smoothest ride — but Athanase’s "
-     "downside edge still clears All Weather’s and the market’s upside.",
+     f"Athanase captures {PAIR['up_cap']*100:.0f}% of the market’s upside but "
+     f"only {PAIR['dn_cap']*100:.0f}% of its downside — at {PAIR['corr']:.2f} "
+     "correlation, it improves the whole portfolio, not just one line of it.",
      12, WHITE, first=True, italic=True, after=0, track=0)
-para(tbox(s2, Inches(0.6), Inches(7.06), Inches(12.6), Inches(0.45)),
-     f"Source: monthly net returns, {MSCI['n']} months (2006–2025), for MSCI and "
-     "Athanase. *Bridgewater All Weather shown from public estimates "
-     "(~7% return, ~6.5/7.0% up/downside deviation), not a supplied return "
-     "series. Shaded band = expected ±1 annualised up/downside deviation, "
-     "widening with √time. Illustrative; past performance ≠ future results.",
+para(tbox(s2, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
+     f"Source: monthly net returns, {MSCI['n']} months (2006–2025). Capture = "
+     "compounded Athanase return in the market’s up/down months ÷ the market’s. "
+     "Beta/correlation and rolling-window win rates from the same series. "
+     "Past performance is not indicative of future results.",
      7.5, FOOT, first=True, after=0, track=0, lead=1.1)
 
 # ===========================================================================
