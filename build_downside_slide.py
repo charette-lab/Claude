@@ -270,61 +270,66 @@ for _f in ("Arial", "Liberation Sans", "DejaVu Sans"):
         continue
 
 
-def cone_chart(st, title, path_png, ymax):
-    """Asymmetric volatility cone (real up/down deviation) + sample MC paths."""
-    r = st["ann_ret"]
-    ud, dd = st["ann_ud"], st["ann_dd"]
-    mu, sd = st["mean_m"], st["sd_m"]
-    yrs = np.linspace(0, 10, 121)            # monthly grid, 10 years
+def _cone(st):
+    """Asymmetric ±1-deviation envelope (real up/down deviation) over 10y."""
+    r, ud, dd = st["ann_ret"], st["ann_ud"], st["ann_dd"]
+    yrs = np.linspace(0, 10, 121)
     expected = 100 * (1 + r) ** yrs
-    # asymmetric cone: ±1 deviation band, widening with sqrt(time)
     with np.errstate(invalid="ignore"):
         upper = 100 * (1 + np.minimum(r + ud / np.sqrt(yrs), 3.0)) ** yrs
         lower = 100 * (1 + np.maximum(r - dd / np.sqrt(yrs), -0.95)) ** yrs
     upper[0] = lower[0] = 100
+    return yrs, expected, upper, lower
 
-    fig, ax = plt.subplots(figsize=(5.7, 4.5), dpi=200)
-    # sample Monte-Carlo paths (lognormal monthly) for texture
-    rng = np.random.default_rng(7)
-    months = np.arange(0, 121)
-    for _ in range(16):
-        steps = rng.normal(mu, sd, 120)
-        p = 100 * np.cumprod(np.concatenate(([1.0], 1 + steps)))
-        ax.plot(months / 12, p, color=H_BLUE4, lw=0.7, alpha=0.28, zorder=1)
-    # the cone
-    ax.fill_between(yrs, lower, upper, color=H_BLUE3, alpha=0.16, zorder=2,
-                    label="Up / downside path envelope")
-    ax.plot(yrs, expected, color=H_NAVY, lw=2.6, ls=(0, (6, 3)), zorder=4,
-            label=f"Expected path ({r*100:.0f}% return)")
-    ax.plot(yrs, upper, color=H_BLUE3, lw=1.1, alpha=0.7, zorder=3)
-    ax.plot(yrs, lower, color=H_BLUE3, lw=1.1, alpha=0.7, zorder=3)
-    # end labels
-    ax.annotate(f"{upper[-1]:.0f}", (10, upper[-1]), color=H_BLUE3, fontsize=9,
-                fontweight="bold", va="center", ha="left", xytext=(3, 0),
-                textcoords="offset points")
-    ax.annotate(f"{lower[-1]:.0f}", (10, lower[-1]), color=H_BLUE3, fontsize=9,
-                fontweight="bold", va="center", ha="left", xytext=(3, 0),
-                textcoords="offset points")
 
-    ax.set_title(title, color=H_NAVY, fontsize=12, fontweight="bold", pad=8)
-    ax.set_xlabel("Years", color=H_BODY, fontsize=10)
-    ax.set_ylabel("Value of 100 invested", color=H_BODY, fontsize=10)
-    ax.set_xlim(0, 10.6); ax.set_ylim(0, ymax)
-    ax.tick_params(colors=H_BODY, labelsize=9)
+def combined_cone(path_png, ymax):
+    """One chart, both series overlaid on shared axes — no random paths."""
+    ya, ea, ua, la = _cone(ATH)
+    ym, em, um, lm = _cone(MSCI)
+
+    fig, ax = plt.subplots(figsize=(9.4, 4.5), dpi=200)
+    # MSCI envelope (lighter) under Athanase
+    ax.fill_between(ym, lm, um, color=H_BLUE4, alpha=0.18, zorder=2)
+    ax.plot(ym, em, color=H_BLUE4, lw=2.2, ls=(0, (6, 3)), zorder=4,
+            label=f"MSCI World IMI — expected ({MSCI['ann_ret']*100:.0f}%)")
+    ax.plot(ym, um, color=H_BLUE4, lw=1.0, alpha=0.8, zorder=3)
+    ax.plot(ym, lm, color=H_BLUE4, lw=1.0, alpha=0.8, zorder=3)
+    # Athanase envelope (navy) on top
+    ax.fill_between(ya, la, ua, color=H_BLUE3, alpha=0.20, zorder=5)
+    ax.plot(ya, ea, color=H_NAVY, lw=2.8, ls=(0, (6, 3)), zorder=7,
+            label=f"Athanase — expected ({ATH['ann_ret']*100:.0f}%)")
+    ax.plot(ya, ua, color=H_BLUE3, lw=1.2, alpha=0.85, zorder=6)
+    ax.plot(ya, la, color=H_BLUE3, lw=1.2, alpha=0.85, zorder=6)
+    # reference line at break-even
+    ax.axhline(100, color=H_BLUE5, lw=1.0, zorder=1)
+
+    # end-of-horizon value labels
+    def _lab(y, txt, col, weight="bold"):
+        ax.annotate(txt, (10, y), color=col, fontsize=10, fontweight=weight,
+                    va="center", ha="left", xytext=(4, 0),
+                    textcoords="offset points")
+    _lab(ua[-1], f"{ua[-1]:.0f}", H_NAVY)
+    _lab(ea[-1], f"{ea[-1]:.0f}", H_NAVY)
+    _lab(la[-1], f"{la[-1]:.0f}  Athanase downside", H_NAVY)
+    _lab(um[-1], f"{um[-1]:.0f}  MSCI upside", H_BLUE4, "normal")
+    _lab(lm[-1], f"{lm[-1]:.0f}", H_BLUE4, "normal")
+
+    ax.set_xlabel("Years", color=H_BODY, fontsize=11)
+    ax.set_ylabel("Value of 100 invested", color=H_BODY, fontsize=11)
+    ax.set_xlim(0, 11.8); ax.set_ylim(0, ymax)
+    ax.tick_params(colors=H_BODY, labelsize=10)
     for sp in ("top", "right"):
         ax.spines[sp].set_visible(False)
     for sp in ("left", "bottom"):
         ax.spines[sp].set_color(H_BLUE5)
-    ax.grid(True, color=H_BLUE5, lw=0.6, alpha=0.7)
-    ax.legend(loc="upper left", fontsize=8.5, frameon=False, labelcolor=H_BODY)
+    ax.grid(True, axis="y", color=H_BLUE5, lw=0.6, alpha=0.7)
+    ax.legend(loc="upper left", fontsize=10, frameon=False, labelcolor=H_BODY)
     fig.tight_layout()
     fig.savefig(path_png, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 
 
-YMAX = 900
-cone_chart(ATH, "Athanase", "/tmp/cone_ath.png", YMAX)
-cone_chart(MSCI, "MSCI World IMI", "/tmp/cone_msci.png", YMAX)
+combined_cone("/tmp/cone_combined.png", 900)
 
 s2 = prs.slides.add_slide(prs.slide_layouts[6])
 s2.shapes.add_picture(MARK_DARK, Inches(0.55), Inches(0.24), height=Inches(0.26),
@@ -338,14 +343,12 @@ para(tbox(s2, Inches(0.6), Inches(0.74), Inches(12.1), Inches(0.85)),
      "The path through time — upside and downside envelope", 30, NAVY_TX,
      first=True, after=2, font=SERIF)
 para(tbox(s2, Inches(0.62), Inches(1.55), Inches(11.9), Inches(0.5)),
-     "Same axes for both. Athanase’s cone fans wide on the upside but holds "
-     "firm on the downside; the market’s is symmetric and far lower.",
+     "Both series, one scale. Athanase’s envelope fans wide on the upside but "
+     "holds firm below — its downside edge stays above the market’s best case.",
      13, SUBTLE, first=True, italic=True, after=0)
-# two charts side by side
-s2.shapes.add_picture("/tmp/cone_ath.png", Inches(0.45), Inches(2.25),
-                      height=Inches(4.05))
-s2.shapes.add_picture("/tmp/cone_msci.png", Inches(6.85), Inches(2.25),
-                      height=Inches(4.05))
+# single combined chart
+s2.shapes.add_picture("/tmp/cone_combined.png", Inches(0.85), Inches(2.2),
+                      height=Inches(4.1))
 # takeaway strip
 rect(s2, Inches(0.6), Inches(6.5), Inches(12.13), Inches(0.5), fill=NAVY)
 para(tbox(s2, Inches(0.78), Inches(6.5), Inches(11.8), Inches(0.5),
@@ -355,11 +358,10 @@ para(tbox(s2, Inches(0.78), Inches(6.5), Inches(11.8), Inches(0.5),
      "10-year downside edge stays above the market’s expected path.",
      12, WHITE, first=True, italic=True, after=0, track=0)
 para(tbox(s2, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.4)),
-     f"Source: monthly net returns, {MSCI['n']} months (2006–2025). Envelope = "
-     "expected path ±1 annualised up/downside deviation, widening with √time; "
-     "faint lines are sample simulated paths. Illustrative; past performance is "
-     "not indicative of future results.", 7.5, FOOT, first=True, after=0,
-     track=0, lead=1.1)
+     f"Source: monthly net returns, {MSCI['n']} months (2006–2025). Shaded band "
+     "= expected path ±1 annualised up/downside deviation, widening with √time. "
+     "Illustrative; past performance is not indicative of future results.",
+     7.5, FOOT, first=True, after=0, track=0, lead=1.1)
 
 # ===========================================================================
 # 3) Convert to 4:3 and brand the theme (palette + fonts)
