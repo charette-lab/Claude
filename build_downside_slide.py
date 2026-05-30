@@ -57,12 +57,14 @@ def stats(x, mar=0.0):
     mean = sum(x) / n
     sd = math.sqrt(sum((r - mean) ** 2 for r in x) / (n - 1))
     dd = math.sqrt(sum(min(r - mar, 0) ** 2 for r in x) / n)
+    ud = math.sqrt(sum(max(r - mar, 0) ** 2 for r in x) / n)
     g = 1.0
     for r in x:
         g *= (1 + r)
     geo_m = g ** (1 / n) - 1
     return dict(n=n, ann_ret=(1 + geo_m) ** 12 - 1,
-                ann_vol=sd * math.sqrt(12), ann_dd=dd * math.sqrt(12))
+                ann_vol=sd * math.sqrt(12), ann_dd=dd * math.sqrt(12),
+                ann_ud=ud * math.sqrt(12), mean_m=mean, sd_m=sd, series=x)
 
 
 _msci_x, _ath_x = load_series()
@@ -248,6 +250,118 @@ para(tbox(s, Inches(0.6), Inches(7.32), Inches(12.6), Inches(0.4)),
      track=0, lead=1.1)
 
 # ===========================================================================
+# 2b) Volatility-cone slide — show the up/down path envelope for both series
+# ===========================================================================
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib import font_manager
+
+# brand colours as hex for matplotlib
+H_NAVY, H_BLUE3, H_BLUE4 = "#152130", "#314359", "#556A83"
+H_BLUE5, H_BLUE6, H_BODY = "#E2E5E9", "#F6F7F9", "#0E1620"
+for _f in ("Arial", "Liberation Sans", "DejaVu Sans"):
+    try:
+        font_manager.findfont(_f, fallback_to_default=False)
+        plt.rcParams["font.family"] = _f
+        break
+    except Exception:
+        continue
+
+
+def cone_chart(st, title, path_png, ymax):
+    """Asymmetric volatility cone (real up/down deviation) + sample MC paths."""
+    r = st["ann_ret"]
+    ud, dd = st["ann_ud"], st["ann_dd"]
+    mu, sd = st["mean_m"], st["sd_m"]
+    yrs = np.linspace(0, 10, 121)            # monthly grid, 10 years
+    expected = 100 * (1 + r) ** yrs
+    # asymmetric cone: ±1 deviation band, widening with sqrt(time)
+    with np.errstate(invalid="ignore"):
+        upper = 100 * (1 + np.minimum(r + ud / np.sqrt(yrs), 3.0)) ** yrs
+        lower = 100 * (1 + np.maximum(r - dd / np.sqrt(yrs), -0.95)) ** yrs
+    upper[0] = lower[0] = 100
+
+    fig, ax = plt.subplots(figsize=(5.7, 4.5), dpi=200)
+    # sample Monte-Carlo paths (lognormal monthly) for texture
+    rng = np.random.default_rng(7)
+    months = np.arange(0, 121)
+    for _ in range(16):
+        steps = rng.normal(mu, sd, 120)
+        p = 100 * np.cumprod(np.concatenate(([1.0], 1 + steps)))
+        ax.plot(months / 12, p, color=H_BLUE4, lw=0.7, alpha=0.28, zorder=1)
+    # the cone
+    ax.fill_between(yrs, lower, upper, color=H_BLUE3, alpha=0.16, zorder=2,
+                    label="Up / downside path envelope")
+    ax.plot(yrs, expected, color=H_NAVY, lw=2.6, ls=(0, (6, 3)), zorder=4,
+            label=f"Expected path ({r*100:.0f}% return)")
+    ax.plot(yrs, upper, color=H_BLUE3, lw=1.1, alpha=0.7, zorder=3)
+    ax.plot(yrs, lower, color=H_BLUE3, lw=1.1, alpha=0.7, zorder=3)
+    # end labels
+    ax.annotate(f"{upper[-1]:.0f}", (10, upper[-1]), color=H_BLUE3, fontsize=9,
+                fontweight="bold", va="center", ha="left", xytext=(3, 0),
+                textcoords="offset points")
+    ax.annotate(f"{lower[-1]:.0f}", (10, lower[-1]), color=H_BLUE3, fontsize=9,
+                fontweight="bold", va="center", ha="left", xytext=(3, 0),
+                textcoords="offset points")
+
+    ax.set_title(title, color=H_NAVY, fontsize=12, fontweight="bold", pad=8)
+    ax.set_xlabel("Years", color=H_BODY, fontsize=10)
+    ax.set_ylabel("Value of 100 invested", color=H_BODY, fontsize=10)
+    ax.set_xlim(0, 10.6); ax.set_ylim(0, ymax)
+    ax.tick_params(colors=H_BODY, labelsize=9)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color(H_BLUE5)
+    ax.grid(True, color=H_BLUE5, lw=0.6, alpha=0.7)
+    ax.legend(loc="upper left", fontsize=8.5, frameon=False, labelcolor=H_BODY)
+    fig.tight_layout()
+    fig.savefig(path_png, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
+YMAX = 900
+cone_chart(ATH, "Athanase", "/tmp/cone_ath.png", YMAX)
+cone_chart(MSCI, "MSCI World IMI", "/tmp/cone_msci.png", YMAX)
+
+s2 = prs.slides.add_slide(prs.slide_layouts[6])
+s2.shapes.add_picture(MARK_DARK, Inches(0.55), Inches(0.24), height=Inches(0.26),
+                      width=Emu(int(Inches(0.26) * _MD_AR)))
+para(tbox(s2, Inches(0.98), Inches(0.27), Inches(7), Inches(0.3)),
+     "Risk-Adjusted Outcomes", 11, SLATE_LT, first=True, after=0)
+para(tbox(s2, Inches(9.9), Inches(0.27), Inches(2.85), Inches(0.3)),
+     "Figure 2", 11, SLATE_LT, first=True, bold=True, align=PP_ALIGN.RIGHT, after=0)
+rect(s2, 0, Inches(0.62), SW, Inches(1.45), fill=HEADERBG)
+para(tbox(s2, Inches(0.6), Inches(0.74), Inches(12.1), Inches(0.85)),
+     "The path through time — upside and downside envelope", 30, NAVY_TX,
+     first=True, after=2, font=SERIF)
+para(tbox(s2, Inches(0.62), Inches(1.55), Inches(11.9), Inches(0.5)),
+     "Same axes for both. Athanase’s cone fans wide on the upside but holds "
+     "firm on the downside; the market’s is symmetric and far lower.",
+     13, SUBTLE, first=True, italic=True, after=0)
+# two charts side by side
+s2.shapes.add_picture("/tmp/cone_ath.png", Inches(0.45), Inches(2.25),
+                      height=Inches(4.05))
+s2.shapes.add_picture("/tmp/cone_msci.png", Inches(6.85), Inches(2.25),
+                      height=Inches(4.05))
+# takeaway strip
+rect(s2, Inches(0.6), Inches(6.5), Inches(12.13), Inches(0.5), fill=NAVY)
+para(tbox(s2, Inches(0.78), Inches(6.5), Inches(11.8), Inches(0.5),
+          anchor=MSO_ANCHOR.MIDDLE),
+     f"Athanase upside deviation {ATH['ann_ud']*100:.0f}% vs downside "
+     f"{ATH['ann_dd']*100:.0f}% — the volatility is mostly upside. Even its "
+     "10-year downside edge stays above the market’s expected path.",
+     12, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s2, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.4)),
+     f"Source: monthly net returns, {MSCI['n']} months (2006–2025). Envelope = "
+     "expected path ±1 annualised up/downside deviation, widening with √time; "
+     "faint lines are sample simulated paths. Illustrative; past performance is "
+     "not indicative of future results.", 7.5, FOOT, first=True, after=0,
+     track=0, lead=1.1)
+
+# ===========================================================================
 # 3) Convert to 4:3 and brand the theme (palette + fonts)
 # ===========================================================================
 TARGET_W, TARGET_H = 9753600, 7315200
@@ -280,8 +394,9 @@ def _rescale(sh, sx, sy):
 
 
 sx, sy = TARGET_W / int(prs.slide_width), TARGET_H / int(prs.slide_height)
-for sh in s.shapes:
-    _rescale(sh, sx, sy)
+for _sl in prs.slides:
+    for sh in _sl.shapes:
+        _rescale(sh, sx, sy)
 prs.slide_width, prs.slide_height = TARGET_W, TARGET_H
 
 
