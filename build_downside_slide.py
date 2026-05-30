@@ -71,6 +71,12 @@ _msci_x, _ath_x = load_series()
 MSCI, ATH = stats(_msci_x), stats(_ath_x)
 N = NormalDist()
 
+# Bridgewater All Weather — PUBLIC ESTIMATE (no return series supplied).
+# Risk-parity design targets a smooth, low-volatility ride: modest return with
+# tight, roughly symmetric deviation. Figures are illustrative placeholders.
+ALLW = dict(ann_ret=0.070, ann_ud=0.065, ann_dd=0.070,
+            ann_vol=0.090, n=ATH["n"], estimate=True)
+
 
 def project(T, r, dd):
     """Median and downside (≈1-in-6, one downside-deviation) terminal of 100."""
@@ -283,53 +289,50 @@ def _cone(st, k=1.0):
 
 
 def combined_cone(path_png, ymax):
-    """One chart, both series overlaid on shared axes — no random paths.
-    Each series gets a dark ±1-dev band and a faint ±2-dev outer band."""
+    """One chart, three series overlaid on shared axes (±1-deviation cones)."""
     ya, ea, ua, la = _cone(ATH, 1.0)
-    _, _, ua2, la2 = _cone(ATH, 2.0)
     ym, em, um, lm = _cone(MSCI, 1.0)
-    _, _, um2, lm2 = _cone(MSCI, 2.0)
+    yw, ew, uw, lw_ = _cone(ALLW, 1.0)
 
     fig, ax = plt.subplots(figsize=(9.4, 4.5), dpi=200)
-    # --- MSCI (lighter), behind ---
-    ax.fill_between(ym, lm2, um2, color=H_BLUE4, alpha=0.08, zorder=2)   # ±2 dev
-    ax.fill_between(ym, lm, um, color=H_BLUE4, alpha=0.20, zorder=3)     # ±1 dev
-    ax.plot(ym, em, color=H_BLUE4, lw=2.2, ls=(0, (6, 3)), zorder=5,
+    # --- MSCI (mid blue) ---
+    ax.fill_between(ym, lm, um, color=H_BLUE4, alpha=0.16, zorder=2)
+    ax.plot(ym, em, color=H_BLUE4, lw=2.0, ls=(0, (6, 3)), zorder=4,
             label=f"MSCI World IMI — expected ({MSCI['ann_ret']*100:.0f}%)")
-    ax.plot(ym, um, color=H_BLUE4, lw=1.0, alpha=0.8, zorder=4)
-    ax.plot(ym, lm, color=H_BLUE4, lw=1.0, alpha=0.8, zorder=4)
-    ax.plot(ym, um2, color=H_BLUE4, lw=0.8, alpha=0.5, ls=(0, (2, 2)), zorder=4)
-    ax.plot(ym, lm2, color=H_BLUE4, lw=0.8, alpha=0.5, ls=(0, (2, 2)), zorder=4)
+    ax.plot(ym, um, color=H_BLUE4, lw=0.9, alpha=0.8, zorder=3)
+    ax.plot(ym, lm, color=H_BLUE4, lw=0.9, alpha=0.8, zorder=3)
+    # --- All Weather (slate, estimate) — tightest cone ---
+    ax.fill_between(yw, lw_, uw, color=H_BLUE3, alpha=0.14, zorder=5)
+    ax.plot(yw, ew, color=H_BLUE3, lw=2.0, ls=(0, (1, 1.4)), zorder=7,
+            label=f"All Weather* — expected ({ALLW['ann_ret']*100:.0f}%, est.)")
+    ax.plot(yw, uw, color=H_BLUE3, lw=0.9, alpha=0.8, zorder=6)
+    ax.plot(yw, lw_, color=H_BLUE3, lw=0.9, alpha=0.8, zorder=6)
     # --- Athanase (navy), on top ---
-    ax.fill_between(ya, la2, ua2, color=H_BLUE3, alpha=0.10, zorder=6)   # ±2 dev
-    ax.fill_between(ya, la, ua, color=H_BLUE3, alpha=0.22, zorder=7)     # ±1 dev
-    ax.plot(ya, ea, color=H_NAVY, lw=2.8, ls=(0, (6, 3)), zorder=9,
+    ax.fill_between(ya, la, ua, color=H_NAVY, alpha=0.18, zorder=8)
+    ax.plot(ya, ea, color=H_NAVY, lw=2.8, ls=(0, (6, 3)), zorder=10,
             label=f"Athanase — expected ({ATH['ann_ret']*100:.0f}%)")
-    ax.plot(ya, ua, color=H_BLUE3, lw=1.2, alpha=0.85, zorder=8)
-    ax.plot(ya, la, color=H_BLUE3, lw=1.2, alpha=0.85, zorder=8)
-    ax.plot(ya, ua2, color=H_BLUE3, lw=0.9, alpha=0.55, ls=(0, (2, 2)), zorder=8)
-    ax.plot(ya, la2, color=H_BLUE3, lw=0.9, alpha=0.55, ls=(0, (2, 2)), zorder=8)
-    # shade legend entries
-    ax.fill_between([], [], [], color=H_BLUE3, alpha=0.22, label="±1 deviation (≈1-in-6)")
-    ax.fill_between([], [], [], color=H_BLUE3, alpha=0.10, label="±2 deviation (≈1-in-40)")
+    ax.plot(ya, ua, color=H_NAVY, lw=1.2, alpha=0.85, zorder=9)
+    ax.plot(ya, la, color=H_NAVY, lw=1.2, alpha=0.85, zorder=9)
     # reference line at break-even
     ax.axhline(100, color=H_BLUE5, lw=1.0, zorder=1)
 
-    # end-of-horizon value labels
-    def _lab(y, txt, col, weight="bold"):
-        ax.annotate(txt, (10, y), color=col, fontsize=10, fontweight=weight,
-                    va="center", ha="left", xytext=(4, 0),
-                    textcoords="offset points")
-    _lab(ua2[-1], f"{ua2[-1]:.0f}", H_BLUE3, "normal")
+    # end-of-horizon value labels (y_anchor lets close values be staggered)
+    def _lab(y, txt, col, weight="bold", yoff=None):
+        ax.annotate(txt, (10, y if yoff is None else yoff), color=col,
+                    fontsize=9.5, fontweight=weight, va="center", ha="left",
+                    xytext=(6, 0), textcoords="offset points")
     _lab(ua[-1], f"{ua[-1]:.0f}", H_NAVY)
     _lab(ea[-1], f"{ea[-1]:.0f}", H_NAVY)
-    _lab(la[-1], f"{la[-1]:.0f}  Athanase ±1-dev downside", H_NAVY)
-    _lab(um[-1], f"{um[-1]:.0f}  MSCI upside", H_BLUE4, "normal")
-    _lab(lm[-1], f"{lm[-1]:.0f}", H_BLUE4, "normal")
+    _lab(la[-1], f"{la[-1]:.0f}  Athanase downside", H_NAVY)
+    # the three low values are close — stagger them so they don't overlap
+    _lab(um[-1], f"{um[-1]:.0f}  MSCI upside", H_BLUE4, "normal", yoff=268)
+    _lab(uw[-1], f"{uw[-1]:.0f}  All Weather upside*", H_BLUE3, "normal", yoff=210)
+    _lab(lw_[-1], f"{lw_[-1]:.0f}  All Weather downside*", H_BLUE3, "normal", yoff=152)
+    _lab(lm[-1], f"{lm[-1]:.0f}  MSCI downside", H_BLUE4, "normal", yoff=100)
 
     ax.set_xlabel("Years", color=H_BODY, fontsize=11)
     ax.set_ylabel("Value of 100 invested", color=H_BODY, fontsize=11)
-    ax.set_xlim(0, 11.8); ax.set_ylim(0, ymax)
+    ax.set_xlim(0, 12.2); ax.set_ylim(0, ymax)
     ax.tick_params(colors=H_BODY, labelsize=10)
     for sp in ("top", "right"):
         ax.spines[sp].set_visible(False)
@@ -342,7 +345,7 @@ def combined_cone(path_png, ymax):
     plt.close(fig)
 
 
-combined_cone("/tmp/cone_combined.png", 1700)
+combined_cone("/tmp/cone_combined.png", 900)
 
 s2 = prs.slides.add_slide(prs.slide_layouts[6])
 s2.shapes.add_picture(MARK_DARK, Inches(0.55), Inches(0.24), height=Inches(0.26),
@@ -356,8 +359,8 @@ para(tbox(s2, Inches(0.6), Inches(0.74), Inches(12.1), Inches(0.85)),
      "The path through time — upside and downside envelope", 30, NAVY_TX,
      first=True, after=2, font=SERIF)
 para(tbox(s2, Inches(0.62), Inches(1.55), Inches(11.9), Inches(0.5)),
-     "Both series, one scale. Athanase’s envelope fans wide on the upside but "
-     "holds firm below — its downside edge stays above the market’s best case.",
+     "Three strategies, one scale. All Weather rides smooth but low; the market "
+     "is symmetric and middling; Athanase fans wide up yet holds firm below.",
      13, SUBTLE, first=True, italic=True, after=0)
 # single combined chart
 s2.shapes.add_picture("/tmp/cone_combined.png", Inches(0.85), Inches(2.2),
@@ -366,14 +369,15 @@ s2.shapes.add_picture("/tmp/cone_combined.png", Inches(0.85), Inches(2.2),
 rect(s2, Inches(0.6), Inches(6.5), Inches(12.13), Inches(0.5), fill=NAVY)
 para(tbox(s2, Inches(0.78), Inches(6.5), Inches(11.8), Inches(0.5),
           anchor=MSO_ANCHOR.MIDDLE),
-     f"Athanase upside deviation {ATH['ann_ud']*100:.0f}% vs downside "
-     f"{ATH['ann_dd']*100:.0f}% — the volatility is mostly upside. Even its "
-     "10-year downside edge stays above the market’s expected path.",
+     "All Weather’s tight cone delivers the smoothest ride — but Athanase’s "
+     "downside edge still clears All Weather’s and the market’s upside.",
      12, WHITE, first=True, italic=True, after=0, track=0)
-para(tbox(s2, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.4)),
-     f"Source: monthly net returns, {MSCI['n']} months (2006–2025). Shaded band "
-     "= expected path ±1 annualised up/downside deviation, widening with √time. "
-     "Illustrative; past performance is not indicative of future results.",
+para(tbox(s2, Inches(0.6), Inches(7.06), Inches(12.6), Inches(0.45)),
+     f"Source: monthly net returns, {MSCI['n']} months (2006–2025), for MSCI and "
+     "Athanase. *Bridgewater All Weather shown from public estimates "
+     "(~7% return, ~6.5/7.0% up/downside deviation), not a supplied return "
+     "series. Shaded band = expected ±1 annualised up/downside deviation, "
+     "widening with √time. Illustrative; past performance ≠ future results.",
      7.5, FOOT, first=True, after=0, track=0, lead=1.1)
 
 # ===========================================================================
