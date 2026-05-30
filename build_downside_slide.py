@@ -465,9 +465,25 @@ def frontier_chart(path_png):
         ax.annotate(label, (p[1], p[2]), color=col, fontsize=10.5,
                     fontweight="bold", xytext=(dx, dy), textcoords="offset points")
         return p
-    mark(0.0, "100% Global equities\n(MSCI World IMI)", H_BLUE4, dy=-28, dx=6)
-    mark(0.3, "70 / 30 blend", H_NAVY, dy=10, dx=8)
+    mark(0.0, "100% Global equities\n(MSCI World IMI)", H_BLUE4, dy=-30, dx=-30)
     mark(1.0, "100% Athanase", H_NAVY, dy=6, dx=-150, big=True)
+    # minimum-downside-risk point (the curve's turning point)
+    _min = min(_FRONT, key=lambda z: z[1])
+    ax.scatter([_min[1]], [_min[2]], s=150, color=H_NAVY, zorder=6,
+               edgecolor="white", linewidth=1.5, marker="D")
+    ax.annotate(f"Minimum downside risk\n≈ {_min[0]*100:.0f}% Athanase  "
+                f"({_min[2]:.1f}% return)", (_min[1], _min[2]), color=H_NAVY,
+                fontsize=10, fontweight="bold", xytext=(12, -4),
+                textcoords="offset points", va="center")
+    # prudent sizing zone (3-8%) — what an allocator would actually hold
+    seg = [z for z in _FRONT if 0.03 <= z[0] <= 0.08]
+    ax.plot([z[1] for z in seg], [z[2] for z in seg], color=H_NAVY, lw=6,
+            alpha=0.95, solid_capstyle="round", zorder=6)
+    pmid = min(_FRONT, key=lambda z: abs(z[0] - 0.055))
+    ax.annotate("prudent\n3–8% zone", (pmid[1], pmid[2]), color=H_NAVY,
+                fontsize=10, fontweight="bold", xytext=(-66, 10),
+                textcoords="offset points", va="center", ha="center",
+                arrowprops=dict(arrowstyle="-", color=H_NAVY, lw=0.9))
     # guide arrow in an empty corner: up-and-left = better
     ax.annotate("", (10.05, 16.8), (11.0, 15.2),
                 arrowprops=dict(arrowstyle="->", color=H_BLUE4, lw=1.4))
@@ -516,49 +532,59 @@ para(tbox(s3, Inches(0.62), Inches(1.55), Inches(11.9), Inches(0.5)),
 s3.shapes.add_picture("/tmp/frontier.png", Inches(0.55), Inches(2.25),
                       height=Inches(4.1))
 
-# right: before/after cards (0% vs 30% blend)
-cx3 = Inches(8.9); cw3 = Inches(3.85); ch3 = Inches(1.25); cy3 = Inches(2.35)
+# right: before/after card (0% vs prudent 8% sleeve) + interpretation
+_b8 = min(_FRONT, key=lambda z: abs(z[0] - 0.08))
+_min = min(_FRONT, key=lambda z: z[1])
+cx3 = Inches(8.9); cw3 = Inches(3.85); ch3 = Inches(1.2); cy3 = Inches(2.32)
 fcards = [
     ("ALL GLOBAL EQUITIES",
      f"{_b0[2]:.1f}% return", f"{_b0[1]:.1f}% downside risk",
      "100% MSCI World IMI"),
-    ("ADD A 30% SLEEVE",
-     f"{_b30[2]:.1f}% return", f"{_b30[1]:.1f}% downside risk",
-     "70% MSCI  /  30% Athanase"),
+    ("ADD A PRUDENT 8% SLEEVE",
+     f"{_b8[2]:.1f}% return", f"{_b8[1]:.1f}% downside risk",
+     "92% MSCI  /  8% Athanase"),
 ]
 for title, big1, big2, sub in fcards:
     rect(s3, cx3, cy3, cw3, ch3, fill=HEADERBG)
     para(tbox(s3, Emu(int(cx3) + int(Inches(0.22))), cy3 + Inches(0.12),
               Emu(int(cw3) - int(Inches(0.44))), Inches(0.25)),
          title, 10.5, SLATE, first=True, bold=True, after=0, track=0)
-    rowtf = tbox(s3, Emu(int(cx3) + int(Inches(0.22))), cy3 + Inches(0.4),
+    rowtf = tbox(s3, Emu(int(cx3) + int(Inches(0.22))), cy3 + Inches(0.38),
                  Emu(int(cw3) - int(Inches(0.44))), Inches(0.45))
     p = rowtf.paragraphs[0]; p.space_after = Pt(0)
-    r1 = p.add_run(); r1.text = big1; r1.font.size = Pt(17); r1.font.bold = True
+    r1 = p.add_run(); r1.text = big1; r1.font.size = Pt(16); r1.font.bold = True
     r1.font.color.rgb = NAVY_TX; r1.font.name = SERIF
-    r2 = p.add_run(); r2.text = "   ·   " + big2; r2.font.size = Pt(13)
+    r2 = p.add_run(); r2.text = "   ·   " + big2; r2.font.size = Pt(12)
     r2.font.color.rgb = SLATE; r2.font.name = SANS
-    para(tbox(s3, Emu(int(cx3) + int(Inches(0.22))), cy3 + Inches(0.86),
+    para(tbox(s3, Emu(int(cx3) + int(Inches(0.22))), cy3 + Inches(0.82),
               Emu(int(cw3) - int(Inches(0.44))), Inches(0.3)),
          sub, 10.5, BODY, first=True, after=0, track=0)
-    cy3 = Emu(int(cy3) + int(ch3) + int(Inches(0.18)))
-# delta note
-para(tbox(s3, cx3, cy3, cw3, Inches(0.8)),
-     f"+{_b30[2]-_b0[2]:.1f} pts of return while downside risk FALLS by "
-     f"{_b0[1]-_b30[1]:.1f} pts.", 12, NAVY, first=True, bold=True,
-     after=0, lead=1.2, track=0)
+    cy3 = Emu(int(cy3) + int(ch3) + int(Inches(0.14)))
+# interpretation block — the directional argument + prudence caveat
+para(tbox(s3, cx3, cy3 + Inches(0.02), cw3, Inches(0.3)),
+     "HOW TO READ IT", 10.5, SLATE, first=True, bold=True, after=0, track=0)
+para(tbox(s3, cx3, cy3 + Inches(0.3), cw3, Inches(1.9)),
+     f"Every blend on the curve beats holding equities alone, and the benefit "
+     f"keeps building until past half the portfolio (downside risk bottoms near "
+     f"{_min[0]*100:.0f}%). That is a directional case to size up — within "
+     f"prudent limits — not a target: a 59% position would breach concentration, "
+     f"liquidity and the 3–8% sizing discipline. Even an 8% sleeve already moves "
+     f"the portfolio the right way.", 10.5, BODY, first=True, after=0,
+     lead=1.16, track=0)
 
 rect(s3, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
 para(tbox(s3, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
           anchor=MSO_ANCHOR.MIDDLE),
-     "The blend is not a trade-off — a 30% sleeve raises return AND lowers "
-     "downside risk versus holding global equities alone.",
+     "The blend is not a trade-off — every allocation improves the portfolio, so "
+     "the case is to size up within prudent 3–8% limits, not to chase the "
+     "mathematical optimum.",
      12, WHITE, first=True, italic=True, after=0, track=0)
 para(tbox(s3, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
      f"Source: monthly net returns, {MSCI['n']} months (2006–2025), monthly "
      "rebalanced blends. Downside volatility = annualised deviation of negative "
-     "months (MAR 0). Illustrative; past performance is not indicative of "
-     "future results.", 7.5, FOOT, first=True, after=0, track=0, lead=1.1)
+     "months (MAR 0). The minimum-risk point is in-sample and shown for shape, "
+     "not as advice. Illustrative; past performance is not indicative of future "
+     "results.", 7.5, FOOT, first=True, after=0, track=0, lead=1.1)
 
 # ===========================================================================
 # 3) Convert to 4:3 and brand the theme (palette + fonts)
