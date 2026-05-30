@@ -44,6 +44,95 @@ def place_mark(slide, left, top, height):
     slide.shapes.add_picture(MARK_DARK, left, top, height=height,
                              width=Emu(int(int(height) * _MD_AR)))
 
+
+# ---- Track-record data (from data/AIP_Trackrecord.xlsx, Transactions tab) ---
+import openpyxl
+LOSS = RGBColor(0xA8, 0x4A, 0x4A)   # muted red for losses
+
+
+def _fmt_pct(v):
+    if not isinstance(v, (int, float)) or abs(v) > 3.0:
+        return "n.m."
+    return f"{v * 100:+.0f}%"
+
+
+def _fmt_irr(v):
+    if not isinstance(v, (int, float)) or v > 3.0:
+        return "n.m."
+    return f"{v * 100:.0f}%"
+
+
+def _fmt_moic(v):
+    return f"{v:.1f}x" if isinstance(v, (int, float)) else str(v)
+
+
+def load_transactions():
+    wb = openpyxl.load_workbook("data/AIP_Trackrecord.xlsx", data_only=True)
+    ws = wb["Transactions"]
+
+    def grab(r0, r1):
+        deals = []
+        for r in range(r0, r1 + 1):
+            comp = ws.cell(r, 3).value          # C
+            if not comp:
+                continue
+            deals.append(dict(
+                period=str(ws.cell(r, 2).value or "").strip(),   # B
+                company=str(comp).strip(),
+                irr=ws.cell(r, 6).value,         # F
+                outp=ws.cell(r, 8).value,        # H
+                moic=ws.cell(r, 11).value,       # K
+            ))
+        return deals
+
+    fund2 = grab(4, 20)         # AIP Fund II (2015-2026)
+    hist = grab(27, 48)         # Prior period (2006-2014)
+    return fund2, hist
+
+
+def deal_table(slide, x, y, deals, col_w, font=10.5, rh=Inches(0.265),
+               cols=("company", "period", "irr", "moic", "outp"),
+               headers=("Company", "Holding", "IRR", "MOIC", "vs Index")):
+    """Compact transactions table with header + alternating rows."""
+    # header
+    cx = x
+    for ci, htext in enumerate(headers):
+        rect(slide, cx, y, col_w[ci], rh, fill=SLATE)
+        htf = tbox(slide, Emu(int(cx) + int(Inches(0.08))), y,
+                   Emu(int(col_w[ci]) - int(Inches(0.12))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        para(htf, htext, font, WHITE, bold=True, first=True,
+             align=PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.RIGHT, after=0)
+        cx = Emu(int(cx) + int(col_w[ci]))
+    yy = Emu(int(y) + int(rh))
+    for ri, d in enumerate(deals):
+        loss = isinstance(d["moic"], (int, float)) and d["moic"] < 1.0
+        fill = HEADERBG if ri % 2 == 0 else WHITE
+        cx = x
+        for ci, key in enumerate(cols):
+            rect(slide, cx, yy, col_w[ci], rh, fill=fill)
+            if key == "company":
+                txt = d["company"]
+            elif key == "period":
+                txt = d["period"]
+            elif key == "irr":
+                txt = _fmt_irr(d["irr"])
+            elif key == "moic":
+                txt = _fmt_moic(d["moic"])
+            else:
+                txt = _fmt_pct(d["outp"])
+            col = LOSS if (loss and key in ("irr", "moic", "outp")) else (
+                NAVY_TX if ci == 0 else BODY)
+            ctf = tbox(slide, Emu(int(cx) + int(Inches(0.08))), yy,
+                       Emu(int(col_w[ci]) - int(Inches(0.12))), rh,
+                       anchor=MSO_ANCHOR.MIDDLE)
+            para(ctf, txt, font, col, bold=(ci == 0),
+                 first=True, align=PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.RIGHT,
+                 after=0)
+            cx = Emu(int(cx) + int(col_w[ci]))
+        yy = Emu(int(yy) + int(rh))
+    return yy
+
 prs = Presentation()
 prs.slide_width = Inches(13.333)
 prs.slide_height = Inches(7.5)
@@ -455,9 +544,51 @@ para(pr, "81% IRR · 3.9x money multiple. Spun off Concentric, refocused the "
 para(pr, "Compounding", 16, NAVY_TX, bold=True, after=2, font=SERIF)
 para(pr, "~18x gross vs ~14x for MSCI IMI since 2006, with EBITA growth of "
      "+14.5% across portfolio companies.", 13, BODY, after=14, lead=1.15)
-para(pr, "Down-market years", 16, NAVY_TX, bold=True, after=2, font=SERIF)
-para(pr, "Outperformed in 2008 (+2.2%), 2011 (+7.9%), 2015 (+11.8%) and 2022 "
-     "(+20.1%).", 13, BODY, after=0, lead=1.15)
+para(pr, "Hit rate", 16, NAVY_TX, bold=True, after=2, font=SERIF)
+para(pr, "39 larger investments since 2006 — profitable in 36, lost money in "
+     "only 3.", 13, BODY, after=0, lead=1.15)
+
+# ---- II.6b Transactions: AIP Fund II ----
+FUND2, HIST = load_transactions()
+s, top = content("Track Record", "AIP Fund II — transactions (2015–present)",
+                 "Each position shown against its benchmark; invested capital "
+                 "weighted MOIC of 2.2x.")
+cw = [Inches(3.3), Inches(2.0), Inches(1.7), Inches(1.7), Inches(2.0)]
+endy = deal_table(s, Inches(0.75), top, FUND2, cw, font=10.5, rh=Inches(0.255))
+# summary strip
+sy = Emu(int(endy) + int(Inches(0.10)))
+rect(s, Inches(0.75), sy, Inches(10.7), Inches(0.34), fill=NAVY)
+stf = tbox(s, Inches(0.9), sy, Inches(10.4), Inches(0.34), anchor=MSO_ANCHOR.MIDDLE)
+para(stf, "17 deals   ·   weighted MOIC 2.2x   ·   ex best/worst IRR 41% vs "
+     "index ~9%   ·   36 of 39 deals profitable since 2006", 10.5, WHITE,
+     first=True, after=0)
+nt = tbox(s, Inches(0.75), Inches(6.95), Inches(11.8), Inches(0.4))
+para(nt, "IRR/MOIC net of the position; “n.m.” where short holding periods make "
+     "annualised figures not meaningful. Capital in SEK.", 8.5, FOOT, first=True,
+     after=0)
+
+# ---- II.6c Transactions: prior period 2006-2014 ----
+s, top = content("Track Record", "Prior period — transactions (2006–2014)",
+                 "The same strategy, the prior fund — repeatable across two "
+                 "decades and multiple cycles.")
+half = 11
+cwh = [Inches(2.7), Inches(1.45), Inches(1.45)]
+deal_table(s, Inches(0.6), top, HIST[:half], cwh, font=10,
+           rh=Inches(0.285), cols=("company", "irr", "moic"),
+           headers=("Company", "IRR", "MOIC"))
+deal_table(s, Inches(6.95), top, HIST[half:], cwh, font=10,
+           rh=Inches(0.285), cols=("company", "irr", "moic"),
+           headers=("Company", "IRR", "MOIC"))
+sy = top + Inches(3.55)
+rect(s, Inches(0.6), sy, Inches(11.05), Inches(0.34), fill=NAVY)
+stf = tbox(s, Inches(0.75), sy, Inches(10.7), Inches(0.34), anchor=MSO_ANCHOR.MIDDLE)
+para(stf, "22 deals   ·   weighted MOIC 2.7x   ·   average IRR 68%   ·   "
+     "index outperformance +25 pts (invested-weighted)", 10.5, WHITE, first=True,
+     after=0)
+nt = tbox(s, Inches(0.6), Inches(6.95), Inches(11.8), Inches(0.4))
+para(nt, "Selected larger deals of the investment team. Losses shown in red. "
+     "Capital in SEK; ~$400M invested over the period.", 8.5, FOOT, first=True,
+     after=0)
 
 # ---- II.7 ESG / responsible ownership ----
 s, top = content("Ownership Model", "Responsible ownership, by construction")
