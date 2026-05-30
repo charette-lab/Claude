@@ -9,7 +9,7 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.chart.data import CategoryChartData
-from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
+from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION, XL_LABEL_POSITION
 
 # ---- Brand palette ---------------------------------------------------------
 NAVY      = RGBColor(0x14, 0x25, 0x3B)   # cover / divider background
@@ -191,7 +191,36 @@ def footer(slide):
          first=True, align=PP_ALIGN.RIGHT, after=0)
 
 
+# --- research-paper numbering: sections, figures, tables -------------------
+_doc = {"part": 0, "sec": 0}
+_exhibit = {"fig": 0, "tbl": 0}
+
+
+def fig():
+    _exhibit["fig"] += 1
+    return f'Figure {_exhibit["fig"]}'
+
+
+def tbl():
+    _exhibit["tbl"] += 1
+    return f'Table {_exhibit["tbl"]}'
+
+
+def dlabels(holder, fmt='0.0"%"', size=9, color=None, pos=None):
+    """Show numeric data labels on a chart plot or series."""
+    holder.has_data_labels = True
+    dl = holder.data_labels
+    dl.number_format = fmt
+    dl.number_format_is_linked = False
+    dl.font.size = Pt(size)
+    dl.font.color.rgb = color if color is not None else BODY
+    if pos is not None:
+        dl.position = pos
+
+
 def divider(title, kicker=None):
+    _doc["part"] += 1
+    _doc["sec"] = 0
     s = prs.slides.add_slide(BLANK)
     rect(s, 0, 0, SW, SH, fill=NAVY)
     wordmark(s, Inches(0.6), Inches(0.55), WHITE, scale=0.9)
@@ -207,13 +236,22 @@ def divider(title, kicker=None):
     return s
 
 
-def content(section, title, subtitle=None):
+def content(section, title, subtitle=None, number=True, ref=None):
     s = prs.slides.add_slide(BLANK)
     rect(s, 0, 0, SW, SH, fill=WHITE)
     # top section label + real mark
     place_mark(s, Inches(0.55), Inches(0.24), Inches(0.26))
     lt = tbox(s, Inches(0.98), Inches(0.27), Inches(7.0), Inches(0.3))
     para(lt, section, 11, SLATE, first=True, after=0)
+    # top-right exhibit reference (Figure N / Table N)
+    if ref:
+        rtf = tbox(s, Inches(9.9), Inches(0.27), Inches(2.85), Inches(0.3))
+        para(rtf, ref, 11, SLATE, first=True, bold=True,
+             align=PP_ALIGN.RIGHT, after=0)
+    # numbered section header, research-paper style
+    if number and _doc["part"] >= 1:
+        _doc["sec"] += 1
+        title = f'{_doc["part"]}.{_doc["sec"]} {title}'
     # grey header band
     band_h = Inches(1.45) if subtitle else Inches(1.05)
     rect(s, 0, Inches(0.62), SW, band_h, fill=HEADERBG)
@@ -451,9 +489,10 @@ checklist(s, [
 ], top + Inches(1.25), size=14.5, gap=10)
 
 # ---- II.3 Market opportunity ----
+_f = fig()
 s, top = content("Market Opportunity", "The inefficiency Athanase harvests",
                  "Corporate decay is structural — it continuously recreates "
-                 "low-risk, high-return entry points.")
+                 "low-risk, high-return entry points.", ref=_f)
 checklist(s, [
     ("Duration mismatch.", "CEOs run 7–8 year defensive cycles while moats "
      "erode at hyper-speed; an 80%-correct strategy decays to ~50% efficient."),
@@ -473,7 +512,7 @@ gf = s.shapes.add_chart(XL_CHART_TYPE.LINE_MARKERS, Inches(7.15), top + Inches(0
                         Inches(5.7), Inches(3.6), dd)
 ch = gf.chart
 ch.has_title = True
-ch.chart_title.text_frame.text = "“Probability decay”: strategy efficiency over a CEO cycle (%)"
+ch.chart_title.text_frame.text = f"{_f}.  “Probability decay”: strategy efficiency over a CEO cycle (%)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(11)
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = SUBTLE
 ch.has_legend = False
@@ -481,6 +520,7 @@ sr = ch.plots[0].series[0]
 sr.format.line.color.rgb = NAVY
 sr.format.line.width = Pt(2.5)
 sr.smooth = True
+dlabels(sr, fmt='0"%"', size=9, color=NAVY_TX, pos=XL_LABEL_POSITION.ABOVE)
 ch.category_axis.tick_labels.font.size = Pt(9)
 ch.value_axis.tick_labels.font.size = Pt(9)
 ch.value_axis.has_major_gridlines = False
@@ -491,10 +531,11 @@ para(tbox(s, Inches(7.15), top + Inches(3.85), Inches(5.7), Inches(0.4)),
      10, FOOT, first=True, italic=True, after=0)
 
 # ---- II.3b Negative-selection rebuttal: hidden high-quality core ----
+_f2 = fig()
 s, top = content("Investment Strategy",
                  "We don’t buy broken companies — we buy hidden cores",
                  "The classic objection to activism is adverse selection. Our "
-                 "model inverts it.")
+                 "model inverts it.", ref=_f2)
 checklist(s, [
     ("The critique.", "Buy “cheap and troubled” and you select for lemons — "
      "worse than they look. The market discounted them for a reason."),
@@ -510,30 +551,34 @@ checklist(s, [
 
 # --- sum-of-the-parts bar visual (right) ---
 ptf = tbox(s, Inches(7.3), top - Inches(0.05), Inches(5.4), Inches(0.3))
-para(ptf, "SUM-OF-THE-PARTS (ILLUSTRATIVE)", 11, SLATE, first=True,
-     bold=True, align=PP_ALIGN.CENTER, after=0)
+para(ptf, f"{_f2}  ·  SUM-OF-THE-PARTS (ILLUSTRATIVE, INDEXED)", 11, SLATE,
+     first=True, bold=True, align=PP_ALIGN.CENTER, after=0)
 base = Inches(5.5)
-unit = 0.019
+unit = 0.017
 
 def _sotp_bar(xc, val, fill, label):
     h = Emu(int(Inches(unit * val)))
     rect(s, Emu(int(xc) - int(Inches(0.8))), Emu(int(base) - int(h)),
          Inches(1.6), h, fill=fill)
+    vt = tbox(s, Emu(int(xc) - int(Inches(0.8))),
+              Emu(int(base) - int(h) - int(Inches(0.36))), Inches(1.6), Inches(0.32))
+    para(vt, str(val), 14, NAVY_TX, first=True, bold=True,
+         align=PP_ALIGN.CENTER, after=0)
     lt = tbox(s, Emu(int(xc) - int(Inches(1.2))),
               Emu(int(base) + int(Inches(0.1))), Inches(2.4), Inches(0.6))
     for k, ln in enumerate(label.split("\n")):
         para(lt, ln, 11.5 if k == 0 else 10, BODY, bold=(k == 0),
              first=(k == 0), align=PP_ALIGN.CENTER, after=0, lead=1.0)
 
-_sotp_bar(Inches(8.8), 80, SLATE, "Market price\n(blended optics)")
-_sotp_bar(Inches(11.4), 130, NAVY, "Core alone\n(high ROIIC)")
-top80 = Emu(int(base) - int(Inches(unit * 80)))
-top130 = Emu(int(base) - int(Inches(unit * 130)))
-rect(s, Inches(8.0), top80, Inches(3.4), Pt(1.2), fill=SLATE_LT)  # market level
-rect(s, Inches(11.95), top130, Pt(2), Emu(int(top80) - int(top130)), fill=LOSS)
-gtf = tbox(s, Inches(8.15), Emu(int(top130) + int(Inches(0.05))),
-           Inches(3.6), Inches(0.6))
-para(gtf, "hidden value ≈ 30–40%", 11.5, LOSS, first=True, bold=True,
+_sotp_bar(Inches(8.8), 100, SLATE, "Market price\n(blended optics)")
+_sotp_bar(Inches(11.4), 140, NAVY, "Core alone\n(high ROIIC)")
+top100 = Emu(int(base) - int(Inches(unit * 100)))
+top140 = Emu(int(base) - int(Inches(unit * 140)))
+rect(s, Inches(8.0), top100, Inches(3.4), Pt(1.2), fill=SLATE_LT)  # market level
+rect(s, Inches(11.95), top140, Pt(2), Emu(int(top100) - int(top140)), fill=LOSS)
+gtf = tbox(s, Inches(8.15), Emu(int(top140) + int(Inches(0.04))),
+           Inches(3.6), Inches(0.5))
+para(gtf, "+40% hidden value", 12, LOSS, first=True, bold=True,
      align=PP_ALIGN.LEFT, after=0)
 para(tbox(s, Inches(0.7), Inches(6.45), Inches(12.0), Inches(0.5)),
      "We remove the drag and refocus capital on the core — positive selection on "
@@ -544,7 +589,8 @@ para(tbox(s, Inches(0.7), Inches(6.45), Inches(12.0), Inches(0.5)),
 s, top = content("Investment Strategy",
                  "Quality-core constructivism — how we differ",
                  "Even Hohn (TCI) and Loeb (Third Point) pivoted to quality — we "
-                 "capture quality at a discount, with a catalyst in our control.")
+                 "capture quality at a discount, with a catalyst in our control.",
+                 ref=tbl())
 rows = [
     ("", "Large generalist activists (e.g. Elliott)",
      "Athanase — quality-core constructivism"),
@@ -602,7 +648,8 @@ para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.14))), Inches(12.2), Inches
 # ---- II.4 Margin for error vs PE (table) ----
 s, top = content("Investment Strategy",
                  "We don’t need to be right more than ~50%",
-                 "Because we buy at a discount, not at a 40% control premium.")
+                 "Because we buy at a discount, not at a 40% control premium.",
+                 ref=tbl())
 # table
 rows = [
     ("Metric", "Private Equity (take-private)", "Athanase (engaged owner)"),
@@ -684,10 +731,11 @@ checklist(s, [
 ], top, size=14.5, gap=11)
 
 # ---- II.5c The non-linear path, honestly priced ----
+_f3 = fig()
 s, top = content("Strategic Case", "A non-linear path — honestly priced",
                  "Public engaged ownership marks to market every day. The "
                  "destination is the multiple; the route is rarely a straight "
-                 "line.")
+                 "line.", ref=_f3)
 # explanatory bullets (left)
 checklist(s, [
     ("Value moves over the holding period.", "A 5× outcome is realised over "
@@ -711,7 +759,7 @@ gf = s.shapes.add_chart(XL_CHART_TYPE.LINE, Inches(7.05), top - Inches(0.05),
                         Inches(5.9), Inches(3.9), cd)
 ch = gf.chart
 ch.has_title = True
-ch.chart_title.text_frame.text = "Same destination, different reported path (indexed to 100)"
+ch.chart_title.text_frame.text = f"{_f3}.  Same destination, different reported path (indexed to 100)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(11)
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = SUBTLE
 ch.has_legend = True
@@ -726,6 +774,7 @@ ser[1].format.line.width = Pt(2.0)
 ser[1].format.line.dash_style = 2  # dashed
 for sline in ser:
     sline.smooth = True
+dlabels(ser[0], fmt='0', size=8, color=NAVY_TX, pos=XL_LABEL_POSITION.BELOW)
 ch.category_axis.tick_labels.font.size = Pt(9)
 ch.value_axis.tick_labels.font.size = Pt(9)
 ch.value_axis.has_major_gridlines = False
@@ -736,7 +785,7 @@ para(tbox(s, Inches(7.05), top + Inches(3.95), Inches(5.9), Inches(0.6)),
 # ---- II.5d Risk reframing summary table (memo Section 8.3) ----
 s, top = content("Strategic Case", "Risk reframing for the investment committee",
                  "What the committee sees on the surface — versus what it is "
-                 "actually underwriting.")
+                 "actually underwriting.", ref=tbl())
 rows = [
     ("What the IC sees", "What it is actually underwriting"),
     ("Reputational / headline risk",
@@ -773,7 +822,9 @@ para(tbox(s, Inches(0.6), Emu(int(y) + int(Inches(0.15))), Inches(12.1), Inches(
      "fee, for 20 years.", 13, SLATE, first=True, italic=True, after=0)
 
 # ---- II.6 Track record (chart) ----
-s, top = content("Track Record", "Proof: outperformance with downside protection")
+_f4 = fig()
+s, top = content("Track Record", "Proof: outperformance with downside protection",
+                 ref=_f4)
 chart_data = CategoryChartData()
 chart_data.categories = ["All markets", "Up markets", "Down markets"]
 chart_data.add_series("Athanase", (1.5, 1.2, 0.2))
@@ -782,7 +833,7 @@ cx, cy, cw, ch = Inches(0.7), top, Inches(7.1), Inches(4.2)
 gframe = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, cx, cy, cw, ch, chart_data)
 chart = gframe.chart
 chart.has_title = True
-chart.chart_title.text_frame.text = "Average monthly return (%)"
+chart.chart_title.text_frame.text = f"{_f4}.  Average monthly return (%)"
 chart.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(12)
 chart.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = SUBTLE
 chart.has_legend = True
@@ -795,6 +846,7 @@ plot.series[0].format.fill.fore_color.rgb = NAVY
 plot.series[1].format.fill.solid()
 plot.series[1].format.fill.fore_color.rgb = SLATE_LT
 plot.gap_width = 80
+dlabels(plot, fmt='0.0"%"', size=9, color=BODY, pos=XL_LABEL_POSITION.OUTSIDE_END)
 for ax in (chart.value_axis, chart.category_axis):
     ax.tick_labels.font.size = Pt(10)
     ax.tick_labels.font.color.rgb = BODY
@@ -815,7 +867,7 @@ para(pr, "39 larger investments since 2006 — profitable in 36, lost money in "
 FUND2, HIST = load_transactions()
 s, top = content("Track Record", "AIP Fund II — transactions (2015–present)",
                  "Each position shown against its benchmark; invested capital "
-                 "weighted MOIC of 2.2x.")
+                 "weighted MOIC of 2.2x.", ref=tbl())
 cw = [Inches(3.3), Inches(2.0), Inches(1.7), Inches(1.7), Inches(2.0)]
 endy = deal_table(s, Inches(0.75), top, FUND2, cw, font=10, rh=Inches(0.212))
 # summary strip
@@ -834,7 +886,7 @@ para(nt, "IRR/MOIC net of the position; “n.m.” where short holding periods m
 # ---- II.6c Transactions: prior period 2006-2014 ----
 s, top = content("Track Record", "Prior period — transactions (2006–2014)",
                  "The same strategy, the prior fund — repeatable across two "
-                 "decades and multiple cycles.")
+                 "decades and multiple cycles.", ref=tbl())
 half = 11
 cwh = [Inches(2.7), Inches(1.45), Inches(1.45)]
 deal_table(s, Inches(0.6), top, HIST[:half], cwh, font=10,
