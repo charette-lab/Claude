@@ -24,8 +24,25 @@ WHITE     = RGBColor(0xFF, 0xFF, 0xFF)
 FOOT      = RGBColor(0x9A, 0xA4, 0xB0)
 GOLD      = RGBColor(0x6E, 0x82, 0x9B)   # subtle rule accent
 
-SERIF = "Georgia"
-SANS  = "Arial"
+SERIF = "Times New Roman"   # matches embedded TimesNewRomanPSMT
+SANS  = "Calibri"           # matches embedded Calibri
+
+import os
+from PIL import Image
+LOGO_WHITE = "assets/logo_white.png"
+MARK_DARK  = "assets/mark_dark.png"
+_LW_AR = (lambda s: s[0] / s[1])(Image.open(LOGO_WHITE).size)
+_MD_AR = (lambda s: s[0] / s[1])(Image.open(MARK_DARK).size)
+
+
+def place_logo_white(slide, left, top, height):
+    slide.shapes.add_picture(LOGO_WHITE, left, top, height=height,
+                             width=Emu(int(int(height) * _LW_AR)))
+
+
+def place_mark(slide, left, top, height):
+    slide.shapes.add_picture(MARK_DARK, left, top, height=height,
+                             width=Emu(int(int(height) * _MD_AR)))
 
 prs = Presentation()
 prs.slide_width = Inches(13.333)
@@ -73,33 +90,9 @@ def para(tf, text, size, color, bold=False, italic=False, first=False,
     return p
 
 
-def logo_mark(slide, left, top, color, h=Inches(0.30)):
-    """Stylised Athanase bar-chart mark."""
-    unit = int(h)
-    heights = [0.34, 0.62, 1.0, 0.55, 0.28]
-    bw = Emu(int(unit * 0.16))
-    gap = Emu(int(unit * 0.12))
-    x = left
-    base = top + h
-    for i, hf in enumerate(heights):
-        bh = Emu(int(unit * hf))
-        b = rect(slide, x, base - bh, bw, bh, fill=color)
-        # round the bars a touch
-        x = Emu(int(x) + int(bw) + int(gap))
-    return x  # right edge
-
-
-def wordmark(slide, left, top, color, scale=1.0):
-    right = logo_mark(slide, left, top, color, h=Inches(0.30 * scale))
-    tf = tbox(slide, Emu(int(right) + Inches(0.10)), top - Inches(0.04),
-              Inches(3.2 * scale), Inches(0.5 * scale))
-    p = tf.paragraphs[0]; p.space_after = Pt(0); p.line_spacing = 0.95
-    r = p.add_run(); r.text = "Athanase"
-    r.font.size = Pt(18 * scale); r.font.bold = True
-    r.font.color.rgb = color; r.font.name = SANS
-    p2 = tf.add_paragraph(); p2.space_after = Pt(0); p2.line_spacing = 1.0
-    r2 = p2.add_run(); r2.text = "I N D U S T R I A L   P A R T N E R"
-    r2.font.size = Pt(6.5 * scale); r2.font.color.rgb = color; r2.font.name = SANS
+def wordmark(slide, left, top, color=None, scale=1.0):
+    """Place the real white Athanase wordmark (for navy backgrounds)."""
+    place_logo_white(slide, left, top, Inches(0.52 * scale))
 
 
 def footer(slide):
@@ -128,9 +121,9 @@ def divider(title, kicker=None):
 def content(section, title, subtitle=None):
     s = prs.slides.add_slide(BLANK)
     rect(s, 0, 0, SW, SH, fill=WHITE)
-    # top section label + mark
-    logo_mark(s, Inches(0.55), Inches(0.26), SLATE, h=Inches(0.22))
-    lt = tbox(s, Inches(1.15), Inches(0.24), Inches(7.0), Inches(0.3))
+    # top section label + real mark
+    place_mark(s, Inches(0.55), Inches(0.24), Inches(0.26))
+    lt = tbox(s, Inches(0.98), Inches(0.27), Inches(7.0), Inches(0.3))
     para(lt, section, 11, SLATE, first=True, after=0)
     # grey header band
     band_h = Inches(1.45) if subtitle else Inches(1.05)
