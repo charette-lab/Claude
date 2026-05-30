@@ -298,6 +298,11 @@ def checklist(s, items, top, left=Inches(0.75), width=Inches(11.9),
             lead, body = it, None
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         p.space_after = Pt(gap); p.line_spacing = 1.12
+        # Hanging indent: wrapped lines align with the text, not under the marker.
+        hang = int(round(size * 1.15 * 12700))   # marker "›  " width in EMU
+        pPr = p._p.get_or_add_pPr()
+        pPr.set("marL", str(hang))
+        pPr.set("indent", str(-hang))
         r0 = p.add_run(); r0.text = "›  "
         r0.font.size = Pt(size); r0.font.bold = True
         r0.font.color.rgb = SLATE; r0.font.name = SANS
@@ -1111,6 +1116,13 @@ def _rescale_shape(sh, sx, sy):
             for r in p.runs:
                 if r.font.size is not None:
                     r.font.size = Pt(round(r.font.size.pt * sx, 1))
+            # scale hanging-indent (marL/indent) by sx to match shrunk fonts
+            pPr = p._p.find(_qn("a:pPr"))
+            if pPr is not None:
+                for attr in ("marL", "indent"):
+                    v = pPr.get(attr)
+                    if v is not None:
+                        pPr.set(attr, str(int(round(int(v) * sx))))
     if sh.has_chart:
         _rescale_chart_fonts(sh, sx)
 
