@@ -447,6 +447,105 @@ checklist(s, [
      "wait for proof; PE needs 10x the capital — leaving these bargains open."),
 ], top, size=15.5, gap=13)
 
+# ---- II.3b Negative-selection rebuttal: hidden high-quality core ----
+s, top = content("Investment Strategy",
+                 "We don’t buy broken companies — we buy hidden cores",
+                 "The classic objection to activism is adverse selection. Our "
+                 "model inverts it.")
+checklist(s, [
+    ("The critique.", "Buy “cheap and troubled” and you select for lemons — "
+     "businesses in structural decline that are worse than they look. The market "
+     "discounted them for a reason."),
+    ("Our precondition removes it.", "We invest only where the core is a market "
+     "leader earning high returns on incremental capital — and only when it is "
+     "attractive even if we change nothing. We do not underwrite turnarounds of "
+     "structurally weak businesses."),
+    ("The real setup.", "Our targets are profitable leaders whose management "
+     "pivoted into weak adjacencies — chasing growth as the core matured, or "
+     "something new and “sexy.” The drag is a capital-allocation overlay on a "
+     "good asset, not a bad asset."),
+    ("The inversion.", "Blended results make the company look mediocre, so it is "
+     "priced as mediocre. Forensic separation reveals a strong core subsidising a "
+     "loss-making periphery — the appearance understates reality."),
+], top, left=Inches(0.7), width=Inches(11.9), size=13.5, gap=9)
+# equation strip
+sy = Inches(5.35)
+boxes = [(NAVY, WHITE, "Market-leading core\nhigh ROIIC, very profitable"),
+         (LOSS, WHITE, "−  weak “growth” adjacencies\nbolted on by management"),
+         (RGBColor(0xD8, 0xDC, 0xE2), NAVY_TX,
+          "=  reported as mediocre\npriced cheap")]
+bx = Inches(0.7); bw = Inches(3.45); op_w = Inches(0.55); bh = Inches(0.95)
+for i, (fill, txtc, label) in enumerate(boxes):
+    rect(s, bx, sy, bw, bh, fill=fill)
+    btf = tbox(s, bx, sy, bw, bh, anchor=MSO_ANCHOR.MIDDLE)
+    for j, line in enumerate(label.split("\n")):
+        para(btf, line, 12.5 if j == 0 else 11, txtc, bold=(j == 0),
+             first=(j == 0), align=PP_ALIGN.CENTER, after=0, lead=1.05)
+    bx = Emu(int(bx) + int(bw) + int(op_w))
+para(tbox(s, Inches(0.7), Inches(6.45), Inches(12.0), Inches(0.5)),
+     "We remove the drag and refocus capital on the core — positive selection on "
+     "a concealed asset, not negative selection on a lemon.", 13, SLATE,
+     first=True, italic=True, after=0)
+
+# ---- II.3c How Athanase differs: quality-core constructivism vs Elliott ----
+s, top = content("Investment Strategy",
+                 "Quality-core constructivism — how we differ",
+                 "Even Hohn (TCI) and Loeb (Third Point) pivoted to quality — we "
+                 "capture quality at a discount, with a catalyst in our control.")
+rows = [
+    ("", "Large generalist activists (e.g. Elliott)",
+     "Athanase — quality-core constructivism"),
+    ("Entry precondition",
+     "Wide range of situations — breakups, credit, event-driven; business "
+     "quality often secondary",
+     "Only a market-leading, high-ROIIC core — “attractive even if we change "
+     "nothing”"),
+    ("Source of return",
+     "Financial / transactional pressure: force a sale, return cash, exit",
+     "Operational refocus of a genuinely good business, from a board seat, over "
+     "years"),
+    ("What gets fixed",
+     "The price, the structure, the outcome of a contest",
+     "The capital-allocation overlay — the core already works"),
+    ("Margin of safety",
+     "Winning the campaign",
+     "The core’s proven high-ROIIC economics — the hard floor"),
+    ("Cadence & style",
+     "Many simultaneous campaigns, leverage, often confrontational",
+     "~one deal a year, constructive, board-led, mid-cap surgical"),
+]
+tl = Inches(0.55); cw3 = [Inches(2.35), Inches(4.85), Inches(4.95)]
+rh0 = Inches(0.42); rhd = Inches(0.74); y = top
+for ri, row in enumerate(rows):
+    head = ri == 0
+    rh = rh0 if head else rhd
+    x = tl
+    for ci, cell in enumerate(row):
+        if head:
+            fill = SLATE if ci else WHITE
+        else:
+            fill = HEADERBG if ri % 2 else WHITE
+        rect(s, x, y, cw3[ci], rh, fill=fill)
+        ctf = tbox(s, Emu(int(x) + int(Inches(0.12))), y,
+                   Emu(int(cw3[ci]) - int(Inches(0.2))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        if head:
+            col = WHITE
+        elif ci == 0:
+            col = SLATE
+        elif ci == 2:
+            col = NAVY_TX
+        else:
+            col = BODY
+        para(ctf, cell, 12 if head else 11.5, col,
+             bold=(head or ci == 0 or ci == 2), first=True, after=0, lead=1.04)
+        x = Emu(int(x) + int(cw3[ci]))
+    y = Emu(int(y) + int(rh))
+para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.14))), Inches(12.2), Inches(0.5)),
+     "The megacap activists left mid-cap surgical engagements behind as they "
+     "scaled. That hidden-core niche is our lane.", 13, SLATE, first=True,
+     italic=True, after=0)
+
 # ---- II.4 Margin for error vs PE (table) ----
 s, top = content("Investment Strategy",
                  "We don’t need to be right more than ~50%",
