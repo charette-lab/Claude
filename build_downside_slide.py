@@ -270,36 +270,48 @@ for _f in ("Arial", "Liberation Sans", "DejaVu Sans"):
         continue
 
 
-def _cone(st):
-    """Asymmetric ±1-deviation envelope (real up/down deviation) over 10y."""
+def _cone(st, k=1.0):
+    """Asymmetric ±k-deviation envelope (real up/down deviation) over 10y."""
     r, ud, dd = st["ann_ret"], st["ann_ud"], st["ann_dd"]
     yrs = np.linspace(0, 10, 121)
     expected = 100 * (1 + r) ** yrs
     with np.errstate(invalid="ignore"):
-        upper = 100 * (1 + np.minimum(r + ud / np.sqrt(yrs), 3.0)) ** yrs
-        lower = 100 * (1 + np.maximum(r - dd / np.sqrt(yrs), -0.95)) ** yrs
+        upper = 100 * (1 + np.minimum(r + k * ud / np.sqrt(yrs), 3.0)) ** yrs
+        lower = 100 * (1 + np.maximum(r - k * dd / np.sqrt(yrs), -0.95)) ** yrs
     upper[0] = lower[0] = 100
     return yrs, expected, upper, lower
 
 
 def combined_cone(path_png, ymax):
-    """One chart, both series overlaid on shared axes — no random paths."""
-    ya, ea, ua, la = _cone(ATH)
-    ym, em, um, lm = _cone(MSCI)
+    """One chart, both series overlaid on shared axes — no random paths.
+    Each series gets a dark ±1-dev band and a faint ±2-dev outer band."""
+    ya, ea, ua, la = _cone(ATH, 1.0)
+    _, _, ua2, la2 = _cone(ATH, 2.0)
+    ym, em, um, lm = _cone(MSCI, 1.0)
+    _, _, um2, lm2 = _cone(MSCI, 2.0)
 
     fig, ax = plt.subplots(figsize=(9.4, 4.5), dpi=200)
-    # MSCI envelope (lighter) under Athanase
-    ax.fill_between(ym, lm, um, color=H_BLUE4, alpha=0.18, zorder=2)
-    ax.plot(ym, em, color=H_BLUE4, lw=2.2, ls=(0, (6, 3)), zorder=4,
+    # --- MSCI (lighter), behind ---
+    ax.fill_between(ym, lm2, um2, color=H_BLUE4, alpha=0.08, zorder=2)   # ±2 dev
+    ax.fill_between(ym, lm, um, color=H_BLUE4, alpha=0.20, zorder=3)     # ±1 dev
+    ax.plot(ym, em, color=H_BLUE4, lw=2.2, ls=(0, (6, 3)), zorder=5,
             label=f"MSCI World IMI — expected ({MSCI['ann_ret']*100:.0f}%)")
-    ax.plot(ym, um, color=H_BLUE4, lw=1.0, alpha=0.8, zorder=3)
-    ax.plot(ym, lm, color=H_BLUE4, lw=1.0, alpha=0.8, zorder=3)
-    # Athanase envelope (navy) on top
-    ax.fill_between(ya, la, ua, color=H_BLUE3, alpha=0.20, zorder=5)
-    ax.plot(ya, ea, color=H_NAVY, lw=2.8, ls=(0, (6, 3)), zorder=7,
+    ax.plot(ym, um, color=H_BLUE4, lw=1.0, alpha=0.8, zorder=4)
+    ax.plot(ym, lm, color=H_BLUE4, lw=1.0, alpha=0.8, zorder=4)
+    ax.plot(ym, um2, color=H_BLUE4, lw=0.8, alpha=0.5, ls=(0, (2, 2)), zorder=4)
+    ax.plot(ym, lm2, color=H_BLUE4, lw=0.8, alpha=0.5, ls=(0, (2, 2)), zorder=4)
+    # --- Athanase (navy), on top ---
+    ax.fill_between(ya, la2, ua2, color=H_BLUE3, alpha=0.10, zorder=6)   # ±2 dev
+    ax.fill_between(ya, la, ua, color=H_BLUE3, alpha=0.22, zorder=7)     # ±1 dev
+    ax.plot(ya, ea, color=H_NAVY, lw=2.8, ls=(0, (6, 3)), zorder=9,
             label=f"Athanase — expected ({ATH['ann_ret']*100:.0f}%)")
-    ax.plot(ya, ua, color=H_BLUE3, lw=1.2, alpha=0.85, zorder=6)
-    ax.plot(ya, la, color=H_BLUE3, lw=1.2, alpha=0.85, zorder=6)
+    ax.plot(ya, ua, color=H_BLUE3, lw=1.2, alpha=0.85, zorder=8)
+    ax.plot(ya, la, color=H_BLUE3, lw=1.2, alpha=0.85, zorder=8)
+    ax.plot(ya, ua2, color=H_BLUE3, lw=0.9, alpha=0.55, ls=(0, (2, 2)), zorder=8)
+    ax.plot(ya, la2, color=H_BLUE3, lw=0.9, alpha=0.55, ls=(0, (2, 2)), zorder=8)
+    # shade legend entries
+    ax.fill_between([], [], [], color=H_BLUE3, alpha=0.22, label="±1 deviation (≈1-in-6)")
+    ax.fill_between([], [], [], color=H_BLUE3, alpha=0.10, label="±2 deviation (≈1-in-40)")
     # reference line at break-even
     ax.axhline(100, color=H_BLUE5, lw=1.0, zorder=1)
 
@@ -308,9 +320,10 @@ def combined_cone(path_png, ymax):
         ax.annotate(txt, (10, y), color=col, fontsize=10, fontweight=weight,
                     va="center", ha="left", xytext=(4, 0),
                     textcoords="offset points")
+    _lab(ua2[-1], f"{ua2[-1]:.0f}", H_BLUE3, "normal")
     _lab(ua[-1], f"{ua[-1]:.0f}", H_NAVY)
     _lab(ea[-1], f"{ea[-1]:.0f}", H_NAVY)
-    _lab(la[-1], f"{la[-1]:.0f}  Athanase downside", H_NAVY)
+    _lab(la[-1], f"{la[-1]:.0f}  Athanase ±1-dev downside", H_NAVY)
     _lab(um[-1], f"{um[-1]:.0f}  MSCI upside", H_BLUE4, "normal")
     _lab(lm[-1], f"{lm[-1]:.0f}", H_BLUE4, "normal")
 
@@ -329,7 +342,7 @@ def combined_cone(path_png, ymax):
     plt.close(fig)
 
 
-combined_cone("/tmp/cone_combined.png", 900)
+combined_cone("/tmp/cone_combined.png", 1700)
 
 s2 = prs.slides.add_slide(prs.slide_layouts[6])
 s2.shapes.add_picture(MARK_DARK, Inches(0.55), Inches(0.24), height=Inches(0.26),
