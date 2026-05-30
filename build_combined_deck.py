@@ -1007,6 +1007,94 @@ para(tbox(s, Inches(0.95), sy, Inches(11.45), Inches(0.62), anchor=MSO_ANCHOR.MI
      "turns a bad quarter into “as expected” — not a surprise that invites "
      "blame.", 13.5, WHITE, first=True, italic=True, after=0)
 
+# ---- II.6g Portfolio impact: Athanase vs long-only / other activist ----
+_fp = fig()
+s, top = content("Portfolio Impact",
+                 "What it does to an allocator’s portfolio",
+                 "Illustrative: redirecting a sleeve into Athanase rather than a "
+                 "long-only global fund or another activist.", ref=_fp)
+# --- left: 10-year growth of a 100 sleeve ---
+gd = CategoryChartData()
+gd.categories = [str(y) for y in range(0, 11)]
+gd.add_series("Athanase (18%)",
+              (100, 118, 139, 164, 194, 229, 270, 319, 376, 444, 523))
+gd.add_series("Other activist (10.5%)",
+              (100, 111, 122, 135, 149, 165, 182, 201, 222, 246, 271))
+gd.add_series("Long-only global (7.6%)",
+              (100, 108, 116, 125, 134, 144, 155, 167, 180, 193, 208))
+gf = s.shapes.add_chart(XL_CHART_TYPE.LINE, Inches(0.6), top + Inches(0.05),
+                        Inches(6.7), Inches(4.2), gd)
+ch = gf.chart
+ch.has_title = True
+ch.chart_title.text_frame.text = f"{_fp}.  Growth of a 100 sleeve over 10 years (indexed)"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(11)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = SUBTLE
+ch.has_legend = True
+ch.legend.position = XL_LEGEND_POSITION.BOTTOM
+ch.legend.include_in_layout = False
+ch.legend.font.size = Pt(10)
+_ser = ch.plots[0].series
+for _sr, _c, _w in ((_ser[0], NAVY, 3.0), (_ser[1], SLATE_LT, 2.0),
+                    (_ser[2], BLUE5, 2.0)):
+    _sr.format.line.color.rgb = _c
+    _sr.format.line.width = Pt(_w)
+    _sr.smooth = True
+_ser[2].format.line.dash_style = 2
+ch.category_axis.tick_labels.font.size = Pt(9)
+ch.value_axis.tick_labels.font.size = Pt(9)
+ch.value_axis.has_major_gridlines = False
+# end-value callouts
+para(tbox(s, Inches(6.55), top + Inches(0.55), Inches(1.3), Inches(0.3)),
+     "523", 12, NAVY_TX, first=True, bold=True, after=0)
+para(tbox(s, Inches(6.55), top + Inches(2.35), Inches(1.3), Inches(0.3)),
+     "271", 11, SLATE_LT, first=True, bold=True, after=0)
+para(tbox(s, Inches(6.55), top + Inches(2.95), Inches(1.3), Inches(0.3)),
+     "208", 11, SLATE_LT, first=True, after=0)
+
+# --- right: annual uplift to total-portfolio return (bps) ---
+_tp = tbl()
+para(tbox(s, Inches(8.05), top + Inches(0.05), Inches(4.6), Inches(0.55)),
+     f"{_tp}.  Annual uplift to TOTAL-portfolio return (bps), by sleeve size",
+     11, SLATE, first=True, bold=True, after=0, lead=1.1, track=0)
+rows = [
+    ("Sleeve", "vs Long-only", "vs Other activist"),
+    ("3%", "+31 bps", "+23 bps"),
+    ("5%", "+52 bps", "+38 bps"),
+    ("8%", "+83 bps", "+60 bps"),
+]
+tl = Inches(8.05); cw = [Inches(1.5), Inches(1.55), Inches(1.95)]
+rh = Inches(0.5); yy = top + Inches(0.7)
+for ri, row in enumerate(rows):
+    head = ri == 0
+    cx = tl
+    for ci, cell in enumerate(row):
+        fill = SLATE if head else (HEADERBG if ri % 2 else WHITE)
+        rect(s, cx, yy, cw[ci], rh, fill=fill)
+        ctf = tbox(s, Emu(int(cx) + int(Inches(0.1))), yy,
+                   Emu(int(cw[ci]) - int(Inches(0.16))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        para(ctf, cell, 12.5 if head else 12,
+             WHITE if head else (NAVY_TX if ci == 0 else BODY),
+             bold=(head or ci == 0), first=True,
+             align=PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.RIGHT,
+             after=0, track=0)
+        cx = Emu(int(cx) + int(cw[ci]))
+    yy = Emu(int(yy) + int(rh))
+# takeaway under the table
+para(tbox(s, Inches(8.05), Emu(int(yy) + int(Inches(0.2))), Inches(4.6), Inches(1.7)),
+     "A 5% sleeve in Athanase rather than a long-only global fund adds roughly "
+     "half a percent (≈52 bps) to total-portfolio return every year — and "
+     "compounds: the sleeve itself reaches ~2.5× the long-only outcome over a "
+     "decade, with the diversification and downside profile shown earlier.",
+     12.5, BODY, first=True, after=0, lead=1.2, track=0)
+# assumptions footnote
+para(tbox(s, Inches(0.6), Inches(6.9), Inches(10.8), Inches(0.45)),
+     "Illustrative only; not a projection. Athanase 18% (headline net IRR); "
+     "other activist 10.5%; long-only global 7.6% (MSCI IMI since inception). "
+     "Uplift = sleeve size × return spread; growth = annual compounding. "
+     "Past performance is not indicative of future results.",
+     8.5, FOOT, first=True, after=0, track=0, lead=1.15)
+
 # ---- II.7 ESG / responsible ownership ----
 s, top = content("Ownership Model", "Responsible ownership, by construction")
 checklist(s, [
