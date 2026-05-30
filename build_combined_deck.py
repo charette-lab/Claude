@@ -194,6 +194,7 @@ def footer(slide):
 # --- research-paper numbering: sections, figures, tables -------------------
 _doc = {"part": 0, "sec": 0}
 _exhibit = {"fig": 0, "tbl": 0}
+TOC = []   # (number, title, ref) for the Contents page
 
 
 def fig():
@@ -251,6 +252,7 @@ def content(section, title, subtitle=None, number=True, ref=None):
     # numbered section header, research-paper style
     if number and _doc["part"] >= 1:
         _doc["sec"] += 1
+        TOC.append((f'{_doc["part"]}.{_doc["sec"]}', title, ref))
         title = f'{_doc["part"]}.{_doc["sec"]} {title}'
     # grey header band
     band_h = Inches(1.45) if subtitle else Inches(1.05)
@@ -306,28 +308,8 @@ para(tf2, "An allocator briefing  ·  May 2026", 13, SLATE_LT, first=True, after
 # ===========================================================================
 # AGENDA
 # ===========================================================================
-s, top = content("Overview", "What this presentation covers")
-tf = tbox(s, Inches(0.75), top, Inches(11.8), Inches(4.6))
-rows = [
-    ("Part I", "Why allocate to engaged ownership", "The asset-class case: a "
-     "catalyst-driven, diversifying source of equity return that fits a long-"
-     "horizon, fiduciary mandate."),
-    ("Part II", "Why choose Athanase", "Among engaged owners, the team, "
-     "opportunity set, margin-for-error and 20-year track record that "
-     "distinguish Athanase Industrial Partner."),
-]
-for i, (tag, head, body) in enumerate(rows):
-    p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-    p.space_after = Pt(10); p.line_spacing = 1.12
-    r0 = p.add_run(); r0.text = tag + "   "
-    r0.font.size = Pt(20); r0.font.bold = True; r0.font.color.rgb = SLATE
-    r0.font.name = SERIF
-    r1 = p.add_run(); r1.text = head
-    r1.font.size = Pt(20); r1.font.bold = True; r1.font.color.rgb = NAVY_TX
-    r1.font.name = SERIF
-    p2 = tf.add_paragraph(); p2.space_after = Pt(20); p2.line_spacing = 1.12
-    r2 = p2.add_run(); r2.text = body
-    r2.font.size = Pt(15); r2.font.color.rgb = BODY; r2.font.name = SANS
+agenda_s, agenda_top = content("Overview", "Contents")
+# TOC body rendered at end, once all sections are numbered.
 
 # ===========================================================================
 # PART I DIVIDER
@@ -1034,6 +1016,34 @@ ot = tbox(s, Inches(9.0), Inches(5.4), Inches(3.8), Inches(1.5))
 para(ot, "Offices", 12, WHITE, first=True, bold=True, after=4)
 para(ot, "Birger Jarlsgatan 6, 114 34 Stockholm, Sweden", 11, SLATE_LT, after=4)
 para(ot, "Landmark Square, West Bay Road, Grand Cayman", 11, SLATE_LT, after=0)
+
+# ===========================================================================
+# Contents (TOC) page
+# ===========================================================================
+def _toc_col(col_x, col_w, header, entries):
+    htf = tbox(agenda_s, col_x, agenda_top, col_w, Inches(0.4))
+    para(htf, header, 14, SLATE, first=True, bold=True, after=0, font=SERIF)
+    ytf = tbox(agenda_s, col_x, Emu(int(agenda_top) + int(Inches(0.5))),
+               col_w, Inches(4.7))
+    for i, (num, title, ref) in enumerate(entries):
+        p = ytf.paragraphs[0] if i == 0 else ytf.add_paragraph()
+        p.space_after = Pt(7); p.line_spacing = 1.04
+        r0 = p.add_run(); r0.text = num + "   "
+        r0.font.size = Pt(11.5); r0.font.bold = True
+        r0.font.color.rgb = SLATE; r0.font.name = SANS
+        r1 = p.add_run(); r1.text = title
+        r1.font.size = Pt(11.5); r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
+        if ref:
+            r2 = p.add_run(); r2.text = "   (" + ref + ")"
+            r2.font.size = Pt(9.5); r2.font.italic = True
+            r2.font.color.rgb = SUBTLE; r2.font.name = SANS
+
+_p1 = [e for e in TOC if e[0].startswith("1.")]
+_p2 = [e for e in TOC if e[0].startswith("2.")]
+_cw = Inches(5.85); _xL = Inches(0.7)
+_xR = Emu(int(_xL) + int(_cw) + int(Inches(0.5)))
+_toc_col(_xL, _cw, "Part I  ·  Why allocate to engaged ownership", _p1)
+_toc_col(_xR, _cw, "Part II  ·  Why choose Athanase", _p2)
 
 out = "Athanase_Engaged_Ownership_Allocator_Deck.pptx"
 prs.save(out)
