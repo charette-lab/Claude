@@ -413,11 +413,30 @@ para(nt, "*Invested any month since 2006 and held to Dec 2025. Inception 2015-02
 s, top = content("Experience", "An integrated team, 20 years together",
                  "In a world of specialists, a rare unit that has the operating "
                  "experience to control the outcome.")
-# heritage line
-ht = tbox(s, Inches(0.75), top, Inches(11.8), Inches(0.6))
-para(ht, "Heritage:  Öresund (1992)  →  Custos (1996)  →  Creades  "
-     "→  Athanase Industrial Partner (2015)", 14, SLATE, first=True,
-     bold=True, after=0, font=SERIF)
+# heritage timeline visual
+nodes = [("1992", "Öresund"), ("1996", "Custos"),
+         ("2006", "Creades"), ("2015", "Athanase")]
+tl_y = Emu(int(top) + int(Inches(0.42)))           # the line
+x0, x1 = Inches(1.6), Inches(11.5)
+rect(s, x0, tl_y, Emu(int(x1) - int(x0)), Pt(1.6), fill=SLATE_LT)
+n = len(nodes)
+for i, (yr, name) in enumerate(nodes):
+    cx = Emu(int(x0) + int((int(x1) - int(x0)) * i / (n - 1)))
+    # year above
+    yt = tbox(s, Emu(int(cx) - int(Inches(1.0))), Emu(int(tl_y) - int(Inches(0.42))),
+              Inches(2.0), Inches(0.35))
+    para(yt, yr, 15, NAVY_TX, first=True, bold=True, align=PP_ALIGN.CENTER,
+         after=0, font=SERIF)
+    # node dot
+    dot = s.shapes.add_shape(MSO_SHAPE.OVAL, Emu(int(cx) - int(Inches(0.09))),
+                             Emu(int(tl_y) - int(Inches(0.07))),
+                             Inches(0.18), Inches(0.18))
+    dot.fill.solid(); dot.fill.fore_color.rgb = NAVY
+    dot.line.color.rgb = WHITE; dot.line.width = Pt(1.5); dot.shadow.inherit = False
+    # name below
+    nt = tbox(s, Emu(int(cx) - int(Inches(1.1))), Emu(int(tl_y) + int(Inches(0.16))),
+              Inches(2.2), Inches(0.3))
+    para(nt, name, 12, SLATE, first=True, align=PP_ALIGN.CENTER, after=0)
 checklist(s, [
     ("40+ companies managed,", "with a proven ability to tell a “strong "
      "core” from a “prestige trap”."),
@@ -429,7 +448,7 @@ checklist(s, [
      "and shares in the success economics."),
     ("Institutional memory.", "Multiple market cycles together eliminate "
      "key-person risk and prevent repeating historical mistakes."),
-], top + Inches(0.7), size=15, gap=11)
+], top + Inches(1.25), size=14.5, gap=10)
 
 # ---- II.3 Market opportunity ----
 s, top = content("Market Opportunity", "The inefficiency Athanase harvests",
@@ -445,7 +464,31 @@ checklist(s, [
      "resort” at a discount."),
     ("Low competition.", "Passive buys the most expensive names; active managers "
      "wait for proof; PE needs 10x the capital — leaving these bargains open."),
-], top, size=15.5, gap=13)
+], top, left=Inches(0.7), width=Inches(6.3), size=13.5, gap=14)
+# probability-decay curve (right)
+dd = CategoryChartData()
+dd.categories = ["Yr 1", "Yr 2", "Yr 3", "Yr 4", "Yr 5", "Yr 6", "Yr 7", "Yr 8"]
+dd.add_series("Strategy efficiency", (80, 76, 71, 65, 60, 55, 52, 50))
+gf = s.shapes.add_chart(XL_CHART_TYPE.LINE_MARKERS, Inches(7.15), top + Inches(0.2),
+                        Inches(5.7), Inches(3.6), dd)
+ch = gf.chart
+ch.has_title = True
+ch.chart_title.text_frame.text = "“Probability decay”: strategy efficiency over a CEO cycle (%)"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(11)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = SUBTLE
+ch.has_legend = False
+sr = ch.plots[0].series[0]
+sr.format.line.color.rgb = NAVY
+sr.format.line.width = Pt(2.5)
+sr.smooth = True
+ch.category_axis.tick_labels.font.size = Pt(9)
+ch.value_axis.tick_labels.font.size = Pt(9)
+ch.value_axis.has_major_gridlines = False
+ch.value_axis.minimum_scale = 0
+ch.value_axis.maximum_scale = 100
+para(tbox(s, Inches(7.15), top + Inches(3.85), Inches(5.7), Inches(0.4)),
+     "Even an excellent team’s edge erodes as the external environment shifts.",
+     10, FOOT, first=True, italic=True, after=0)
 
 # ---- II.3b Negative-selection rebuttal: hidden high-quality core ----
 s, top = content("Investment Strategy",
@@ -454,34 +497,44 @@ s, top = content("Investment Strategy",
                  "model inverts it.")
 checklist(s, [
     ("The critique.", "Buy “cheap and troubled” and you select for lemons — "
-     "businesses in structural decline that are worse than they look. The market "
-     "discounted them for a reason."),
+     "worse than they look. The market discounted them for a reason."),
     ("Our precondition removes it.", "We invest only where the core is a market "
-     "leader earning high returns on incremental capital — and only when it is "
-     "attractive even if we change nothing. We do not underwrite turnarounds of "
-     "structurally weak businesses."),
-    ("The real setup.", "Our targets are profitable leaders whose management "
-     "pivoted into weak adjacencies — chasing growth as the core matured, or "
-     "something new and “sexy.” The drag is a capital-allocation overlay on a "
-     "good asset, not a bad asset."),
-    ("The inversion.", "Blended results make the company look mediocre, so it is "
-     "priced as mediocre. Forensic separation reveals a strong core subsidising a "
-     "loss-making periphery — the appearance understates reality."),
-], top, left=Inches(0.7), width=Inches(11.9), size=13.5, gap=9)
-# equation strip
-sy = Inches(5.35)
-boxes = [(NAVY, WHITE, "Market-leading core\nhigh ROIIC, very profitable"),
-         (LOSS, WHITE, "−  weak “growth” adjacencies\nbolted on by management"),
-         (RGBColor(0xD8, 0xDC, 0xE2), NAVY_TX,
-          "=  reported as mediocre\npriced cheap")]
-bx = Inches(0.7); bw = Inches(3.45); op_w = Inches(0.55); bh = Inches(0.95)
-for i, (fill, txtc, label) in enumerate(boxes):
-    rect(s, bx, sy, bw, bh, fill=fill)
-    btf = tbox(s, bx, sy, bw, bh, anchor=MSO_ANCHOR.MIDDLE)
-    for j, line in enumerate(label.split("\n")):
-        para(btf, line, 12.5 if j == 0 else 11, txtc, bold=(j == 0),
-             first=(j == 0), align=PP_ALIGN.CENTER, after=0, lead=1.05)
-    bx = Emu(int(bx) + int(bw) + int(op_w))
+     "leader earning high returns on capital — attractive even if we change "
+     "nothing. No structurally-weak turnarounds."),
+    ("The real setup.", "Profitable leaders whose management pivoted into weak "
+     "adjacencies — chasing growth as the core matured. A capital-allocation "
+     "overlay on a good asset, not a bad asset."),
+    ("The inversion.", "Blended results make it look mediocre, so it is priced "
+     "mediocre. The appearance understates reality."),
+], top, left=Inches(0.7), width=Inches(6.4), size=13.5, gap=13)
+
+# --- sum-of-the-parts bar visual (right) ---
+ptf = tbox(s, Inches(7.3), top - Inches(0.05), Inches(5.4), Inches(0.3))
+para(ptf, "SUM-OF-THE-PARTS (ILLUSTRATIVE)", 11, SLATE, first=True,
+     bold=True, align=PP_ALIGN.CENTER, after=0)
+base = Inches(5.5)
+unit = 0.019
+
+def _sotp_bar(xc, val, fill, label):
+    h = Emu(int(Inches(unit * val)))
+    rect(s, Emu(int(xc) - int(Inches(0.8))), Emu(int(base) - int(h)),
+         Inches(1.6), h, fill=fill)
+    lt = tbox(s, Emu(int(xc) - int(Inches(1.2))),
+              Emu(int(base) + int(Inches(0.1))), Inches(2.4), Inches(0.6))
+    for k, ln in enumerate(label.split("\n")):
+        para(lt, ln, 11.5 if k == 0 else 10, BODY, bold=(k == 0),
+             first=(k == 0), align=PP_ALIGN.CENTER, after=0, lead=1.0)
+
+_sotp_bar(Inches(8.8), 80, SLATE, "Market price\n(blended optics)")
+_sotp_bar(Inches(11.4), 130, NAVY, "Core alone\n(high ROIIC)")
+top80 = Emu(int(base) - int(Inches(unit * 80)))
+top130 = Emu(int(base) - int(Inches(unit * 130)))
+rect(s, Inches(8.0), top80, Inches(3.4), Pt(1.2), fill=SLATE_LT)  # market level
+rect(s, Inches(11.95), top130, Pt(2), Emu(int(top80) - int(top130)), fill=LOSS)
+gtf = tbox(s, Inches(8.15), Emu(int(top130) + int(Inches(0.05))),
+           Inches(3.6), Inches(0.6))
+para(gtf, "hidden value ≈ 30–40%", 11.5, LOSS, first=True, bold=True,
+     align=PP_ALIGN.LEFT, after=0)
 para(tbox(s, Inches(0.7), Inches(6.45), Inches(12.0), Inches(0.5)),
      "We remove the drag and refocus capital on the core — positive selection on "
      "a concealed asset, not negative selection on a lemon.", 13, SLATE,
@@ -764,7 +817,7 @@ s, top = content("Track Record", "AIP Fund II — transactions (2015–present)"
                  "Each position shown against its benchmark; invested capital "
                  "weighted MOIC of 2.2x.")
 cw = [Inches(3.3), Inches(2.0), Inches(1.7), Inches(1.7), Inches(2.0)]
-endy = deal_table(s, Inches(0.75), top, FUND2, cw, font=10.5, rh=Inches(0.255))
+endy = deal_table(s, Inches(0.75), top, FUND2, cw, font=10, rh=Inches(0.212))
 # summary strip
 sy = Emu(int(endy) + int(Inches(0.10)))
 rect(s, Inches(0.75), sy, Inches(10.7), Inches(0.34), fill=NAVY)
@@ -772,7 +825,8 @@ stf = tbox(s, Inches(0.9), sy, Inches(10.4), Inches(0.34), anchor=MSO_ANCHOR.MID
 para(stf, "17 deals   ·   weighted MOIC 2.2x   ·   ex best/worst IRR 41% vs "
      "index ~9%   ·   36 of 39 deals profitable since 2006", 10.5, WHITE,
      first=True, after=0)
-nt = tbox(s, Inches(0.75), Inches(6.95), Inches(11.8), Inches(0.4))
+ny = Emu(int(sy) + int(Inches(0.34)) + int(Inches(0.08)))
+nt = tbox(s, Inches(0.75), ny, Inches(11.8), Inches(0.35))
 para(nt, "IRR/MOIC net of the position; “n.m.” where short holding periods make "
      "annualised figures not meaningful. Capital in SEK.", 8.5, FOOT, first=True,
      after=0)
