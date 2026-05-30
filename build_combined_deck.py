@@ -1045,6 +1045,65 @@ _xR = Emu(int(_xL) + int(_cw) + int(Inches(0.5)))
 _toc_col(_xL, _cw, "Part I  ·  Why allocate to engaged ownership", _p1)
 _toc_col(_xR, _cw, "Part II  ·  Why choose Athanase", _p2)
 
+# ===========================================================================
+# Convert the whole deck from 16:9 to the brand's 4:3 page format
+# (10.667" x 8.0" = the official AIP-deck.pptx page size).  Layout was authored
+# in 16:9 coordinates, so we rescale every shape's geometry and font.
+#   - geometry: x by sx, y by sy (full-bleed rects keep filling the page)
+#   - fonts:    by sx (horizontal is the binding constraint -> wrapping preserved)
+#   - pictures: uniform sx (preserve logo aspect ratio)
+# ===========================================================================
+from pptx.oxml.ns import qn as _qn
+from pptx.enum.shapes import MSO_SHAPE_TYPE as _MST
+
+TARGET_W = 9753600   # EMU, 10.667"
+TARGET_H = 7315200   # EMU, 8.0"
+
+
+def _rescale_chart_fonts(gframe, f):
+    el = gframe.chart.part._element
+    for rpr in el.iter():
+        tag = rpr.tag.split("}")[-1]
+        if tag in ("rPr", "defRPr") and rpr.get("sz") is not None:
+            rpr.set("sz", str(max(100, int(round(int(rpr.get("sz")) * f)))))
+
+
+def _rescale_shape(sh, sx, sy):
+    # geometry
+    try:
+        L, T = sh.left, sh.top
+        W, H = sh.width, sh.height
+    except Exception:
+        L = T = W = H = None
+    is_pic = sh.shape_type == _MST.PICTURE
+    if None not in (L, T, W, H):
+        sh.left = int(L * sx)
+        sh.top = int(T * sy)
+        if is_pic:                      # uniform scale -> keep aspect ratio
+            sh.width = int(W * sx)
+            sh.height = int(H * sx)
+        else:
+            sh.width = int(W * sx)
+            sh.height = int(H * sy)
+    # fonts (scale by sx so text/box ratio is preserved horizontally)
+    if sh.has_text_frame:
+        for p in sh.text_frame.paragraphs:
+            for r in p.runs:
+                if r.font.size is not None:
+                    r.font.size = Pt(round(r.font.size.pt * sx, 1))
+    if sh.has_chart:
+        _rescale_chart_fonts(sh, sx)
+
+
+_sx = TARGET_W / int(prs.slide_width)
+_sy = TARGET_H / int(prs.slide_height)
+for _slide in prs.slides:
+    for _sh in _slide.shapes:
+        _rescale_shape(_sh, _sx, _sy)
+prs.slide_width = TARGET_W
+prs.slide_height = TARGET_H
+
 out = "Athanase_Engaged_Ownership_Allocator_Deck.pptx"
 prs.save(out)
-print("Saved", out, "with", len(prs.slides._sldIdLst), "slides")
+print("Saved", out, "with", len(prs.slides._sldIdLst),
+      "slides at 4:3 (%.2f x %.2f in)" % (TARGET_W / 914400, TARGET_H / 914400))
