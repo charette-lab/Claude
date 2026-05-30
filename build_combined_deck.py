@@ -31,7 +31,10 @@ DIVIDER   = BLUE5   # light title text on navy
 WHITE     = RGBColor(0xFF, 0xFF, 0xFF)
 FOOT      = BLUE4   # footer
 GOLD      = BLUE4   # accent rule
-LOSS      = RGBColor(0xA8, 0x4A, 0x4A)  # functional data colour (losses) — see note
+# Brand palette is monochrome Blue — no red. Losses are de-emphasised in a
+# lighter in-group Blue (BLUE4); the negative sign carries the meaning.
+LOSS      = BLUE4
+HILITE    = BLUE3   # in-group highlight for callouts (was red)
 
 SERIF = "Times New Roman"   # brand headline face
 SANS  = "Arial"             # brand body face
@@ -56,7 +59,6 @@ def place_mark(slide, left, top, height):
 
 # ---- Track-record data (from data/AIP_Trackrecord.xlsx, Transactions tab) ---
 import openpyxl
-LOSS = RGBColor(0xA8, 0x4A, 0x4A)   # muted red for losses
 
 
 def _fmt_pct(v):
@@ -130,14 +132,16 @@ def deal_table(slide, x, y, deals, col_w, font=10.5, rh=Inches(0.265),
                 txt = _fmt_moic(d["moic"])
             else:
                 txt = _fmt_pct(d["outp"])
-            col = LOSS if (loss and key in ("irr", "moic", "outp")) else (
-                NAVY_TX if ci == 0 else BODY)
+            is_loss_cell = loss and key in ("irr", "moic", "outp")
+            col = LOSS if is_loss_cell else (NAVY_TX if ci == 0 else BODY)
             ctf = tbox(slide, Emu(int(cx) + int(Inches(0.08))), yy,
                        Emu(int(col_w[ci]) - int(Inches(0.12))), rh,
                        anchor=MSO_ANCHOR.MIDDLE)
-            para(ctf, txt, font, col, bold=(ci == 0),
+            # In-palette loss treatment: lighter Blue + italic (brand allows
+            # italic for emphasis); the negative sign carries the meaning.
+            para(ctf, txt, font, col, bold=(ci == 0), italic=is_loss_cell,
                  first=True, align=PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.RIGHT,
-                 after=0)
+                 after=0, track=0)
             cx = Emu(int(cx) + int(col_w[ci]))
         yy = Emu(int(yy) + int(rh))
     return yy
@@ -573,10 +577,10 @@ _sotp_bar(Inches(11.4), 140, NAVY, "Core alone\n(high ROIIC)")
 top100 = Emu(int(base) - int(Inches(unit * 100)))
 top140 = Emu(int(base) - int(Inches(unit * 140)))
 rect(s, Inches(8.0), top100, Inches(3.4), Pt(1.2), fill=SLATE_LT)  # market level
-rect(s, Inches(11.95), top140, Pt(2), Emu(int(top100) - int(top140)), fill=LOSS)
+rect(s, Inches(11.95), top140, Pt(2), Emu(int(top100) - int(top140)), fill=HILITE)
 gtf = tbox(s, Inches(8.15), Emu(int(top140) + int(Inches(0.04))),
            Inches(3.6), Inches(0.5))
-para(gtf, "+40% hidden value", 12, LOSS, first=True, bold=True,
+para(gtf, "+40% hidden value", 12, HILITE, first=True, bold=True,
      align=PP_ALIGN.LEFT, after=0)
 para(tbox(s, Inches(0.7), Inches(6.45), Inches(12.0), Inches(0.5)),
      "We remove the drag and refocus capital on the core — positive selection on "
@@ -900,7 +904,7 @@ para(stf, "22 deals   ·   weighted MOIC 2.7x   ·   average IRR 68%   ·   "
      "index outperformance +25 pts (invested-weighted)", 10.5, WHITE, first=True,
      after=0)
 nt = tbox(s, Inches(0.6), Inches(6.95), Inches(11.8), Inches(0.4))
-para(nt, "Selected larger deals of the investment team. Losses shown in red. "
+para(nt, "Selected larger deals of the investment team. Losses shown in italic. "
      "Capital in SEK; ~$400M invested over the period.", 8.5, FOOT, first=True,
      after=0)
 
@@ -1118,6 +1122,53 @@ for _slide in prs.slides:
         _rescale_shape(_sh, _sx, _sy)
 prs.slide_width = TARGET_W
 prs.slide_height = TARGET_H
+
+# ---------------------------------------------------------------------------
+# Brand the theme itself: replace the default Office colour scheme with the AIP
+# Blue group and set theme fonts to Times New Roman / Arial, so no off-brand
+# swatch survives anywhere in the file (guideline: stay within the palette).
+# ---------------------------------------------------------------------------
+def _brand_theme(prs):
+    from lxml import etree
+    a = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
+    THEME_REL = ("http://schemas.openxmlformats.org/officeDocument/2006/"
+                 "relationships/theme")
+    scheme = {
+        "dk1": "152130", "lt1": "FFFFFF", "dk2": "0E1620", "lt2": "F6F7F9",
+        "accent1": "152130", "accent2": "314359", "accent3": "556A83",
+        "accent4": "0E1620", "accent5": "E2E5E9", "accent6": "F6F7F9",
+        "hlink": "314359", "folHlink": "556A83",
+    }
+    seen = set()
+    for master in prs.slide_masters:
+        theme = master.part.part_related_by(THEME_REL)
+        if theme.partname in seen:
+            continue
+        seen.add(theme.partname)
+        root = etree.fromstring(theme.blob)
+        clr = root.find(f"{a}themeElements/{a}clrScheme")
+        for name, hexv in scheme.items():
+            el = clr.find(f"{a}{name}")
+            if el is None:
+                continue
+            srgb = el.find(f"{a}srgbClr")
+            sysc = el.find(f"{a}sysClr")
+            if srgb is not None:
+                srgb.set("val", hexv)
+            elif sysc is not None:           # convert sysClr -> srgbClr
+                el.remove(sysc)
+                etree.SubElement(el, f"{a}srgbClr", {"val": hexv})
+        fonts = root.find(f"{a}themeElements/{a}fontScheme")
+        for grp, face in (("majorFont", "Times New Roman"), ("minorFont", "Arial")):
+            latin = fonts.find(f"{a}{grp}/{a}latin")
+            if latin is not None:
+                latin.set("typeface", face)
+        theme._blob = etree.tostring(root, xml_declaration=True,
+                                     encoding="UTF-8", standalone=True)
+    return prs
+
+
+_brand_theme(prs)
 
 out = "Athanase_Engaged_Ownership_Allocator_Deck.pptx"
 prs.save(out)
