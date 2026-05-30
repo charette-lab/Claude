@@ -11,21 +11,21 @@ from pptx.enum.shapes import MSO_SHAPE
 from pptx.chart.data import CategoryChartData
 from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION, XL_LABEL_POSITION
 
-# ---- Brand palette ---------------------------------------------------------
-NAVY      = RGBColor(0x14, 0x25, 0x3B)   # cover / divider background
-NAVY_TX   = RGBColor(0x1E, 0x33, 0x4E)   # serif title on white
-SLATE     = RGBColor(0x4A, 0x5D, 0x75)   # table headers / accent shapes
-SLATE_LT  = RGBColor(0x8A, 0x99, 0xAB)   # secondary accent
-HEADERBG  = RGBColor(0xF1, 0xF2, 0xF4)   # light grey header band
-BODY      = RGBColor(0x33, 0x38, 0x40)
-SUBTLE    = RGBColor(0x5A, 0x63, 0x6E)
-DIVIDER   = RGBColor(0xC9, 0xD3, 0xDD)   # light blue-grey divider text
+# ---- Brand palette (from official AIP-deck.pptx theme) ---------------------
+NAVY      = RGBColor(0x15, 0x21, 0x30)   # cover / divider background (darkest navy)
+NAVY_TX   = RGBColor(0x31, 0x43, 0x59)   # title on white
+SLATE     = RGBColor(0x55, 0x6A, 0x83)   # primary accent: shape fills, table headers, lead text
+SLATE_LT  = RGBColor(0x6F, 0x89, 0x90)   # muted teal-grey: section labels / secondary accent
+HEADERBG  = RGBColor(0xF6, 0xF7, 0xF9)   # light grey header band
+BODY      = RGBColor(0x3C, 0x39, 0x37)   # warm-grey body text
+SUBTLE    = RGBColor(0x64, 0x61, 0x5E)   # warm-grey subtitle / secondary
+DIVIDER   = RGBColor(0xE2, 0xE5, 0xE9)   # light title text on navy
 WHITE     = RGBColor(0xFF, 0xFF, 0xFF)
-FOOT      = RGBColor(0x9A, 0xA4, 0xB0)
-GOLD      = RGBColor(0x6E, 0x82, 0x9B)   # subtle rule accent
+FOOT      = RGBColor(0x9A, 0x95, 0x8E)   # warm-grey footer
+GOLD      = RGBColor(0x55, 0x6A, 0x83)   # accent rule (brand slate)
 
-SERIF = "Times New Roman"   # matches embedded TimesNewRomanPSMT
-SANS  = "Calibri"           # matches embedded Calibri
+SERIF = "Times New Roman"   # brand title face
+SANS  = "Arial"             # brand body face
 
 import os
 from PIL import Image
@@ -243,11 +243,11 @@ def content(section, title, subtitle=None, number=True, ref=None):
     # top section label + real mark
     place_mark(s, Inches(0.55), Inches(0.24), Inches(0.26))
     lt = tbox(s, Inches(0.98), Inches(0.27), Inches(7.0), Inches(0.3))
-    para(lt, section, 11, SLATE, first=True, after=0)
+    para(lt, section, 11, SLATE_LT, first=True, after=0)
     # top-right exhibit reference (Figure N / Table N)
     if ref:
         rtf = tbox(s, Inches(9.9), Inches(0.27), Inches(2.85), Inches(0.3))
-        para(rtf, ref, 11, SLATE, first=True, bold=True,
+        para(rtf, ref, 11, SLATE_LT, first=True, bold=True,
              align=PP_ALIGN.RIGHT, after=0)
     # numbered section header, research-paper style
     if number and _doc["part"] >= 1:
