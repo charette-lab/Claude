@@ -509,6 +509,28 @@ para(tbox(s, Inches(0.75), Inches(6.35), Inches(11.8), Inches(0.6)),
      "8–12 concentrated ideas must clear a 12% IRR hurdle and a ≤20% "
      "downside gate.", 13, SUBTLE, first=True, italic=True, after=0)
 
+# ---- II.5b Strategic reframing: the discomfort is the moat ----
+s, top = content("Strategic Case", "The visible risks are the engine — not the cost",
+                 "From “corporate raider” to “industrial constructivist”: "
+                 "reputational friction and the public J-curve source the alpha "
+                 "and protect it from arbitrage.")
+checklist(s, [
+    ("Friction is the catalyst.", "Quiet engagement does not reprice a stock; "
+     "public engagement forces the market to re-rate — and a 20-year reputation "
+     "pulls sophisticated capital in behind us (the coattail effect)."),
+    ("The discomfort is the moat.", "Few managers have the industrial background "
+     "and stamina to wage a multi-year campaign — so headline-shy capital leaves "
+     "a persistent pricing inefficiency for those who will."),
+    ("A board seat de-risks the asset.", "We trade optical, mark-to-market "
+     "volatility for direct control of cash flow, capex and pay. Fundamental risk "
+     "falls the moment control is secured — whatever the share price does."),
+    ("The J-curve is tradable, not painful.", "Unlike PE’s accounting J-curve, "
+     "ours is live and observable — an engineered entry point (and a co-invest "
+     "“free look”) at de-risked governance at distressed prices."),
+    ("Public scoreboard, daily.", "There is nowhere to hide poor capital "
+     "allocation — the discipline behind a 92% deal-level hit rate over 20 years."),
+], top, size=14.5, gap=11)
+
 # ---- II.6 Track record (chart) ----
 s, top = content("Track Record", "Proof: outperformance with downside protection")
 chart_data = CategoryChartData()
@@ -589,6 +611,69 @@ nt = tbox(s, Inches(0.6), Inches(6.95), Inches(11.8), Inches(0.4))
 para(nt, "Selected larger deals of the investment team. Losses shown in red. "
      "Capital in SEK; ~$400M invested over the period.", 8.5, FOOT, first=True,
      after=0)
+
+# ---- II.6d Independent validation: 20-year NET record ----
+s, top = content("Independent Review",
+                 "Independently validated: 20 years, net of every fee",
+                 "A prospective LP’s investment committee reconciled the "
+                 "security-level (StatPro) data and the 236-month LP-level NET "
+                 "return series.")
+stats = [("+1,402%", "cumulative NET return\nover 19.7 years"),
+         ("+14.8%", "annualised NET\n(time-weighted, all fees)"),
+         ("+6.0 pts", "annualised alpha,\nnet, for 20 years"),
+         ("3.11×", "the relevant equity\nbenchmark")]
+bw = Inches(2.95); gapx = Inches(0.18); x = Inches(0.75); y = top
+for big, lab in stats:
+    rect(s, x, y, bw, Inches(1.8), fill=HEADERBG)
+    ctf = tbox(s, x, y + Inches(0.26), bw, Inches(1.4))
+    para(ctf, big, 34, NAVY_TX, first=True, align=PP_ALIGN.CENTER, after=4,
+         font=SERIF)
+    for line in lab.split("\n"):
+        para(ctf, line, 11.5, SUBTLE, align=PP_ALIGN.CENTER, after=0)
+    x = Emu(int(x) + int(bw) + int(gapx))
+checklist(s, [
+    ("Two full cycles, survived.", "Drawdowns of −52.8% (2008, recovered by "
+     "2010) and −45.9% (2017–2020, recovered by Sep 2020) — navigated live with "
+     "the same philosophy, not back-tested."),
+    ("Top-tier downside-adjusted return.", "20-year Sortino 1.54; AIPFII Sortino "
+     "2.40, with upside volatility 3.9× the downside."),
+    ("Realised cash, not marks.", "The largest contributors are realised LP cash "
+     "— removing the mark-to-model objection."),
+], top + Inches(2.05), size=14, gap=10)
+nt = tbox(s, Inches(0.75), Inches(6.95), Inches(11.8), Inches(0.4))
+para(nt, "Source: independent institutional due-diligence review, May 2026, on "
+     "StatPro security-level data and LP-level NET monthly returns (2006–2026).",
+     8.5, FOOT, first=True, after=0)
+
+# ---- II.6e Repeatability & conviction sizing ----
+s, top = content("Independent Review",
+                 "Repeatable and conviction-sized — not lucky",
+                 "The review tested the “you can’t rely on the big winners” "
+                 "objection directly against 39 deals over 20 years.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.6))
+para(colL, "REPEATABLE", 13, SLATE, first=True, bold=True, after=7)
+for t in ["92% deal-level hit rate (36 of 39 profitable); losses ~8% of "
+          "cumulative invested capital",
+          "10 of 39 deals returned ≥5× MOIC — one such win every ~2 years",
+          "Two decade-definers, not one: Klarna 28× (2007) and Athanase Tech "
+          "5.4× (2021)",
+          "Robust: even excluding Athanase Tech entirely, AIPFII still ~10% "
+          "net annualised"]:
+    para(colL, t, 14, BODY, after=9, lead=1.13)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.6))
+para(colR, "CONVICTION-SIZED (THE SKILL SIGNAL)", 13, SLATE, first=True,
+     bold=True, after=7)
+for t in ["The 7 positions ever sized ≥10% of NAV hit at 85.7% and contributed "
+          "+209 pts — ~77% of the positive book",
+          "+0.73 rank correlation between position size and outcome within "
+          "winners — they size their best ideas biggest",
+          "Win/loss asymmetry: average winner 2.74× the average loser; "
+          "+333 pts of winners vs −61 pts of losers"]:
+    para(colR, t, 14, BODY, after=9, lead=1.13)
+para(tbox(s, Inches(0.75), Inches(6.35), Inches(11.8), Inches(0.55)),
+     "“The team has done this twice in 20 years, not once — the ‘every 10–20 "
+     "years’ objection is empirically unsupportable.”", 13, SLATE, first=True,
+     italic=True, after=0)
 
 # ---- II.7 ESG / responsible ownership ----
 s, top = content("Ownership Model", "Responsible ownership, by construction")
