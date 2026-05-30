@@ -1013,20 +1013,24 @@ s, top = content("Portfolio Impact",
                  "What it does to an allocator’s portfolio",
                  "Illustrative: redirecting a sleeve into Athanase rather than a "
                  "long-only global fund or another activist.", ref=_fp)
-# --- left: 10-year growth of a 100 sleeve ---
+# --- left: 10-year growth of a 100 sleeve, through a down-market year (yr 6) ---
+# Same 10-yr endpoints as a smooth path, but routed through a market drawdown
+# in year 6 to make the downside protection VISIBLE: long-only plunges, the
+# other activist dips, Athanase holds (cf. p.17 average monthly returns).
+_cw_chart = Inches(6.7)
+chx, chy = Inches(0.6), top + Inches(0.05)
 gd = CategoryChartData()
 gd.categories = [str(y) for y in range(0, 11)]
 gd.add_series("Athanase (18%)",
-              (100, 118, 139, 164, 194, 229, 270, 319, 376, 444, 523))
+              (100, 118, 140, 166, 197, 233, 236, 296, 366, 442, 523))
 gd.add_series("Other activist (10.5%)",
-              (100, 111, 122, 135, 149, 165, 182, 201, 222, 246, 271))
+              (100, 111, 123, 137, 152, 168, 150, 182, 214, 244, 271))
 gd.add_series("Long-only global (7.6%)",
-              (100, 108, 116, 125, 134, 144, 155, 167, 180, 193, 208))
-gf = s.shapes.add_chart(XL_CHART_TYPE.LINE, Inches(0.6), top + Inches(0.05),
-                        Inches(6.7), Inches(4.2), gd)
+              (100, 108, 117, 126, 136, 147, 119, 142, 168, 190, 208))
+gf = s.shapes.add_chart(XL_CHART_TYPE.LINE, chx, chy, _cw_chart, Inches(4.2), gd)
 ch = gf.chart
 ch.has_title = True
-ch.chart_title.text_frame.text = f"{_fp}.  Growth of a 100 sleeve over 10 years (indexed)"
+ch.chart_title.text_frame.text = f"{_fp}.  Growth of a 100 sleeve through a market cycle (indexed)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(11)
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = SUBTLE
 ch.has_legend = True
@@ -1043,6 +1047,30 @@ _ser[2].format.line.dash_style = 2
 ch.category_axis.tick_labels.font.size = Pt(9)
 ch.value_axis.tick_labels.font.size = Pt(9)
 ch.value_axis.has_major_gridlines = False
+ch.value_axis.minimum_scale = 0
+ch.value_axis.maximum_scale = 600
+# --- down-market marker over year 6 (geometry rescales with the chart) ---
+# plot area estimate inside the chart frame (tuned against the render)
+_pl = Emu(int(chx) + int(Inches(0.62)))          # plot left
+_pr = Emu(int(chx) + int(_cw_chart) - int(Inches(0.08)))  # plot right
+_pt = top + Inches(0.45)                          # plot top
+_pb = top + Inches(3.62)                           # plot bottom
+_xv = Emu(int(_pl) + int((int(_pr) - int(_pl)) * 6 / 10))  # year-6 x
+_mt = top + Inches(0.62)                          # marker top (below title)
+rect(s, _xv, _mt, Pt(1.2), Emu(int(_pb) - int(_mt)), fill=SLATE_LT)  # ref line
+mtf = tbox(s, Emu(int(_xv) - int(Inches(1.0))), Emu(int(_mt) - int(Inches(0.26))),
+           Inches(2.0), Inches(0.3))
+para(mtf, "Down-market year", 10, SLATE, first=True, bold=True,
+     align=PP_ALIGN.CENTER, after=0, track=0)
+# divergence callouts at year 6
+def _yfor(v):
+    return Emu(int(_pb) - int((int(_pb) - int(_pt)) * v / 600))
+ca = tbox(s, Emu(int(_xv) + int(Inches(0.08))), Emu(int(_yfor(236)) - int(Inches(0.22))),
+          Inches(1.6), Inches(0.26))
+para(ca, "Athanase: holds", 9.5, NAVY_TX, first=True, bold=True, after=0, track=0)
+cl = tbox(s, Emu(int(_xv) + int(Inches(0.08))), Emu(int(_yfor(119)) + int(Inches(0.04))),
+          Inches(1.6), Inches(0.26))
+para(cl, "Long-only: −19%", 9.5, SLATE_LT, first=True, after=0, track=0)
 # end-value callouts
 para(tbox(s, Inches(6.55), top + Inches(0.55), Inches(1.3), Inches(0.3)),
      "523", 12, NAVY_TX, first=True, bold=True, after=0)
