@@ -352,7 +352,10 @@ def capture_chart(path_png):
     for sp in ("left", "bottom"):
         ax.spines[sp].set_color(H_BLUE5)
     ax.grid(True, axis="y", color=H_BLUE5, lw=0.6, alpha=0.6)
-    ax.legend(loc="lower left", fontsize=9.5, frameon=False, labelcolor=H_BODY)
+    # legend below the plot so it never collides with the bars
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=2,
+              fontsize=10, frameon=False, labelcolor=H_BODY,
+              handlelength=1.4, columnspacing=1.6)
     ax.set_title("Up- vs down-market capture", color=H_NAVY, fontsize=13,
                  fontweight="bold", pad=10)
     fig.tight_layout()
@@ -427,6 +430,135 @@ para(tbox(s2, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
      "Beta/correlation and rolling-window win rates from the same series. "
      "Past performance is not indicative of future results.",
      7.5, FOOT, first=True, after=0, track=0, lead=1.1)
+
+# ===========================================================================
+# 2c) Efficient frontier — what a blend does to the WHOLE portfolio
+# ===========================================================================
+def _ann(xs):
+    g = 1.0
+    for x in xs:
+        g *= (1 + x)
+    return g ** (12 / len(xs)) - 1
+
+
+def _dvol(xs):                                # downside (semi) deviation, ann.
+    return math.sqrt(sum(min(x, 0) ** 2 for x in xs) / len(xs)) * math.sqrt(12)
+
+
+_weights = [i / 20 for i in range(21)]        # 0..100% Athanase, 5% steps
+_FRONT = []
+for w in _weights:
+    blend = [w * _ath_x[i] + (1 - w) * _msci_x[i] for i in range(len(_msci_x))]
+    _FRONT.append((w, _dvol(blend) * 100, _ann(blend) * 100))
+
+
+def frontier_chart(path_png):
+    fig, ax = plt.subplots(figsize=(8.6, 4.35), dpi=200)
+    xs = [p[1] for p in _FRONT]
+    ys = [p[2] for p in _FRONT]
+    ax.plot(xs, ys, color=H_BLUE4, lw=2.0, zorder=3)
+    # highlight markers: 0% (MSCI), a sensible blend, 100% (Athanase)
+    def mark(w_target, label, col, dy=8, dx=8, big=False):
+        p = min(_FRONT, key=lambda z: abs(z[0] - w_target))
+        ax.scatter([p[1]], [p[2]], s=120 if big else 80, color=col, zorder=5,
+                   edgecolor="white", linewidth=1.2)
+        ax.annotate(label, (p[1], p[2]), color=col, fontsize=10.5,
+                    fontweight="bold", xytext=(dx, dy), textcoords="offset points")
+        return p
+    mark(0.0, "100% Global equities\n(MSCI World IMI)", H_BLUE4, dy=-28, dx=6)
+    mark(0.3, "70 / 30 blend", H_NAVY, dy=10, dx=8)
+    mark(1.0, "100% Athanase", H_NAVY, dy=6, dx=-150, big=True)
+    # guide arrow in an empty corner: up-and-left = better
+    ax.annotate("", (10.05, 16.8), (11.0, 15.2),
+                arrowprops=dict(arrowstyle="->", color=H_BLUE4, lw=1.4))
+    ax.annotate("better", (10.0, 17.1), color=H_BLUE4, fontsize=10,
+                style="italic", ha="left", fontweight="bold")
+    ax.set_xlabel("Downside volatility (annualised)", color=H_BODY, fontsize=11)
+    ax.set_ylabel("Annualised return", color=H_BODY, fontsize=11)
+    ax.set_xlim(9.8, 12.2); ax.set_ylim(4, 18)
+    ax.set_xticks([10, 10.5, 11, 11.5, 12])
+    ax.xaxis.set_major_formatter(lambda v, _: f"{v:.1f}%")
+    ax.yaxis.set_major_formatter(lambda v, _: f"{v:.0f}%")
+    ax.tick_params(colors=H_BODY, labelsize=10)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color(H_BLUE5)
+    ax.grid(True, color=H_BLUE5, lw=0.6, alpha=0.6)
+    ax.set_title("Blended portfolio: return vs downside risk",
+                 color=H_NAVY, fontsize=13, fontweight="bold", pad=10)
+    fig.tight_layout()
+    fig.savefig(path_png, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
+frontier_chart("/tmp/frontier.png")
+
+# the 30% blend stats for the cards
+_b30 = min(_FRONT, key=lambda z: abs(z[0] - 0.30))
+_b0 = _FRONT[0]
+
+s3 = prs.slides.add_slide(prs.slide_layouts[6])
+s3.shapes.add_picture(MARK_DARK, Inches(0.55), Inches(0.24), height=Inches(0.26),
+                      width=Emu(int(Inches(0.26) * _MD_AR)))
+para(tbox(s3, Inches(0.98), Inches(0.27), Inches(7), Inches(0.3)),
+     "Risk-Adjusted Outcomes", 11, SLATE_LT, first=True, after=0)
+para(tbox(s3, Inches(9.9), Inches(0.27), Inches(2.85), Inches(0.3)),
+     "Figure 3", 11, SLATE_LT, first=True, bold=True, align=PP_ALIGN.RIGHT, after=0)
+rect(s3, 0, Inches(0.62), SW, Inches(1.45), fill=HEADERBG)
+para(tbox(s3, Inches(0.6), Inches(0.74), Inches(12.1), Inches(0.85)),
+     "What a blend does to the whole portfolio", 30, NAVY_TX,
+     first=True, after=2, font=SERIF)
+para(tbox(s3, Inches(0.62), Inches(1.55), Inches(11.9), Inches(0.5)),
+     "Adding Athanase to a global-equity book moves the portfolio up and to the "
+     "left — more return for less downside risk, thanks to low correlation.",
+     13, SUBTLE, first=True, italic=True, after=0)
+s3.shapes.add_picture("/tmp/frontier.png", Inches(0.55), Inches(2.25),
+                      height=Inches(4.1))
+
+# right: before/after cards (0% vs 30% blend)
+cx3 = Inches(8.9); cw3 = Inches(3.85); ch3 = Inches(1.25); cy3 = Inches(2.35)
+fcards = [
+    ("ALL GLOBAL EQUITIES",
+     f"{_b0[2]:.1f}% return", f"{_b0[1]:.1f}% downside risk",
+     "100% MSCI World IMI"),
+    ("ADD A 30% SLEEVE",
+     f"{_b30[2]:.1f}% return", f"{_b30[1]:.1f}% downside risk",
+     "70% MSCI  /  30% Athanase"),
+]
+for title, big1, big2, sub in fcards:
+    rect(s3, cx3, cy3, cw3, ch3, fill=HEADERBG)
+    para(tbox(s3, Emu(int(cx3) + int(Inches(0.22))), cy3 + Inches(0.12),
+              Emu(int(cw3) - int(Inches(0.44))), Inches(0.25)),
+         title, 10.5, SLATE, first=True, bold=True, after=0, track=0)
+    rowtf = tbox(s3, Emu(int(cx3) + int(Inches(0.22))), cy3 + Inches(0.4),
+                 Emu(int(cw3) - int(Inches(0.44))), Inches(0.45))
+    p = rowtf.paragraphs[0]; p.space_after = Pt(0)
+    r1 = p.add_run(); r1.text = big1; r1.font.size = Pt(17); r1.font.bold = True
+    r1.font.color.rgb = NAVY_TX; r1.font.name = SERIF
+    r2 = p.add_run(); r2.text = "   ·   " + big2; r2.font.size = Pt(13)
+    r2.font.color.rgb = SLATE; r2.font.name = SANS
+    para(tbox(s3, Emu(int(cx3) + int(Inches(0.22))), cy3 + Inches(0.86),
+              Emu(int(cw3) - int(Inches(0.44))), Inches(0.3)),
+         sub, 10.5, BODY, first=True, after=0, track=0)
+    cy3 = Emu(int(cy3) + int(ch3) + int(Inches(0.18)))
+# delta note
+para(tbox(s3, cx3, cy3, cw3, Inches(0.8)),
+     f"+{_b30[2]-_b0[2]:.1f} pts of return while downside risk FALLS by "
+     f"{_b0[1]-_b30[1]:.1f} pts.", 12, NAVY, first=True, bold=True,
+     after=0, lead=1.2, track=0)
+
+rect(s3, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s3, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "The blend is not a trade-off — a 30% sleeve raises return AND lowers "
+     "downside risk versus holding global equities alone.",
+     12, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s3, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
+     f"Source: monthly net returns, {MSCI['n']} months (2006–2025), monthly "
+     "rebalanced blends. Downside volatility = annualised deviation of negative "
+     "months (MAR 0). Illustrative; past performance is not indicative of "
+     "future results.", 7.5, FOOT, first=True, after=0, track=0, lead=1.1)
 
 # ===========================================================================
 # 3) Convert to 4:3 and brand the theme (palette + fonts)
