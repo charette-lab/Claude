@@ -11,20 +11,29 @@ from pptx.enum.shapes import MSO_SHAPE
 from pptx.chart.data import CategoryChartData
 from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION, XL_LABEL_POSITION
 
-# ---- Brand palette (from official AIP-deck.pptx theme) ---------------------
-NAVY      = RGBColor(0x15, 0x21, 0x30)   # cover / divider background (darkest navy)
-NAVY_TX   = RGBColor(0x31, 0x43, 0x59)   # title on white
-SLATE     = RGBColor(0x55, 0x6A, 0x83)   # primary accent: shape fills, table headers, lead text
-SLATE_LT  = RGBColor(0x6F, 0x89, 0x90)   # muted teal-grey: section labels / secondary accent
-HEADERBG  = RGBColor(0xF6, 0xF7, 0xF9)   # light grey header band
-BODY      = RGBColor(0x3C, 0x39, 0x37)   # warm-grey body text
-SUBTLE    = RGBColor(0x64, 0x61, 0x5E)   # warm-grey subtitle / secondary
-DIVIDER   = RGBColor(0xE2, 0xE5, 0xE9)   # light title text on navy
-WHITE     = RGBColor(0xFF, 0xFF, 0xFF)
-FOOT      = RGBColor(0x9A, 0x95, 0x8E)   # warm-grey footer
-GOLD      = RGBColor(0x55, 0x6A, 0x83)   # accent rule (brand slate)
+# ---- Brand palette (AIP Brand Guidelines v1.0 — BLUE group only) -----------
+# Rule: use one base colour group together; never mix groups. Blue is primary.
+BLUE1 = RGBColor(0x0E, 0x16, 0x20)
+BLUE2 = RGBColor(0x15, 0x21, 0x30)   # primary logo / dark navy
+BLUE3 = RGBColor(0x31, 0x43, 0x59)
+BLUE4 = RGBColor(0x55, 0x6A, 0x83)
+BLUE5 = RGBColor(0xE2, 0xE5, 0xE9)
+BLUE6 = RGBColor(0xF6, 0xF7, 0xF9)
 
-SERIF = "Times New Roman"   # brand title face
+NAVY      = BLUE2   # cover / divider background, dark strips, dark bars
+NAVY_TX   = BLUE3   # titles on white, table-header fills, lead/emphasis text
+SLATE     = BLUE3   # primary accent: table headers, lead bullets, captions
+SLATE_LT  = BLUE4   # section labels, secondary accent, lighter bars/lines
+HEADERBG  = BLUE6   # light header band / card fill
+BODY      = BLUE1   # body text (near-black with blue hint, in-group)
+SUBTLE    = BLUE4   # subtitles / secondary
+DIVIDER   = BLUE5   # light title text on navy
+WHITE     = RGBColor(0xFF, 0xFF, 0xFF)
+FOOT      = BLUE4   # footer
+GOLD      = BLUE4   # accent rule
+LOSS      = RGBColor(0xA8, 0x4A, 0x4A)  # functional data colour (losses) — see note
+
+SERIF = "Times New Roman"   # brand headline face
 SANS  = "Arial"             # brand body face
 
 import os
@@ -167,7 +176,7 @@ def tbox(slide, l, t, w, h, anchor=MSO_ANCHOR.TOP):
 
 
 def para(tf, text, size, color, bold=False, italic=False, first=False,
-         align=PP_ALIGN.LEFT, after=8, lead=1.1, font=SANS):
+         align=PP_ALIGN.LEFT, after=8, lead=1.1, font=SANS, track=None):
     p = tf.paragraphs[0] if first else tf.add_paragraph()
     p.alignment = align
     p.space_after = Pt(after)
@@ -176,6 +185,13 @@ def para(tf, text, size, color, bold=False, italic=False, first=False,
     f = r.font
     f.size = Pt(size); f.bold = bold; f.italic = italic
     f.color.rgb = color; f.name = font
+    # Brand type scale: letter-spacing (track in % of em, e.g. -5 => -0.05em).
+    # Auto-apply brand defaults by size if not given: 48pt+ -> -5%, 24-47 -> -3%.
+    if track is None:
+        track = -5 if size >= 48 else (-3 if size >= 24 else 0)
+    if track:
+        spc = int(round(size * track / 100.0 * 100))  # EMU-less: points*100
+        r._r.get_or_add_rPr().set("spc", str(spc))
     return p
 
 
@@ -225,15 +241,15 @@ def divider(title, kicker=None):
     s = prs.slides.add_slide(BLANK)
     rect(s, 0, 0, SW, SH, fill=NAVY)
     wordmark(s, Inches(0.6), Inches(0.55), WHITE, scale=0.9)
+    # brand rule: always left-align (never centre)
+    rect(s, Inches(0.62), Inches(3.05), Inches(0.5), Pt(2.2), fill=SLATE_LT)
     if kicker:
-        ktf = tbox(s, Inches(1.0), Inches(3.05), Inches(11.3), Inches(0.5),
-                   anchor=MSO_ANCHOR.MIDDLE)
+        ktf = tbox(s, Inches(0.6), Inches(3.25), Inches(11.7), Inches(0.5))
         para(ktf, kicker.upper(), 13, SLATE_LT, first=True,
-             align=PP_ALIGN.CENTER, after=0)
-    tf = tbox(s, Inches(1.0), Inches(3.4), Inches(11.3), Inches(1.2),
-              anchor=MSO_ANCHOR.MIDDLE)
+             align=PP_ALIGN.LEFT, after=0)
+    tf = tbox(s, Inches(0.6), Inches(3.6), Inches(11.9), Inches(1.4))
     para(tf, title, 40, DIVIDER, italic=True, first=True,
-         align=PP_ALIGN.CENTER, after=0, font=SERIF)
+         align=PP_ALIGN.LEFT, after=0, font=SERIF)
     return s
 
 
