@@ -40,6 +40,7 @@ SERIF = "Times New Roman"   # brand headline face
 SANS  = "Arial"             # brand body face
 
 import os
+import math
 from PIL import Image
 LOGO_WHITE = "assets/logo_white.png"
 MARK_DARK  = "assets/mark_dark.png"
@@ -1127,6 +1128,404 @@ para(tbox(s, Inches(0.6), Inches(7.15), Inches(8.9), Inches(0.4)),
      "spread; growth = annual compounding. Past performance ≠ future results.",
      8.5, FOOT, first=True, after=0, track=0, lead=1.15)
 
+# ===========================================================================
+# II.6h–j  Risk-adjusted analysis vs a global equity fund (MSCI World IMI)
+# Data computed live from data/Comparison_returns.xlsx
+# ===========================================================================
+from statistics import NormalDist as _ND
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib import font_manager as _fmgr
+
+H_NAVY, H_BLUE3, H_BLUE4 = "#152130", "#314359", "#556A83"
+H_BLUE5, H_BODY = "#E2E5E9", "#0E1620"
+for _ff in ("Arial", "Liberation Sans", "DejaVu Sans"):
+    try:
+        _fmgr.findfont(_ff, fallback_to_default=False)
+        plt.rcParams["font.family"] = _ff
+        break
+    except Exception:
+        continue
+
+
+def _load_cmp():
+    ws = openpyxl.load_workbook("data/Comparison_returns.xlsx",
+                               data_only=True)["Sheet1"]
+
+    def grab(rows):
+        out = []
+        for c in range(2, ws.max_column + 1):
+            for r in rows:
+                v = ws.cell(r, c).value
+                if isinstance(v, (int, float)):
+                    out.append(v)
+        return out
+    return grab(range(4, 16)), grab(range(22, 34))   # MSCI, Athanase
+
+
+_MSCI_X, _ATH_X = _load_cmp()
+_NM = len(_MSCI_X)
+
+
+def _cmp_stats(x, mar=0.0):
+    n = len(x); mean = sum(x) / n
+    dd = math.sqrt(sum(min(r - mar, 0) ** 2 for r in x) / n)
+    g = 1.0
+    for r in x:
+        g *= (1 + r)
+    return dict(ann_ret=(g ** (1 / n)) ** 12 - 1, ann_dd=dd * math.sqrt(12),
+                ann_vol=(math.sqrt(sum((r - mean) ** 2 for r in x) / (n - 1))
+                         * math.sqrt(12)))
+
+
+_MSCI, _ATH = _cmp_stats(_MSCI_X), _cmp_stats(_ATH_X)
+
+
+def _pair(a, m):
+    n = len(a)
+
+    def geo(xs):
+        g = 1.0
+        for x in xs:
+            g *= (1 + x)
+        return g ** (1 / len(xs)) - 1 if xs else 0.0
+    up = [i for i in range(n) if m[i] > 0]
+    dn = [i for i in range(n) if m[i] < 0]
+    mb, ab = sum(m) / n, sum(a) / n
+    cov = sum((m[i] - mb) * (a[i] - ab) for i in range(n)) / (n - 1)
+    vm = sum((x - mb) ** 2 for x in m) / (n - 1)
+    va = sum((x - ab) ** 2 for x in a) / (n - 1)
+
+    def cum(xs):
+        g = 1.0
+        for x in xs:
+            g *= (1 + x)
+        return g
+
+    def roll(months):
+        w = t = 0
+        for i in range(0, n - months + 1):
+            t += 1
+            w += cum(a[i:i + months]) > cum(m[i:i + months])
+        return w / t if t else 0.0
+    return dict(up_cap=geo([a[i] for i in up]) / geo([m[i] for i in up]),
+                dn_cap=geo([a[i] for i in dn]) / geo([m[i] for i in dn]),
+                corr=cov / math.sqrt(vm * va), beta=cov / vm,
+                roll={y: roll(y * 12) for y in (3, 5, 7)})
+
+
+_PAIR = _pair(_ATH_X, _MSCI_X)
+
+
+def _project(T, r, dd):
+    med = 100 * (1 + r) ** T
+    down = 100 * (1 + (r - dd / math.sqrt(T))) ** T
+    ploss = _ND().cdf((0 - r) / (dd / math.sqrt(T)))
+    return med, down, ploss
+
+
+# ---- II.6h  Outcome table by holding period --------------------------------
+s, top = content("Risk-Adjusted Outcomes",
+                 "Lower downside risk compounds into better outcomes",
+                 "Athanase carries higher total volatility than the market — but "
+                 "its downside volatility is lower, which is what protects "
+                 "compounding.", ref=tbl())
+# three risk-stat cards
+metrics = [("Annualised return", _MSCI["ann_ret"], _ATH["ann_ret"]),
+           ("Total volatility", _MSCI["ann_vol"], _ATH["ann_vol"]),
+           ("Downside volatility", _MSCI["ann_dd"], _ATH["ann_dd"])]
+bx = Inches(0.6); bw = Inches(3.95); gap = Inches(0.12)
+for label, mv, av in metrics:
+    rect(s, bx, top, bw, Inches(1.28), fill=HEADERBG)
+    para(tbox(s, Emu(int(bx) + int(Inches(0.2))), top + Inches(0.14),
+              Emu(int(bw) - int(Inches(0.4))), Inches(0.3)),
+         label.upper(), 10.5, SLATE, first=True, bold=True, after=0, track=0)
+    vt = tbox(s, Emu(int(bx) + int(Inches(0.2))), top + Inches(0.46),
+              Emu(int(bw) - int(Inches(0.4))), Inches(0.8))
+    p = vt.paragraphs[0]; p.space_after = Pt(2)
+    r1 = p.add_run(); r1.text = "MSCI  "; r1.font.size = Pt(11)
+    r1.font.color.rgb = SUBTLE; r1.font.name = SANS
+    r2 = p.add_run(); r2.text = f"{mv*100:.1f}%"; r2.font.size = Pt(19)
+    r2.font.bold = True; r2.font.color.rgb = NAVY_TX; r2.font.name = SERIF
+    p2 = vt.add_paragraph()
+    r3 = p2.add_run(); r3.text = "AIP   "; r3.font.size = Pt(11)
+    r3.font.color.rgb = SUBTLE; r3.font.name = SANS
+    r4 = p2.add_run(); r4.text = f"{av*100:.1f}%"; r4.font.size = Pt(19)
+    r4.font.bold = True; r4.font.color.rgb = NAVY; r4.font.name = SERIF
+    bx = Emu(int(bx) + int(bw) + int(gap))
+para(tbox(s, Inches(9.27), top + Inches(1.32), Inches(3.95), Inches(0.4)),
+     "↑ Athanase downside volatility is LOWER than the market’s.",
+     10, NAVY, first=True, bold=True, after=0, track=0, lead=1.05)
+# projection table
+HZ = (3, 5, 7, 10)
+ty = top + Inches(1.95)
+para(tbox(s, Inches(0.6), ty - Inches(0.3), Inches(12), Inches(0.3)),
+     "EXPECTED VALUE OF 100 INVESTED, BY HOLDING PERIOD", 11, SLATE,
+     first=True, bold=True, after=0, track=0)
+col0 = Inches(3.5); hw = (SW - Inches(1.2) - col0) / len(HZ); rh = Inches(0.35)
+trows = [
+    ("Median outcome — MSCI",
+     [f"{_project(T, _MSCI['ann_ret'], _MSCI['ann_dd'])[0]:.0f}" for T in HZ], "sub"),
+    ("Median outcome — Athanase",
+     [f"{_project(T, _ATH['ann_ret'], _ATH['ann_dd'])[0]:.0f}" for T in HZ], "navy"),
+    ("Adverse case* — MSCI",
+     [f"{_project(T, _MSCI['ann_ret'], _MSCI['ann_dd'])[1]:.0f}" for T in HZ], "sub"),
+    ("Adverse case* — Athanase",
+     [f"{_project(T, _ATH['ann_ret'], _ATH['ann_dd'])[1]:.0f}" for T in HZ], "navy"),
+    ("Chance of a loss — MSCI",
+     [f"{_project(T, _MSCI['ann_ret'], _MSCI['ann_dd'])[2]*100:.0f}%" for T in HZ], "sub"),
+    ("Chance of a loss — Athanase",
+     [f"{_project(T, _ATH['ann_ret'], _ATH['ann_dd'])[2]*100:.0f}%" for T in HZ], "navy"),
+]
+cx = Inches(0.6)
+for ci, htext in enumerate(["", "3 years", "5 years", "7 years", "10 years"]):
+    w = col0 if ci == 0 else hw
+    rect(s, cx, ty, w, rh, fill=SLATE)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.12))), ty,
+              Emu(int(w) - int(Inches(0.2))), rh, anchor=MSO_ANCHOR.MIDDLE),
+         htext, 12, WHITE, bold=True, first=True,
+         align=PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.RIGHT, after=0, track=0)
+    cx = Emu(int(cx) + int(w))
+yy = Emu(int(ty) + int(rh))
+for ri, (label, vals, kind) in enumerate(trows):
+    fill = HEADERBG if ri % 2 == 0 else WHITE
+    cx = Inches(0.6)
+    rect(s, cx, yy, col0, rh, fill=fill)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.12))), yy,
+              Emu(int(col0) - int(Inches(0.2))), rh, anchor=MSO_ANCHOR.MIDDLE),
+         label, 11.5, NAVY if kind == "navy" else SUBTLE,
+         bold=(kind == "navy"), first=True, after=0, track=0)
+    cx = Emu(int(cx) + int(col0))
+    for v in vals:
+        rect(s, cx, yy, hw, rh, fill=fill)
+        para(tbox(s, Emu(int(cx) + int(Inches(0.1))), yy,
+                  Emu(int(hw) - int(Inches(0.2))), rh, anchor=MSO_ANCHOR.MIDDLE),
+             v, 12.5, NAVY_TX if kind == "navy" else SUBTLE,
+             bold=(kind == "navy"), first=True, align=PP_ALIGN.RIGHT,
+             after=0, track=0)
+        cx = Emu(int(cx) + int(hw))
+    yy = Emu(int(yy) + int(rh))
+tk = Emu(int(yy) + int(Inches(0.08)))
+rect(s, Inches(0.6), tk, Inches(12.13), Inches(0.38), fill=NAVY)
+para(tbox(s, Inches(0.78), tk, Inches(11.8), Inches(0.38), anchor=MSO_ANCHOR.MIDDLE),
+     "Even in the adverse case, Athanase’s lower downside volatility leaves an "
+     "investor ahead at every horizon — and the gap widens with time.",
+     11.5, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s, Inches(0.6), Emu(int(tk) + int(Inches(0.46))), Inches(12.6), Inches(0.4)),
+     f"Source: monthly net returns, {_NM} months (2006–2025). *Adverse case = "
+     "one downside-deviation outcome (≈1-in-6), narrowing with horizon as "
+     "dd/√T. Illustrative; past performance is not indicative of future results.",
+     7.5, FOOT, first=True, after=0, track=0, lead=1.1)
+
+
+# ---- II.6i  Up/down capture + diversification ------------------------------
+def _capture_chart(path_png):
+    fig, ax = plt.subplots(figsize=(5.1, 4.3), dpi=200)
+    xm = [0, 1.6]; w = 0.62
+    avals = [_PAIR["up_cap"] * 100, _PAIR["dn_cap"] * 100]
+    ax.bar([x - w / 2 for x in xm], [100, 100], w, color=H_BLUE4, alpha=0.55,
+           label="MSCI World IMI (= market)")
+    ax.bar([x + w / 2 for x in xm], avals, w, color=H_NAVY, label="Athanase")
+    ax.axhline(100, color=H_BLUE5, lw=1.0, zorder=0)
+    for x, v in zip([x + w / 2 for x in xm], avals):
+        ax.annotate(f"{v:.0f}%", (x, v), ha="center", va="bottom", fontsize=15,
+                    fontweight="bold", color=H_NAVY, xytext=(0, 3),
+                    textcoords="offset points")
+    for x in [x - w / 2 for x in xm]:
+        ax.annotate("100%", (x, 100), ha="center", va="bottom", fontsize=11,
+                    color=H_BLUE4, xytext=(0, 3), textcoords="offset points")
+    ax.set_xticks(xm)
+    ax.set_xticklabels(["Up markets\n(rallies)", "Down markets\n(selloffs)"],
+                       fontsize=11, color=H_BODY)
+    ax.set_ylabel("Share of the market’s move captured", color=H_BODY, fontsize=10.5)
+    ax.set_ylim(0, 120); ax.set_xlim(-0.7, 2.3); ax.set_yticks([0, 50, 100])
+    ax.set_yticklabels(["0%", "50%", "100%"], fontsize=10, color=H_BODY)
+    ax.tick_params(colors=H_BODY)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color(H_BLUE5)
+    ax.grid(True, axis="y", color=H_BLUE5, lw=0.6, alpha=0.6)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=2,
+              fontsize=10, frameon=False, labelcolor=H_BODY, handlelength=1.4,
+              columnspacing=1.6)
+    ax.set_title("Up- vs down-market capture", color=H_NAVY, fontsize=13,
+                 fontweight="bold", pad=10)
+    fig.tight_layout(); fig.savefig(path_png, dpi=200, bbox_inches="tight",
+                                    facecolor="white"); plt.close(fig)
+
+
+_capture_chart("/tmp/mc_capture.png")
+_f_cap = fig()
+s, top = content("Risk-Adjusted Outcomes",
+                 "A complement to global equities, not a duplicate",
+                 "What a global-equity holder asks of a new manager: do you keep "
+                 "up in rallies, lose less in selloffs, and add something the "
+                 "index can’t?", ref=_f_cap)
+s.shapes.add_picture("/tmp/mc_capture.png", Inches(0.55), Inches(2.25),
+                     height=Inches(4.1))
+cardx = Inches(6.55); cardw = Inches(6.2); cardh = Inches(1.2); cy = Inches(2.3)
+for title, big, body in [
+    ("CAPTURE ASYMMETRY",
+     f"{_PAIR['up_cap']*100:.0f}% up  /  {_PAIR['dn_cap']*100:.0f}% down",
+     "Keeps pace with rallies but takes less than half of selloffs — the "
+     "essence of the edge."),
+    ("DIVERSIFICATION",
+     f"{_PAIR['corr']:.2f} correlation  ·  {_PAIR['beta']:.2f} beta",
+     "Low correlation to your existing equity book — a genuine diversifier, "
+     "not levered beta."),
+    ("RELIABILITY OVER TIME",
+     f"Beat MSCI in {_PAIR['roll'][5]*100:.0f}% of 5-yr and "
+     f"{_PAIR['roll'][7]*100:.0f}% of 7-yr windows",
+     "Over every rolling 7-year holding period in 20 years, Athanase "
+     "out-returned the index.")]:
+    rect(s, cardx, cy, cardw, cardh, fill=HEADERBG)
+    para(tbox(s, Emu(int(cardx) + int(Inches(0.22))), cy + Inches(0.12),
+              Emu(int(cardw) - int(Inches(0.44))), Inches(0.25)),
+         title, 10.5, SLATE, first=True, bold=True, after=0, track=0)
+    para(tbox(s, Emu(int(cardx) + int(Inches(0.22))), cy + Inches(0.36),
+              Emu(int(cardw) - int(Inches(0.44))), Inches(0.35)),
+         big, 17, NAVY_TX, first=True, bold=True, after=0, font=SERIF, track=0)
+    para(tbox(s, Emu(int(cardx) + int(Inches(0.22))), cy + Inches(0.74),
+              Emu(int(cardw) - int(Inches(0.44))), Inches(0.45)),
+         body, 10.5, BODY, first=True, after=0, lead=1.12, track=0)
+    cy = Emu(int(cy) + int(cardh) + int(Inches(0.12)))
+rect(s, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
+          anchor=MSO_ANCHOR.MIDDLE),
+     f"Athanase captures {_PAIR['up_cap']*100:.0f}% of the market’s upside but "
+     f"only {_PAIR['dn_cap']*100:.0f}% of its downside — at {_PAIR['corr']:.2f} "
+     "correlation, it improves the whole portfolio, not just one line of it.",
+     12, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
+     f"Source: monthly net returns, {_NM} months (2006–2025). Capture = "
+     "compounded Athanase return in the market’s up/down months ÷ the market’s. "
+     "Past performance is not indicative of future results.",
+     7.5, FOOT, first=True, after=0, track=0, lead=1.1)
+
+
+# ---- II.6j  Efficient frontier ---------------------------------------------
+def _ann_b(xs):
+    g = 1.0
+    for x in xs:
+        g *= (1 + x)
+    return g ** (12 / len(xs)) - 1
+
+
+def _dvol_b(xs):
+    return math.sqrt(sum(min(x, 0) ** 2 for x in xs) / len(xs)) * math.sqrt(12)
+
+
+_FRONT = []
+for _w in [i / 20 for i in range(21)]:
+    _bl = [_w * _ATH_X[i] + (1 - _w) * _MSCI_X[i] for i in range(_NM)]
+    _FRONT.append((_w, _dvol_b(_bl) * 100, _ann_b(_bl) * 100))
+_b0 = _FRONT[0]
+_b8 = min(_FRONT, key=lambda z: abs(z[0] - 0.08))
+_fmin = min(_FRONT, key=lambda z: z[1])
+
+
+def _frontier_chart(path_png):
+    fig, ax = plt.subplots(figsize=(8.6, 4.35), dpi=200)
+    ax.plot([p[1] for p in _FRONT], [p[2] for p in _FRONT], color=H_BLUE4,
+            lw=2.0, zorder=3)
+
+    def mark(wt, label, col, dy=8, dx=8, big=False):
+        p = min(_FRONT, key=lambda z: abs(z[0] - wt))
+        ax.scatter([p[1]], [p[2]], s=120 if big else 80, color=col, zorder=5,
+                   edgecolor="white", linewidth=1.2)
+        ax.annotate(label, (p[1], p[2]), color=col, fontsize=10.5,
+                    fontweight="bold", xytext=(dx, dy), textcoords="offset points")
+    mark(0.0, "100% Global equities\n(MSCI World IMI)", H_BLUE4, dy=-30, dx=-30)
+    mark(1.0, "100% Athanase", H_NAVY, dy=6, dx=-150, big=True)
+    ax.scatter([_fmin[1]], [_fmin[2]], s=150, color=H_NAVY, zorder=6,
+               edgecolor="white", linewidth=1.5, marker="D")
+    ax.annotate(f"Minimum downside risk\n≈ {_fmin[0]*100:.0f}% Athanase  "
+                f"({_fmin[2]:.1f}% return)", (_fmin[1], _fmin[2]), color=H_NAVY,
+                fontsize=10, fontweight="bold", xytext=(12, -4),
+                textcoords="offset points", va="center")
+    seg = [z for z in _FRONT if 0.03 <= z[0] <= 0.08]
+    ax.plot([z[1] for z in seg], [z[2] for z in seg], color=H_NAVY, lw=6,
+            alpha=0.95, solid_capstyle="round", zorder=6)
+    pmid = min(_FRONT, key=lambda z: abs(z[0] - 0.055))
+    ax.annotate("prudent 3–8% zone", (pmid[1], pmid[2]), color=H_NAVY,
+                fontsize=10.5, fontweight="bold", xytext=(10.55, 5.0),
+                textcoords="data", va="center", ha="center",
+                arrowprops=dict(arrowstyle="-", color=H_NAVY, lw=1.0,
+                                connectionstyle="arc3,rad=0.2"))
+    ax.set_xlabel("Downside volatility (annualised)", color=H_BODY, fontsize=11)
+    ax.set_ylabel("Annualised return", color=H_BODY, fontsize=11)
+    ax.set_xlim(9.8, 12.2); ax.set_ylim(4, 18)
+    ax.set_xticks([10, 10.5, 11, 11.5, 12])
+    ax.xaxis.set_major_formatter(lambda v, _: f"{v:.1f}%")
+    ax.yaxis.set_major_formatter(lambda v, _: f"{v:.0f}%")
+    ax.tick_params(colors=H_BODY, labelsize=10)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color(H_BLUE5)
+    ax.grid(True, color=H_BLUE5, lw=0.6, alpha=0.6)
+    ax.set_title("Blended portfolio: return vs downside risk", color=H_NAVY,
+                 fontsize=13, fontweight="bold", pad=10)
+    fig.tight_layout(); fig.savefig(path_png, dpi=200, bbox_inches="tight",
+                                    facecolor="white"); plt.close(fig)
+
+
+_frontier_chart("/tmp/mc_frontier.png")
+_f_fr = fig()
+s, top = content("Risk-Adjusted Outcomes",
+                 "What a blend does to the whole portfolio",
+                 "Adding Athanase to a global-equity book moves the portfolio up "
+                 "and to the left — more return for less downside risk, thanks to "
+                 "low correlation.", ref=_f_fr)
+s.shapes.add_picture("/tmp/mc_frontier.png", Inches(0.55), Inches(2.25),
+                     height=Inches(4.1))
+cx3 = Inches(8.9); cw3 = Inches(3.85); ch3 = Inches(1.2); cy3 = Inches(2.32)
+for title, b1, b2, sub in [
+    ("ALL GLOBAL EQUITIES", f"{_b0[2]:.1f}% return", f"{_b0[1]:.1f}% downside risk",
+     "100% MSCI World IMI"),
+    ("ADD A PRUDENT 8% SLEEVE", f"{_b8[2]:.1f}% return",
+     f"{_b8[1]:.1f}% downside risk", "92% MSCI  /  8% Athanase")]:
+    rect(s, cx3, cy3, cw3, ch3, fill=HEADERBG)
+    para(tbox(s, Emu(int(cx3) + int(Inches(0.22))), cy3 + Inches(0.12),
+              Emu(int(cw3) - int(Inches(0.44))), Inches(0.25)),
+         title, 10.5, SLATE, first=True, bold=True, after=0, track=0)
+    rt = tbox(s, Emu(int(cx3) + int(Inches(0.22))), cy3 + Inches(0.38),
+              Emu(int(cw3) - int(Inches(0.44))), Inches(0.45))
+    p = rt.paragraphs[0]; p.space_after = Pt(0)
+    r1 = p.add_run(); r1.text = b1; r1.font.size = Pt(16); r1.font.bold = True
+    r1.font.color.rgb = NAVY_TX; r1.font.name = SERIF
+    r2 = p.add_run(); r2.text = "   ·   " + b2; r2.font.size = Pt(12)
+    r2.font.color.rgb = SLATE; r2.font.name = SANS
+    para(tbox(s, Emu(int(cx3) + int(Inches(0.22))), cy3 + Inches(0.82),
+              Emu(int(cw3) - int(Inches(0.44))), Inches(0.3)),
+         sub, 10.5, BODY, first=True, after=0, track=0)
+    cy3 = Emu(int(cy3) + int(ch3) + int(Inches(0.14)))
+para(tbox(s, cx3, cy3 + Inches(0.02), cw3, Inches(0.3)),
+     "HOW TO READ IT", 10.5, SLATE, first=True, bold=True, after=0, track=0)
+para(tbox(s, cx3, cy3 + Inches(0.3), cw3, Inches(1.9)),
+     "Every blend on the curve beats holding equities alone, and the benefit "
+     f"keeps building until past half the portfolio (downside risk bottoms near "
+     f"{_fmin[0]*100:.0f}%). That is a directional case to size up — within "
+     "prudent limits — not a target: a 59% position would breach concentration, "
+     "liquidity and the 3–8% sizing discipline. Even an 8% sleeve already moves "
+     "the portfolio the right way.", 10.5, BODY, first=True, after=0,
+     lead=1.16, track=0)
+rect(s, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "The blend is not a trade-off — every allocation improves the portfolio, so "
+     "the case is to size up within prudent 3–8% limits, not to chase the "
+     "mathematical optimum.", 12, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
+     f"Source: monthly net returns, {_NM} months (2006–2025), monthly rebalanced "
+     "blends. The minimum-risk point is in-sample and shown for shape, not as "
+     "advice. Illustrative; past performance is not indicative of future results.",
+     7.5, FOOT, first=True, after=0, track=0, lead=1.1)
+
+
 # ---- II.7 ESG / responsible ownership ----
 s, top = content("Ownership Model", "Responsible ownership, by construction")
 checklist(s, [
@@ -1170,17 +1569,21 @@ def _toc_col(col_x, col_w, header, entries):
     para(htf, header, 14, SLATE, first=True, bold=True, after=0, font=SERIF)
     ytf = tbox(agenda_s, col_x, Emu(int(agenda_top) + int(Inches(0.5))),
                col_w, Inches(4.7))
+    # tighten spacing when a column is long so it never runs past the footer
+    long_col = len(entries) > 14
+    fs = 10.5 if long_col else 11.5
+    sa = 4.5 if long_col else 7
     for i, (num, title, ref) in enumerate(entries):
         p = ytf.paragraphs[0] if i == 0 else ytf.add_paragraph()
-        p.space_after = Pt(7); p.line_spacing = 1.04
+        p.space_after = Pt(sa); p.line_spacing = 1.03
         r0 = p.add_run(); r0.text = num + "   "
-        r0.font.size = Pt(11.5); r0.font.bold = True
+        r0.font.size = Pt(fs); r0.font.bold = True
         r0.font.color.rgb = SLATE; r0.font.name = SANS
         r1 = p.add_run(); r1.text = title
-        r1.font.size = Pt(11.5); r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
+        r1.font.size = Pt(fs); r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
         if ref:
             r2 = p.add_run(); r2.text = "   (" + ref + ")"
-            r2.font.size = Pt(9.5); r2.font.italic = True
+            r2.font.size = Pt(fs - 2); r2.font.italic = True
             r2.font.color.rgb = SUBTLE; r2.font.name = SANS
 
 _p1 = [e for e in TOC if e[0].startswith("1.")]
