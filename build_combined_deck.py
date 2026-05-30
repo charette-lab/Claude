@@ -531,6 +531,95 @@ checklist(s, [
      "allocation — the discipline behind a 92% deal-level hit rate over 20 years."),
 ], top, size=14.5, gap=11)
 
+# ---- II.5c The non-linear path, honestly priced ----
+s, top = content("Strategic Case", "A non-linear path — honestly priced",
+                 "Public engaged ownership marks to market every day. The "
+                 "destination is the multiple; the route is rarely a straight "
+                 "line.")
+# explanatory bullets (left)
+checklist(s, [
+    ("Value moves over the holding period.", "A 5× outcome is realised over "
+     "years — the interim mark moves with the market, the cycle and the "
+     "campaign. It is a journey, not a coupon."),
+    ("PE looks smooth because it is appraised, not traded.", "Infrequent, "
+     "model-based marks understate true economic volatility — “volatility "
+     "laundering.” Marked daily, a levered buyout would swing as much or more."),
+    ("Same economics, honest optics.", "We hold the same kind of assets PE "
+     "does — we simply report them at live prices and accept the J-curve as the "
+     "toll paid for liquidity."),
+], top, left=Inches(0.7), width=Inches(6.2), size=13.5, gap=11)
+# illustrative line chart (right)
+cd = CategoryChartData()
+cd.categories = ["0", "", "", "Yr 1", "", "", "Yr 2", "", "", "Yr 3", "", "", "Exit"]
+cd.add_series("Public mark-to-market", (100, 92, 80, 72, 85, 95, 88, 112, 142,
+                                        175, 212, 255, 300))
+cd.add_series("PE appraisal marks", (100, 104, 110, 118, 128, 140, 155, 172,
+                                     192, 215, 245, 272, 300))
+gf = s.shapes.add_chart(XL_CHART_TYPE.LINE, Inches(7.05), top - Inches(0.05),
+                        Inches(5.9), Inches(3.9), cd)
+ch = gf.chart
+ch.has_title = True
+ch.chart_title.text_frame.text = "Same destination, different reported path (indexed to 100)"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(11)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = SUBTLE
+ch.has_legend = True
+ch.legend.position = XL_LEGEND_POSITION.BOTTOM
+ch.legend.include_in_layout = False
+ch.legend.font.size = Pt(11)
+ser = ch.plots[0].series
+ser[0].format.line.color.rgb = NAVY
+ser[0].format.line.width = Pt(2.5)
+ser[1].format.line.color.rgb = SLATE_LT
+ser[1].format.line.width = Pt(2.0)
+ser[1].format.line.dash_style = 2  # dashed
+for sline in ser:
+    sline.smooth = True
+ch.category_axis.tick_labels.font.size = Pt(9)
+ch.value_axis.tick_labels.font.size = Pt(9)
+ch.value_axis.has_major_gridlines = False
+para(tbox(s, Inches(7.05), top + Inches(3.95), Inches(5.9), Inches(0.6)),
+     "Illustrative. Both reach the same value; only the public line shows the "
+     "honest interim drawdown.", 10, FOOT, first=True, italic=True, after=0)
+
+# ---- II.5d Risk reframing summary table (memo Section 8.3) ----
+s, top = content("Strategic Case", "Risk reframing for the investment committee",
+                 "What the committee sees on the surface — versus what it is "
+                 "actually underwriting.")
+rows = [
+    ("What the IC sees", "What it is actually underwriting"),
+    ("Reputational / headline risk",
+     "The catalyst that forces repricing — and a moat that keeps competitors out"),
+    ("Public J-curve & mark-to-market drawdown",
+     "A live, tradable entry into an asset already de-risked by board control"),
+    ("~50% peak-to-trough swings",
+     "Optical volatility; two such drawdowns fully recovered (2010, 2020) · Sortino 2.40"),
+    ("Concentration in 8–12 names",
+     "Deliberate conviction sizing — the skill (85.7% hit on ≥10% names; +0.73)"),
+    ("“Catching a falling knife”",
+     "Hard-floor valuation gates; entry below the value of the rectifiable core"),
+    ("Single-name dependence",
+     "One ≥5× MOIC win every ~2 years; competitive even excluding the largest"),
+]
+tl = Inches(0.6); cw2 = [Inches(4.55), Inches(7.55)]; rh = Inches(0.56); y = top
+for ri, (a, b) in enumerate(rows):
+    head = ri == 0
+    x = tl
+    for ci, cell in enumerate((a, b)):
+        fill = SLATE if head else (HEADERBG if ri % 2 else WHITE)
+        rect(s, x, y, cw2[ci], rh, fill=fill)
+        ctf = tbox(s, Emu(int(x) + int(Inches(0.14))), y,
+                   Emu(int(cw2[ci]) - int(Inches(0.24))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        para(ctf, cell, 12.5 if head else 12,
+             WHITE if head else (SUBTLE if ci == 0 else NAVY_TX),
+             bold=(head or ci == 1), first=True, after=0, lead=1.05)
+        x = Emu(int(x) + int(cw2[ci]))
+    y = Emu(int(y) + int(rh))
+para(tbox(s, Inches(0.6), Emu(int(y) + int(Inches(0.15))), Inches(12.1), Inches(0.6)),
+     "The IC is not paying for safety. It is paying for proven willingness to "
+     "take compensated discomfort — +6 percentage points per year, net of every "
+     "fee, for 20 years.", 13, SLATE, first=True, italic=True, after=0)
+
 # ---- II.6 Track record (chart) ----
 s, top = content("Track Record", "Proof: outperformance with downside protection")
 chart_data = CategoryChartData()
@@ -674,6 +763,37 @@ para(tbox(s, Inches(0.75), Inches(6.35), Inches(11.8), Inches(0.55)),
      "“The team has done this twice in 20 years, not once — the ‘every 10–20 "
      "years’ objection is empirically unsupportable.”", 13, SLATE, first=True,
      italic=True, after=0)
+
+# ---- II.6f Governing the allocation: why the path won't get you fired ----
+s, top = content("Allocation", "Why a non-linear path won’t get you fired",
+                 "Career risk is managed by mandate design — not by hoping the "
+                 "line goes straight.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.6))
+para(colL, "SIZE AND STRUCTURE IT RIGHT", 13, SLATE, first=True, bold=True, after=7)
+for t in ["Size at 1–3% of total assets in a special-situations sleeve — no "
+          "single mark can dominate the portfolio or force action",
+          "Pre-agree a ~50% mark-to-market drawdown tolerance with the IC at "
+          "commitment; align reporting to the multi-year holding cycle, not "
+          "monthly marks",
+          "Define reallocation triggers in advance — manager turnover, style "
+          "drift, weaker sizing discipline — never the share price"]:
+    para(colL, t, 14, BODY, after=10, lead=1.13)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.6))
+para(colR, "JUDGE THE RIGHT THING", 13, SLATE, first=True, bold=True, after=7)
+for t in ["Underwrite whether business risk is falling — board seat secured, "
+          "cash-flow control — not whether the news flow looks calm",
+          "The big winners are realised LP cash, not marks: the value is "
+          "bankable, not modelled",
+          "Two ~50% drawdowns have already been recovered with the same "
+          "philosophy — the path has been bumpy before and still paid +6 pts/yr "
+          "net"]:
+    para(colR, t, 14, BODY, after=10, lead=1.13)
+sy = Inches(6.25)
+rect(s, Inches(0.75), sy, Inches(11.85), Inches(0.62), fill=NAVY)
+para(tbox(s, Inches(0.95), sy, Inches(11.45), Inches(0.62), anchor=MSO_ANCHOR.MIDDLE),
+     "A pre-underwritten, correctly-sized, fundamentally-monitored allocation "
+     "turns a bad quarter into “as expected” — not a surprise that invites "
+     "blame.", 13.5, WHITE, first=True, italic=True, after=0)
 
 # ---- II.7 ESG / responsible ownership ----
 s, top = content("Ownership Model", "Responsible ownership, by construction")
