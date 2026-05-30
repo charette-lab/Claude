@@ -480,15 +480,12 @@ def frontier_chart(path_png):
     ax.plot([z[1] for z in seg], [z[2] for z in seg], color=H_NAVY, lw=6,
             alpha=0.95, solid_capstyle="round", zorder=6)
     pmid = min(_FRONT, key=lambda z: abs(z[0] - 0.055))
-    ax.annotate("prudent\n3–8% zone", (pmid[1], pmid[2]), color=H_NAVY,
-                fontsize=10, fontweight="bold", xytext=(-66, 10),
-                textcoords="offset points", va="center", ha="center",
-                arrowprops=dict(arrowstyle="-", color=H_NAVY, lw=0.9))
-    # guide arrow in an empty corner: up-and-left = better
-    ax.annotate("", (10.05, 16.8), (11.0, 15.2),
-                arrowprops=dict(arrowstyle="->", color=H_BLUE4, lw=1.4))
-    ax.annotate("better", (10.0, 17.1), color=H_BLUE4, fontsize=10,
-                style="italic", ha="left", fontweight="bold")
+    # label sits in clear space below the curve, leader points to the segment
+    ax.annotate("prudent 3–8% zone", (pmid[1], pmid[2]), color=H_NAVY,
+                fontsize=10.5, fontweight="bold", xytext=(10.55, 5.0),
+                textcoords="data", va="center", ha="center",
+                arrowprops=dict(arrowstyle="-", color=H_NAVY, lw=1.0,
+                                connectionstyle="arc3,rad=0.2"))
     ax.set_xlabel("Downside volatility (annualised)", color=H_BODY, fontsize=11)
     ax.set_ylabel("Annualised return", color=H_BODY, fontsize=11)
     ax.set_xlim(9.8, 12.2); ax.set_ylim(4, 18)
