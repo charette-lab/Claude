@@ -40,15 +40,27 @@ discounts — and then acting as the catalyst that closes that gap.
 
 This is a structurally different return source than the broad market beta
 captured by an index fund. A passive holder of an underperforming company simply
-absorbs that underperformance. An activist *changes the outcome*. Academic and
-practitioner research consistently documents this catalyst effect: studies of
-activist 13D filings find statistically significant positive abnormal returns in
-the window around announcement (commonly cited in the range of 5% to 7% on
-average), and — importantly for skeptics who fear short-termism — subsequent
-research tracking targets over the following three to five years generally finds
-that operating performance and total shareholder returns *improve* rather than
-revert. The "value extraction at the expense of the long term" narrative is not
-well supported by the longer-horizon data.
+absorbs that underperformance. An activist *changes the outcome*. Academic
+research consistently documents this catalyst effect. In the foundational
+large-sample study, Brav, Jiang, Partnoy, and Thomas (2008) find an average
+abnormal return of approximately **7%** in the window around the announcement of
+activism, *with no reversal* over the subsequent year, and report that activists
+achieve success or partial success in about **two-thirds** of campaigns — most
+of which are non-confrontational rather than control-seeking.[^1] Klein and Zur
+(2009), studying Schedule 13D filings, document an even larger reaction —
+roughly **10.2%** abnormal returns around the initial filing, followed by a
+further **~11.4%** over the subsequent year for hedge-fund activists.[^2]
+
+Critically for skeptics who fear short-termism, the longer-horizon evidence does
+not support a "value extraction at the expense of the long term" narrative.
+Bebchuk, Brav, and Jiang (2015), examining roughly 2,000 interventions from 1994
+to 2007, find *no evidence* that the initial positive stock-price spike is
+followed by negative abnormal returns over the following three to five years, and
+*no evidence* of "pump-and-dump" patterns around activist exits.[^3] Using
+plant-level U.S. Census data, Brav, Jiang, and Kim (2015) show that target firms
+improve real production efficiency in the three years after intervention,
+consistent with genuine operational value creation rather than financial
+engineering.[^4]
 
 For an institution, three features of this return stream stand out:
 
@@ -88,7 +100,10 @@ underwrite a three-year thesis with conviction.
 
 **Fiduciary duty and the prudent steward.** A trustee's fiduciary duty is not
 satisfied by passive ownership alone; it is increasingly understood to include
-*responsible stewardship* of the assets owned. Allocating to managers who hold
+*responsible stewardship* of the assets owned — a principle now codified in
+frameworks such as the UK Stewardship Code and the UN-supported Principles for
+Responsible Investment, to which many large asset owners are signatories.[^5]
+Allocating to managers who hold
 boards accountable, who insist on rational capital allocation, and who push for
 governance reforms is a direct expression of the duty to act in beneficiaries'
 long-term economic interest. Far from being in tension with fiduciary
@@ -246,6 +261,35 @@ creation; and references from companies and other directors, not only investors.
 5. **Benchmark thoughtfully.** Evaluate against a public-equity benchmark on a
    multi-year basis, recognizing that activist returns are lumpy and
    event-driven; short-term tracking error is expected and acceptable.
+
+---
+
+---
+
+## References
+
+[^1]: Brav, A., Jiang, W., Partnoy, F., & Thomas, R. (2008). "Hedge Fund
+    Activism, Corporate Governance, and Firm Performance." *The Journal of
+    Finance*, 63(4), 1729–1775.
+    https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.2008.01373.x
+
+[^2]: Klein, A., & Zur, E. (2009). "Entrepreneurial Shareholder Activism: Hedge
+    Funds and Other Private Investors." *The Journal of Finance*, 64(1),
+    187–229.
+    https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.2008.01432.x
+
+[^3]: Bebchuk, L. A., Brav, A., & Jiang, W. (2015). "The Long-Term Effects of
+    Hedge Fund Activism." *Columbia Law Review*, 115(5), 1085–1156.
+    https://columbialawreview.org/wp-content/uploads/2016/04/Bebchuk-Brav-Jiang.pdf
+
+[^4]: Brav, A., Jiang, W., & Kim, H. (2015). "The Real Effects of Hedge Fund
+    Activism: Productivity, Asset Allocation, and Labor Outcomes." *The Review of
+    Financial Studies*, 28(10), 2723–2769.
+    https://academic.oup.com/rfs/article-abstract/28/10/2723/1581066
+
+[^5]: Financial Reporting Council (2020). *The UK Stewardship Code 2020*;
+    Principles for Responsible Investment (PRI), *What is Responsible
+    Investment?* https://www.unpri.org/about-us/what-are-the-principles-for-responsible-investment
 
 ---
 
