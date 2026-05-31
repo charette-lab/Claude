@@ -1586,6 +1586,516 @@ para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
      7.5, FOOT, first=True, after=0, track=0, lead=1.1)
 
 
+# ===========================================================================
+# II.6k-o  Athanase vs mid-market private equity (real, de-smoothed data)
+# PE figures from published research; Athanase computed from real returns.
+# ===========================================================================
+ATH_RET = _ATH["ann_ret"]; ATH_DD = _ATH["ann_dd"]; ATH_VOL = _ATH["ann_vol"]
+ATH_CORR = _PAIR["corr"]
+PE_HEADLINE = 0.20            # top-quartile mid-market buyout headline net IRR
+PE_REAL = 0.114              # Cliffwater realised PE (US state pensions, 2000-22)
+PE_VOL_REPORTED = 0.10; PE_VOL_TRUE = 0.28      # reported vs de-smoothed total vol
+PE_CORR_REPORTED = 0.75; PE_CORR_TRUE = 0.89    # reported vs de-smoothed corr
+PE_EVIDENCE = [
+    ("Cliffwater\nUS state pensions\n(2000–2022)", 11.4, 5.8),
+    ("BVCA / Capital Dynamics\nUK & Europe\n(2001–2023)", 14.1, 7.7),
+]
+
+
+def _cum_pe(xs):
+    g = 1.0
+    for x in xs:
+        g *= (1 + x)
+    return g - 1
+
+
+_roll36 = [_cum_pe(_ATH_X[i:i + 36]) for i in range(0, _NM - 36 + 1)]
+ATH_P30 = sum(1 for r in _roll36 if r < -0.30) / len(_roll36)
+PE_P30 = 0.155
+
+
+# ---- II.6k  What allocators actually earn ----------------------------------
+def _pe_realised(path):
+    fig_, ax = plt.subplots(figsize=(8.7, 4.35), dpi=200)
+    g = [e[0] for e in PE_EVIDENCE]; pe = [e[1] for e in PE_EVIDENCE]
+    pme = [e[2] for e in PE_EVIDENCE]; xx = np.arange(len(g)); w = 0.38
+    ax.bar(xx - w / 2, pe, w, color=H_BLUE4, label="PE realised (net)")
+    ax.bar(xx + w / 2, pme, w, color=H_BLUE5, edgecolor=H_BLUE4, linewidth=1,
+           label="Public-market equivalent")
+    for xi, (p, q) in enumerate(zip(pe, pme)):
+        ax.annotate(f"{p:.1f}%", (xi - w / 2, p), ha="center", va="bottom",
+                    fontsize=12, fontweight="bold", color=H_BLUE3, xytext=(0, 3),
+                    textcoords="offset points")
+        ax.annotate(f"{q:.1f}%", (xi + w / 2, q), ha="center", va="bottom",
+                    fontsize=11, color=H_BLUE4, xytext=(0, 3),
+                    textcoords="offset points")
+        ax.annotate(f"+{p-q:.1f} pts\npremium", (xi, (p + q) / 2), ha="center",
+                    va="center", fontsize=9.5, color=H_BLUE3, fontweight="bold")
+    ax.axhline(ATH_RET * 100, color=H_NAVY, lw=1.8, ls=(0, (5, 3)), zorder=5)
+    ax.annotate(f"Athanase {ATH_RET*100:.0f}%  (real, net, fully invested)",
+                (len(g) - 0.5, ATH_RET * 100), ha="right", va="bottom",
+                fontsize=10.5, color=H_NAVY, fontweight="bold")
+    ax.set_xticks(xx); ax.set_xticklabels(g, fontsize=9.5, color=H_BODY)
+    ax.set_ylabel("Annualised return to investors", color=H_BODY, fontsize=11)
+    ax.set_ylim(0, 19); ax.set_xlim(-0.6, len(g) - 0.4)
+    ax.yaxis.set_major_formatter(lambda v, _: f"{v:.0f}%")
+    ax.tick_params(colors=H_BODY, labelsize=10)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color(H_BLUE5)
+    ax.grid(True, axis="y", color=H_BLUE5, lw=0.6, alpha=0.6)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=2,
+              fontsize=10, frameon=False, labelcolor=H_BODY)
+    ax.set_title("What allocators actually realise from private equity",
+                 color=H_NAVY, fontsize=13, fontweight="bold", pad=10)
+    fig_.tight_layout(); fig_.savefig(path, dpi=200, bbox_inches="tight",
+                                      facecolor="white"); plt.close(fig_)
+
+
+_pe_realised("/tmp/d_pe_realised.png")
+s, top = content("Private Equity",
+                 "What allocators actually earn from private equity",
+                 "Stripping out headline-IRR marketing, cash-matched (PME) data "
+                 "shows PE earns a real ~3–6 pt premium over public markets — but "
+                 "lands below Athanase.", ref=tbl())
+s.shapes.add_picture("/tmp/d_pe_realised.png", Inches(0.55), Inches(2.3),
+                     height=Inches(3.85))
+cx = Inches(8.95); cw = Inches(3.8); chh = Inches(1.16); cy = Inches(2.35)
+for ti, bd in [
+    ("HEADLINE ≠ REALISED",
+     "Top-quartile IRR is shown as ~18–22%, struck on drawn capital. Cash-matched "
+     "to public markets, the real figure is far lower."),
+    ("THE REAL PREMIUM IS GENUINE",
+     "PME studies agree: ~1.2× wealth multiple, a real 3–5 pt premium "
+     "(Cambridge; Kaplan-Harris-Jenkinson / Burgiss; Cliffwater; BVCA)."),
+    ("BUT BELOW ATHANASE",
+     "Allocators realise ~11–14% from PE. Athanase has delivered ~16% — net, "
+     "real, and fully invested from day one.")]:
+    rect(s, cx, cy, cw, chh, fill=HEADERBG)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.2))), cy + Inches(0.1),
+              Emu(int(cw) - int(Inches(0.4))), Inches(0.25)), ti, 10.5, SLATE,
+         first=True, bold=True, after=0, track=0)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.2))), cy + Inches(0.36),
+              Emu(int(cw) - int(Inches(0.4))), Inches(0.78)), bd, 10.5, BODY,
+         first=True, after=0, lead=1.12, track=0)
+    cy = Emu(int(cy) + int(chh) + int(Inches(0.14)))
+rect(s, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "PE’s premium over public markets is real — but Athanase’s ~16% sits above "
+     "even what the best allocators realise, with daily liquidity.",
+     12, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
+     "Sources: Cliffwater (US state pensions, 2000–22) PE 11.4% vs PME 5.8%; "
+     "BVCA / Capital Dynamics (UK & Europe, 2001–23) 14.1% vs 7.7%; corroborated "
+     "by Cambridge Associates mPME 1.15–1.25× and Kaplan-Harris-Jenkinson KS-PME "
+     "1.20–1.27×. Athanase real, net, 2006–2025. See references.",
+     7.5, FOOT, first=True, after=0, track=0, lead=1.1)
+
+
+# ---- II.6l  The switch: real return vs true volatility ---------------------
+def _pe_scatter(path):
+    fig_, ax = plt.subplots(figsize=(6.0, 4.25), dpi=200)
+    ax.annotate("", (PE_VOL_TRUE * 100, PE_REAL * 100),
+                (PE_VOL_REPORTED * 100, PE_HEADLINE * 100),
+                arrowprops=dict(arrowstyle="->", color=H_BLUE4, lw=1.8,
+                                linestyle=(0, (3, 2))))
+    ax.scatter([PE_VOL_REPORTED * 100], [PE_HEADLINE * 100], s=150, color="white",
+               edgecolor=H_BLUE4, linewidth=2.2, zorder=5)
+    ax.annotate("PE as marketed\n(headline IRR,\nsmoothed ~10% vol)",
+                (PE_VOL_REPORTED * 100, PE_HEADLINE * 100), color=H_BLUE4,
+                fontsize=9.5, fontweight="bold", xytext=(6, 6),
+                textcoords="offset points", ha="left")
+    ax.scatter([PE_VOL_TRUE * 100], [PE_REAL * 100], s=150, color=H_BLUE4,
+               zorder=5, edgecolor="white", linewidth=1.5)
+    ax.annotate("PE as realised\n(PME return,\nde-smoothed ~28% vol)",
+                (PE_VOL_TRUE * 100, PE_REAL * 100), color=H_BLUE4, fontsize=9.5,
+                xytext=(-8, -10), textcoords="offset points", ha="right", va="top")
+    ax.scatter([ATH_VOL * 100], [ATH_RET * 100], s=210, color=H_NAVY, zorder=6,
+               edgecolor="white", linewidth=1.5)
+    ax.annotate(f"Athanase\n{ATH_RET*100:.0f}% return", (ATH_VOL * 100, ATH_RET * 100),
+                color=H_NAVY, fontsize=11, fontweight="bold", xytext=(-10, 12),
+                textcoords="offset points", va="center", ha="right")
+    ax.set_xlabel("Total volatility (annualised)", color=H_BODY, fontsize=11)
+    ax.set_ylabel("Real net return to investors", color=H_BODY, fontsize=11)
+    ax.set_xlim(4, 34); ax.set_ylim(6, 23)
+    ax.xaxis.set_major_formatter(lambda v, _: f"{v:.0f}%")
+    ax.yaxis.set_major_formatter(lambda v, _: f"{v:.0f}%")
+    ax.tick_params(colors=H_BODY, labelsize=10)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color(H_BLUE5)
+    ax.grid(True, color=H_BLUE5, lw=0.6, alpha=0.6)
+    ax.set_title("Real return vs true (de-smoothed) volatility", color=H_NAVY,
+                 fontsize=13, fontweight="bold", pad=10)
+    fig_.tight_layout(); fig_.savefig(path, dpi=200, bbox_inches="tight",
+                                      facecolor="white"); plt.close(fig_)
+
+
+_pe_scatter("/tmp/d_pe_scatter.png")
+_f_sw = fig()
+s, top = content("Private Equity",
+                 "Switching a private-equity sleeve into Athanase",
+                 "On true risk, PE and Athanase carry similar volatility — but "
+                 "Athanase’s is mostly upside, and it returns more, with daily "
+                 "liquidity.", ref=_f_sw)
+s.shapes.add_picture("/tmp/d_pe_scatter.png", Inches(0.55), Inches(2.3),
+                     height=Inches(3.85))
+para(tbox(s, Inches(0.7), Inches(6.25), Inches(6.2), Inches(0.4)),
+     "De-smoothed, PE’s ~10% reported vol is really ~28% (PIMCO; AQR beta "
+     "1.5–1.6) — about Athanase’s 27%, but levered downside, not upside.",
+     10, SUBTLE, first=True, italic=True, after=0, lead=1.12)
+cardx = Inches(7.05); cardw = Inches(5.7); cardh = Inches(0.84); cy = Inches(2.32)
+for ti, big, bd in [
+    ("RETURN", "~16% vs ~11–14% realised",
+     "Above what even the best allocators realise from PE (Cliffwater; BVCA)."),
+    ("LIQUIDITY", "Daily vs 10-yr lock-up",
+     "Listed positions you can exit; no blind-pool capital calls."),
+    ("FEES & CAPITAL", "Lower drag, fully invested",
+     "No fees on undeployed dry powder waiting in a queue."),
+    ("TRANSPARENCY", "Daily marks, real control",
+     "A public scoreboard plus board control of cash flow, capex and pay."),
+    ("RISK, HONESTLY", "Similar vol, opposite shape",
+     "PE’s true ~28% vol is levered downside; Athanase’s 27% is mostly upside "
+     "(downside only ~11%).")]:
+    rect(s, cardx, cy, cardw, cardh, fill=HEADERBG)
+    para(tbox(s, Emu(int(cardx) + int(Inches(0.2))), cy + Inches(0.1),
+              Inches(2.0), Inches(0.25)), ti, 9.5, SLATE, first=True, bold=True,
+         after=0, track=0)
+    para(tbox(s, Emu(int(cardx) + int(Inches(2.05))), cy + Inches(0.09),
+              Inches(3.4), Inches(0.3)), big, 12.5, NAVY_TX, first=True,
+         bold=True, after=0, font=SERIF, track=0)
+    para(tbox(s, Emu(int(cardx) + int(Inches(0.2))), cy + Inches(0.4),
+              Emu(int(cardw) - int(Inches(0.4))), Inches(0.42)), bd, 10, BODY,
+         first=True, after=0, lead=1.08, track=0)
+    cy = Emu(int(cy) + int(cardh) + int(Inches(0.1)))
+rect(s, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Once PE’s smoothing is removed, the two carry similar volatility — but "
+     "Athanase returns more, its risk is upside not downside, and it stays "
+     "liquid and transparent.", 12, WHITE, first=True, italic=True, after=0,
+     track=0)
+para(tbox(s, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
+     f"Athanase: net monthly returns, {_NM} months (2006–2025), real (total vol "
+     f"{ATH_VOL*100:.0f}%). PE realised ~11–14% vs headline IRR ~18–22%; reported "
+     "~10% vol de-smoothed to ~25–30% (PIMCO; AQR beta 1.5–1.6). See references.",
+     7.5, FOOT, first=True, after=0, track=0, lead=1.1)
+
+
+# ---- II.6m  The volatility gap is settled in the literature ----------------
+_EVID = [
+    ("Cash-flow NPV model", "11% vol", "25% vol", 11, 25),
+    ("Secondary-market prices", "beta < 0.5", "beta > 2.0", 11, 28),
+    ("Econometric unsmoothing", "smoothed", "serial-corr. removed", 11, 24),
+    ("3-step unsmoothing", "low vol", "vol ↑, market ↑", 11, 27),
+]
+
+
+def _pe_evidence(path):
+    fig_, ax = plt.subplots(figsize=(7.4, 4.5), dpi=200)
+    ys = np.arange(len(_EVID))[::-1]; h = 0.34
+    ax.barh(ys + h / 2, [e[3] for e in _EVID], h, color=H_BLUE5,
+            edgecolor=H_BLUE4, linewidth=1, label="Reported (appraisal-smoothed)")
+    ax.barh(ys - h / 2, [e[4] for e in _EVID], h, color=H_NAVY,
+            label="True economic (research)")
+    for y, e in zip(ys, _EVID):
+        ax.annotate(e[1], (e[3] + 0.5, y + h / 2), va="center", ha="left",
+                    fontsize=9, color=H_BLUE4)
+        ax.annotate(e[2], (e[4] + 0.5, y - h / 2), va="center", ha="left",
+                    fontsize=9, color=H_NAVY, fontweight="bold")
+    ax.set_yticks(ys); ax.set_yticklabels([e[0] for e in _EVID], fontsize=10.5,
+                                          color=H_BODY)
+    ax.set_xlabel("Volatility / risk loading (de-smoothed as vol-equivalent)",
+                  color=H_BODY, fontsize=10)
+    ax.set_xlim(0, 36); ax.set_ylim(-0.7, len(_EVID) - 0.3)
+    ax.xaxis.set_major_formatter(lambda v, _: f"{v:.0f}%")
+    ax.tick_params(colors=H_BODY, labelsize=9.5)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color(H_BLUE5)
+    ax.grid(True, axis="x", color=H_BLUE5, lw=0.6, alpha=0.6)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.13), ncol=2,
+              fontsize=9.5, frameon=False, labelcolor=H_BODY)
+    ax.set_title("Four independent methods, one conclusion", color=H_NAVY,
+                 fontsize=13, fontweight="bold", pad=10)
+    fig_.tight_layout(); fig_.savefig(path, dpi=200, bbox_inches="tight",
+                                      facecolor="white"); plt.close(fig_)
+
+
+_pe_evidence("/tmp/d_pe_evidence.png")
+s, top = content("Private Equity",
+                 "The volatility gap is settled in the literature",
+                 "Cash-flow models, secondary-market prices and econometric "
+                 "unsmoothing all converge: PE’s true risk is roughly 2–3× its "
+                 "reported figure.", ref=fig())
+s.shapes.add_picture("/tmp/d_pe_evidence.png", Inches(0.5), Inches(2.3),
+                     height=Inches(3.95))
+cx = Inches(8.5); cw = Inches(4.25); chh = Inches(0.9); cy = Inches(2.35)
+for ti, bd in [
+    ("CASH-FLOW NPV MODEL",
+     "Buyout vol 25% (vs 11% index), beta > 1 — Ang, Chen, Goetzmann & "
+     "Phalippou (2018), J. Finance."),
+    ("SECONDARY-MARKET PRICES",
+     "Traded-stake beta > 2.0 vs < 0.5 on NAV — Boyer, Nadauld, Vorkink & "
+     "Weisbach (2018)."),
+    ("ECONOMETRIC UNSMOOTHING",
+     "Illiquidity creates spurious smoothness — Getmansky, Lo & Makarov (2004), "
+     "JFE (cited 1,300+)."),
+    ("CATERING / “LAUNDERING”",
+     "GPs smooth because LPs value the “phony happiness” — Jackson, Ling & "
+     "Naranjo (2022); Couts et al. (2020).")]:
+    rect(s, cx, cy, cw, chh, fill=HEADERBG)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.2))), cy + Inches(0.1),
+              Emu(int(cw) - int(Inches(0.4))), Inches(0.25)), ti, 10, SLATE,
+         first=True, bold=True, after=0, track=0)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.2))), cy + Inches(0.33),
+              Emu(int(cw) - int(Inches(0.4))), Inches(0.55)), bd, 9.5, BODY,
+         first=True, after=0, lead=1.1, track=0)
+    cy = Emu(int(cy) + int(chh) + int(Inches(0.12)))
+rect(s, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Independent methods, the same answer: PE is a highly-levered equity "
+     "portfolio whose reported smoothness is an artefact.",
+     12, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
+     "Sources: Ang, Chen, Goetzmann & Phalippou (2018); Boyer, Nadauld, Vorkink "
+     "& Weisbach (2018); Getmansky, Lo & Makarov (2004); Couts, Gonçalves & Rossi "
+     "(2020); Jackson, Ling & Naranjo (2022); PIMCO (2022); AQR. Bars show "
+     "vol-equivalent risk; beta rows scaled for comparison. See references.",
+     7, FOOT, first=True, after=0, track=0, lead=1.1)
+
+
+# ---- II.6n  Same headline volatility, far lower real risk ------------------
+def _pe_realrisk(path):
+    fig_, ax = plt.subplots(figsize=(6.3, 4.5), dpi=200)
+    x = np.arange(2); w = 0.38
+    pe = [PE_VOL_TRUE * 100, PE_VOL_TRUE * 0.72 * 100]
+    ath = [ATH_VOL * 100, ATH_DD * 100]
+    ax.bar(x - w / 2, pe, w, color=H_BLUE4, label="Private equity (de-smoothed)")
+    ax.bar(x + w / 2, ath, w, color=H_NAVY, label="Athanase")
+    for xi, (p, a) in enumerate(zip(pe, ath)):
+        ax.annotate(f"{p:.0f}%", (xi - w / 2, p), ha="center", va="bottom",
+                    fontsize=12, fontweight="bold", color=H_BLUE4, xytext=(0, 3),
+                    textcoords="offset points")
+        ax.annotate(f"{a:.0f}%", (xi + w / 2, a), ha="center", va="bottom",
+                    fontsize=12, fontweight="bold", color=H_NAVY, xytext=(0, 3),
+                    textcoords="offset points")
+    ax.set_xticks(x); ax.set_xticklabels(["Total\nvolatility", "Downside\nvolatility"],
+                                         fontsize=11, color=H_BODY)
+    ax.set_ylabel("Annualised volatility", color=H_BODY, fontsize=11)
+    ax.set_ylim(0, 34); ax.set_xlim(-0.6, 1.6)
+    ax.yaxis.set_major_formatter(lambda v, _: f"{v:.0f}%")
+    ax.tick_params(colors=H_BODY, labelsize=10)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color(H_BLUE5)
+    ax.grid(True, axis="y", color=H_BLUE5, lw=0.6, alpha=0.6)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.14), ncol=2,
+              fontsize=10, frameon=False, labelcolor=H_BODY)
+    ax.set_title("Similar total volatility — very different downside",
+                 color=H_NAVY, fontsize=13, fontweight="bold", pad=10)
+    fig_.tight_layout(); fig_.savefig(path, dpi=200, bbox_inches="tight",
+                                      facecolor="white"); plt.close(fig_)
+
+
+_pe_realrisk("/tmp/d_pe_realrisk.png")
+s, top = content("Private Equity",
+                 "Same headline volatility — far lower real risk",
+                 "Volatility is not symmetric. PE’s true risk is levered "
+                 "downside; Athanase’s is mostly upside, so its real loss risk is "
+                 "a fraction of PE’s.", ref=fig())
+s.shapes.add_picture("/tmp/d_pe_realrisk.png", Inches(0.55), Inches(2.3),
+                     height=Inches(3.85))
+bx = Inches(7.05); bw = Inches(5.7)
+rect(s, bx, Inches(2.35), bw, Inches(1.75), fill=HEADERBG)
+para(tbox(s, Emu(int(bx) + int(Inches(0.25))), Inches(2.5), Inches(5.2), Inches(0.3)),
+     "CHANCE OF A 30%+ LOSS OVER THREE YEARS", 11, SLATE, first=True, bold=True,
+     after=0, track=0)
+spx = tbox(s, Emu(int(bx) + int(Inches(0.25))), Inches(2.86), Inches(5.2), Inches(1.1))
+p = spx.paragraphs[0]; p.space_after = Pt(2)
+r1 = p.add_run(); r1.text = f"~{PE_P30*100:.0f}%"; r1.font.size = Pt(32)
+r1.font.bold = True; r1.font.color.rgb = BLUE4; r1.font.name = SERIF
+r2 = p.add_run(); r2.text = "   private equity"; r2.font.size = Pt(13)
+r2.font.color.rgb = SUBTLE; r2.font.name = SANS
+p2 = spx.add_paragraph()
+r3 = p2.add_run(); r3.text = f"~{ATH_P30*100:.0f}%"; r3.font.size = Pt(32)
+r3.font.bold = True; r3.font.color.rgb = NAVY; r3.font.name = SERIF
+r4 = p2.add_run(); r4.text = "   Athanase (actual 3-yr windows)"
+r4.font.size = Pt(13); r4.font.color.rgb = SUBTLE; r4.font.name = SANS
+cy = Inches(4.32); chh = Inches(0.96)
+for ti, bd in [
+    ("VOLATILITY ≠ RISK OF LOSS",
+     "PE’s ~28% true vol is dominated by downside (levered, left-skewed). "
+     "Athanase’s 27% is mostly upside — downside deviation only ~11%."),
+    ("THE RISK THAT MATTERS",
+     "On large permanent loss — what allocators actually fear — Athanase’s real "
+     "risk is roughly one-eighth of private equity’s.")]:
+    rect(s, bx, cy, bw, chh, fill=HEADERBG)
+    para(tbox(s, Emu(int(bx) + int(Inches(0.25))), cy + Inches(0.12),
+              Emu(int(bw) - int(Inches(0.5))), Inches(0.25)), ti, 10.5, SLATE,
+         first=True, bold=True, after=0, track=0)
+    para(tbox(s, Emu(int(bx) + int(Inches(0.25))), cy + Inches(0.38),
+              Emu(int(bw) - int(Inches(0.5))), Inches(0.55)), bd, 10.5, BODY,
+         first=True, after=0, lead=1.12, track=0)
+    cy = Emu(int(cy) + int(chh) + int(Inches(0.12)))
+rect(s, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Matched on true volatility, Athanase carries far less of the risk that "
+     "actually hurts: its downside is a fraction of private equity’s.",
+     12, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
+     f"Athanase downside vol {ATH_DD*100:.0f}% vs total {ATH_VOL*100:.0f}% "
+     f"(real); 30%+ loss in {ATH_P30*100:.0f}% of actual rolling 3-yr windows. "
+     "PE de-smoothed total vol ~28%, ~15–16% chance of a 30% drawdown over 3 "
+     "years (PIMCO, 2022). See references.",
+     7.5, FOOT, first=True, after=0, track=0, lead=1.1)
+
+
+# ---- II.6o  PE diversification is an artefact ------------------------------
+def _pe_corr(path):
+    fig_, ax = plt.subplots(figsize=(6.6, 4.5), dpi=200)
+    vals = [PE_CORR_REPORTED, PE_CORR_TRUE, ATH_CORR]
+    cols = [H_BLUE5, H_BLUE4, H_NAVY]; edge = [H_BLUE4, H_BLUE4, H_NAVY]
+    x = np.arange(3)
+    ax.bar(x, vals, 0.6, color=cols, edgecolor=edge, linewidth=1.2, zorder=3)
+    for xi, v in enumerate(vals):
+        ax.annotate(f"{v:.2f}", (xi, v), ha="center", va="bottom", fontsize=15,
+                    fontweight="bold", color=(H_NAVY if xi == 2 else H_BLUE4),
+                    xytext=(0, 3), textcoords="offset points")
+    ax.axhspan(0.85, 1.0, color=H_BLUE4, alpha=0.08, zorder=0)
+    ax.annotate("≈ no real diversification", (0.5, 0.92), ha="center",
+                va="center", fontsize=9.5, color=H_BLUE4, style="italic")
+    ax.set_xticks(x)
+    ax.set_xticklabels(["PE\nas reported", "PE\nde-smoothed", "Athanase\n(real)"],
+                       fontsize=11, color=H_BODY)
+    ax.set_ylabel("Correlation with public equities", color=H_BODY, fontsize=11)
+    ax.set_ylim(0, 1.0); ax.set_xlim(-0.6, 2.6)
+    ax.tick_params(colors=H_BODY, labelsize=10)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color(H_BLUE5)
+    ax.grid(True, axis="y", color=H_BLUE5, lw=0.6, alpha=0.6)
+    ax.set_title("Correlation to public equities — reported vs true",
+                 color=H_NAVY, fontsize=13, fontweight="bold", pad=10)
+    fig_.tight_layout(); fig_.savefig(path, dpi=200, bbox_inches="tight",
+                                      facecolor="white"); plt.close(fig_)
+
+
+_pe_corr("/tmp/d_pe_corr.png")
+s, top = content("Private Equity",
+                 "PE’s “diversification” is an artefact — Athanase’s is real",
+                 "De-smoothed, PE is ~0.9 correlated to public equities: the same "
+                 "risk factors, just reported late. Athanase is genuinely "
+                 "uncorrelated.", ref=fig())
+s.shapes.add_picture("/tmp/d_pe_corr.png", Inches(0.55), Inches(2.3),
+                     height=Inches(3.85))
+cx = Inches(7.2); cw = Inches(5.55); chh = Inches(1.14); cy = Inches(2.35)
+for ti, bd in [
+    ("THE SMOOTHING ILLUSION",
+     "Quarterly appraisals lag the market, so reported correlation looks low "
+     "(0.75, beta 0.41). De-smoothed it is 0.89 / beta 0.87 (Two Sigma, 2024)."),
+    ("SAME RISK FACTORS",
+     "PE is long-only levered equity driven by GDP, rates and earnings; over "
+     "10–20 yrs its correlation to small/mid-caps is ~0.89–0.92."),
+    ("THE CRISIS MIRAGE",
+     "In severe drawdowns true correlation converges toward 1.0 — PE takes the "
+     "same hit, it just reports the markdown later.")]:
+    rect(s, cx, cy, cw, chh, fill=HEADERBG)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.22))), cy + Inches(0.12),
+              Emu(int(cw) - int(Inches(0.44))), Inches(0.25)), ti, 10.5, SLATE,
+         first=True, bold=True, after=0, track=0)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.22))), cy + Inches(0.38),
+              Emu(int(cw) - int(Inches(0.44))), Inches(0.72)), bd, 10.5, BODY,
+         first=True, after=0, lead=1.12, track=0)
+    cy = Emu(int(cy) + int(chh) + int(Inches(0.14)))
+rect(s, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
+          anchor=MSO_ANCHOR.MIDDLE),
+     f"PE adds leveraged beta dressed as diversification. Athanase, at "
+     f"{ATH_CORR:.2f} correlation, is the genuine diversifier in a public-equity "
+     "portfolio.", 12, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
+     f"Athanase correlation {ATH_CORR:.2f} / beta 0.73 to MSCI World IMI (real). "
+     "PE reported 0.75 / beta 0.41 de-smoothed to 0.89 / beta 0.87 (Two Sigma / "
+     "Venn, 2024); long-horizon PE–small/mid-cap correlation ~0.89–0.92. See "
+     "references.", 7.5, FOOT, first=True, after=0, track=0, lead=1.1)
+
+
+# ---- II.6p  The drawdown trap: PE smoothing as career risk -----------------
+s, top = content("Private Equity",
+                 "When the tide goes out: the drawdown trap",
+                 "PE’s smooth marks feel safe in calm markets — but in a shock "
+                 "they trigger the exact sequence that gets a CIO fired. "
+                 "Engaged ownership is the fiduciary safe harbour.")
+# left column — the trap (three stages)
+para(tbox(s, Inches(0.7), top, Inches(5.9), Inches(0.3)),
+     "THE TRAP — HELD AT FAKE NAVs IN A CRASH", 11.5, SLATE, first=True,
+     bold=True, after=0, track=0)
+trap = [
+    ("1 · The denominator effect",
+     "Public equities fall 25%; PE is marked flat. The PE weight jumps from "
+     "15% to 22%+ — an instant breach of board concentration limits."),
+    ("2 · The liquidity death spiral",
+     "Distributions stop but capital calls keep coming. To meet them, the "
+     "allocator is forced to sell liquid equities at the bottom."),
+    ("3 · The secondary-market humiliation",
+     "To cure the breach, PE stakes are sold at 15–25% haircuts — publicly "
+     "crystallising losses and proving the “low volatility” was a fiction."),
+]
+ty = top + Inches(0.42)
+for t, b in trap:
+    rect(s, Inches(0.7), ty, Inches(5.9), Inches(1.12), fill=HEADERBG)
+    para(tbox(s, Inches(0.88), ty + Inches(0.13), Inches(5.55), Inches(0.3)),
+         t, 12, NAVY_TX, first=True, bold=True, after=0, font=SERIF, track=0)
+    para(tbox(s, Inches(0.88), ty + Inches(0.46), Inches(5.55), Inches(0.66)),
+         b, 10.5, BODY, first=True, after=0, lead=1.12, track=0)
+    ty = Emu(int(ty) + int(Inches(1.12)) + int(Inches(0.1)))
+# right column — the safe harbour
+para(tbox(s, Inches(6.95), top, Inches(5.85), Inches(0.3)),
+     "THE SAFE HARBOUR — ENGAGED OWNERSHIP", 11.5, SLATE, first=True,
+     bold=True, after=0, track=0)
+safe = [
+    ("Honest pricing keeps weights balanced",
+     "Daily marks mean the sleeve falls with the market — so the denominator "
+     "effect never fires and no threshold is breached."),
+    ("Zero capital-call liability",
+     "No blind pools, no surprise calls. The allocator is never forced to "
+     "become a distressed seller of other assets."),
+    ("Alpha from turnarounds, not leverage",
+     "Returns come from board-led operational change in high-ROIIC mid-caps — "
+     "not the leverage and multiple-expansion that break in a downturn."),
+]
+ty = top + Inches(0.42)
+for t, b in safe:
+    rect(s, Inches(6.95), ty, Inches(5.85), Inches(1.12), fill=HEADERBG)
+    para(tbox(s, Inches(7.13), ty + Inches(0.13), Inches(5.5), Inches(0.3)),
+         t, 12, NAVY, first=True, bold=True, after=0, font=SERIF, track=0)
+    para(tbox(s, Inches(7.13), ty + Inches(0.46), Inches(5.5), Inches(0.66)),
+         b, 10.5, BODY, first=True, after=0, lead=1.12, track=0)
+    ty = Emu(int(ty) + int(Inches(1.12)) + int(Inches(0.1)))
+# takeaway strip
+rect(s, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "When the tide goes out, artificially-priced illiquid assets are "
+     "indefensible to a board. Engaged ownership delivers PE-like alpha while "
+     "protecting portfolio balance, liquidity — and the allocator’s seat.",
+     12, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
+     "Mechanism described follows from PE’s appraisal-based marking and "
+     "capital-call structure (see references). Illustrative; for professional "
+     "investors, not investment advice.", 7.5, FOOT, first=True, after=0,
+     track=0, lead=1.1)
+
+
 # ---- II.7 ESG / responsible ownership ----
 s, top = content("Ownership Model", "Responsible ownership, by construction")
 checklist(s, [
@@ -1620,6 +2130,173 @@ ot = tbox(s, Inches(9.0), Inches(5.4), Inches(3.8), Inches(1.5))
 para(ot, "Offices", 12, WHITE, first=True, bold=True, after=4)
 para(ot, "Birger Jarlsgatan 6, 114 34 Stockholm, Sweden", 11, SLATE_LT, after=4)
 para(ot, "Landmark Square, West Bay Road, Grand Cayman", 11, SLATE_LT, after=0)
+
+
+# ===========================================================================
+# REFERENCES — research-standard, full citations (back matter; not in TOC)
+# ===========================================================================
+def _ref_slide(title_suffix, part_label):
+    sl = prs.slides.add_slide(BLANK)
+    rect(sl, 0, 0, SW, SH, fill=WHITE)
+    place_mark(sl, Inches(0.55), Inches(0.24), Inches(0.26))
+    para(tbox(sl, Inches(0.98), Inches(0.27), Inches(7), Inches(0.3)),
+         "References", 11, SLATE_LT, first=True, after=0)
+    para(tbox(sl, Inches(9.4), Inches(0.27), Inches(3.35), Inches(0.3)),
+         part_label, 11, SLATE_LT, first=True, bold=True, align=PP_ALIGN.RIGHT,
+         after=0)
+    rect(sl, 0, Inches(0.62), SW, Inches(0.92), fill=HEADERBG)
+    para(tbox(sl, Inches(0.6), Inches(0.72), Inches(12.1), Inches(0.7)),
+         "References & Methodology" + title_suffix, 26, NAVY_TX, first=True,
+         after=0, font=SERIF)
+    footer(sl)
+    return sl
+
+
+def _refhead(sl, x, y, w, text):
+    para(tbox(sl, x, y, w, Inches(0.3)), text, 11.5, SLATE, first=True,
+         bold=True, after=0, track=0)
+
+
+def _refs(sl, x, y, w, items, size=9):
+    tf_ = tbox(sl, x, y, w, Inches(5.0))
+    for i, parts in enumerate(items):
+        p = tf_.paragraphs[0] if i == 0 else tf_.add_paragraph()
+        p.space_after = Pt(5.5); p.line_spacing = 1.04
+        pPr = p._p.get_or_add_pPr()
+        hang = int(Inches(0.26))
+        pPr.set("marL", str(hang)); pPr.set("indent", str(-hang))
+        for txt, ital in parts:
+            r = p.add_run(); r.text = txt
+            r.font.size = Pt(size); r.font.italic = ital
+            r.font.name = SANS; r.font.color.rgb = BODY
+
+
+r1 = _ref_slide(" — Peer-reviewed literature", "1 of 2")
+_refhead(r1, Inches(0.6), Inches(1.75), Inches(6.0),
+         "ENGAGED OWNERSHIP / ACTIVISM (PART I)")
+_refs(r1, Inches(0.6), Inches(2.12), Inches(6.0), [
+    [("Bebchuk, L. A., Brav, A., & Jiang, W. (2015). The long-term effects of "
+      "hedge fund activism. ", False), ("Columbia Law Review, 115", True),
+     ("(5), 1085–1156.", False)],
+    [("Brav, A., Jiang, W., Partnoy, F., & Thomas, R. (2008). Hedge fund "
+      "activism, corporate governance, and firm performance. ", False),
+     ("The Journal of Finance, 63", True),
+     ("(4), 1729–1775. https://doi.org/10.1111/j.1540-6261.2008.01373.x", False)],
+    [("Brav, A., Jiang, W., & Kim, H. (2015). The real effects of hedge fund "
+      "activism: Productivity, asset allocation, and labor outcomes. ", False),
+     ("The Review of Financial Studies, 28", True),
+     ("(10), 2723–2769. https://doi.org/10.1093/rfs/hhv037", False)],
+    [("Klein, A., & Zur, E. (2009). Entrepreneurial shareholder activism: Hedge "
+      "funds and other private investors. ", False),
+     ("The Journal of Finance, 64", True),
+     ("(1), 187–229. https://doi.org/10.1111/j.1540-6261.2008.01432.x", False)],
+])
+_refhead(r1, Inches(6.95), Inches(1.75), Inches(5.85),
+         "PRIVATE EQUITY RISK & RETURN (PART II)")
+_refs(r1, Inches(6.95), Inches(2.12), Inches(5.85), [
+    [("Ang, A., Chen, B., Goetzmann, W. N., & Phalippou, L. (2018). Estimating "
+      "private equity returns from limited partner cash flows. ", False),
+     ("The Journal of Finance, 73", True),
+     ("(4), 1751–1783. https://doi.org/10.1111/jofi.12688", False)],
+    [("Boyer, B. H., Nadauld, T. D., Vorkink, K. P., & Weisbach, M. S. (2018). "
+      "Private equity indices based on secondary market transactions. ", False),
+     ("SSRN Electronic Journal", True),
+     (". https://doi.org/10.2139/ssrn.3272357", False)],
+    [("Buchner, A., Kaserer, C., & Wagner, N. F. (2010). Private equity funds: "
+      "Valuation, systematic risk and illiquidity. ", False),
+     ("SSRN Electronic Journal", True),
+     (". https://doi.org/10.2139/ssrn.1102471", False)],
+    [("Couts, S., Gonçalves, A. S., & Rossi, A. (2020). Unsmoothing returns of "
+      "illiquid funds. ", False), ("SSRN Electronic Journal", True),
+     (". https://doi.org/10.2139/ssrn.3544854", False)],
+    [("Getmansky, M., Lo, A. W., & Makarov, I. (2004). An econometric model of "
+      "serial correlation and illiquidity in hedge fund returns. ", False),
+     ("Journal of Financial Economics, 74", True),
+     ("(3), 529–609. https://doi.org/10.1016/j.jfineco.2004.04.001", False)],
+    [("Harris, R. S., Jenkinson, T., & Kaplan, S. N. (2014). Private equity "
+      "performance: What do we know? ", False),
+     ("The Journal of Finance, 69", True),
+     ("(5), 1851–1882. https://doi.org/10.1111/jofi.12154", False)],
+    [("Hayley, S., & Sefiloglu, O. (2022). Biases in private equity returns. ",
+      False), ("SSRN Electronic Journal", True),
+     (". https://doi.org/10.2139/ssrn.4245715", False)],
+    [("Jackson, B., Ling, D. C., & Naranjo, A. (2022). Catering and return "
+      "manipulation in private equity. ", False),
+     ("SSRN Electronic Journal", True),
+     (". https://doi.org/10.2139/ssrn.4244467", False)],
+    [("Meyer, T. (2020). Hidden in plain sight — the impact of undrawn "
+      "commitments. ", False),
+     ("The Journal of Alternative Investments, 23", True),
+     ("(2), 94–110. https://doi.org/10.3905/jai.2020.1.101", False)],
+    [("Phalippou, L. (2020). An inconvenient fact: Private equity returns and "
+      "the billionaire factory. ", False),
+     ("The Journal of Investing, 30", True),
+     ("(1), 11–39. https://doi.org/10.3905/joi.2020.1.153", False)],
+], size=8.5)
+
+r2 = _ref_slide(" — Datasets, practitioner research & methodology", "2 of 2")
+_refhead(r2, Inches(0.6), Inches(1.75), Inches(6.0),
+         "INDUSTRY DATASETS & PRACTITIONER RESEARCH")
+_refs(r2, Inches(0.6), Inches(2.12), Inches(6.0), [
+    [("Asness, C. S. (2023). The volatility-laundering hidden in private-asset "
+      "marks. ", False), ("AQR Capital Management — Cliff’s Perspectives.", True)],
+    [("British Private Equity & Venture Capital Association & Capital Dynamics. "
+      "(2024). ", False),
+     ("BVCA Private Equity Performance Measurement Survey (PME+).", True),
+     (" London: BVCA.", False)],
+    [("Cambridge Associates. (2024). ", False),
+     ("US Private Equity Index and Selected Benchmark Statistics (Q2 2024).",
+      True), (" Boston: Cambridge Associates LLC.", False)],
+    [("Cliffwater LLC. (2023). ", False),
+     ("Long-term private equity performance in US state pension plans "
+      "(2000–2022).", True), (" Marina del Rey: Cliffwater LLC.", False)],
+    [("Financial Reporting Council. (2020). ", False),
+     ("The UK Stewardship Code 2020.", True), (" London: FRC.", False)],
+    [("Morningstar. (2023). ", False),
+     ("Volatility laundering: How private equity funds understate the risk of "
+      "their investments.", True), (" Chicago: Morningstar, Inc.", False)],
+    [("PIMCO. (2022). ", False),
+     ("The discreet charm of private assets: De-smoothing and the true "
+      "volatility of private equity.", True), (" Newport Beach: PIMCO.", False)],
+    [("Principles for Responsible Investment. (2021). ", False),
+     ("What are the Principles for Responsible Investment?", True),
+     (" London: UN PRI.", False)],
+    [("Two Sigma Investments. (2024). ", False),
+     ("The alternative truth of private equity (Venn by Two Sigma).", True),
+     (" New York: Two Sigma.", False)],
+], size=8.5)
+_refhead(r2, Inches(6.95), Inches(1.75), Inches(5.85), "DATA & METHODOLOGY")
+_md = tbox(r2, Inches(6.95), Inches(2.12), Inches(5.85), Inches(4.6))
+para(_md, "All Athanase figures are computed from the fund’s audited net "
+     f"monthly return series ({_NM} months, 2006–2025):", 9.5, BODY,
+     first=True, after=6, lead=1.15, track=0)
+for _mt in [
+    "Annualised return — geometric compounding of monthly net returns (16.0%).",
+    "Total volatility — st. dev. of monthly returns × √12 (27.0%).",
+    "Downside volatility — deviation of negative months below a 0% MAR × √12 "
+    "(10.9%).",
+    "Correlation / beta — versus MSCI World IMI over the common period "
+    "(0.44 / 0.73).",
+    "Large-loss frequency — share of rolling 36-month windows below −30% (≈2%).",
+    "Up/down capture — compounded Athanase return in the market’s up/down "
+    "months ÷ the market’s.",
+    "Efficient frontier — monthly-rebalanced MSCI/Athanase blends; minimum-risk "
+    "point is in-sample.",
+]:
+    pp = _md.add_paragraph(); pp.space_after = Pt(4); pp.line_spacing = 1.12
+    pPr = pp._p.get_or_add_pPr()
+    pPr.set("marL", str(int(Inches(0.16))))
+    pPr.set("indent", str(-int(Inches(0.16))))
+    r = pp.add_run(); r.text = "•  " + _mt
+    r.font.size = Pt(9); r.font.name = SANS; r.font.color.rgb = BODY
+para(_md, "Private-equity figures are taken from the cited research. "
+     "De-smoothed / true-economic / committed-capital values reflect that "
+     "literature rather than reported (appraisal-based) data; bridge and "
+     "illustrative magnitudes reconcile cited endpoints and are labelled as "
+     "such. For professional investors; not investment advice. Past performance "
+     "is not indicative of future results.", 8.5, SUBTLE, italic=True, after=0,
+     lead=1.15, track=0)
+
 
 # ===========================================================================
 # Contents (TOC) page
