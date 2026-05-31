@@ -1747,7 +1747,7 @@ para(tbox(s, Inches(0.7), Inches(6.25), Inches(6.2), Inches(0.4)),
      "De-smoothed, PE’s ~10% reported vol is really ~28% (PIMCO; AQR beta "
      "1.5–1.6) — about Athanase’s 27%, but levered downside, not upside.",
      10, SUBTLE, first=True, italic=True, after=0, lead=1.12)
-cardx = Inches(7.05); cardw = Inches(5.7); cardh = Inches(0.84); cy = Inches(2.32)
+cardx = Inches(7.05); cardw = Inches(5.7); cardh = Inches(0.78); cy = Inches(2.28)
 for ti, big, bd in [
     ("RETURN", "~16% vs ~11–14% realised",
      "Above what even the best allocators realise from PE (Cliffwater; BVCA)."),
@@ -1761,16 +1761,16 @@ for ti, big, bd in [
      "PE’s true ~28% vol is levered downside; Athanase’s 27% is mostly upside "
      "(downside only ~11%).")]:
     rect(s, cardx, cy, cardw, cardh, fill=HEADERBG)
-    para(tbox(s, Emu(int(cardx) + int(Inches(0.2))), cy + Inches(0.1),
+    para(tbox(s, Emu(int(cardx) + int(Inches(0.2))), cy + Inches(0.09),
               Inches(2.0), Inches(0.25)), ti, 9.5, SLATE, first=True, bold=True,
          after=0, track=0)
-    para(tbox(s, Emu(int(cardx) + int(Inches(2.05))), cy + Inches(0.09),
+    para(tbox(s, Emu(int(cardx) + int(Inches(2.05))), cy + Inches(0.08),
               Inches(3.4), Inches(0.3)), big, 12.5, NAVY_TX, first=True,
          bold=True, after=0, font=SERIF, track=0)
-    para(tbox(s, Emu(int(cardx) + int(Inches(0.2))), cy + Inches(0.4),
-              Emu(int(cardw) - int(Inches(0.4))), Inches(0.42)), bd, 10, BODY,
-         first=True, after=0, lead=1.08, track=0)
-    cy = Emu(int(cy) + int(cardh) + int(Inches(0.1)))
+    para(tbox(s, Emu(int(cardx) + int(Inches(0.2))), cy + Inches(0.36),
+              Emu(int(cardw) - int(Inches(0.4))), Inches(0.4)), bd, 9.5, BODY,
+         first=True, after=0, lead=1.05, track=0)
+    cy = Emu(int(cy) + int(cardh) + int(Inches(0.06)))
 rect(s, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
 para(tbox(s, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
           anchor=MSO_ANCHOR.MIDDLE),
