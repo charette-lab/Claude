@@ -623,6 +623,75 @@ para(tbox(s5, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
      "cap correlation ~0.89–0.92. Illustrative; past performance ≠ future results.",
      7.5, FOOT, first=True, after=0, lead=1.1)
 
+
+# ===========================================================================
+# SLIDE 6 — sources & references (so every figure can be verified)
+# ===========================================================================
+s6 = prs.slides.add_slide(prs.slide_layouts[6])
+header(s6, "Risk-Adjusted Outcomes", "References",
+       "Sources",
+       "Every private-equity figure traces to published research; every Athanase "
+       "figure is computed from audited net monthly returns, 2006–2025.")
+
+
+def _reflist(sl, x, y, w, heading, items):
+    para(tbox(sl, x, y, w, Inches(0.3)), heading, 11.5, SLATE, first=True,
+         bold=True, after=0)
+    tf = tbox(sl, x, Emu(int(y) + int(Inches(0.4))), w, Inches(4.6))
+    for i, (cite, note) in enumerate(items):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        p.space_after = Pt(7); p.line_spacing = 1.06
+        r = p.add_run(); r.text = cite
+        r.font.size = Pt(9.5); r.font.color.rgb = NAVY_TX; r.font.name = SANS
+        r.font.bold = True
+        r2 = p.add_run(); r2.text = "  — " + note
+        r2.font.size = Pt(9.5); r2.font.color.rgb = BODY; r2.font.name = SANS
+
+
+_left = [
+    ("Ang, Chen, Goetzmann & Phalippou (2018), J. Finance 73(4), 1751–1783.",
+     "PE cash-flow returns; buyout vol ~25% vs 11% index, beta > 1."),
+    ("Boyer, Nadauld, Vorkink & Weisbach (2018), SSRN 3272357.",
+     "Secondary-market PE index; traded beta > 2.0 vs < 0.5 on NAV."),
+    ("Getmansky, Lo & Makarov (2004), J. Financial Economics 74(3).",
+     "Illiquidity creates serial correlation that suppresses reported vol."),
+    ("Couts, Gonçalves & Rossi (2020), SSRN 3544854.",
+     "3-step unsmoothing; true vol and market co-movement rise."),
+    ("Jackson, Ling & Naranjo (2022), SSRN 4244467.",
+     "Catering / return manipulation — “volatility laundering”."),
+    ("Phalippou (2020), “An Inconvenient Fact.”",
+     "PE 2006–18 ≈ S&P 500 on a public-market-equivalent basis."),
+    ("Meyer (2020), J. Alternative Investments 23; Hayley & Sefiloglu (2022); "
+     "Buchner, Kaserer & Wagner (2010).",
+     "Committed-capital / undrawn-commitment drag on realised returns."),
+]
+_right = [
+    ("Cliffwater (2023), State of US State Pension PE.",
+     "Realised PE 11.4% vs PME 5.8%, 2000–2022."),
+    ("BVCA / Capital Dynamics (2024), PME+ analysis.",
+     "UK & Europe PE 14.1% vs PME 7.7%, 2001–2023."),
+    ("Cambridge Associates (2024), US PE Benchmark.",
+     "Top-quartile headline IRR ~18–22%; mPME ~1.15–1.25×."),
+    ("Kaplan, Harris & Jenkinson (Burgiss data).",
+     "KS-PME ~1.20–1.27×; ≈ +3 pts/yr net over public markets."),
+    ("PIMCO (2022), “The Discreet Charm of Private Assets.”",
+     "De-smoothed PE vol ~30%; ~15–16% chance of a 30% 3-yr drawdown."),
+    ("AQR / Asness (2019–2023), “Volatility Laundering.”",
+     "PE equity beta ~1.5–1.6 from leverage; smoothing critique."),
+    ("Two Sigma / Venn (2024), Preqin PE Index analysis.",
+     "Correlation 0.75→0.89, beta 0.41→0.87 once de-smoothed."),
+]
+_reflist(s6, Inches(0.6), Inches(2.35), Inches(6.0),
+         "ACADEMIC & EMPIRICAL RESEARCH", _left)
+_reflist(s6, Inches(6.95), Inches(2.35), Inches(5.85),
+         "INDUSTRY DATASETS & PRACTITIONER RESEARCH", _right)
+rect(s6, Inches(0.6), Inches(6.95), Inches(12.13), Inches(0.42), fill=HEADERBG)
+para(tbox(s6, Inches(0.78), Inches(6.95), Inches(11.8), Inches(0.42),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Athanase returns, volatility, downside deviation, correlation and rolling "
+     "loss frequencies are computed directly from the fund’s net monthly return "
+     "series (2006–2025).", 9.5, SUBTLE, first=True, italic=True, after=0)
+
 # ===========================================================================
 # Convert to 4:3 + brand the theme
 # ===========================================================================
