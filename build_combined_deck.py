@@ -688,6 +688,66 @@ para(tbox(s, Inches(0.75), Emu(int(y) + int(Inches(0.2))), Inches(11.8), Inches(
      "A margin-for-error strategy: we win by being directionally right where PE "
      "must be precisely perfect.", 14, SLATE, first=True, italic=True, after=0)
 
+# ---- II.4b Structural edge vs mid-market private equity --------------------
+s, top = content("Investment Strategy",
+                 "The same playbook as mid-market PE — without its costs",
+                 "Operational value creation in mid-cap businesses, but in a "
+                 "public wrapper that removes private equity’s structural drags.",
+                 ref=tbl())
+rows = [
+    ("", "Mid-market private equity", "Athanase — engaged owner"),
+    ("Entry price",
+     "Market + ~40% control premium — pays up front for the right to fix it",
+     "A discount to the core’s value at “shareholder exhaustion” — gets that "
+     "right for free"),
+    ("Liquidity",
+     "10-year lock-up, blind pool; capital trapped until exit",
+     "Listed, daily-priced positions — LPs keep liquidity and can exit"),
+    ("Fees & capital efficiency",
+     "2&20 on committed capital; fee drag while undeployed dry powder waits",
+     "Lower fees; capital is deployed, not sitting in a capital-call queue"),
+    ("The J-curve",
+     "Opaque, model-marked write-downs before any mark-up",
+     "Live and visible — a tradable entry point, not a hidden cost"),
+    ("Transparency & control",
+     "Annual mark-to-model; thesis underwritten once at close",
+     "Daily public scoreboard; board control secures cash flow, capex and pay"),
+    ("Scalability for PE",
+     "Rational to skip: 10× more capital per buyout, richer fees",
+     "Exactly why the niche stays open — little competition for these assets"),
+]
+tl = Inches(0.55); cw3 = [Inches(2.35), Inches(4.85), Inches(4.95)]
+rh0 = Inches(0.36); rhd = Inches(0.64); y = top
+for ri, row in enumerate(rows):
+    head = ri == 0
+    rh = rh0 if head else rhd
+    x = tl
+    for ci, cell in enumerate(row):
+        if head:
+            fill = SLATE if ci else WHITE
+        else:
+            fill = HEADERBG if ri % 2 else WHITE
+        rect(s, x, y, cw3[ci], rh, fill=fill)
+        ctf = tbox(s, Emu(int(x) + int(Inches(0.12))), y,
+                   Emu(int(cw3[ci]) - int(Inches(0.2))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        if head:
+            col = WHITE
+        elif ci == 0:
+            col = SLATE
+        elif ci == 2:
+            col = NAVY_TX
+        else:
+            col = BODY
+        para(ctf, cell, 12 if head else 11, col,
+             bold=(head or ci == 0 or ci == 2), first=True, after=0, lead=1.02)
+        x = Emu(int(x) + int(cw3[ci]))
+    y = Emu(int(y) + int(rh))
+para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.18))), Inches(12.2), Inches(0.5)),
+     "Private-equity-style operational turnarounds, imported into public markets "
+     "— keeping the liquidity, transparency and lower fees PE gives up.",
+     13, SLATE, first=True, italic=True, after=0)
+
 # ---- II.5 Risk system ----
 s, top = content("Risk Management", "A risk system built to avoid permanent loss",
                  "Predictability, price and influence combined to lower risk "
