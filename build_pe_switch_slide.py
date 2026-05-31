@@ -540,6 +540,89 @@ para(tbox(s4, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
      "drawdown over 3 years (PIMCO, 2022). Illustrative; past performance ≠ "
      "future results.", 7.5, FOOT, first=True, after=0, lead=1.1)
 
+
+# ===========================================================================
+# SLIDE 5 — diversification: PE's low correlation is an artefact; Athanase real
+# ===========================================================================
+# correlation to public equities (Athanase real from data)
+ATH_CORR = 0.44               # computed from data (Athanase vs MSCI)
+PE_CORR_REPORTED = 0.75       # Preqin reported (Two Sigma / Venn, 2024)
+PE_CORR_TRUE = 0.89           # de-smoothed true correlation (Two Sigma / Venn)
+
+
+def corr_chart(path_png):
+    fig, ax = plt.subplots(figsize=(6.6, 4.5), dpi=200)
+    labels = ["PE\nas reported", "PE\nde-smoothed", "Athanase\n(real)"]
+    vals = [PE_CORR_REPORTED, PE_CORR_TRUE, ATH_CORR]
+    cols = [H_BLUE5, H_BLUE4, H_NAVY]
+    edge = [H_BLUE4, H_BLUE4, H_NAVY]
+    x = np.arange(3)
+    ax.bar(x, vals, 0.6, color=cols, edgecolor=edge, linewidth=1.2, zorder=3)
+    for xi, v in enumerate(vals):
+        ax.annotate(f"{v:.2f}", (xi, v), ha="center", va="bottom", fontsize=15,
+                    fontweight="bold", color=(H_NAVY if xi == 2 else H_BLUE4),
+                    xytext=(0, 3), textcoords="offset points")
+    # "no diversification" zone
+    ax.axhspan(0.85, 1.0, color=H_BLUE4, alpha=0.08, zorder=0)
+    ax.annotate("≈ no real diversification", (0.5, 0.92), ha="center", va="center",
+                fontsize=9.5, color=H_BLUE4, style="italic")
+    ax.set_xticks(x); ax.set_xticklabels(labels, fontsize=11, color=H_BODY)
+    ax.set_ylabel("Correlation with public equities", color=H_BODY, fontsize=11)
+    ax.set_ylim(0, 1.0); ax.set_xlim(-0.6, 2.6)
+    ax.tick_params(colors=H_BODY, labelsize=10)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color(H_BLUE5)
+    ax.grid(True, axis="y", color=H_BLUE5, lw=0.6, alpha=0.6)
+    ax.set_title("Correlation to public equities — reported vs true",
+                 color=H_NAVY, fontsize=13, fontweight="bold", pad=10)
+    fig.tight_layout(); fig.savefig(path_png, dpi=200, bbox_inches="tight",
+                                    facecolor="white"); plt.close(fig)
+
+
+corr_chart("/tmp/pe_corr.png")
+s5 = prs.slides.add_slide(prs.slide_layouts[6])
+header(s5, "Risk-Adjusted Outcomes", "Figure 5",
+       "PE’s “diversification” is an artefact — Athanase’s is real",
+       "De-smoothed, PE is ~0.9 correlated to public equities: the same risk "
+       "factors, just reported late. Athanase is genuinely uncorrelated.")
+s5.shapes.add_picture("/tmp/pe_corr.png", Inches(0.55), Inches(2.28),
+                      height=Inches(3.95))
+cx = Inches(7.2); cw = Inches(5.55); chh = Inches(1.18); cy = Inches(2.3)
+cards = [
+    ("THE SMOOTHING ILLUSION",
+     "Quarterly appraisals lag the market, so reported PE correlation looks low "
+     "(0.75, beta 0.41). De-smoothed it is 0.89 / beta 0.87 (Two Sigma, 2024)."),
+    ("SAME RISK FACTORS",
+     "PE is long-only levered equity driven by the same forces — GDP, rates, "
+     "earnings. Over 10–20 yrs its correlation to small/mid-caps is ~0.89–0.92."),
+    ("THE CRISIS MIRAGE",
+     "In severe drawdowns true correlation converges toward 1.0 — PE takes the "
+     "same hit, it just reports the markdown later. No help when it’s needed."),
+]
+for title, body in cards:
+    rect(s5, cx, cy, cw, chh, fill=HEADERBG)
+    para(tbox(s5, Emu(int(cx) + int(Inches(0.22))), cy + Inches(0.12),
+              Emu(int(cw) - int(Inches(0.44))), Inches(0.25)),
+         title, 10.5, SLATE, first=True, bold=True, after=0)
+    para(tbox(s5, Emu(int(cx) + int(Inches(0.22))), cy + Inches(0.38),
+              Emu(int(cw) - int(Inches(0.44))), Inches(0.74)),
+         body, 10.5, BODY, first=True, after=0, lead=1.12)
+    cy = Emu(int(cy) + int(chh) + int(Inches(0.14)))
+rect(s5, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s5, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
+          anchor=MSO_ANCHOR.MIDDLE),
+     f"PE adds leveraged beta dressed as diversification. Athanase, at {ATH_CORR:.2f} "
+     "correlation, is the genuine diversifier in a public-equity portfolio.",
+     12, WHITE, first=True, italic=True, after=0)
+para(tbox(s5, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
+     f"Athanase correlation {ATH_CORR:.2f} / beta 0.73 to MSCI World IMI (real, "
+     f"{_NM} months). PE reported 0.75 / beta 0.41 de-smoothed to 0.89 / beta "
+     "0.87 (Two Sigma / Venn, 2024, Preqin PE Index); long-horizon PE–small/mid "
+     "cap correlation ~0.89–0.92. Illustrative; past performance ≠ future results.",
+     7.5, FOOT, first=True, after=0, lead=1.1)
+
 # ===========================================================================
 # Convert to 4:3 + brand the theme
 # ===========================================================================
