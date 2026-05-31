@@ -333,6 +333,106 @@ para(tbox(s2, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
      "Rossi, 2024). Illustrative; past performance ≠ future results.",
      7.5, FOOT, first=True, after=0, lead=1.1)
 
+
+# ===========================================================================
+# SLIDE 3 — the academic evidence: four methods converge on ~2-3x true risk
+# ===========================================================================
+# (method label, reported metric text, true metric text, reported val, true val,
+#  plotted as volatility-equivalent % for the bar; beta rows scaled to vol view)
+EVID = [
+    ("Cash-flow NPV model", "Ang, Chen, Goetzmann\n& Phalippou (2018) · JF",
+     "11% vol", "25% vol", 11, 25),
+    ("Secondary-market prices", "Boyer, Nadauld, Vorkink\n& Weisbach (2018)",
+     "beta < 0.5", "beta > 2.0", 11, 28),
+    ("Econometric unsmoothing", "Getmansky, Lo & Makarov\n(2004) · JFE",
+     "smoothed", "serial-correlation\nremoved", 11, 24),
+    ("3-step unsmoothing", "Couts, Gonçalves\n& Rossi (2020)",
+     "low vol, high Sharpe", "vol ↑, market\nco-movement ↑", 11, 27),
+]
+
+
+def evidence_chart(path_png):
+    fig, ax = plt.subplots(figsize=(7.4, 4.5), dpi=200)
+    ys = np.arange(len(EVID))[::-1]
+    h = 0.34
+    rep = [e[4] for e in EVID]
+    tru = [e[5] for e in EVID]
+    ax.barh(ys + h / 2, rep, h, color=H_BLUE5, edgecolor=H_BLUE4, linewidth=1,
+            label="Reported (appraisal-smoothed)")
+    ax.barh(ys - h / 2, tru, h, color=H_NAVY, label="True economic (research)")
+    for y, e in zip(ys, EVID):
+        ax.annotate(e[2], (e[4] + 0.5, y + h / 2), va="center", ha="left",
+                    fontsize=9, color=H_BLUE4)
+        ax.annotate(e[3].split(chr(10))[0], (e[5] + 0.5, y - h / 2), va="center",
+                    ha="left", fontsize=9, color=H_NAVY, fontweight="bold")
+    ax.set_yticks(ys)
+    ax.set_yticklabels([e[0] for e in EVID], fontsize=10.5, color=H_BODY)
+    ax.set_xlabel("Volatility / risk loading (de-smoothed shown as vol-equivalent)",
+                  color=H_BODY, fontsize=10)
+    ax.set_xlim(0, 36); ax.set_ylim(-0.7, len(EVID) - 0.3)
+    ax.xaxis.set_major_formatter(lambda v, _: f"{v:.0f}%")
+    ax.tick_params(colors=H_BODY, labelsize=9.5)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color(H_BLUE5)
+    ax.grid(True, axis="x", color=H_BLUE5, lw=0.6, alpha=0.6)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.13), ncol=2,
+              fontsize=9.5, frameon=False, labelcolor=H_BODY)
+    ax.set_title("Four independent methods, one conclusion",
+                 color=H_NAVY, fontsize=13, fontweight="bold", pad=10)
+    fig.tight_layout(); fig.savefig(path_png, dpi=200, bbox_inches="tight",
+                                    facecolor="white"); plt.close(fig)
+
+
+evidence_chart("/tmp/pe_evidence.png")
+s3 = prs.slides.add_slide(prs.slide_layouts[6])
+header(s3, "Risk-Adjusted Outcomes", "Figure 3",
+       "The volatility gap is settled in the literature",
+       "Cash-flow models, secondary-market prices and econometric unsmoothing all "
+       "converge: PE’s true risk is roughly 2–3× its reported figure.")
+s3.shapes.add_picture("/tmp/pe_evidence.png", Inches(0.5), Inches(2.25),
+                      height=Inches(4.05))
+# right: method citation cards
+cx = Inches(8.5); cw = Inches(4.25); chh = Inches(0.92); cy = Inches(2.3)
+methods = [
+    ("CASH-FLOW NPV MODEL",
+     "Buyout vol 25% (vs 11% index), beta > 1 — Ang, Chen, Goetzmann & "
+     "Phalippou (2018), J. Finance."),
+    ("SECONDARY-MARKET PRICES",
+     "Traded-stake beta > 2.0 vs < 0.5 for the same firms on NAV — Boyer, "
+     "Nadauld, Vorkink & Weisbach (2018)."),
+    ("ECONOMETRIC UNSMOOTHING",
+     "Illiquidity creates spurious smoothness that suppresses vol — Getmansky, "
+     "Lo & Makarov (2004), JFE (cited 1,300+)."),
+    ("CATERING / “LAUNDERING”",
+     "GPs smooth returns because LPs value the “phony happiness” — Jackson, Ling "
+     "& Naranjo (2022); Couts et al. (2020)."),
+]
+for title, body in methods:
+    rect(s3, cx, cy, cw, chh, fill=HEADERBG)
+    para(tbox(s3, Emu(int(cx) + int(Inches(0.2))), cy + Inches(0.1),
+              Emu(int(cw) - int(Inches(0.4))), Inches(0.25)),
+         title, 10, SLATE, first=True, bold=True, after=0)
+    para(tbox(s3, Emu(int(cx) + int(Inches(0.2))), cy + Inches(0.34),
+              Emu(int(cw) - int(Inches(0.4))), Inches(0.55)),
+         body, 9.5, BODY, first=True, after=0, lead=1.12)
+    cy = Emu(int(cy) + int(chh) + int(Inches(0.12)))
+rect(s3, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s3, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Independent methods, the same answer: PE is a highly-levered equity "
+     "portfolio whose reported smoothness is an artefact — its true volatility "
+     "rivals Athanase’s, without the upside skew.",
+     12, WHITE, first=True, italic=True, after=0)
+para(tbox(s3, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
+     "Sources: Ang, Chen, Goetzmann & Phalippou (2018, J. Finance 73(4)); Boyer, "
+     "Nadauld, Vorkink & Weisbach (2018); Getmansky, Lo & Makarov (2004, JFE "
+     "74(3)); Couts, Gonçalves & Rossi (2020); Jackson, Ling & Naranjo (2022); "
+     "PIMCO (2022); AQR (Asness). Bars show vol-equivalent risk; beta rows scaled "
+     "for comparison. Illustrative.",
+     7, FOOT, first=True, after=0, lead=1.1)
+
 # ===========================================================================
 # Convert to 4:3 + brand the theme
 # ===========================================================================
