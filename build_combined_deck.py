@@ -402,6 +402,98 @@ checklist(s, [
      "run and more valuable” is an easy story to tell."),
 ], top, size=16.5, gap=16)
 
+# ---- I.5 The mid-market sweet spot -----------------------------------------
+s, top = content("The Opportunity", "Why mid-market is the sweet spot",
+                 "Big enough to run well, small enough to change — and to grow. "
+                 "The engaged-ownership opportunity is richest in the middle.",
+                 ref=tbl())
+rows = [
+    ("", "Small-cap", "Mid-market", "Large-cap"),
+    ("Organisational depth",
+     "Often too thin to support a capable team",
+     "Enough structure for a real management team and processes",
+     "Deep, but layered and slow"),
+    ("Growth runway",
+     "Long, but fragile and under-resourced",
+     "Still long — small enough to compound for years",
+     "Largely played out; growth is incremental"),
+    ("Speed of change",
+     "Fast, but limited resources to execute",
+     "Operational change lands within ~1.5 years",
+     "Years to turn; entrenched complexity"),
+    ("Owner influence",
+     "High, but little to work with",
+     "A board seat genuinely moves the outcome",
+     "Diluted; one owner rarely shifts the agenda"),
+]
+tl = Inches(0.55)
+cw3 = [Inches(2.5), Inches(3.25), Inches(3.5), Inches(2.9)]
+rh0 = Inches(0.4); rhd = Inches(0.78); y = top
+for ri, row in enumerate(rows):
+    head = ri == 0
+    rh = rh0 if head else rhd
+    x = tl
+    for ci, cell in enumerate(row):
+        mid = (ci == 2)
+        if head:
+            fill = SLATE if ci else WHITE
+            if mid:
+                fill = NAVY
+        else:
+            fill = (HEADERBG if mid else WHITE) if ri % 2 else \
+                   (BLUE5 if mid else HEADERBG)
+        rect(s, x, y, cw3[ci], rh, fill=fill)
+        ctf = tbox(s, Emu(int(x) + int(Inches(0.12))), y,
+                   Emu(int(cw3[ci]) - int(Inches(0.2))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        if head:
+            col = WHITE
+        elif ci == 0:
+            col = SLATE
+        elif mid:
+            col = NAVY_TX
+        else:
+            col = SUBTLE
+        para(ctf, cell, 12 if head else 11, col,
+             bold=(head or ci == 0 or mid), first=True, after=0, lead=1.05)
+        x = Emu(int(x) + int(cw3[ci]))
+    y = Emu(int(y) + int(rh))
+para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.16))), Inches(12.2), Inches(0.5)),
+     "Mid-market companies are run well enough to be worth owning, yet small "
+     "enough that an engaged owner can still change — and grow — them.",
+     13, SLATE, first=True, italic=True, after=0)
+
+# ---- I.6 Why mid-cap management listens ------------------------------------
+s, top = content("The Opportunity", "Why mid-cap management listens",
+                 "The structural reason engaged ownership works here: capable "
+                 "operators with predictable blind spots, and the room to act on "
+                 "good advice.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.6))
+para(colL, "THE BLIND SPOT", 13, SLATE, first=True, bold=True, after=8)
+for t in ["Mid-cap CEOs are usually promoted from sales or operations — strong "
+          "in their domain, first-time chief executives",
+          "They have not run capital allocation, M&A, financing or board "
+          "strategy before — predictable, correctable gaps",
+          "They know it — so credible, experienced owners are welcomed, not "
+          "resisted, unlike at entrenched large-caps"]:
+    para(colL, t, 14, BODY, after=11, lead=1.15)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.6))
+para(colR, "WHAT IT MEANS FOR AN ENGAGED OWNER", 13, SLATE, first=True,
+     bold=True, after=8)
+for t in ["A board seat is genuinely productive — advice is acted on, not "
+          "filtered through layers",
+          "Change is collaborative, not a proxy fight — faster, cheaper, less "
+          "headline risk",
+          "The owner supplies exactly the missing experience: capital "
+          "discipline, focus and a wider strategic lens"]:
+    para(colR, t, 14, BODY, after=11, lead=1.15)
+rect(s, Inches(0.6), Inches(6.35), Inches(12.13), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.78), Inches(6.35), Inches(11.8), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Capable management with a known blind spot, in a company small enough to "
+     "change: the conditions under which engaged ownership compounds.",
+     13, WHITE, first=True, italic=True, after=0)
+
 # ---- I.5 What to look for (bridge) ----
 s, top = content("Selection", "What separates a great engaged owner",
                  "Dispersion is wide — manager selection matters more here "
