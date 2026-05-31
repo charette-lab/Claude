@@ -74,10 +74,17 @@ def _dvol(xs):
 
 ATH_RET, ATH_DD = _ann(_ATH), _dvol(_ATH)        # ~16.0%, ~10.9% (real)
 
-# Private equity — from published research (see footnotes)
+# Private equity — REAL allocator-realised returns from institutional datasets
+# (PME / cash-matched basis). PE genuinely earns a premium over public markets;
+# the honest benchmark is what allocators realise (~11-14%), not headline IRR.
 PE_HEADLINE = 0.20            # top-quartile mid-market buyout headline net IRR
-PE_IRR_MATH = 0.03            # IRR reinvestment-assumption inflation (~3 pts)
-PE_REAL = 0.086              # real committed-capital / PME basis (Phalippou)
+PE_REAL = 0.114              # Cliffwater: US state-pension PE realised, 2000-22
+PE_REAL_LO, PE_REAL_HI = 0.114, 0.141   # Cliffwater (US) .. BVCA (Europe)
+# evidence pairs: (label, PE realised %, public-market-equivalent %)
+PE_EVIDENCE = [
+    ("Cliffwater\nUS state pensions\n(2000–2022)", 11.4, 5.8),
+    ("BVCA / Capital Dynamics\nUK & Europe\n(2001–2023)", 14.1, 7.7),
+]
 PE_DD_REPORTED = 0.07         # reported (smoothed) downside vol
 PE_DD_TRUE = 0.13             # de-smoothed (true economic) downside vol
 
@@ -131,53 +138,37 @@ def header(sl, kicker, ref, title, subtitle):
 
 
 # ===========================================================================
-# SLIDE 1 — reconciliation bridge: headline IRR -> real committed return
+# SLIDE 1 — what allocators ACTUALLY earn: realised PE vs its public-market
+# equivalent, across institutional datasets, with Athanase for reference
 # ===========================================================================
-def bridge_chart(path_png):
+def realised_chart(path_png):
     fig, ax = plt.subplots(figsize=(8.7, 4.35), dpi=200)
-    # waterfall: start full, two drops, end full
-    labels = ["Headline\ntop-quartile\nIRR",
-              "IRR reinvestment\nassumption",
-              "Cash drag on committed\ncapital, fees & timing",
-              "Real return on\ncommitted capital\n(PME basis)"]
-    start = PE_HEADLINE * 100
-    after_math = start - PE_IRR_MATH * 100
-    end = PE_REAL * 100
-    drop2 = after_math - end
-    xs = [0, 1, 2, 3]
-    # bar 1 (headline, solid navy)
-    ax.bar(0, start, 0.62, color=H_NAVY, zorder=3)
-    # drop 1 (IRR math) — floating
-    ax.bar(1, PE_IRR_MATH * 100, 0.62, bottom=after_math, color=H_BLUE4,
-           alpha=0.75, zorder=3)
-    # drop 2 (cash drag) — floating
-    ax.bar(2, drop2, 0.62, bottom=end, color=H_BLUE4, alpha=0.75, zorder=3)
-    # bar 4 (real, solid navy)
-    ax.bar(3, end, 0.62, color=H_NAVY, zorder=3)
-    # connector lines
-    for x0, y in [(0, start), (1, after_math), (2, end)]:
-        ax.plot([x0 + 0.31, x0 + 1 - 0.31], [y, y], color=H_BLUE4, lw=1.0,
-                ls=(0, (3, 2)), zorder=2)
-    # value labels
-    ax.annotate(f"{start:.0f}%", (0, start), ha="center", va="bottom",
-                fontsize=15, fontweight="bold", color=H_NAVY,
-                xytext=(0, 4), textcoords="offset points")
-    ax.annotate(f"–{PE_IRR_MATH*100:.0f} pts", (1, after_math + PE_IRR_MATH * 50),
-                ha="center", va="center", fontsize=11, color=H_BLUE4,
-                fontweight="bold")
-    ax.annotate(f"–{drop2:.0f} pts", (2, end + drop2 / 2), ha="center",
-                va="center", fontsize=11, color=H_BLUE4, fontweight="bold")
-    ax.annotate(f"{end:.1f}%", (3, end), ha="center", va="bottom", fontsize=15,
-                fontweight="bold", color=H_NAVY, xytext=(0, 4),
-                textcoords="offset points")
+    groups = [e[0] for e in PE_EVIDENCE]
+    pe_vals = [e[1] for e in PE_EVIDENCE]
+    pme_vals = [e[2] for e in PE_EVIDENCE]
+    x = np.arange(len(groups)); w = 0.38
+    ax.bar(x - w / 2, pe_vals, w, color=H_BLUE4, label="PE realised (net)")
+    ax.bar(x + w / 2, pme_vals, w, color=H_BLUE5, edgecolor=H_BLUE4, linewidth=1,
+           label="Public-market equivalent")
+    for xi, (pe, pme) in enumerate(zip(pe_vals, pme_vals)):
+        ax.annotate(f"{pe:.1f}%", (xi - w / 2, pe), ha="center", va="bottom",
+                    fontsize=12, fontweight="bold", color=H_BLUE3,
+                    xytext=(0, 3), textcoords="offset points")
+        ax.annotate(f"{pme:.1f}%", (xi + w / 2, pme), ha="center", va="bottom",
+                    fontsize=11, color=H_BLUE4, xytext=(0, 3),
+                    textcoords="offset points")
+        # place premium label between the two bars, clear of the Athanase line
+        ax.annotate(f"+{pe-pme:.1f} pts\npremium", (xi, (pe + pme) / 2),
+                    ha="center", va="center", fontsize=9.5, color=H_BLUE3,
+                    fontweight="bold")
     # Athanase reference line
-    ax.axhline(ATH_RET * 100, color=H_NAVY, lw=1.6, ls=(0, (5, 3)), zorder=4)
-    ax.annotate(f"Athanase {ATH_RET*100:.0f}% (real, fully invested)",
-                (3.55, ATH_RET * 100), ha="right", va="bottom", fontsize=10.5,
-                color=H_NAVY, fontweight="bold")
-    ax.set_xticks(xs); ax.set_xticklabels(labels, fontsize=9.5, color=H_BODY)
+    ax.axhline(ATH_RET * 100, color=H_NAVY, lw=1.8, ls=(0, (5, 3)), zorder=5)
+    ax.annotate(f"Athanase {ATH_RET*100:.0f}%  (real, net, fully invested)",
+                (len(groups) - 0.5, ATH_RET * 100), ha="right", va="bottom",
+                fontsize=10.5, color=H_NAVY, fontweight="bold")
+    ax.set_xticks(x); ax.set_xticklabels(groups, fontsize=9.5, color=H_BODY)
     ax.set_ylabel("Annualised return to investors", color=H_BODY, fontsize=11)
-    ax.set_ylim(0, 23); ax.set_xlim(-0.6, 3.7)
+    ax.set_ylim(0, 19); ax.set_xlim(-0.6, len(groups) - 0.4)
     ax.yaxis.set_major_formatter(lambda v, _: f"{v:.0f}%")
     ax.tick_params(colors=H_BODY, labelsize=10)
     for sp in ("top", "right"):
@@ -185,54 +176,57 @@ def bridge_chart(path_png):
     for sp in ("left", "bottom"):
         ax.spines[sp].set_color(H_BLUE5)
     ax.grid(True, axis="y", color=H_BLUE5, lw=0.6, alpha=0.6)
-    ax.set_title("What the LP is shown vs what the LP earns",
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=2,
+              fontsize=10, frameon=False, labelcolor=H_BODY)
+    ax.set_title("What allocators actually realise from private equity",
                  color=H_NAVY, fontsize=13, fontweight="bold", pad=10)
     fig.tight_layout(); fig.savefig(path_png, dpi=200, bbox_inches="tight",
                                     facecolor="white"); plt.close(fig)
 
 
-bridge_chart("/tmp/pe_bridge.png")
+realised_chart("/tmp/pe_realised.png")
 s1 = prs.slides.add_slide(prs.slide_layouts[6])
 header(s1, "Risk-Adjusted Outcomes", "Figure 1",
-       "Private equity’s headline return is not what you earn",
-       "Headline IRR is struck on drawn capital only. Measured on the capital "
-       "you commit — the honest basis — the return is far lower.")
-s1.shapes.add_picture("/tmp/pe_bridge.png", Inches(0.55), Inches(2.28),
+       "What allocators actually earn from private equity",
+       "Stripping out headline-IRR marketing, cash-matched (PME) data shows PE "
+       "earns a real ~3–6 pt premium over public markets — but lands below "
+       "Athanase.")
+s1.shapes.add_picture("/tmp/pe_realised.png", Inches(0.55), Inches(2.28),
                       height=Inches(3.95))
 # right: explanation cards
 cx = Inches(8.95); cw = Inches(3.8); chh = Inches(1.2); cy = Inches(2.32)
 expl = [
-    ("THE REINVESTMENT TRICK",
-     "IRR assumes uncalled cash earns the IRR — inflating the figure by ~3 pts."),
-    ("THE COMMITTED-CAPITAL DRAG",
-     "You commit 100 but ~half sits in cash earning little, while paying fees — "
-     "overstating returns by up to ~50%."),
-    ("THE LIKE-FOR-LIKE TRUTH",
-     "On a public-market-equivalent basis, 2006–18 PE returned ~8.6% — about the "
-     "same as the S&P 500, after $400bn+ in fees."),
+    ("HEADLINE ≠ REALISED",
+     "Top-quartile IRR is shown as ~18–22%, struck on drawn capital. Cash-matched "
+     "to public markets, the real figure is far lower."),
+    ("THE REAL PREMIUM IS GENUINE",
+     "PME studies agree: ~1.2× wealth multiple, a real 3–5 pt premium over "
+     "public equities (Cambridge; Kaplan-Schoar / Burgiss; Cliffwater; BVCA)."),
+    ("BUT BELOW ATHANASE",
+     "Allocators realise ~11–14% from PE. Athanase has delivered ~16% — net, "
+     "real, and fully invested from day one."),
 ]
 for title, body in expl:
     rect(s1, cx, cy, cw, chh, fill=HEADERBG)
-    para(tbox(s1, Emu(int(cx) + int(Inches(0.2))), cy + Inches(0.12),
+    para(tbox(s1, Emu(int(cx) + int(Inches(0.2))), cy + Inches(0.1),
               Emu(int(cw) - int(Inches(0.4))), Inches(0.25)),
          title, 10.5, SLATE, first=True, bold=True, after=0)
-    para(tbox(s1, Emu(int(cx) + int(Inches(0.2))), cy + Inches(0.4),
-              Emu(int(cw) - int(Inches(0.4))), Inches(0.75)),
-         body, 11, BODY, first=True, after=0, lead=1.14)
+    para(tbox(s1, Emu(int(cx) + int(Inches(0.2))), cy + Inches(0.36),
+              Emu(int(cw) - int(Inches(0.4))), Inches(0.8)),
+         body, 10.5, BODY, first=True, after=0, lead=1.12)
     cy = Emu(int(cy) + int(chh) + int(Inches(0.16)))
 rect(s1, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
 para(tbox(s1, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
           anchor=MSO_ANCHOR.MIDDLE),
-     "Athanase’s 16% is already a committed-capital return — fully invested from "
-     "day one. Compared like-for-like, it is roughly double real PE.",
+     "PE’s premium over public markets is real — but Athanase’s ~16% sits above "
+     "even what the best allocators realise, with daily liquidity.",
      12, WHITE, first=True, italic=True, after=0)
 para(tbox(s1, Inches(0.6), Inches(7.1), Inches(12.6), Inches(0.5)),
-     "Sources: top-quartile headline IRR ~18–22% (Cambridge Associates US PE "
-     "benchmark, 2024); real ~8.6% public-market-equivalent return, 2006–18 "
-     "(Phalippou, 2020); committed-capital / undrawn-commitment drag (Meyer, "
-     "2020, J. Alternative Investments; Hayley & Sefiloglu, 2022; Buchner, "
-     "Kaserer & Wagner, 2010). Bridge magnitudes illustrative, reconciling cited "
-     "endpoints. Athanase real, net, 2006–2025.",
+     "Sources: Cliffwater (US state pensions, 2000–2022): PE 11.4% vs PME 5.8%. "
+     "BVCA / Capital Dynamics (UK & Europe, 2001–2023): 14.1% vs 7.7% (PME+). "
+     "Corroborated by Cambridge Associates mPME (1.15–1.25×) and "
+     "Kaplan-Harris-Jenkinson KS-PME on Burgiss (1.20–1.27×), ≈ +3 pts/yr. "
+     "Athanase real, net, 2006–2025.",
      7.5, FOOT, first=True, after=0, lead=1.1)
 
 
@@ -250,11 +244,11 @@ def scatter_chart(path_png):
                edgecolor=H_BLUE4, linewidth=2.2, zorder=5)
     ax.annotate("PE as marketed\n(headline IRR,\nsmoothed risk)",
                 (PE_DD_REPORTED * 100, PE_HEADLINE * 100), color=H_BLUE4,
-                fontsize=9.5, fontweight="bold", xytext=(6, 10),
+                fontsize=9.5, fontweight="bold", xytext=(-6, 8),
                 textcoords="offset points", ha="left")
     ax.scatter([PE_DD_TRUE * 100], [PE_REAL * 100], s=150, color=H_BLUE4, zorder=5,
                edgecolor="white", linewidth=1.5)
-    ax.annotate("PE as earned\n(committed basis,\ntrue risk)",
+    ax.annotate("PE as realised\n(PME basis,\ntrue risk)",
                 (PE_DD_TRUE * 100, PE_REAL * 100), color=H_BLUE4, fontsize=9.5,
                 xytext=(8, -6), textcoords="offset points", ha="left", va="top")
     # Athanase
@@ -294,8 +288,8 @@ para(tbox(s2, Inches(0.7), Inches(6.28), Inches(6.2), Inches(0.4)),
      10, SUBTLE, first=True, italic=True, after=0, lead=1.12)
 cardx = Inches(7.05); cardw = Inches(5.7); cardh = Inches(0.86); cy = Inches(2.3)
 gains = [
-    ("RETURN", f"~16% vs ~9% real",
-     "Roughly double real PE on a committed-capital basis."),
+    ("RETURN", "~16% vs ~11–14% realised",
+     "Above what even the best allocators realise from PE (Cliffwater; BVCA)."),
     ("LIQUIDITY", "Daily vs 10-yr lock-up",
      "Listed positions you can exit; no blind-pool capital calls."),
     ("FEES & CAPITAL", "Lower drag, fully invested",
@@ -324,10 +318,10 @@ para(tbox(s2, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
      "return, liquidity and transparency — once PE is measured the way you "
      "actually experience it.", 12, WHITE, first=True, italic=True, after=0)
 para(tbox(s2, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.42)),
-     f"Athanase: net monthly returns, {_NM} months (2006–2025), real. PE real "
-     "return ~8.6% committed basis (Phalippou, 2020); downside vol reported ~7% "
-     "de-smoothed to ~13% (MSCI; Morningstar). Illustrative; past performance is "
-     "not indicative of future results.",
+     f"Athanase: net monthly returns, {_NM} months (2006–2025), real. PE realised "
+     "~11–14% (Cliffwater US state pensions 11.4%, 2000–22; BVCA UK/Europe 14.1%, "
+     "2001–23) vs headline IRR ~18–22%; downside vol reported ~7% de-smoothed to "
+     "~13% (MSCI; Morningstar). Illustrative; past performance ≠ future results.",
      7.5, FOOT, first=True, after=0, lead=1.1)
 
 # ===========================================================================
