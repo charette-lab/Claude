@@ -72,7 +72,13 @@ def _dvol(xs):
     return math.sqrt(sum(min(x, 0) ** 2 for x in xs) / len(xs)) * math.sqrt(12)
 
 
+def _tvol(xs):
+    import statistics as _st
+    return _st.pstdev(xs) * math.sqrt(12)
+
+
 ATH_RET, ATH_DD = _ann(_ATH), _dvol(_ATH)        # ~16.0%, ~10.9% (real)
+ATH_VOL = _tvol(_ATH)                             # ~27.0% total vol (real)
 
 # Private equity — REAL allocator-realised returns from institutional datasets
 # (PME / cash-matched basis). PE genuinely earns a premium over public markets;
@@ -85,8 +91,9 @@ PE_EVIDENCE = [
     ("Cliffwater\nUS state pensions\n(2000–2022)", 11.4, 5.8),
     ("BVCA / Capital Dynamics\nUK & Europe\n(2001–2023)", 14.1, 7.7),
 ]
-PE_DD_REPORTED = 0.07         # reported (smoothed) downside vol
-PE_DD_TRUE = 0.13             # de-smoothed (true economic) downside vol
+# Volatility (TOTAL, annualised) — the basis the de-smoothing research reports.
+PE_VOL_REPORTED = 0.10        # reported (appraisal-smoothed) total vol (~10%)
+PE_VOL_TRUE = 0.28            # de-smoothed true economic vol (PIMCO ~30%; AQR beta 1.5-1.6)
 
 # ===========================================================================
 # Helpers
@@ -235,31 +242,31 @@ para(tbox(s1, Inches(0.6), Inches(7.1), Inches(12.6), Inches(0.5)),
 # ===========================================================================
 def scatter_chart(path_png):
     fig, ax = plt.subplots(figsize=(6.0, 4.25), dpi=200)
-    # PE marketed -> real: arrow down and to the right
-    ax.annotate("", (PE_DD_TRUE * 100, PE_REAL * 100),
-                (PE_DD_REPORTED * 100, PE_HEADLINE * 100),
+    # PE marketed -> real: arrow down (lower return) and right (true vol ~3x)
+    ax.annotate("", (PE_VOL_TRUE * 100, PE_REAL * 100),
+                (PE_VOL_REPORTED * 100, PE_HEADLINE * 100),
                 arrowprops=dict(arrowstyle="->", color=H_BLUE4, lw=1.8,
                                 linestyle=(0, (3, 2))))
-    ax.scatter([PE_DD_REPORTED * 100], [PE_HEADLINE * 100], s=150, color="white",
+    ax.scatter([PE_VOL_REPORTED * 100], [PE_HEADLINE * 100], s=150, color="white",
                edgecolor=H_BLUE4, linewidth=2.2, zorder=5)
-    ax.annotate("PE as marketed\n(headline IRR,\nsmoothed risk)",
-                (PE_DD_REPORTED * 100, PE_HEADLINE * 100), color=H_BLUE4,
-                fontsize=9.5, fontweight="bold", xytext=(-6, 8),
+    ax.annotate("PE as marketed\n(headline IRR,\nsmoothed ~10% vol)",
+                (PE_VOL_REPORTED * 100, PE_HEADLINE * 100), color=H_BLUE4,
+                fontsize=9.5, fontweight="bold", xytext=(6, 6),
                 textcoords="offset points", ha="left")
-    ax.scatter([PE_DD_TRUE * 100], [PE_REAL * 100], s=150, color=H_BLUE4, zorder=5,
+    ax.scatter([PE_VOL_TRUE * 100], [PE_REAL * 100], s=150, color=H_BLUE4, zorder=5,
                edgecolor="white", linewidth=1.5)
-    ax.annotate("PE as realised\n(PME basis,\ntrue risk)",
-                (PE_DD_TRUE * 100, PE_REAL * 100), color=H_BLUE4, fontsize=9.5,
-                xytext=(8, -6), textcoords="offset points", ha="left", va="top")
+    ax.annotate("PE as realised\n(PME return,\nde-smoothed ~28% vol)",
+                (PE_VOL_TRUE * 100, PE_REAL * 100), color=H_BLUE4, fontsize=9.5,
+                xytext=(-8, -10), textcoords="offset points", ha="right", va="top")
     # Athanase
-    ax.scatter([ATH_DD * 100], [ATH_RET * 100], s=210, color=H_NAVY, zorder=6,
+    ax.scatter([ATH_VOL * 100], [ATH_RET * 100], s=210, color=H_NAVY, zorder=6,
                edgecolor="white", linewidth=1.5)
-    ax.annotate(f"Athanase\n{ATH_RET*100:.0f}% return", (ATH_DD * 100, ATH_RET * 100),
-                color=H_NAVY, fontsize=11, fontweight="bold", xytext=(-10, 10),
+    ax.annotate(f"Athanase\n{ATH_RET*100:.0f}% return", (ATH_VOL * 100, ATH_RET * 100),
+                color=H_NAVY, fontsize=11, fontweight="bold", xytext=(-10, 12),
                 textcoords="offset points", va="center", ha="right")
-    ax.set_xlabel("Downside volatility (annualised)", color=H_BODY, fontsize=11)
+    ax.set_xlabel("Total volatility (annualised)", color=H_BODY, fontsize=11)
     ax.set_ylabel("Real net return to investors", color=H_BODY, fontsize=11)
-    ax.set_xlim(4, 16); ax.set_ylim(6, 23)
+    ax.set_xlim(4, 34); ax.set_ylim(6, 23)
     ax.xaxis.set_major_formatter(lambda v, _: f"{v:.0f}%")
     ax.yaxis.set_major_formatter(lambda v, _: f"{v:.0f}%")
     ax.tick_params(colors=H_BODY, labelsize=10)
@@ -268,8 +275,8 @@ def scatter_chart(path_png):
     for sp in ("left", "bottom"):
         ax.spines[sp].set_color(H_BLUE5)
     ax.grid(True, color=H_BLUE5, lw=0.6, alpha=0.6)
-    ax.set_title("Real return vs true downside risk", color=H_NAVY, fontsize=13,
-                 fontweight="bold", pad=10)
+    ax.set_title("Real return vs true (de-smoothed) volatility", color=H_NAVY,
+                 fontsize=13, fontweight="bold", pad=10)
     fig.tight_layout(); fig.savefig(path_png, dpi=200, bbox_inches="tight",
                                     facecolor="white"); plt.close(fig)
 
@@ -278,13 +285,13 @@ scatter_chart("/tmp/pe_scatter.png")
 s2 = prs.slides.add_slide(prs.slide_layouts[6])
 header(s2, "Risk-Adjusted Outcomes", "Figure 2",
        "Switching a private-equity sleeve into Athanase",
-       "On the honest numbers, Athanase out-returns real PE with more liquidity, "
-       "lower fees and daily transparency.")
+       "On true risk, PE and Athanase carry similar volatility — but Athanase’s "
+       "is mostly upside, and it returns more, with daily liquidity.")
 s2.shapes.add_picture("/tmp/pe_scatter.png", Inches(0.55), Inches(2.28),
                       height=Inches(3.95))
 para(tbox(s2, Inches(0.7), Inches(6.28), Inches(6.2), Inches(0.4)),
-     "Measured honestly, PE moves down and to the right — lower return, higher "
-     "true risk — while Athanase sits up and to the left.",
+     "De-smoothed, PE’s ~10% reported vol is really ~28% (PIMCO; AQR beta "
+     "1.5–1.6) — about Athanase’s 27%, but levered downside, not upside.",
      10, SUBTLE, first=True, italic=True, after=0, lead=1.12)
 cardx = Inches(7.05); cardw = Inches(5.7); cardh = Inches(0.86); cy = Inches(2.3)
 gains = [
@@ -296,8 +303,9 @@ gains = [
      "No fees on undeployed dry powder waiting in a queue."),
     ("TRANSPARENCY", "Daily marks, real control",
      "A public scoreboard plus board control of cash flow, capex and pay."),
-    ("RISK, HONESTLY", "Lower true downside",
-     "De-smoothed, PE’s economic downside is ~13% vs Athanase’s ~11%."),
+    ("RISK, HONESTLY", "Similar vol, opposite shape",
+     "PE’s true ~28% vol is levered downside; Athanase’s 27% is mostly upside "
+     "(downside only ~11%)."),
 ]
 for title, big, body in gains:
     rect(s2, cardx, cy, cardw, cardh, fill=HEADERBG)
@@ -314,14 +322,15 @@ for title, big, body in gains:
 rect(s2, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
 para(tbox(s2, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
           anchor=MSO_ANCHOR.MIDDLE),
-     "Switching a PE sleeve into Athanase keeps the operational upside but adds "
-     "return, liquidity and transparency — once PE is measured the way you "
-     "actually experience it.", 12, WHITE, first=True, italic=True, after=0)
-para(tbox(s2, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.42)),
-     f"Athanase: net monthly returns, {_NM} months (2006–2025), real. PE realised "
-     "~11–14% (Cliffwater US state pensions 11.4%, 2000–22; BVCA UK/Europe 14.1%, "
-     "2001–23) vs headline IRR ~18–22%; downside vol reported ~7% de-smoothed to "
-     "~13% (MSCI; Morningstar). Illustrative; past performance ≠ future results.",
+     "Once PE’s smoothing is removed, the two carry similar volatility — but "
+     "Athanase returns more, its risk is upside not downside, and it stays "
+     "liquid and transparent.", 12, WHITE, first=True, italic=True, after=0)
+para(tbox(s2, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
+     f"Athanase: net monthly returns, {_NM} months (2006–2025), real (total vol "
+     f"{ATH_VOL*100:.0f}%, downside {ATH_DD*100:.0f}%). PE realised ~11–14% "
+     "(Cliffwater 11.4%; BVCA 14.1%) vs headline IRR ~18–22%; reported ~10% vol "
+     "de-smoothed to ~25–30% (PIMCO; AQR equity beta 1.5–1.6; Couts-Gonçalves-"
+     "Rossi, 2024). Illustrative; past performance ≠ future results.",
      7.5, FOOT, first=True, after=0, lead=1.1)
 
 # ===========================================================================
