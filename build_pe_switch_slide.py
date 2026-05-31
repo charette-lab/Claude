@@ -433,6 +433,113 @@ para(tbox(s3, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
      "for comparison. Illustrative.",
      7, FOOT, first=True, after=0, lead=1.1)
 
+
+# ===========================================================================
+# SLIDE 4 — the real-risk payoff: same total vol, far lower DOWNSIDE risk
+# ===========================================================================
+# empirical Athanase 3-year large-loss frequency
+def _cum(xs):
+    g = 1.0
+    for x in xs:
+        g *= (1 + x)
+    return g - 1
+
+
+_roll36 = [_cum(_ATH[i:i + 36]) for i in range(0, len(_ATH) - 36 + 1)]
+ATH_P30 = sum(1 for r in _roll36 if r < -0.30) / len(_roll36)   # ~2%
+PE_P30 = 0.155                                                  # PIMCO ~15-16%
+
+
+def realrisk_chart(path_png):
+    fig, ax = plt.subplots(figsize=(6.3, 4.5), dpi=200)
+    cats = ["Total\nvolatility", "Downside\nvolatility"]
+    x = np.arange(2); w = 0.38
+    pe = [PE_VOL_TRUE * 100, PE_VOL_TRUE * 0.72 * 100]   # PE: downside ≈ most of vol (levered, left-skew)
+    ath = [ATH_VOL * 100, ATH_DD * 100]                 # Athanase: real 27% / 11%
+    ax.bar(x - w / 2, pe, w, color=H_BLUE4, label="Private equity (de-smoothed)")
+    ax.bar(x + w / 2, ath, w, color=H_NAVY, label="Athanase")
+    for xi, (p, a) in enumerate(zip(pe, ath)):
+        ax.annotate(f"{p:.0f}%", (xi - w / 2, p), ha="center", va="bottom",
+                    fontsize=12, fontweight="bold", color=H_BLUE4,
+                    xytext=(0, 3), textcoords="offset points")
+        ax.annotate(f"{a:.0f}%", (xi + w / 2, a), ha="center", va="bottom",
+                    fontsize=12, fontweight="bold", color=H_NAVY,
+                    xytext=(0, 3), textcoords="offset points")
+    ax.set_xticks(x); ax.set_xticklabels(cats, fontsize=11, color=H_BODY)
+    ax.set_ylabel("Annualised volatility", color=H_BODY, fontsize=11)
+    ax.set_ylim(0, 34); ax.set_xlim(-0.6, 1.6)
+    ax.yaxis.set_major_formatter(lambda v, _: f"{v:.0f}%")
+    ax.tick_params(colors=H_BODY, labelsize=10)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color(H_BLUE5)
+    ax.grid(True, axis="y", color=H_BLUE5, lw=0.6, alpha=0.6)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.14), ncol=2,
+              fontsize=10, frameon=False, labelcolor=H_BODY)
+    ax.set_title("Similar total volatility — very different downside",
+                 color=H_NAVY, fontsize=13, fontweight="bold", pad=10)
+    fig.tight_layout(); fig.savefig(path_png, dpi=200, bbox_inches="tight",
+                                    facecolor="white"); plt.close(fig)
+
+
+realrisk_chart("/tmp/pe_realrisk.png")
+s4 = prs.slides.add_slide(prs.slide_layouts[6])
+header(s4, "Risk-Adjusted Outcomes", "Figure 4",
+       "Same headline volatility — far lower real risk",
+       "Volatility is not symmetric. PE’s true risk is levered downside; "
+       "Athanase’s is mostly upside, so its real loss risk is a fraction of PE’s.")
+s4.shapes.add_picture("/tmp/pe_realrisk.png", Inches(0.55), Inches(2.28),
+                      height=Inches(3.95))
+# right: the two big stats + interpretation
+bx = Inches(7.05); bw = Inches(5.7)
+# stat panel
+rect(s4, bx, Inches(2.3), bw, Inches(1.85), fill=HEADERBG)
+para(tbox(s4, Emu(int(bx) + int(Inches(0.25))), Inches(2.46), Inches(5.2), Inches(0.3)),
+     "CHANCE OF A 30%+ LOSS OVER THREE YEARS", 11, SLATE, first=True,
+     bold=True, after=0)
+sp = tbox(s4, Emu(int(bx) + int(Inches(0.25))), Inches(2.86), Inches(5.2), Inches(1.2))
+p = sp.paragraphs[0]; p.space_after = Pt(2)
+r1 = p.add_run(); r1.text = f"~{PE_P30*100:.0f}%"; r1.font.size = Pt(34)
+r1.font.bold = True; r1.font.color.rgb = BLUE4; r1.font.name = SERIF
+r2 = p.add_run(); r2.text = "   private equity"; r2.font.size = Pt(13)
+r2.font.color.rgb = SUBTLE; r2.font.name = SANS
+p2 = sp.add_paragraph()
+r3 = p2.add_run(); r3.text = f"~{ATH_P30*100:.0f}%"; r3.font.size = Pt(34)
+r3.font.bold = True; r3.font.color.rgb = NAVY; r3.font.name = SERIF
+r4 = p2.add_run(); r4.text = "   Athanase (actual 3-yr windows)"
+r4.font.size = Pt(13); r4.font.color.rgb = SUBTLE; r4.font.name = SANS
+# interpretation cards
+cy = Inches(4.4); chh = Inches(0.96)
+for title, body in [
+    ("VOLATILITY ≠ RISK OF LOSS",
+     "PE’s ~28% true vol is dominated by downside (levered, left-skewed). "
+     "Athanase’s 27% is mostly upside — downside deviation is only ~11%."),
+    ("THE RISK THAT MATTERS",
+     "On the measure allocators actually care about — large permanent loss — "
+     "Athanase’s real risk is roughly one-eighth of private equity’s."),
+]:
+    rect(s4, bx, cy, bw, chh, fill=HEADERBG)
+    para(tbox(s4, Emu(int(bx) + int(Inches(0.25))), cy + Inches(0.12),
+              Emu(int(bw) - int(Inches(0.5))), Inches(0.25)),
+         title, 10.5, SLATE, first=True, bold=True, after=0)
+    para(tbox(s4, Emu(int(bx) + int(Inches(0.25))), cy + Inches(0.38),
+              Emu(int(bw) - int(Inches(0.5))), Inches(0.55)),
+         body, 10.5, BODY, first=True, after=0, lead=1.12)
+    cy = Emu(int(cy) + int(chh) + int(Inches(0.12)))
+rect(s4, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
+para(tbox(s4, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Matched on true volatility, Athanase carries far less of the risk that "
+     "actually hurts: its downside is a fraction of private equity’s.",
+     12, WHITE, first=True, italic=True, after=0)
+para(tbox(s4, Inches(0.6), Inches(7.12), Inches(12.6), Inches(0.5)),
+     f"Athanase downside vol {ATH_DD*100:.0f}% vs total {ATH_VOL*100:.0f}% "
+     f"(real, {_NM} months); 30%+ loss in {ATH_P30*100:.0f}% of actual rolling "
+     "3-yr windows. PE de-smoothed total vol ~28%, ~15–16% chance of a 30% "
+     "drawdown over 3 years (PIMCO, 2022). Illustrative; past performance ≠ "
+     "future results.", 7.5, FOOT, first=True, after=0, lead=1.1)
+
 # ===========================================================================
 # Convert to 4:3 + brand the theme
 # ===========================================================================
