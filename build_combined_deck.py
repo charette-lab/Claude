@@ -920,16 +920,20 @@ for ax in (chart.value_axis, chart.category_axis):
     ax.tick_labels.font.color.rgb = BODY
 # right-hand proof points
 pr = tbox(s, Inches(8.1), top + Inches(0.1), Inches(4.6), Inches(4.5))
-para(pr, "Haldex AB", 16, NAVY_TX, first=True, bold=True, after=2, font=SERIF)
-para(pr, "81% IRR · 3.9x money multiple. Spun off Concentric, refocused the "
-     "core, re-invested in 2020 for a further 2.0x in under two years.", 13,
+para(pr, "What downside protection means", 16, NAVY_TX, first=True, bold=True,
+     after=2, font=SERIF)
+para(pr, "In the market’s down months Athanase fell ~1.5% on average versus the "
+     "market’s ~3.8% — losing less than half as much when it matters.", 13,
      BODY, after=14, lead=1.15)
-para(pr, "Compounding", 16, NAVY_TX, bold=True, after=2, font=SERIF)
-para(pr, "~18x gross vs ~14x for MSCI IMI since 2006, with EBITA growth of "
-     "+14.5% across portfolio companies.", 13, BODY, after=14, lead=1.15)
-para(pr, "Hit rate", 16, NAVY_TX, bold=True, after=2, font=SERIF)
-para(pr, "39 larger investments since 2006 — profitable in 36, lost money in "
-     "only 3.", 13, BODY, after=0, lead=1.15)
+para(pr, "Positive when the market wasn’t", 16, NAVY_TX, bold=True, after=2,
+     font=SERIF)
+para(pr, "Across the six worst years for global equities, Athanase outperformed "
+     "in five — and stayed positive in two: +9% in 2015 and +0.3% in 2022, while "
+     "the market fell −6% and −20%.", 13, BODY, after=14, lead=1.15)
+para(pr, "Why it compounds", 16, NAVY_TX, bold=True, after=2, font=SERIF)
+para(pr, "Losing less in drawdowns leaves more capital working in the recovery — "
+     "the engine behind ~18x growth vs ~14x for MSCI IMI since 2006.", 13, BODY,
+     after=0, lead=1.15)
 
 # ---- II.6b Transactions: AIP Fund II ----
 FUND2, HIST = load_transactions()
@@ -1018,10 +1022,8 @@ for t in ["92% deal-level hit rate (36 of 39 profitable); losses ~8% of "
           "cumulative invested capital",
           "10 of 39 deals returned ≥5× MOIC — one such win every ~2 years",
           "Two decade-definers, not one: Klarna 28× (2007) and Athanase Tech "
-          "5.4× (2021)",
-          "Robust: even excluding Athanase Tech entirely, AIPFII still ~10% "
-          "net annualised"]:
-    para(colL, t, 14, BODY, after=9, lead=1.13)
+          "5.4× (2021)"]:
+    para(colL, t, 14, BODY, after=11, lead=1.13)
 colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.6))
 para(colR, "CONVICTION-SIZED (THE SKILL SIGNAL)", 13, SLATE, first=True,
      bold=True, after=7)
