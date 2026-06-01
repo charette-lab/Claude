@@ -2853,6 +2853,72 @@ checklist(s, [
      "Swedish FI-registered AIFM."),
 ], top, size=16, gap=14)
 
+# ---- Objection handling: the declines we hear (not numbered / not in TOC) ---
+s, top = content("The Case",
+                 "The objections we hear — and the answers",
+                 "The common declines are rarely about the returns. Each "
+                 "underlying concern has a structural answer.", number=False)
+obj = [
+    ("“It falls between our buckets.”",
+     "Idiosyncratic alpha means tracking error against the benchmark.",
+     "Fund it from whichever sleeve it best replaces — public equity, "
+     "event-driven or private equity. Sized at 1–3%, the tracking error is "
+     "pre-agreed and judged on fundamentals, not on benchmark-hugging."),
+    ("“Key-person risk at a boutique.”",
+     "A niche firm offers less political cover than a household name.",
+     "A five-partner team 20 years together, an independent operations / risk "
+     "/ valuation layer, SEB · MUFG · KPMG oversight and an independently "
+     "validated 20-year record — institutional process, not a flyer."),
+    ("“Capacity — only one deal a year.”",
+     "Is a 1–3% sleeve worth the internal effort to approve?",
+     "Selectivity is the edge, not a constraint; the book compounds spare "
+     "capital in a 30-stock core, and capacity comfortably supports an "
+     "institutional ticket within prudent sizing."),
+    ("“Duration ties up our risk budget.”",
+     "The J-curve pain is early; the payoff lands on a later review cycle.",
+     "Daily liquidity and zero lock-up mean no trapped capital. Pre-agree the "
+     "drawdown tolerance and judge business risk — board seat secured, earnings "
+     "improving — so the path is owned, not a surprise."),
+]
+tl = Inches(0.55); cwo = [Inches(3.0), Inches(3.0), Inches(5.8)]
+y = top
+for ri, row in enumerate([("The objection", "The underlying concern",
+                           "The structural answer")] + obj):
+    head = ri == 0
+    rh = Inches(0.4) if head else Inches(0.96)
+    x = tl
+    for ci, cell in enumerate(row):
+        ans = (ci == 2)
+        if head:
+            fill = NAVY if ans else SLATE
+        elif ans:
+            fill = BLUE5 if ri % 2 == 0 else HEADERBG
+        else:
+            fill = HEADERBG if ri % 2 == 0 else WHITE
+        rect(s, x, y, cwo[ci], rh, fill=fill)
+        ctf = tbox(s, Emu(int(x) + int(Inches(0.14))), y,
+                   Emu(int(cwo[ci]) - int(Inches(0.26))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        if head:
+            col = WHITE
+        elif ci == 0:
+            col = NAVY_TX
+        elif ans:
+            col = NAVY_TX
+        else:
+            col = SUBTLE
+        para(ctf, cell, 11.5 if head else 10, col,
+             bold=(head or ans), italic=(not head and ci == 0),
+             first=True, after=0, lead=1.06,
+             font=(SERIF if (not head and ci == 0) else SANS))
+        x = Emu(int(x) + int(cwo[ci]))
+    y = Emu(int(y) + int(rh))
+para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.13))), Inches(12.3),
+          Inches(0.4)),
+     "We meet each objection where it sits — and answer it with structure, not "
+     "optimism. The allocation is engineered to be defensible, not just to "
+     "perform.", 12, SLATE, first=True, italic=True, after=0, track=0)
+
 # ---- Capstone: the investment-committee pitch (not numbered / not in TOC) ---
 s, top = content("The Case",
                  "The case for your investment committee",
