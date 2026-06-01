@@ -589,51 +589,73 @@ checklist(s, [
 ], top + Inches(1.25), size=14.5, gap=10)
 
 
-# ---- II.2b The people behind the track record (partner bios) ---------------
+# ---- II.2b The people behind the track record (investment + operations) ----
 s, top = content("Experience", "The people behind the track record",
-                 "One investment team, working together across four vehicles "
-                 "since 1992 — operators, allocators and board directors.")
-bios = [
-    ("Stefan Charette", "CIO & Partner",
-     "Leads the same team since 2006. Former CEO/CIO of industrial conglomerate "
-     "Brokk; earlier Lehman Brothers and Salomon Smith Barney."),
-    ("Kenth Eriksson", "Senior PM & Partner",
-     "Co-founder & CEO of Tradimus; Senior VP at Electrolux; owner-operator of a "
-     "group of private tech companies — deep industrial operating experience."),
-    ("Sven Thorén", "PM & Partner",
-     "Responsible PM at Adrigo, Catella, Pan Capital and Nordea; equity research "
-     "at Brummer & Partners and Cazenove."),
-    ("Anders Elsell", "Senior PM",
-     "PM and Head of Research of the same team since 1996; former CEO & CIO of "
-     "HQ Fonder; multiple senior roles at Carnegie."),
-    ("Daniel Nyhrén", "Partner",
-     "On the same investment team since 2006; former CFO of portfolio company "
-     "Global Batterier — operator and financier."),
-    ("Malin Norrman", "CFO",
-     "Previously COO/CFO at Captor Fund Management; risk manager at Carnegie "
-     "Investment Bank and AB Industrivärden."),
+                 "An integrated investment team — and an independent operations, "
+                 "finance and control function that safeguards investor capital.")
+
+
+def _person_card(x, y, w, h, nm, role, line):
+    rect(s, x, y, w, h, fill=HEADERBG)
+    rect(s, x, y, Inches(0.06), h, fill=NAVY)
+    para(tbox(s, Emu(int(x) + int(Inches(0.2))), Emu(int(y) + int(Inches(0.13))),
+              Emu(int(w) - int(Inches(0.32))), Inches(0.3)),
+         nm, 12.5, NAVY_TX, first=True, bold=True, after=0, font=SERIF, track=0)
+    para(tbox(s, Emu(int(x) + int(Inches(0.2))), Emu(int(y) + int(Inches(0.42))),
+              Emu(int(w) - int(Inches(0.32))), Inches(0.24)),
+         role.upper(), 8.5, SLATE, first=True, bold=True, after=0, track=0)
+    para(tbox(s, Emu(int(x) + int(Inches(0.2))), Emu(int(y) + int(Inches(0.68))),
+              Emu(int(w) - int(Inches(0.34))), Inches(0.7)),
+         line, 9, BODY, first=True, after=0, lead=1.1, track=0)
+
+
+# Band 1 — investment team (five partners, one row)
+para(tbox(s, Inches(0.6), Inches(2.18), Inches(8), Inches(0.3)),
+     "INVESTMENT TEAM", 11, SLATE, first=True, bold=True, after=0, track=0)
+inv = [
+    ("Stefan Charette", "CIO & Partner", "Ex-CEO/CIO of Brokk; Lehman Brothers, "
+     "Salomon Smith Barney."),
+    ("Kenth Eriksson", "Senior PM & Partner", "Ex-CEO of Tradimus; Senior VP, "
+     "Electrolux; tech owner-operator."),
+    ("Sven Thorén", "PM & Partner", "Ex-PM at Adrigo, Catella, Pan Capital and "
+     "Nordea."),
+    ("Anders Elsell", "Senior PM", "On the team since 1996; ex-CEO/CIO of HQ "
+     "Fonder; Carnegie."),
+    ("Daniel Nyhrén", "Partner", "On the team since 2006; ex-CFO of Global "
+     "Batterier."),
 ]
-bx0 = Inches(0.6); bw = Inches(3.97); bh = Inches(1.92); gx = Inches(0.1)
-gy = Inches(0.16)
-for idx, (nm, role, bio) in enumerate(bios):
-    r, c = divmod(idx, 3)
-    bx = Emu(int(bx0) + c * (int(bw) + int(gx)))
-    by = Emu(int(top) + r * (int(bh) + int(gy)))
-    rect(s, bx, by, bw, bh, fill=HEADERBG)
-    rect(s, bx, by, Inches(0.07), bh, fill=NAVY)
-    para(tbox(s, Emu(int(bx) + int(Inches(0.25))), Emu(int(by) + int(Inches(0.16))),
-              Emu(int(bw) - int(Inches(0.4))), Inches(0.3)),
-         nm, 14, NAVY_TX, first=True, bold=True, after=0, font=SERIF, track=0)
-    para(tbox(s, Emu(int(bx) + int(Inches(0.25))), Emu(int(by) + int(Inches(0.46))),
-              Emu(int(bw) - int(Inches(0.4))), Inches(0.25)),
-         role.upper(), 9.5, SLATE, first=True, bold=True, after=0, track=0)
-    para(tbox(s, Emu(int(bx) + int(Inches(0.25))), Emu(int(by) + int(Inches(0.75))),
-              Emu(int(bw) - int(Inches(0.45))), Inches(1.1)),
-         bio, 10, BODY, first=True, after=0, lead=1.13, track=0)
-para(tbox(s, Inches(0.6), Inches(6.5), Inches(12.2), Inches(0.5)),
-     "Supported by a dedicated fund-operations, risk and technology team — "
-     "the same unit has compounded capital through every cycle since 1992.",
-     12.5, SLATE, first=True, italic=True, after=0)
+iw = Inches(2.33); igx = Inches(0.12); ix0 = Inches(0.6); iy = Inches(2.5)
+for k, (nm, role, line) in enumerate(inv):
+    _person_card(Emu(int(ix0) + k * (int(iw) + int(igx))), iy, iw, Inches(1.5),
+                 nm, role, line)
+
+# Band 2 — operations, finance & control (four; the safety layer)
+para(tbox(s, Inches(0.6), Inches(4.2), Inches(9), Inches(0.3)),
+     "OPERATIONS, FINANCE & CONTROL — INDEPENDENT OF THE INVESTMENT TEAM",
+     11, SLATE, first=True, bold=True, after=0, track=0)
+ops = [
+    ("Malin Norrman", "CFO", "Ex-COO/CFO of Captor Fund Mgmt; risk manager at "
+     "Carnegie and AB Industrivärden."),
+    ("Grant Loon", "Head of Fund Operations", "Ex-COO of Madrague Capital and "
+     "Port Capital; Soros, Commerzbank, Morgan Stanley."),
+    ("Eva Andersson", "Fund Operations", "MBA, Business School London; sales-"
+     "executive background."),
+    ("Zetong Liu", "Technology", "MSc applied & computational mathematics, KTH; "
+     "projects for the Swiss Finance Institute / EPFL."),
+]
+ow = Inches(2.96); ogx = Inches(0.13); ox0 = Inches(0.6); oy = Inches(4.52)
+for k, (nm, role, line) in enumerate(ops):
+    _person_card(Emu(int(ox0) + k * (int(ow) + int(ogx))), oy, ow, Inches(1.45),
+                 nm, role, line)
+
+# safety strip — why operations matters to investors
+rect(s, Inches(0.6), Inches(6.32), Inches(12.13), Inches(0.62), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.62),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Segregation of duties protects investors: operations, valuation and risk "
+     "sit apart from investment decisions — with SEB (custody), MUFG "
+     "(administration) and KPMG (audit) independently verifying every NAV and fee.",
+     12, WHITE, first=True, italic=True, after=0, track=0)
 
 
 # ---- II.2c Investment process (sourcing funnel + three tollgates) ----------
