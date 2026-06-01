@@ -2780,6 +2780,76 @@ checklist(s, [
      "Swedish FI-registered AIFM."),
 ], top, size=16, gap=14)
 
+# ---- Capstone: the investment-committee pitch (not numbered / not in TOC) ---
+s, top = content("The Case",
+                 "The case for your investment committee",
+                 "The argument in four moves — structure, engine, downside and "
+                 "proof.", number=False)
+quads = [
+    ("1 · The mandate & structure", [
+        ("PE-style operational value creation",
+         "executed entirely in the public markets."),
+        ("Daily transparency and liquidity, lower fees",
+         "and no 10-year blind-pool lock-up."),
+        ("Applied corporate governance",
+         "board independence, capital discipline and pay-for-performance — "
+         "fulfilling UN PRI fiduciary duty.")]),
+    ("2 · The engine — quality-core constructivism", [
+        ("Market-leading European mid-caps",
+         "with highly profitable, durable cores — not broken turnarounds."),
+        ("We enter at “shareholder exhaustion”",
+         "the buyer of last resort after management diluted the core chasing "
+         "prestige projects."),
+        ("Secure the board seat",
+         "strip the growth-trap adjacencies and reallocate capital to the core "
+         "to maximise ROIIC.")]),
+    ("3 · The moat — engineered downside protection", [
+        ("A valuation floor",
+         "the core alone justifies the price; zero value to weak divisions — "
+         "a 30–40% margin of safety vs a PE bidder."),
+        ("The board seat is the kill switch",
+         "authority to freeze bad capital deployment the moment the macro "
+         "shifts."),
+        ("Mechanized discipline",
+         "automatic −10% / −20% / −30% triggers force a thesis review and "
+         "exit.")]),
+    ("4 · The proof — two decades of compounding", [
+        ("16.1% net p.a.; capital grown 18×",
+         "across multiple market cycles."),
+        ("92% deal-level hit rate (39 deals)",
+         "a 5× MOIC roughly every two years."),
+        ("93% up-capture vs 43% down-capture",
+         "losing less than half preserves the compounding base.")]),
+]
+cw = Inches(5.86); gx = Inches(0.18); gy = Inches(0.1)
+hh = Inches(0.46); bodyH = Inches(1.74)
+cardH = int(hh) + int(bodyH)
+for qi, (qt, bullets) in enumerate(quads):
+    x = Inches(0.62) if qi % 2 == 0 else Emu(int(Inches(0.62)) + int(cw) + int(gx))
+    y = top if qi < 2 else Emu(int(top) + cardH + int(gy))
+    rect(s, x, y, cw, hh, fill=NAVY)
+    para(tbox(s, Emu(int(x) + int(Inches(0.16))), y, Emu(int(cw) - int(Inches(0.3))),
+              hh, anchor=MSO_ANCHOR.MIDDLE),
+         qt, 12.5, WHITE, first=True, bold=True, after=0, font=SERIF, track=0)
+    by = Emu(int(y) + int(hh))
+    rect(s, x, by, cw, bodyH, fill=HEADERBG)
+    tf = tbox(s, Emu(int(x) + int(Inches(0.18))), Emu(int(by) + int(Inches(0.12))),
+              Emu(int(cw) - int(Inches(0.36))), Emu(int(bodyH) - int(Inches(0.2))))
+    for bi, (lead, body) in enumerate(bullets):
+        p = tf.paragraphs[0] if bi == 0 else tf.add_paragraph()
+        p.space_after = Pt(4); p.line_spacing = 1.08
+        hang = int(round(9 * 1.3 * 12700))
+        pPr = p._p.get_or_add_pPr()
+        pPr.set("marL", str(hang)); pPr.set("indent", str(-hang))
+        r0 = p.add_run(); r0.text = "›  "
+        r0.font.size = Pt(9); r0.font.bold = True
+        r0.font.color.rgb = SLATE_LT; r0.font.name = SANS
+        r1 = p.add_run(); r1.text = lead
+        r1.font.size = Pt(9); r1.font.bold = True
+        r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
+        r2 = p.add_run(); r2.text = " — " + body
+        r2.font.size = Pt(9); r2.font.color.rgb = BODY; r2.font.name = SANS
+
 # ===========================================================================
 # CLOSING
 # ===========================================================================
