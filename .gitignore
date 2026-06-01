@@ -4,4 +4,10 @@ __pycache__/
 .venv/
 venv/
 render/
+render_cs/
 brand_src/
+# Intermediate case-study build artifacts (script only needs case_src/charts/)
+case_src/hi/
+case_src/*.pdf
+case_src/*.ppt
+case_src/*.pptx
