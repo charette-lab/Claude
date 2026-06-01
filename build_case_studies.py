@@ -161,8 +161,10 @@ def badge(slide, x, y, w, text):
 
 
 def value_bar(slide, x, y, w, h, cats, vals, unit="SEK M",
-              title="Initial investment vs. current value"):
+              title="Initial investment vs. current value", vfmt=None):
     """Hand-drawn two-bar chart (reliable labels across renderers)."""
+    if vfmt is None:
+        vfmt = lambda v: f"{v:,}"
     tt = tbox(slide, x, y, w, Inches(0.3))
     para(tt, title, 11, NAVY_TX, bold=True, first=True,
          align=PP_ALIGN.CENTER, after=0, font=SERIF)
@@ -186,7 +188,7 @@ def value_bar(slide, x, y, w, h, cats, vals, unit="SEK M",
         vl = tbox(slide, Emu(int(bx) - int(Inches(0.3))),
                   Emu(int(by) - int(Inches(0.3))),
                   Emu(bw + int(Inches(0.6))), Inches(0.28))
-        para(vl, f"{v:,}", 13, NAVY_TX, bold=True, first=True,
+        para(vl, vfmt(v), 13, NAVY_TX, bold=True, first=True,
              align=PP_ALIGN.CENTER, after=0, font=SERIF)
         cl = tbox(slide, Emu(int(px) + i * slot),
                   Emu(int(base) + int(Inches(0.06))), Emu(slot), Inches(0.34))
@@ -391,6 +393,7 @@ def overview():
     fund_rows = [
         ["Haldex AB", "64%", "4.1×"],
         ["Haldex AB (2nd)", "100%", "2.0×"],
+        ["Concentric AB", "81%", "3.9×"],
         ["Kitron ASA", "49%", "1.6×"],
         ["Note AB", "33%", "5.1×"],
         ["Lindab AB", "32%", "1.6×"],
@@ -489,7 +492,8 @@ def case_native_right(sections, label, title, badge_text, kind, data,
     if kind == "value":
         value_bar(s, rx, y, rw, Inches(3.1), data["cats"], data["vals"],
                   unit=data.get("unit", "SEK M"),
-                  title=data.get("title", "Initial investment vs. current value"))
+                  title=data.get("title", "Initial investment vs. current value"),
+                  vfmt=data.get("vfmt"))
         if callout:
             ct = tbox(s, rx, Inches(5.5), rw, Inches(0.8))
             para(ct, callout, 12, SLATE, bold=True, first=True,
@@ -554,6 +558,48 @@ case_image_right(
          "SEK 30/share redemption; sold Wire Systems to Suzuki Metal"])],
     "Case · AIP fund era", "Investment case study: Haldex AB",
     None, os.path.join(CHARTS, "col_haldex.png"), note=NOTE_MODERN)
+
+# Concentric AB -- the Haldex spin-off, owned and realised separately
+case_native_right(
+    [("para", "Company description",
+      "Concentric AB is a world-leading manufacturer of pumps and hydraulic "
+      "systems — oil, water and fuel pumps and hydraulic solutions for diesel "
+      "engines and off-/on-highway vehicles. It was the pumps division of "
+      "Haldex (~25% of group sales), spun off and separately listed on Nasdaq "
+      "Stockholm in 2011 as part of the Haldex restructuring."),
+     ("bullets", "Recognized opportunities", [
+         "A high-quality, market-leading niche business hidden inside the "
+         "Haldex conglomerate",
+         "Profitable core with strong margins and high return on capital, "
+         "masked by the group structure",
+         "A pure-play listing would remove the conglomerate discount and let "
+         "the market value it on its own merits",
+         "Clear margin and cost opportunity as a focused, independent company",
+         "Strong cash generation to support capital return and bolt-on "
+         "growth"]),
+     ("para", "Initial plan",
+      "Realise the hidden value in Haldex's pumps division by spinning it off "
+      "as the independent, pure-play Concentric AB; install a focused board "
+      "and management, drive margin improvement and capital discipline as a "
+      "stand-alone company, and let the public market re-rate the business."),
+     ("checks", "Results", [
+         "Spun off and separately listed on Nasdaq Stockholm in 2011",
+         "Focused board and management; cost and margin programme as an "
+         "independent company",
+         "Annual EBIT growth of ~19% over the holding period",
+         "Strong cash generation funded dividends, buy-backs and bolt-on M&A",
+         "Re-rated as a pure-play — realised at ~81% IRR / ~3.9×, "
+         "outperforming the parent"])],
+    "Case · AIP fund era", "Investment case study: Concentric AB",
+    "IRR 81% · Money multiple 3.9×", "value",
+    {"cats": ["Annual sales growth", "Annual EBIT growth"], "vals": [2, 19],
+     "unit": "% per year, over the holding period",
+     "title": "Operational improvement (annualised)",
+     "vfmt": lambda v: f"{v}%"},
+    note="Note: Concentric was spun off from Haldex and held and realised as a "
+         "separate listed company; figures relate to the team's Haldex-era "
+         "investment. Past performance is not indicative of future results.",
+    callout="Spun off from Haldex and listed in 2011 — outperformed the parent")
 
 # Haldex AB (2nd) -- badge + callout, no chart
 def haldex2():
