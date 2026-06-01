@@ -258,6 +258,51 @@ def divider(title, kicker=None):
     return s
 
 
+_SUBSECTIONS = [
+    "Team & operations",
+    "The opportunity & our edge",
+    "Risk, honestly",
+    "The 20-year track record",
+    "What it means for your portfolio",
+    "Versus private equity",
+]
+_subdiv = {"n": 0}
+
+
+def subdivider(title):
+    """Navy tab divider for a Part II sub-section. Does not affect section
+    numbering and is excluded from the TOC. Shows the running tab list with the
+    current tab highlighted, so it's easy to flip between subjects."""
+    _subdiv["n"] += 1
+    cur = _subdiv["n"]
+    s = prs.slides.add_slide(BLANK)
+    rect(s, 0, 0, SW, SH, fill=NAVY)
+    wordmark(s, Inches(0.6), Inches(0.55), WHITE, scale=0.9)
+    # eyebrow + number
+    para(tbox(s, Inches(0.6), Inches(2.45), Inches(11.7), Inches(0.4)),
+         f"PART II · WHY ATHANASE   ·   {cur} OF {len(_SUBSECTIONS)}", 13,
+         SLATE_LT, first=True, after=0, track=0)
+    rect(s, Inches(0.62), Inches(2.95), Inches(0.5), Pt(2.2), fill=SLATE_LT)
+    para(tbox(s, Inches(0.6), Inches(3.15), Inches(11.9), Inches(1.0)),
+         title, 40, DIVIDER, italic=True, first=True, align=PP_ALIGN.LEFT,
+         after=0, font=SERIF)
+    # tab list (current highlighted), bottom-left
+    ytf = tbox(s, Inches(0.6), Inches(5.0), Inches(12), Inches(2.0))
+    for i, name in enumerate(_SUBSECTIONS, 1):
+        p = ytf.paragraphs[0] if i == 1 else ytf.add_paragraph()
+        p.space_after = Pt(4); p.line_spacing = 1.0
+        r0 = p.add_run(); r0.text = f"{i}   "
+        r1 = p.add_run(); r1.text = name
+        on = (i == cur)
+        for rr in (r0, r1):
+            rr.font.size = Pt(12.5 if on else 11)
+            rr.font.bold = on
+            rr.font.color.rgb = WHITE if on else SLATE_LT
+            rr.font.name = SANS
+    footer(s)
+    return s
+
+
 def content(section, title, subtitle=None, number=True, ref=None):
     s = prs.slides.add_slide(BLANK)
     rect(s, 0, 0, SW, SH, fill=WHITE)
@@ -648,6 +693,7 @@ para(bt, "Part II shows how Athanase meets each of these criteria.", 14,
 # ===========================================================================
 divider("Why Athanase", kicker="Part II  ·  Among engaged owners")
 
+subdivider("Team & operations")
 # ---- II.1 At a glance ----
 s, top = content("Overview", "Athanase at a glance")
 # four big stats
@@ -953,6 +999,7 @@ para(tbox(s, Inches(0.6), Inches(6.5), Inches(12.2), Inches(0.5)),
      12.5, SLATE, first=True, italic=True, after=0)
 
 
+subdivider("The opportunity & our edge")
 # ---- II.3 Market opportunity ----
 _f = fig()
 s, top = content("Market Opportunity", "The inefficiency Athanase harvests",
@@ -1205,6 +1252,7 @@ para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.18))), Inches(12.2), Inches
      "— keeping the liquidity, transparency and lower fees PE gives up.",
      13, SLATE, first=True, italic=True, after=0)
 
+subdivider("Risk, honestly")
 # ---- II.5 Risk system ----
 s, top = content("Risk Management", "A risk system built to avoid permanent loss",
                  "Predictability, price and influence combined to lower risk "
@@ -1346,6 +1394,7 @@ para(tbox(s, Inches(0.6), Emu(int(y) + int(Inches(0.15))), Inches(12.1), Inches(
      "take compensated discomfort — +6 percentage points per year, net of every "
      "fee, for 20 years.", 13, SLATE, first=True, italic=True, after=0)
 
+subdivider("The 20-year track record")
 # ---- II.6 Track record (chart) ----
 _f4 = fig()
 s, top = content("Track Record", "Proof: outperformance with downside protection",
@@ -1529,6 +1578,7 @@ para(tbox(s, Inches(0.95), sy, Inches(11.45), Inches(0.62), anchor=MSO_ANCHOR.MI
      "turns a bad quarter into “as expected” — not a surprise that invites "
      "blame.", 13.5, WHITE, first=True, italic=True, after=0)
 
+subdivider("What it means for your portfolio")
 # ---- II.6g Portfolio impact: Athanase vs long-only / other activist ----
 _fp = fig()
 s, top = content("Portfolio Impact",
@@ -1949,6 +1999,7 @@ para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
      7.5, FOOT, first=True, after=0, track=0, lead=1.1)
 
 
+subdivider("Versus private equity")
 # ===========================================================================
 # II.6k-o  Athanase vs mid-market private equity (real, de-smoothed data)
 # PE figures from published research; Athanase computed from real returns.
