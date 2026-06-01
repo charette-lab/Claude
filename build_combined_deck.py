@@ -1582,6 +1582,75 @@ para(tbox(s, Inches(0.6), Emu(int(y) + int(Inches(0.15))), Inches(12.1), Inches(
      "take compensated discomfort — +6 percentage points per year, net of every "
      "fee, for 20 years.", 13, SLATE, first=True, italic=True, after=0)
 
+# ---- II.5e Why it is not career-ending (three anxieties disarmed) -----------
+s, top = content("Strategic Case",
+                 "Why an allocation here is not career-ending",
+                 "The three institutional anxieties — mark-to-market "
+                 "volatility, headline risk and concentration — each disarmed "
+                 "by the mechanics of the strategy.")
+anx = [
+    ("Mark-to-market volatility", "Isolated by mandate design", [
+        ("Sized for immunity", "a 1–3% special-situations sleeve, so no single "
+         "mark can dominate the fund or trigger board-level panic."),
+        ("Pre-underwritten", "a ~50% drawdown tolerance agreed with the IC up "
+         "front; reallocation triggers on manager turnover or style drift — "
+         "never the share price."),
+        ("No capital-call trap", "unlike PE’s smoothed marks and the "
+         "denominator effect, there is zero capital-call liability — you are "
+         "never forced to sell liquid assets at the bottom.")]),
+    ("Headline risk", "Reframed as fiduciary stewardship", [
+        ("Constructive, not confrontational", "quality-core constructivism — "
+         "profitable market leaders that welcome capital discipline, not proxy "
+         "fights."),
+        ("Applied governance", "board independence, pay-for-performance and "
+         "capital discipline are the “G” in ESG — turning hidden governance "
+         "risk into a return engine."),
+        ("Defensible", "aligned with UN PRI fiduciary duty and easy to explain "
+         "to stakeholders.")]),
+    ("Concentration", "Floored by hardened guardrails", [
+        ("A valuation floor", "every idea clears a tollgate where the core "
+         "alone justifies the price: a structural 30–40% margin of safety."),
+        ("Mechanized triggers", "automatic −10% / −20% / −30% force a thesis "
+         "review and exit — removing PM emotion before a position spirals."),
+        ("A core-and-satellite buffer", "8–12 conviction ideas sit on a "
+         "30-stock equal-weighted core that absorbs idiosyncratic shocks.")]),
+]
+cw = Inches(3.86); gx = Inches(0.18); x = Inches(0.62); hh = Inches(0.5)
+bodyH = Inches(3.4)
+for title_a, reframe, bullets in anx:
+    rect(s, x, top, cw, hh, fill=NAVY)
+    htf = tbox(s, x, top, cw, hh, anchor=MSO_ANCHOR.MIDDLE)
+    para(htf, title_a, 13.5, WHITE, bold=True, first=True, align=PP_ALIGN.CENTER,
+         after=0, font=SERIF, track=0)
+    by = Emu(int(top) + int(hh))
+    rect(s, x, by, cw, bodyH, fill=HEADERBG)
+    tf = tbox(s, Emu(int(x) + int(Inches(0.18))),
+              Emu(int(by) + int(Inches(0.13))),
+              Emu(int(cw) - int(Inches(0.36))), Emu(int(bodyH) - int(Inches(0.24))))
+    para(tf, reframe.upper(), 8.5, SLATE, first=True, bold=True, after=7, track=0)
+    for i, (lead, body) in enumerate(bullets):
+        p = tf.add_paragraph()
+        p.space_after = Pt(6); p.line_spacing = 1.1
+        hang = int(round(9.5 * 1.25 * 12700))
+        pPr = p._p.get_or_add_pPr()
+        pPr.set("marL", str(hang)); pPr.set("indent", str(-hang))
+        r0 = p.add_run(); r0.text = "›  "
+        r0.font.size = Pt(9.5); r0.font.bold = True
+        r0.font.color.rgb = SLATE_LT; r0.font.name = SANS
+        r1 = p.add_run(); r1.text = lead
+        r1.font.size = Pt(9.5); r1.font.bold = True
+        r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
+        r2 = p.add_run(); r2.text = " — " + body
+        r2.font.size = Pt(9.5); r2.font.color.rgb = BODY; r2.font.name = SANS
+    x = Emu(int(x) + int(cw) + int(gx))
+rect(s, Inches(0.62), Inches(6.28), Inches(11.94), Inches(0.62), fill=NAVY)
+para(tbox(s, Inches(0.82), Inches(6.28), Inches(11.5), Inches(0.62),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Career risk is engineered out — sized so no mark dominates, governed so "
+     "headlines read as stewardship, floored so concentration cannot blow up: "
+     "a bad quarter is underwritten, not a surprise.",
+     12.5, WHITE, first=True, italic=True, after=0, track=0)
+
 subdivider("The 20-year track record")
 # ---- II.6 Track record (chart) ----
 _f4 = fig()
@@ -2908,7 +2977,7 @@ para(_md, "Private-equity figures are taken from the cited research. "
 def _toc_col(col_x, col_w, header, entries, groups=None):
     """entries: list of (num, title, ref). groups: optional dict mapping the
     leading sub-section index (str) -> sub-section name, inserted as headers."""
-    t0 = Emu(int(agenda_top) - int(Inches(0.18)))
+    t0 = Emu(int(agenda_top) - int(Inches(0.2)))
     htf = tbox(agenda_s, col_x, t0, col_w, Inches(0.4))
     para(htf, header, 14, SLATE, first=True, bold=True, after=0, font=SERIF)
     ytf = tbox(agenda_s, col_x, Emu(int(t0) + int(Inches(0.4))),
@@ -2916,8 +2985,8 @@ def _toc_col(col_x, col_w, header, entries, groups=None):
     n_lines = len(entries) + (len(groups) if groups else 0)
     dense = n_lines > 30
     long_col = len(entries) > 12
-    fs = 8.5 if dense else (10 if long_col else 11.5)
-    sa = 0.7 if dense else (3 if long_col else 7)
+    fs = 8.0 if dense else (10 if long_col else 11.5)
+    sa = 0.6 if dense else (3 if long_col else 7)
     lh = 1.0 if dense else 1.02
     first = True
     seen = set()
