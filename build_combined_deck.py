@@ -765,7 +765,7 @@ subdivider("Team & operations")
 # ---- II.1 At a glance ----
 s, top = content("Overview", "Athanase at a glance")
 # four big stats
-stats = [("40+", "investments as\nengaged owners"),
+stats = [("39", "investments as\nengaged owners"),
          (f"{_ENTRY_AVG*100:.0f}%", "avg annualised NET,\nany entry month*"),
          (f"{_ENTRY_WORST*100:.0f}%", "worst-ever entry,\nstill positive*"),
          (f"{_ATH['mult']:.0f}×", "growth of capital\nsince 2006")]
@@ -824,7 +824,7 @@ for i, (yr, name) in enumerate(nodes):
               Inches(2.2), Inches(0.3))
     para(nt, name, 12, SLATE, first=True, align=PP_ALIGN.CENTER, after=0)
 checklist(s, [
-    ("40+ companies managed,", "with a proven ability to tell a “strong "
+    ("39 companies managed,", "with a proven ability to tell a “strong "
      "core” from a “prestige trap”."),
     ("30+ public board seats", "— real experience mandating pivots and "
      "protecting shareholder interests, not writing engagement letters."),
@@ -958,7 +958,7 @@ para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
 
 # ---- II.2e Ownership model (the value-creation playbook) -------------------
 s, top = content("Ownership Model",
-                 "The ownership playbook, honed over 40 investments",
+                 "The ownership playbook, honed over 39 investments",
                  "A repeatable sequence that turns a board seat into operational "
                  "value — refocusing a good core, then growing it.")
 steps = [
@@ -1004,7 +1004,7 @@ for idx, (num, ti, bd) in enumerate(steps):
               Emu(int(sw) - int(Inches(0.45))), Inches(0.85)),
          bd, 9.5, BODY, first=True, after=0, lead=1.12, track=0)
 para(tbox(s, Inches(0.6), Inches(6.5), Inches(12.2), Inches(0.5)),
-     "The same playbook across 40 companies — value created by fixing capital "
+     "The same playbook across 39 companies — value created by fixing capital "
      "allocation, not by financial engineering or leverage.",
      12.5, SLATE, first=True, italic=True, after=0)
 
