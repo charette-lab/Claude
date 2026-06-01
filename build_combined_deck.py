@@ -261,6 +261,7 @@ def divider(title, kicker=None):
 _SUBSECTIONS = [
     "Team & operations",
     "The opportunity & our edge",
+    "How we invest",
     "Risk, honestly",
     "The 20-year track record",
     "What it means for your portfolio",
@@ -905,64 +906,6 @@ para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.62),
      12, WHITE, first=True, italic=True, after=0, track=0)
 
 
-# ---- II.2c Investment process (sourcing funnel + three tollgates) ----------
-_f_proc = fig()
-s, top = content("Investment Process",
-                 "A disciplined, repeatable selection process",
-                 "From a universe of strong businesses to a single high-"
-                 "conviction investment a year — through three hard gates.",
-                 ref=_f_proc)
-para(tbox(s, Inches(0.7), top, Inches(4.0), Inches(0.3)),
-     "1 · SOURCE & SCREEN", 11, SLATE, first=True, bold=True, after=0, track=0)
-funnel = [("~2,000", "businesses with strong, durable moats", 4.0),
-          ("~1,200", "within target geographies and size", 3.5),
-          ("~1,000", "listed companies in selected sectors", 3.0),
-          ("Shortlist", "suitable shareholder base for constructive ownership",
-           2.5)]
-fy = top + Inches(0.42)
-for big, lab, win in funnel:
-    fw = Inches(win)
-    fx = Emu(int(Inches(0.7)) + int((int(Inches(4.0)) - int(fw)) / 2))
-    rect(s, fx, fy, fw, Inches(0.6), fill=NAVY)
-    bt = tbox(s, fx, fy, fw, Inches(0.6), anchor=MSO_ANCHOR.MIDDLE)
-    para(bt, big, 12.5, WHITE, first=True, bold=True, align=PP_ALIGN.CENTER,
-         after=0, font=SERIF, track=0)
-    lt = tbox(s, Inches(4.85), Emu(int(fy) + int(Inches(0.12))),
-              Inches(2.0), Inches(0.5))
-    para(lt, lab, 9, SUBTLE, first=True, after=0, lead=1.0, track=0)
-    fy = Emu(int(fy) + int(Inches(0.72)))
-para(tbox(s, Inches(0.7), Emu(int(fy) + int(Inches(0.06))), Inches(6.0), Inches(0.4)),
-     "Sourced through the team’s network, own research, management interviews, "
-     "site visits and external experts.", 9.5, BODY, first=True, italic=True,
-     after=0, lead=1.1, track=0)
-para(tbox(s, Inches(7.1), top, Inches(5.6), Inches(0.3)),
-     "2 · THREE TOLLGATES", 11, SLATE, first=True, bold=True, after=0, track=0)
-gates = [
-    ("Tollgate 1 — Valuation floor",
-     "Is the company attractive even if we change nothing? We only proceed when "
-     "the core alone justifies the price."),
-    ("Tollgate 2 — Value of the improvement plan",
-     "Quantify the upside across six levers — organic & M&A growth, cost, "
-     "structural, operational and financial — and pressure-test it with industry "
-     "experts."),
-    ("Tollgate 3 — Go / No-Go",
-     "Engage key stakeholders, select board members and the management team, then "
-     "decide. We make roughly one investment a year."),
-]
-gy2 = top + Inches(0.42)
-for ti, bd in gates:
-    rect(s, Inches(7.1), gy2, Inches(5.65), Inches(1.18), fill=HEADERBG)
-    rect(s, Inches(7.1), gy2, Inches(0.07), Inches(1.18), fill=NAVY)
-    para(tbox(s, Inches(7.32), Emu(int(gy2) + int(Inches(0.14))), Inches(5.3),
-              Inches(0.3)), ti, 12.5, NAVY_TX, first=True, bold=True, after=0,
-         font=SERIF, track=0)
-    para(tbox(s, Inches(7.32), Emu(int(gy2) + int(Inches(0.46))), Inches(5.3),
-              Inches(0.66)), bd, 10, BODY, first=True, after=0, lead=1.13,
-         track=0)
-    gy2 = Emu(int(gy2) + int(Inches(1.18)) + int(Inches(0.1)))
-para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
-     "Selectivity is the edge: of ~1,000 candidates, only one clears all three "
-     "gates each year.", 9, FOOT, first=True, after=0, track=0, lead=1.1)
 
 
 # ---- II.2d Risk system (deepened) ------------------------------------------
@@ -1318,6 +1261,128 @@ para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.18))), Inches(12.2), Inches
      "Private-equity-style operational turnarounds, imported into public markets "
      "— keeping the liquidity, transparency and lower fees PE gives up.",
      13, SLATE, first=True, italic=True, after=0)
+
+# ===========================================================================
+# SUB-SECTION: HOW WE INVEST (find -> filter -> execute)
+# ===========================================================================
+subdivider("How we invest")
+
+# ---- How we invest 1: SOURCE & SCREEN --------------------------------------
+_f_src = fig()
+s, top = content("How we invest · Source",
+                 "Sourcing & screening: from ~7,200 names to a shortlist",
+                 "Five sourcing channels feed a funnel that narrows the whole "
+                 "European listed market to a handful of candidates — before "
+                 "a single krona is committed.", ref=_f_src)
+para(tbox(s, Inches(0.7), top, Inches(8), Inches(0.3)),
+     "FIVE SOURCING CHANNELS", 11, SLATE, first=True, bold=True, after=0, track=0)
+chips = ["Network", "Own research", "Interviews", "Company visits",
+         "External experts"]
+ccw = Inches(2.36); cgx = Inches(0.105); cx = Inches(0.7); cy = top + Inches(0.36)
+for ch in chips:
+    rect(s, cx, cy, ccw, Inches(0.46), fill=NAVY)
+    para(tbox(s, cx, cy, ccw, Inches(0.46), anchor=MSO_ANCHOR.MIDDLE), ch, 11,
+         WHITE, first=True, bold=True, align=PP_ALIGN.CENTER, after=0, track=0)
+    cx = Emu(int(cx) + int(ccw) + int(cgx))
+fnl = [("≈ 7,200", "listed companies in selected European markets", 7.2),
+       ("≈ 2,800", "with a market cap between €50m and €3bn", 6.0),
+       ("≈ 2,500", "in our selected sectors", 4.8),
+       ("Shortlist", "suitable shareholder base for constructive ownership", 3.6)]
+fy = cy + Inches(0.72)
+for big, lab, win in fnl:
+    fw = Inches(win)
+    fx = Emu(int(Inches(0.7)) + int((int(Inches(12.13)) - int(fw)) / 2))
+    rect(s, fx, fy, fw, Inches(0.52), fill=HEADERBG)
+    rect(s, fx, fy, Inches(0.07), Inches(0.52), fill=NAVY)
+    bt = tbox(s, fx, fy, fw, Inches(0.52), anchor=MSO_ANCHOR.MIDDLE)
+    p = bt.paragraphs[0]; p.alignment = PP_ALIGN.CENTER; p.line_spacing = 1.0
+    r = p.add_run(); r.text = big + "   "
+    r.font.size = Pt(13); r.font.bold = True
+    r.font.color.rgb = NAVY_TX; r.font.name = SERIF
+    r2 = p.add_run(); r2.text = lab
+    r2.font.size = Pt(11); r2.font.color.rgb = BODY; r2.font.name = SANS
+    fy = Emu(int(fy) + int(Inches(0.62)))
+rect(s, Inches(0.6), Emu(int(fy) + int(Inches(0.06))), Inches(12.13),
+     Inches(0.58), fill=NAVY)
+para(tbox(s, Inches(0.8), Emu(int(fy) + int(Inches(0.06))), Inches(11.7),
+          Inches(0.58), anchor=MSO_ANCHOR.MIDDLE),
+     "First tollgate — is the valuation attractive even if we change "
+     "nothing? We only proceed when the core alone justifies the price.",
+     12.5, WHITE, first=True, italic=True, after=0, track=0)
+
+
+def _step_row(s, y, h, num, name, body):
+    rect(s, Inches(0.6), y, Inches(2.7), h, fill=NAVY)
+    lt = tbox(s, Inches(0.76), y, Inches(2.4), h, anchor=MSO_ANCHOR.MIDDLE)
+    para(lt, f"STEP {num}", 9, DIVIDER, first=True, bold=True, after=2, track=0)
+    para(lt, name, 12.5, WHITE, bold=True, after=0, font=SERIF, track=0,
+         lead=1.04)
+    bt = tbox(s, Inches(3.5), y, Inches(9.23), h, anchor=MSO_ANCHOR.MIDDLE)
+    para(bt, body, 10.5, BODY, first=True, after=0, lead=1.16, track=0)
+
+
+# ---- How we invest 2: RESEARCH (steps 1-4) ---------------------------------
+s, top = content("How we invest · Research",
+                 "Research & due diligence: four analytical steps")
+steps2 = [
+    ("1", "Idea generation",
+     "Internal research, our industry network and external advisors — plus "
+     "meetings with company management, board members or former employees, and "
+     "dialogue with other investors."),
+    ("2", "Financial analysis",
+     "In-depth analysis of public financials; comparison with industry "
+     "standards and similar businesses; interviews with senior and subsidiary "
+     "management and with competitors; and an estimate of the optimal capital "
+     "structure and M&A headroom."),
+    ("3", "Operational analysis",
+     "Interviews with management and selected board members; discussions across "
+     "our network of industry leaders; visits to competitors, customers and "
+     "suppliers; and interviews with former employees and board members."),
+    ("4", "Validation of the operating plan",
+     "Value the potential operational and structural improvements; pressure-"
+     "test the plan with management and industry experts and secure their "
+     "commitment; and select potential board members (and, if needed, a new "
+     "management team)."),
+]
+rh = Inches(1.12); gap = Inches(0.1); y = top + Inches(0.02)
+for num, name, body in steps2:
+    _step_row(s, y, rh, num, name, body)
+    y = Emu(int(y) + int(rh) + int(gap))
+para(tbox(s, Inches(0.6), Inches(7.14), Inches(12.6), Inches(0.4)),
+     "Second tollgate — value the improvement programme across six levers: "
+     "organic growth, M&A, cost, structural, operational and financial.",
+     9, FOOT, first=True, after=0, track=0, lead=1.1)
+
+
+# ---- How we invest 3: DECISION & EXECUTION (steps 5-8) ---------------------
+s, top = content("How we invest · Execute",
+                 "Decision, execution and board engagement")
+steps3 = [
+    ("5", "Investment team meeting",
+     "Discuss the analysis, the recommended size of the investment, and the "
+     "risk and portfolio impact."),
+    ("6", "Investment committee",
+     "Review the recommendation, the stake size and the risk and portfolio "
+     "impact, and challenge the team — the third tollgate and the final "
+     "Go / No-Go decision."),
+    ("7", "Trade execution",
+     "Work with our prime brokers to build the stake in the most cost- and "
+     "time-efficient way, tracking any new information that could change the "
+     "case."),
+    ("8", "Inform company, board & stakeholders",
+     "Brief the Chairman and CEO, present the case to co-investors, secure at "
+     "least one board seat for the Athanase team, and align subsidiary managers "
+     "behind the plan."),
+]
+rh = Inches(1.12); gap = Inches(0.1); y = top + Inches(0.02)
+for num, name, body in steps3:
+    _step_row(s, y, rh, num, name, body)
+    y = Emu(int(y) + int(rh) + int(gap))
+para(tbox(s, Inches(0.6), Inches(7.14), Inches(12.6), Inches(0.4)),
+     "Roughly one investment a year clears all three tollgates. The board seat "
+     "is the engine of both value creation and risk control.",
+     9, FOOT, first=True, after=0, track=0, lead=1.1)
+
 
 subdivider("Risk, honestly")
 # ---- II.5 Risk system ----
@@ -2787,7 +2852,7 @@ para(_md, "Private-equity figures are taken from the cited research. "
 def _toc_col(col_x, col_w, header, entries, groups=None):
     """entries: list of (num, title, ref). groups: optional dict mapping the
     leading sub-section index (str) -> sub-section name, inserted as headers."""
-    t0 = Emu(int(agenda_top) - int(Inches(0.12)))
+    t0 = Emu(int(agenda_top) - int(Inches(0.18)))
     htf = tbox(agenda_s, col_x, t0, col_w, Inches(0.4))
     para(htf, header, 14, SLATE, first=True, bold=True, after=0, font=SERIF)
     ytf = tbox(agenda_s, col_x, Emu(int(t0) + int(Inches(0.4))),
@@ -2795,8 +2860,8 @@ def _toc_col(col_x, col_w, header, entries, groups=None):
     n_lines = len(entries) + (len(groups) if groups else 0)
     dense = n_lines > 30
     long_col = len(entries) > 12
-    fs = 9 if dense else (10 if long_col else 11.5)
-    sa = 0.8 if dense else (3 if long_col else 7)
+    fs = 8.5 if dense else (10 if long_col else 11.5)
+    sa = 0.7 if dense else (3 if long_col else 7)
     lh = 1.0 if dense else 1.02
     first = True
     seen = set()
@@ -2808,7 +2873,7 @@ def _toc_col(col_x, col_w, header, entries, groups=None):
                 seen.add(gkey)
                 p = ytf.paragraphs[0] if first else ytf.add_paragraph()
                 first = False
-                p.space_before = Pt(0 if len(seen) == 1 else (2 if dense else 5))
+                p.space_before = Pt(0 if len(seen) == 1 else (1.5 if dense else 5))
                 p.space_after = Pt(1 if dense else 2.5); p.line_spacing = 1.0
                 gr = p.add_run()
                 gr.text = f"{gkey}   {groups.get(gkey, '')}"
