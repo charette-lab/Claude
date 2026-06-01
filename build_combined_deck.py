@@ -415,6 +415,24 @@ def _pair(a, m):
 _PAIR = _pair(_ATH_X, _MSCI_X)
 
 
+def _entry_month_avg():
+    """Average annualised NET return if invested in any single month and held to
+    the end — read directly from the workbook's 'invested in the month
+    specified' table (AIPFII). Answers the entry-timing-robustness question."""
+    wb = openpyxl.load_workbook("data/AIP_Trackrecord.xlsx",
+                                data_only=True)["Monthly Returns"]
+    vals = []
+    for r in range(35, 44):                 # 2015–2023 entry rows
+        for c in range(5, 17):              # Jan–Dec
+            v = wb.cell(r, c).value
+            if isinstance(v, (int, float)) and v != 0:
+                vals.append(v)
+    return (sum(vals) / len(vals)) if vals else 0.0, len(vals)
+
+
+_ENTRY_AVG, _ENTRY_N = _entry_month_avg()    # ~18.8% across ~107 entry months
+
+
 def _project(T, r, dd):
     med = 100 * (1 + r) ** T
     down = 100 * (1 + (r - dd / math.sqrt(T))) ** T
@@ -632,9 +650,9 @@ divider("Why Athanase", kicker="Part II  ·  Among engaged owners")
 s, top = content("Overview", "Athanase at a glance")
 # four big stats
 stats = [("40+", "investments as\nengaged owners"),
-         (f"{_ATH['ann_ret']*100:.0f}%", "annualised NET\nreturn since 2006"),
+         (f"{_ENTRY_AVG*100:.0f}%", "avg annualised NET,\nany entry month*"),
          ("20 yrs", "team working\ntogether"),
-         (f"{_ATH['mult']:.0f}×", "growth of capital\nsince 2006*")]
+         (f"{_ATH['mult']:.0f}×", "growth of capital\nsince 2006")]
 bw = Inches(2.95); gapx = Inches(0.18); x = Inches(0.75); y = top
 for big, lab in stats:
     card = rect(s, x, y, bw, Inches(1.85), fill=HEADERBG)
@@ -645,16 +663,19 @@ for big, lab in stats:
         para(ctf, line, 12, SUBTLE, align=PP_ALIGN.CENTER, after=0)
     x = Emu(int(x) + int(bw) + int(gapx))
 checklist(s, [
-    (f"{_ATH['ann_ret']*100:.1f}% annualised NET",
-     f"vs MSCI IMI {_MSCI['ann_ret']*100:.1f}% — net of all fees, since 2006."),
-    ("+14.5% EBITA growth", "in portfolio companies during the ownership period."),
+    (f"~{_ENTRY_AVG*100:.0f}% average annualised return*",
+     "whatever month you invested and held to today — entry timing has barely "
+     "mattered."),
+    (f"{_ATH['ann_ret']*100:.1f}% time-weighted NET since 2006",
+     f"vs MSCI IMI {_MSCI['ann_ret']*100:.1f}% — net of all fees."),
     ("+0.2% in down markets", "versus the market at –1.7% — downside "
      "protection when it matters most."),
 ], top + Inches(2.15), size=15, gap=10)
 nt = tbox(s, Inches(0.75), Inches(6.75), Inches(11.8), Inches(0.4))
-para(nt, "*Net monthly returns over 19.5 invested years (Öresund/Creades "
-     "Jan 2006–Jun 2014; AIPFII from 23 Feb 2015). Annualised on actual invested "
-     "time. Past performance is not indicative of future results.",
+para(nt, "*Average of the annualised NET return earned investing in each "
+     f"individual month and holding to the end ({_ENTRY_N} entry months, AIPFII). "
+     "Time-weighted figure annualised over actual invested time. Past "
+     "performance is not indicative of future results.",
      9, FOOT, first=True, after=0)
 
 # ---- II.2 The team ----
