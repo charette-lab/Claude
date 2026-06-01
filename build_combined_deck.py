@@ -213,7 +213,7 @@ def footer(slide):
 
 
 # --- research-paper numbering: sections, figures, tables -------------------
-_doc = {"part": 0, "sec": 0}
+_doc = {"part": 0, "sec": 0, "sub": 0, "subsec": 0}
 _exhibit = {"fig": 0, "tbl": 0}
 TOC = []   # (number, title, ref) for the Contents page
 
@@ -275,6 +275,9 @@ def subdivider(title):
     current tab highlighted, so it's easy to flip between subjects."""
     _subdiv["n"] += 1
     cur = _subdiv["n"]
+    # advance sub-section numbering: 2.{sub}.{subsec}
+    _doc["sub"] += 1
+    _doc["subsec"] = 0
     s = prs.slides.add_slide(BLANK)
     rect(s, 0, 0, SW, SH, fill=NAVY)
     wordmark(s, Inches(0.6), Inches(0.55), WHITE, scale=0.9)
@@ -317,9 +320,14 @@ def content(section, title, subtitle=None, number=True, ref=None):
              align=PP_ALIGN.RIGHT, after=0)
     # numbered section header, research-paper style
     if number and _doc["part"] >= 1:
-        _doc["sec"] += 1
-        TOC.append((f'{_doc["part"]}.{_doc["sec"]}', title, ref))
-        title = f'{_doc["part"]}.{_doc["sec"]} {title}'
+        if _doc["sub"] >= 1:
+            _doc["subsec"] += 1
+            _num = f'{_doc["part"]}.{_doc["sub"]}.{_doc["subsec"]}'
+        else:
+            _doc["sec"] += 1
+            _num = f'{_doc["part"]}.{_doc["sec"]}'
+        TOC.append((_num, title, ref))
+        title = f'{_num} {title}'
     # grey header band
     band_h = Inches(1.45) if subtitle else Inches(1.05)
     rect(s, 0, Inches(0.62), SW, band_h, fill=HEADERBG)
