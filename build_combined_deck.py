@@ -322,11 +322,11 @@ def content(section, title, subtitle=None, number=True, ref=None):
     if number and _doc["part"] >= 1:
         if _doc["sub"] >= 1:
             _doc["subsec"] += 1
-            _num = f'{_doc["part"]}.{_doc["sub"]}.{_doc["subsec"]}'
+            _num = f'{_doc["sub"]}.{_doc["subsec"]}'
         else:
             _doc["sec"] += 1
-            _num = f'{_doc["part"]}.{_doc["sec"]}'
-        TOC.append((_num, title, ref))
+            _num = f'{_doc["sec"]}'
+        TOC.append((_doc["part"], _num, title, ref))
         title = f'{_num} {title}'
     # grey header band
     band_h = Inches(1.45) if subtitle else Inches(1.05)
@@ -2725,20 +2725,41 @@ para(_md, "Private-equity figures are taken from the cited research. "
 # ===========================================================================
 # Contents (TOC) page
 # ===========================================================================
-def _toc_col(col_x, col_w, header, entries):
+def _toc_col(col_x, col_w, header, entries, groups=None):
+    """entries: list of (num, title, ref). groups: optional dict mapping the
+    leading sub-section index (str) -> sub-section name, inserted as headers."""
     htf = tbox(agenda_s, col_x, agenda_top, col_w, Inches(0.4))
     para(htf, header, 14, SLATE, first=True, bold=True, after=0, font=SERIF)
-    ytf = tbox(agenda_s, col_x, Emu(int(agenda_top) + int(Inches(0.5))),
-               col_w, Inches(4.7))
-    # tighten spacing when a column is long so it never runs past the footer
-    long_col = len(entries) > 14
-    fs = 10.5 if long_col else 11.5
-    sa = 4.5 if long_col else 7
-    for i, (num, title, ref) in enumerate(entries):
-        p = ytf.paragraphs[0] if i == 0 else ytf.add_paragraph()
-        p.space_after = Pt(sa); p.line_spacing = 1.03
-        r0 = p.add_run(); r0.text = num + "   "
-        r0.font.size = Pt(fs); r0.font.bold = True
+    ytf = tbox(agenda_s, col_x, Emu(int(agenda_top) + int(Inches(0.42))),
+               col_w, Inches(5.7))
+    n_lines = len(entries) + (len(groups) if groups else 0)
+    dense = n_lines > 30
+    long_col = len(entries) > 12
+    fs = 9 if dense else (10 if long_col else 11.5)
+    sa = 1.5 if dense else (3 if long_col else 7)
+    lh = 1.0 if dense else 1.02
+    first = True
+    seen = set()
+    for num, title, ref in entries:
+        # sub-section header when the leading group index changes
+        if groups is not None:
+            gkey = num.split(".")[0]
+            if gkey not in seen:
+                seen.add(gkey)
+                p = ytf.paragraphs[0] if first else ytf.add_paragraph()
+                first = False
+                p.space_before = Pt(0 if len(seen) == 1 else (3 if dense else 5))
+                p.space_after = Pt(1.5 if dense else 2.5); p.line_spacing = 1.0
+                gr = p.add_run()
+                gr.text = f"{gkey}   {groups.get(gkey, '')}"
+                gr.font.size = Pt(fs + 0.5); gr.font.bold = True
+                gr.font.color.rgb = SLATE; gr.font.name = SERIF
+        p = ytf.paragraphs[0] if first else ytf.add_paragraph()
+        first = False
+        p.space_after = Pt(sa); p.line_spacing = lh
+        indent = "      " if groups is not None else ""
+        r0 = p.add_run(); r0.text = indent + num + "   "
+        r0.font.size = Pt(fs); r0.font.bold = (groups is None)
         r0.font.color.rgb = SLATE; r0.font.name = SANS
         r1 = p.add_run(); r1.text = title
         r1.font.size = Pt(fs); r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
@@ -2747,12 +2768,14 @@ def _toc_col(col_x, col_w, header, entries):
             r2.font.size = Pt(fs - 2); r2.font.italic = True
             r2.font.color.rgb = SUBTLE; r2.font.name = SANS
 
-_p1 = [e for e in TOC if e[0].startswith("1.")]
-_p2 = [e for e in TOC if e[0].startswith("2.")]
+
+_p1 = [(n, t, r) for (pt, n, t, r) in TOC if pt == 1]
+_p2 = [(n, t, r) for (pt, n, t, r) in TOC if pt == 2]
+_p2_groups = {str(i + 1): name for i, name in enumerate(_SUBSECTIONS)}
 _cw = Inches(5.85); _xL = Inches(0.7)
 _xR = Emu(int(_xL) + int(_cw) + int(Inches(0.5)))
 _toc_col(_xL, _cw, "Part I  ·  Why allocate to engaged ownership", _p1)
-_toc_col(_xR, _cw, "Part II  ·  Why choose Athanase", _p2)
+_toc_col(_xR, _cw, "Part II  ·  Why choose Athanase", _p2, groups=_p2_groups)
 
 # ===========================================================================
 # Convert the whole deck from 16:9 to the brand's 4:3 page format
