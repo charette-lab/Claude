@@ -1262,6 +1262,73 @@ para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.18))), Inches(12.2), Inches
      "— keeping the liquidity, transparency and lower fees PE gives up.",
      13, SLATE, first=True, italic=True, after=0)
 
+# ---- II.4f Specialist vs household name ------------------------------------
+s, top = content("Investment Strategy",
+                 "Why the specialist, not the household name",
+                 "Recommending Athanase over a brand name is a choice for "
+                 "structural alpha over institutional inertia.", ref=tbl())
+rows = [
+    ("", "The household name", "Athanase — the specialist"),
+    ("Scale & influence",
+     "$10bn+ AUM forces them into large- and mega-caps, where one owner rarely "
+     "shifts the agenda and growth is incremental.",
+     "Mid-market (€50m–€3bn), where a single board seat changes the outcome — "
+     "the high-return, low-competition lane the giants left behind."),
+    ("Return source",
+     "Large buyouts are leveraged beta — ~0.89 correlated to small/mid equities "
+     "once de-smoothed; driven by GDP, rates and multiples.",
+     "Idiosyncratic, event-driven alpha at 0.44 correlation — a genuine "
+     "diversifier, not a duplicate of your equity book."),
+    ("Entry & structure",
+     "A ~40% control premium up front, a 10-year blind-pool lock-up, and fees "
+     "on undeployed dry powder.",
+     "Entry at “shareholder exhaustion” — the turnaround effectively for free — "
+     "with daily liquidity and zero capital-call liability."),
+    ("What you’re buying",
+     "A brand — but brand recognition does not compound capital.",
+     "Asymmetric capture (93% up / 43% down) and a validated 16.1% net, "
+     "+7% worst-entry record — institutional process, not a logo."),
+]
+tl = Inches(0.55); cwx = [Inches(2.0), Inches(5.05), Inches(5.05)]
+y = top
+for ri, row in enumerate(rows):
+    head = ri == 0
+    rh = Inches(0.42) if head else Inches(0.9)
+    x = tl
+    for ci, cell in enumerate(row):
+        ath = (ci == 2)
+        if head:
+            fill = NAVY if ath else (SLATE if ci == 1 else WHITE)
+        elif ath:
+            fill = BLUE5 if ri % 2 == 0 else HEADERBG
+        elif ci == 1:
+            fill = HEADERBG if ri % 2 == 0 else WHITE
+        else:
+            fill = WHITE
+        rect(s, x, y, cwx[ci], rh, fill=fill)
+        ctf = tbox(s, Emu(int(x) + int(Inches(0.14))), y,
+                   Emu(int(cwx[ci]) - int(Inches(0.26))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        if head:
+            col = WHITE
+        elif ci == 0:
+            col = SLATE
+        elif ath:
+            col = NAVY_TX
+        else:
+            col = SUBTLE
+        para(ctf, cell, 11.5 if head else (11 if ci == 0 else 10.5), col,
+             bold=(head or ci == 0 or ath), first=True, after=0, lead=1.05)
+        x = Emu(int(x) + int(cwx[ci]))
+    y = Emu(int(y) + int(rh))
+rect(s, Inches(0.55), Emu(int(y) + int(Inches(0.12))), Inches(12.1), Inches(0.5),
+     fill=NAVY)
+para(tbox(s, Inches(0.75), Emu(int(y) + int(Inches(0.12))), Inches(11.7),
+          Inches(0.5), anchor=MSO_ANCHOR.MIDDLE),
+     "Brand recognition does not compound capital — asymmetric capture does. "
+     "The edge is the very lane the household names had to abandon as they "
+     "scaled.", 12.5, WHITE, first=True, italic=True, after=0, track=0)
+
 # ===========================================================================
 # SUB-SECTION: HOW WE INVEST (find -> filter -> execute)
 # ===========================================================================
