@@ -588,6 +588,215 @@ checklist(s, [
      "key-person risk and prevent repeating historical mistakes."),
 ], top + Inches(1.25), size=14.5, gap=10)
 
+
+# ---- II.2b The people behind the track record (partner bios) ---------------
+s, top = content("Experience", "The people behind the track record",
+                 "One investment team, working together across four vehicles "
+                 "since 1992 — operators, allocators and board directors.")
+bios = [
+    ("Stefan Charette", "CIO & Partner",
+     "Leads the same team since 2006. Former CEO/CIO of industrial conglomerate "
+     "Brokk; earlier Lehman Brothers and Salomon Smith Barney."),
+    ("Kenth Eriksson", "Senior PM & Partner",
+     "Co-founder & CEO of Tradimus; Senior VP at Electrolux; owner-operator of a "
+     "group of private tech companies — deep industrial operating experience."),
+    ("Sven Thorén", "PM & Partner",
+     "Responsible PM at Adrigo, Catella, Pan Capital and Nordea; equity research "
+     "at Brummer & Partners and Cazenove."),
+    ("Anders Elsell", "Senior PM",
+     "PM and Head of Research of the same team since 1996; former CEO & CIO of "
+     "HQ Fonder; multiple senior roles at Carnegie."),
+    ("Daniel Nyhrén", "Partner",
+     "On the same investment team since 2006; former CFO of portfolio company "
+     "Global Batterier — operator and financier."),
+    ("Malin Norrman", "CFO",
+     "Previously COO/CFO at Captor Fund Management; risk manager at Carnegie "
+     "Investment Bank and AB Industrivärden."),
+]
+bx0 = Inches(0.6); bw = Inches(3.97); bh = Inches(1.92); gx = Inches(0.1)
+gy = Inches(0.16)
+for idx, (nm, role, bio) in enumerate(bios):
+    r, c = divmod(idx, 3)
+    bx = Emu(int(bx0) + c * (int(bw) + int(gx)))
+    by = Emu(int(top) + r * (int(bh) + int(gy)))
+    rect(s, bx, by, bw, bh, fill=HEADERBG)
+    rect(s, bx, by, Inches(0.07), bh, fill=NAVY)
+    para(tbox(s, Emu(int(bx) + int(Inches(0.25))), Emu(int(by) + int(Inches(0.16))),
+              Emu(int(bw) - int(Inches(0.4))), Inches(0.3)),
+         nm, 14, NAVY_TX, first=True, bold=True, after=0, font=SERIF, track=0)
+    para(tbox(s, Emu(int(bx) + int(Inches(0.25))), Emu(int(by) + int(Inches(0.46))),
+              Emu(int(bw) - int(Inches(0.4))), Inches(0.25)),
+         role.upper(), 9.5, SLATE, first=True, bold=True, after=0, track=0)
+    para(tbox(s, Emu(int(bx) + int(Inches(0.25))), Emu(int(by) + int(Inches(0.75))),
+              Emu(int(bw) - int(Inches(0.45))), Inches(1.1)),
+         bio, 10, BODY, first=True, after=0, lead=1.13, track=0)
+para(tbox(s, Inches(0.6), Inches(6.5), Inches(12.2), Inches(0.5)),
+     "Supported by a dedicated fund-operations, risk and technology team — "
+     "the same unit has compounded capital through every cycle since 1992.",
+     12.5, SLATE, first=True, italic=True, after=0)
+
+
+# ---- II.2c Investment process (sourcing funnel + three tollgates) ----------
+_f_proc = fig()
+s, top = content("Investment Process",
+                 "A disciplined, repeatable selection process",
+                 "From a universe of strong businesses to a single high-"
+                 "conviction investment a year — through three hard gates.",
+                 ref=_f_proc)
+para(tbox(s, Inches(0.7), top, Inches(4.0), Inches(0.3)),
+     "1 · SOURCE & SCREEN", 11, SLATE, first=True, bold=True, after=0, track=0)
+funnel = [("~2,000", "businesses with strong, durable moats", 4.0),
+          ("~1,200", "within target geographies and size", 3.5),
+          ("~1,000", "listed companies in selected sectors", 3.0),
+          ("Shortlist", "suitable shareholder base for constructive ownership",
+           2.5)]
+fy = top + Inches(0.42)
+for big, lab, win in funnel:
+    fw = Inches(win)
+    fx = Emu(int(Inches(0.7)) + int((int(Inches(4.0)) - int(fw)) / 2))
+    rect(s, fx, fy, fw, Inches(0.6), fill=NAVY)
+    bt = tbox(s, fx, fy, fw, Inches(0.6), anchor=MSO_ANCHOR.MIDDLE)
+    para(bt, big, 12.5, WHITE, first=True, bold=True, align=PP_ALIGN.CENTER,
+         after=0, font=SERIF, track=0)
+    lt = tbox(s, Inches(4.85), Emu(int(fy) + int(Inches(0.12))),
+              Inches(2.0), Inches(0.5))
+    para(lt, lab, 9, SUBTLE, first=True, after=0, lead=1.0, track=0)
+    fy = Emu(int(fy) + int(Inches(0.72)))
+para(tbox(s, Inches(0.7), Emu(int(fy) + int(Inches(0.06))), Inches(6.0), Inches(0.4)),
+     "Sourced through the team’s network, own research, management interviews, "
+     "site visits and external experts.", 9.5, BODY, first=True, italic=True,
+     after=0, lead=1.1, track=0)
+para(tbox(s, Inches(7.1), top, Inches(5.6), Inches(0.3)),
+     "2 · THREE TOLLGATES", 11, SLATE, first=True, bold=True, after=0, track=0)
+gates = [
+    ("Tollgate 1 — Valuation floor",
+     "Is the company attractive even if we change nothing? We only proceed when "
+     "the core alone justifies the price."),
+    ("Tollgate 2 — Value of the improvement plan",
+     "Quantify the upside across six levers — organic & M&A growth, cost, "
+     "structural, operational and financial — and pressure-test it with industry "
+     "experts."),
+    ("Tollgate 3 — Go / No-Go",
+     "Engage key stakeholders, select board members and the management team, then "
+     "decide. We make roughly one investment a year."),
+]
+gy2 = top + Inches(0.42)
+for ti, bd in gates:
+    rect(s, Inches(7.1), gy2, Inches(5.65), Inches(1.18), fill=HEADERBG)
+    rect(s, Inches(7.1), gy2, Inches(0.07), Inches(1.18), fill=NAVY)
+    para(tbox(s, Inches(7.32), Emu(int(gy2) + int(Inches(0.14))), Inches(5.3),
+              Inches(0.3)), ti, 12.5, NAVY_TX, first=True, bold=True, after=0,
+         font=SERIF, track=0)
+    para(tbox(s, Inches(7.32), Emu(int(gy2) + int(Inches(0.46))), Inches(5.3),
+              Inches(0.66)), bd, 10, BODY, first=True, after=0, lead=1.13,
+         track=0)
+    gy2 = Emu(int(gy2) + int(Inches(1.18)) + int(Inches(0.1)))
+para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
+     "Selectivity is the edge: of ~1,000 candidates, only one clears all three "
+     "gates each year.", 9, FOOT, first=True, after=0, track=0, lead=1.1)
+
+
+# ---- II.2d Risk system (deepened) ------------------------------------------
+s, top = content("Risk Management",
+                 "A risk system that engineers out permanent loss",
+                 "Risk is controlled before the investment is made — through "
+                 "valuation, diversification and influence — not managed after "
+                 "the fact.", ref=tbl())
+para(tbox(s, Inches(0.7), top, Inches(5.6), Inches(0.3)),
+     "BUILT ON THREE PILLARS", 11, SLATE, first=True, bold=True, after=0,
+     track=0)
+pillars = [
+    ("Predictability", "Only durable, market-leading cores in slow-moving "
+     "industries — businesses whose future demand we can underwrite."),
+    ("Price", "A hard valuation floor: value the rectifiable core, assign zero "
+     "to “growth-trap” divisions — a 30–40% margin of safety vs a PE bidder."),
+    ("Influence", "A board seat as the “kill switch” — the ability to stop one "
+     "bad decision lowers risk below any passive or active manager."),
+]
+py = top + Inches(0.42)
+for ti, bd in pillars:
+    rect(s, Inches(0.7), py, Inches(5.65), Inches(1.18), fill=HEADERBG)
+    rect(s, Inches(0.7), py, Inches(0.07), Inches(1.18), fill=NAVY)
+    para(tbox(s, Inches(0.92), Emu(int(py) + int(Inches(0.14))), Inches(5.3),
+              Inches(0.3)), ti, 12.5, NAVY_TX, first=True, bold=True, after=0,
+         font=SERIF, track=0)
+    para(tbox(s, Inches(0.92), Emu(int(py) + int(Inches(0.46))), Inches(5.3),
+              Inches(0.66)), bd, 10, BODY, first=True, after=0, lead=1.13,
+         track=0)
+    py = Emu(int(py) + int(Inches(1.18)) + int(Inches(0.1)))
+para(tbox(s, Inches(7.1), top, Inches(5.6), Inches(0.3)),
+     "AUTOMATIC GUARDRAILS", 11, SLATE, first=True, bold=True, after=0, track=0)
+gy3 = top + Inches(0.42)
+for t in ["Core & satellite: a 30-stock equal-weighted index compounds all "
+          "unallocated capital; 8–12 concentrated ideas sit on top.",
+          "Entry gauntlet: every idea must clear a ≥12% expected IRR and "
+          "≤20% probability of a 30% drawdown before funding.",
+          "Eleven standardised risk tags cap any single macro/business factor "
+          "at ~20% of the concentrated book.",
+          "Hard triggers at −10% / −20% / −30% force thesis review and exit — "
+          "removing emotion and PM bias."]:
+    para(tbox(s, Inches(7.1), gy3, Inches(5.65), Inches(0.9)),
+         t, 12, BODY, first=True, after=0, lead=1.16, track=0)
+    gy3 = Emu(int(gy3) + int(Inches(0.92)))
+para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
+     "The system is designed to make permanent capital loss structurally "
+     "unlikely — not merely to react to it.", 9, FOOT, first=True, after=0,
+     track=0, lead=1.1)
+
+
+# ---- II.2e Ownership model (the value-creation playbook) -------------------
+s, top = content("Ownership Model",
+                 "The ownership playbook, honed over 40 investments",
+                 "A repeatable sequence that turns a board seat into operational "
+                 "value — refocusing a good core, then growing it.")
+steps = [
+    ("1", "Secure the board seat",
+     "Often a precondition to invest — the nomination committee proposes an AIP "
+     "director."),
+    ("2", "Align the thesis",
+     "Collaborate with management and stakeholders to agree where the value is "
+     "and what must change."),
+    ("3", "Refocus to drive earnings",
+     "Cut overhead and admin, optimise the footprint, exit loss-making "
+     "“growth-trap” ventures."),
+    ("4", "Reallocate to winners",
+     "Redeploy freed-up capital into the profitable core and its strongest "
+     "adjacencies; lift R&D where it pays."),
+    ("5", "Grow by acquisition",
+     "Add complementary products, geographies or scale through value-accretive "
+     "bolt-ons."),
+    ("6", "Exit",
+     "Realise via M&A or in the equity market once the core is refocused and "
+     "compounding."),
+]
+sw = Inches(3.97); sh_ = Inches(1.72); sgx = Inches(0.1); sgy = Inches(0.16)
+sx0 = Inches(0.6)
+for idx, (num, ti, bd) in enumerate(steps):
+    r, c = divmod(idx, 3)
+    bx = Emu(int(sx0) + c * (int(sw) + int(sgx)))
+    by = Emu(int(top) + r * (int(sh_) + int(sgy)))
+    rect(s, bx, by, sw, sh_, fill=HEADERBG)
+    bdg = s.shapes.add_shape(MSO_SHAPE.OVAL, Emu(int(bx) + int(Inches(0.22))),
+                             Emu(int(by) + int(Inches(0.2))), Inches(0.5),
+                             Inches(0.5))
+    bdg.fill.solid(); bdg.fill.fore_color.rgb = NAVY
+    bdg.line.fill.background(); bdg.shadow.inherit = False
+    btf = bdg.text_frame; btf.word_wrap = False
+    bp = btf.paragraphs[0]; bp.alignment = PP_ALIGN.CENTER
+    brn = bp.add_run(); brn.text = num; brn.font.size = Pt(18)
+    brn.font.bold = True; brn.font.color.rgb = WHITE; brn.font.name = SERIF
+    para(tbox(s, Emu(int(bx) + int(Inches(0.9))), Emu(int(by) + int(Inches(0.24))),
+              Emu(int(sw) - int(Inches(1.1))), Inches(0.5)),
+         ti, 12.5, NAVY_TX, first=True, bold=True, after=0, font=SERIF, track=0)
+    para(tbox(s, Emu(int(bx) + int(Inches(0.25))), Emu(int(by) + int(Inches(0.82))),
+              Emu(int(sw) - int(Inches(0.45))), Inches(0.85)),
+         bd, 9.5, BODY, first=True, after=0, lead=1.12, track=0)
+para(tbox(s, Inches(0.6), Inches(6.5), Inches(12.2), Inches(0.5)),
+     "The same playbook across 40 companies — value created by fixing capital "
+     "allocation, not by financial engineering or leverage.",
+     12.5, SLATE, first=True, italic=True, after=0)
+
+
 # ---- II.3 Market opportunity ----
 _f = fig()
 s, top = content("Market Opportunity", "The inefficiency Athanase harvests",
