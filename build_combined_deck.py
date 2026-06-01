@@ -1814,6 +1814,86 @@ para(nt, "Selected larger deals of the investment team. Losses shown in italic. 
      "Capital in SEK; ~$400M invested over the period.", 8.5, FOOT, first=True,
      after=0)
 
+# ---- II.6c-2 Earlier deals — part of the team (1996-2004) ------------------
+s, top = content("Track Record",
+                 "Earlier deals — part of the team (1996–2004)",
+                 "The 39-deal record is the full team since 2006. Earlier, "
+                 "members of the team led these nine larger deals from 1996 — "
+                 "the same engaged-ownership playbook, through earlier cycles.",
+                 ref=tbl())
+
+
+def _ecell(slide, x, yy, w, h, txt, fill, col, align, bold=False,
+           italic=False, sz=10):
+    rect(slide, x, yy, w, h, fill=fill)
+    pad = int(Inches(0.1))
+    ctf = tbox(slide, Emu(int(x) + pad), yy, Emu(int(w) - 2 * pad), h,
+               anchor=MSO_ANCHOR.MIDDLE)
+    para(ctf, txt, sz, col, bold=bold, italic=italic, first=True, after=0,
+         align=align, lead=1.0, track=0)
+
+
+def _epct(v, sign=False):
+    return (f"{v*100:+.1f}%" if sign else f"{v*100:.1f}%").replace("-", "−")
+
+
+e_rows = [
+    ("Bilia I", "1999–03", 284, 622, 2.2, 0.185, 0.170),
+    ("Skanska", "1996–98", 1784, 2831, 1.6, 0.260, 0.014),
+    ("Svedala", "1997–01", 807, 1174, 1.5, 0.111, 0.012),
+    ("ASG", "1997–99", 706, 1578, 2.2, 0.668, 0.415),
+    ("SCA", "1996–01", 1619, 3221, 2.0, 0.159, -0.270),
+    ("Perbio", "1998–03", 575, 2407, 4.2, 1.192, 1.181),
+    ("Perstorp", "1996–01", 998, 1577, 1.6, 0.104, -0.060),
+    ("Acando", "1999–04", 88, 80, 0.9, -0.023, -0.068),
+    ("Pergo", "2001–03", 222, 193, 0.9, -0.224, -0.151),
+]
+e_head = ["Company", "Holding", "Invested (SEKm)", "Return (SEKm)", "MOIC",
+          "Gross IRR", "vs SIX p.a."]
+ew = [Inches(2.5), Inches(1.4), Inches(1.8), Inches(1.7), Inches(1.15),
+      Inches(1.6), Inches(1.75)]
+etl = Inches(0.55)
+yy = top; hh = Inches(0.44)
+x = etl
+for ci, htxt in enumerate(e_head):
+    _ecell(s, x, yy, ew[ci], hh, htxt, SLATE, WHITE,
+           PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.RIGHT, bold=True, sz=9.5)
+    x = Emu(int(x) + int(ew[ci]))
+yy = Emu(int(yy) + int(hh))
+rh = Inches(0.33)
+for ri, (co, hold, inv, ret, moic, irr, outp) in enumerate(e_rows):
+    loss = moic < 1.0
+    fill = HEADERBG if ri % 2 == 0 else WHITE
+    vals = [co, hold, f"{inv:,}", f"{ret:,}", f"{moic:.1f}×",
+            _epct(irr), _epct(outp, sign=True)]
+    x = etl
+    for ci, v in enumerate(vals):
+        if ci == 0:
+            col, bold, it = NAVY_TX, True, False
+        elif loss and ci >= 4:
+            col, bold, it = LOSS, False, True
+        else:
+            col, bold, it = BODY, False, False
+        _ecell(s, x, yy, ew[ci], rh, v, fill, col,
+               PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.RIGHT, bold=bold,
+               italic=it)
+        x = Emu(int(x) + int(ew[ci]))
+    yy = Emu(int(yy) + int(rh))
+tv = ["Total / weighted", "", f"{7083:,}", f"{13684:,}", "1.9×",
+      _epct(0.220), _epct(0.099, sign=True)]
+x = etl
+for ci, v in enumerate(tv):
+    _ecell(s, x, yy, ew[ci], Inches(0.4), v, NAVY, WHITE,
+           PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.RIGHT, bold=True, sz=10)
+    x = Emu(int(x) + int(ew[ci]))
+yy = Emu(int(yy) + int(Inches(0.4)))
+para(tbox(s, Inches(0.55), Emu(int(yy) + int(Inches(0.16))), Inches(12.3),
+          Inches(0.5)),
+     "Selected larger deals led by members of the current team from 1996, "
+     "before the full team formed in 2006. Losses shown in lighter type. "
+     "Capital in SEK; outperformance is annualised versus the SIX Return "
+     "Index.", 8.5, FOOT, first=True, after=0, lead=1.1)
+
 # ---- II.6d Independent validation: 20-year NET record ----
 s, top = content("Independent Review",
                  "Independently validated: 20 years, net of every fee",
