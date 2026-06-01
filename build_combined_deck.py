@@ -2871,8 +2871,9 @@ data = [
          "independent of the investment team."),
         ("SEB · MUFG · KPMG", "custody, administration and audit verify every "
          "move — a heavyweight institutional fortress."),
-        ("A 20-year playbook (Brokk, Creades)", "is institutional memory that "
-         "engineers out permanent loss — not key-person risk.")]),
+        ("The same investment team since 2006", "a 20-year playbook — "
+         "institutional memory that engineers out permanent loss, not "
+         "key-person risk.")]),
     ("“Capacity — only one deal a year.”", "Concern: effort vs. sleeve size", [
         ("A 3–8% sleeve is not a rounding error", "it shifts the whole equity "
          "book’s frontier up-and-to-the-left — real basis points."),
