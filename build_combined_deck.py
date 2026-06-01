@@ -1328,6 +1328,11 @@ para(tbox(s, Inches(0.75), Emu(int(y) + int(Inches(0.12))), Inches(11.7),
      "Brand recognition does not compound capital — asymmetric capture does. "
      "The edge is the very lane the household names had to abandon as they "
      "scaled.", 12.5, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s, Inches(0.55), Inches(7.18), Inches(12.6), Inches(0.32)),
+     "De-smoothed large-buyout correlation to small/mid-cap equities ~0.89 "
+     "(Two Sigma / Venn, 2024; Couts, Gonçalves & Rossi, 2020; Boyer et al., "
+     "2018). Athanase correlation 0.44 (real). See references.", 7.5, FOOT,
+     first=True, after=0, track=0, lead=1.05)
 
 # ===========================================================================
 # SUB-SECTION: HOW WE INVEST (find -> filter -> execute)
@@ -3175,11 +3180,13 @@ for _mt in [
     r.font.size = Pt(9); r.font.name = SANS; r.font.color.rgb = BODY
 para(_md, "Private-equity figures are taken from the cited research. "
      "De-smoothed / true-economic / committed-capital values reflect that "
-     "literature rather than reported (appraisal-based) data; bridge and "
-     "illustrative magnitudes reconcile cited endpoints and are labelled as "
-     "such. For professional investors; not investment advice. Past performance "
-     "is not indicative of future results.", 8.5, SUBTLE, italic=True, after=0,
-     lead=1.15, track=0)
+     "literature rather than reported (appraisal-based) data — including the "
+     "de-smoothed large-buyout correlation to small/mid-cap equities of ~0.89 "
+     "(Two Sigma / Venn, 2024; Couts, Gonçalves & Rossi, 2020; Boyer, Nadauld, "
+     "Vorkink & Weisbach, 2018). Bridge and illustrative magnitudes reconcile "
+     "cited endpoints and are labelled as such. For professional investors; "
+     "not investment advice. Past performance is not indicative of future "
+     "results.", 8.5, SUBTLE, italic=True, after=0, lead=1.15, track=0)
 
 
 # ===========================================================================
