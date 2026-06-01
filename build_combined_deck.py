@@ -317,6 +317,114 @@ def checklist(s, items, top, left=Inches(0.75), width=Inches(11.9),
 
 
 # ===========================================================================
+# II.6h–j  Risk-adjusted analysis vs a global equity fund (MSCI World IMI)
+# Data computed live from data/Comparison_returns.xlsx
+# ===========================================================================
+from statistics import NormalDist as _ND
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib import font_manager as _fmgr
+
+H_NAVY, H_BLUE3, H_BLUE4 = "#152130", "#314359", "#556A83"
+H_BLUE5, H_BODY = "#E2E5E9", "#0E1620"
+for _ff in ("Arial", "Liberation Sans", "DejaVu Sans"):
+    try:
+        _fmgr.findfont(_ff, fallback_to_default=False)
+        plt.rcParams["font.family"] = _ff
+        break
+    except Exception:
+        continue
+
+
+def _load_cmp():
+    ws = openpyxl.load_workbook("data/Comparison_returns.xlsx",
+                               data_only=True)["Sheet1"]
+
+    def grab(rows):
+        out = []
+        for c in range(2, ws.max_column + 1):
+            for r in rows:
+                v = ws.cell(r, c).value
+                if isinstance(v, (int, float)):
+                    out.append(v)
+        return out
+    return grab(range(4, 16)), grab(range(22, 34))   # MSCI, Athanase
+
+
+_MSCI_X, _ATH_X = _load_cmp()
+_NM = len(_MSCI_X)
+# Annualise over ACTUAL invested time, not observation count. The track record
+# is two periods with a gap (team set up AIPFII in between):
+#   P1  1 Jan 2006 – 30 Jun 2014  = 3,103 days
+#   gap 30 Jun 2014 – 23 Feb 2015 =   238 days  (EXCLUDED — not invested)
+#   P2  23 Feb 2015 – 28 Feb 2026 = 4,024 days
+# Total invested = 7,127 days / 365.25 = 19.513 years.
+_INVESTED_YEARS = 7127 / 365.25
+
+
+def _cmp_stats(x, mar=0.0, years=_INVESTED_YEARS):
+    n = len(x); mean = sum(x) / n
+    dd = math.sqrt(sum(min(r - mar, 0) ** 2 for r in x) / n)
+    g = 1.0
+    for r in x:
+        g *= (1 + r)
+    return dict(ann_ret=g ** (1 / years) - 1, cum_ret=g - 1, mult=g,
+                ann_dd=dd * math.sqrt(12),
+                ann_vol=(math.sqrt(sum((r - mean) ** 2 for r in x) / (n - 1))
+                         * math.sqrt(12)))
+
+
+_MSCI, _ATH = _cmp_stats(_MSCI_X), _cmp_stats(_ATH_X)
+
+
+def _pair(a, m):
+    n = len(a)
+
+    def geo(xs):
+        g = 1.0
+        for x in xs:
+            g *= (1 + x)
+        return g ** (1 / len(xs)) - 1 if xs else 0.0
+    up = [i for i in range(n) if m[i] > 0]
+    dn = [i for i in range(n) if m[i] < 0]
+    mb, ab = sum(m) / n, sum(a) / n
+    cov = sum((m[i] - mb) * (a[i] - ab) for i in range(n)) / (n - 1)
+    vm = sum((x - mb) ** 2 for x in m) / (n - 1)
+    va = sum((x - ab) ** 2 for x in a) / (n - 1)
+
+    def cum(xs):
+        g = 1.0
+        for x in xs:
+            g *= (1 + x)
+        return g
+
+    def roll(months):
+        w = t = 0
+        for i in range(0, n - months + 1):
+            t += 1
+            w += cum(a[i:i + months]) > cum(m[i:i + months])
+        return w / t if t else 0.0
+    return dict(up_cap=geo([a[i] for i in up]) / geo([m[i] for i in up]),
+                dn_cap=geo([a[i] for i in dn]) / geo([m[i] for i in dn]),
+                corr=cov / math.sqrt(vm * va), beta=cov / vm,
+                roll={y: roll(y * 12) for y in (3, 5, 7)})
+
+
+_PAIR = _pair(_ATH_X, _MSCI_X)
+
+
+def _project(T, r, dd):
+    med = 100 * (1 + r) ** T
+    down = 100 * (1 + (r - dd / math.sqrt(T))) ** T
+    ploss = _ND().cdf((0 - r) / (dd / math.sqrt(T)))
+    return med, down, ploss
+
+
+
+
+# ===========================================================================
 # COVER
 # ===========================================================================
 s = prs.slides.add_slide(BLANK)
@@ -524,9 +632,9 @@ divider("Why Athanase", kicker="Part II  ·  Among engaged owners")
 s, top = content("Overview", "Athanase at a glance")
 # four big stats
 stats = [("40+", "investments as\nengaged owners"),
-         ("18%", "net annual IRR\nsince inception"),
+         (f"{_ATH['ann_ret']*100:.0f}%", "annualised NET\nreturn since 2006"),
          ("20 yrs", "team working\ntogether"),
-         ("7.1%", "minimum annual\nnet return*")]
+         (f"{_ATH['mult']:.0f}×", "growth of capital\nsince 2006*")]
 bw = Inches(2.95); gapx = Inches(0.18); x = Inches(0.75); y = top
 for big, lab in stats:
     card = rect(s, x, y, bw, Inches(1.85), fill=HEADERBG)
@@ -537,14 +645,16 @@ for big, lab in stats:
         para(ctf, line, 12, SUBTLE, align=PP_ALIGN.CENTER, after=0)
     x = Emu(int(x) + int(bw) + int(gapx))
 checklist(s, [
-    ("Average net return of 18.6%", "(17.1% vs MSCI IMI 7.6% since inception), "
-     "regardless of entry month."),
+    (f"{_ATH['ann_ret']*100:.1f}% annualised NET",
+     f"vs MSCI IMI {_MSCI['ann_ret']*100:.1f}% — net of all fees, since 2006."),
     ("+14.5% EBITA growth", "in portfolio companies during the ownership period."),
     ("+0.2% in down markets", "versus the market at –1.7% — downside "
      "protection when it matters most."),
 ], top + Inches(2.15), size=15, gap=10)
 nt = tbox(s, Inches(0.75), Inches(6.75), Inches(11.8), Inches(0.4))
-para(nt, "*Invested any month since 2006 and held to Dec 2025. Inception 2015-02-23.",
+para(nt, "*Net monthly returns over 19.5 invested years (Öresund/Creades "
+     "Jan 2006–Jun 2014; AIPFII from 23 Feb 2015). Annualised on actual invested "
+     "time. Past performance is not indicative of future results.",
      9, FOOT, first=True, after=0)
 
 # ---- II.2 The team ----
@@ -1254,8 +1364,9 @@ para(pr, "Across the six worst years for global equities, Athanase outperformed 
      "in five — and stayed positive in two: +9% in 2015 and +0.3% in 2022, while "
      "the market fell −6% and −20%.", 13, BODY, after=14, lead=1.15)
 para(pr, "Why it compounds", 16, NAVY_TX, bold=True, after=2, font=SERIF)
-para(pr, "Losing less in drawdowns leaves more capital working in the recovery — "
-     "the engine behind ~18x growth vs ~14x for MSCI IMI since 2006.", 13, BODY,
+para(pr, f"Losing less in drawdowns leaves more capital working in the recovery "
+     f"— the engine behind {_ATH['mult']:.0f}× growth of capital vs "
+     f"{_MSCI['mult']:.1f}× for the market since 2006.", 13, BODY,
      after=0, lead=1.15)
 
 # ---- II.6b Transactions: AIP Fund II ----
@@ -1305,12 +1416,13 @@ para(nt, "Selected larger deals of the investment team. Losses shown in italic. 
 s, top = content("Independent Review",
                  "Independently validated: 20 years, net of every fee",
                  "A prospective LP’s investment committee reconciled the "
-                 "security-level (StatPro) data and the 236-month LP-level NET "
-                 "return series.")
-stats = [("+1,402%", "cumulative NET return\nover 19.7 years"),
-         ("+14.8%", "annualised NET\n(time-weighted, all fees)"),
-         ("+6.0 pts", "annualised alpha,\nnet, for 20 years"),
-         ("3.11×", "the relevant equity\nbenchmark")]
+                 "security-level (StatPro) data against the LP-level NET return "
+                 "series.")
+stats = [(f"+{_ATH['cum_ret']*100:,.0f}%", "cumulative NET return\nover 19.5 years"),
+         (f"+{_ATH['ann_ret']*100:.1f}%", "annualised NET\n(net of all fees)"),
+         (f"+{(_ATH['ann_ret']-_MSCI['ann_ret'])*100:.0f} pts",
+          "annualised alpha,\nnet, vs the market"),
+         (f"{_ATH['mult']/_MSCI['mult']:.1f}×", "the relevant equity\nbenchmark")]
 bw = Inches(2.95); gapx = Inches(0.18); x = Inches(0.75); y = top
 for big, lab in stats:
     rect(s, x, y, bw, Inches(1.8), fill=HEADERBG)
@@ -1512,104 +1624,6 @@ para(tbox(s, Inches(0.6), Inches(7.15), Inches(8.9), Inches(0.4)),
      "other activist 10.5%; long-only 7.6% (MSCI IMI). Uplift = sleeve × return "
      "spread; growth = annual compounding. Past performance ≠ future results.",
      8.5, FOOT, first=True, after=0, track=0, lead=1.15)
-
-# ===========================================================================
-# II.6h–j  Risk-adjusted analysis vs a global equity fund (MSCI World IMI)
-# Data computed live from data/Comparison_returns.xlsx
-# ===========================================================================
-from statistics import NormalDist as _ND
-import numpy as np
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-from matplotlib import font_manager as _fmgr
-
-H_NAVY, H_BLUE3, H_BLUE4 = "#152130", "#314359", "#556A83"
-H_BLUE5, H_BODY = "#E2E5E9", "#0E1620"
-for _ff in ("Arial", "Liberation Sans", "DejaVu Sans"):
-    try:
-        _fmgr.findfont(_ff, fallback_to_default=False)
-        plt.rcParams["font.family"] = _ff
-        break
-    except Exception:
-        continue
-
-
-def _load_cmp():
-    ws = openpyxl.load_workbook("data/Comparison_returns.xlsx",
-                               data_only=True)["Sheet1"]
-
-    def grab(rows):
-        out = []
-        for c in range(2, ws.max_column + 1):
-            for r in rows:
-                v = ws.cell(r, c).value
-                if isinstance(v, (int, float)):
-                    out.append(v)
-        return out
-    return grab(range(4, 16)), grab(range(22, 34))   # MSCI, Athanase
-
-
-_MSCI_X, _ATH_X = _load_cmp()
-_NM = len(_MSCI_X)
-
-
-def _cmp_stats(x, mar=0.0):
-    n = len(x); mean = sum(x) / n
-    dd = math.sqrt(sum(min(r - mar, 0) ** 2 for r in x) / n)
-    g = 1.0
-    for r in x:
-        g *= (1 + r)
-    return dict(ann_ret=(g ** (1 / n)) ** 12 - 1, ann_dd=dd * math.sqrt(12),
-                ann_vol=(math.sqrt(sum((r - mean) ** 2 for r in x) / (n - 1))
-                         * math.sqrt(12)))
-
-
-_MSCI, _ATH = _cmp_stats(_MSCI_X), _cmp_stats(_ATH_X)
-
-
-def _pair(a, m):
-    n = len(a)
-
-    def geo(xs):
-        g = 1.0
-        for x in xs:
-            g *= (1 + x)
-        return g ** (1 / len(xs)) - 1 if xs else 0.0
-    up = [i for i in range(n) if m[i] > 0]
-    dn = [i for i in range(n) if m[i] < 0]
-    mb, ab = sum(m) / n, sum(a) / n
-    cov = sum((m[i] - mb) * (a[i] - ab) for i in range(n)) / (n - 1)
-    vm = sum((x - mb) ** 2 for x in m) / (n - 1)
-    va = sum((x - ab) ** 2 for x in a) / (n - 1)
-
-    def cum(xs):
-        g = 1.0
-        for x in xs:
-            g *= (1 + x)
-        return g
-
-    def roll(months):
-        w = t = 0
-        for i in range(0, n - months + 1):
-            t += 1
-            w += cum(a[i:i + months]) > cum(m[i:i + months])
-        return w / t if t else 0.0
-    return dict(up_cap=geo([a[i] for i in up]) / geo([m[i] for i in up]),
-                dn_cap=geo([a[i] for i in dn]) / geo([m[i] for i in dn]),
-                corr=cov / math.sqrt(vm * va), beta=cov / vm,
-                roll={y: roll(y * 12) for y in (3, 5, 7)})
-
-
-_PAIR = _pair(_ATH_X, _MSCI_X)
-
-
-def _project(T, r, dd):
-    med = 100 * (1 + r) ** T
-    down = 100 * (1 + (r - dd / math.sqrt(T))) ** T
-    ploss = _ND().cdf((0 - r) / (dd / math.sqrt(T)))
-    return med, down, ploss
-
 
 # ---- II.6h  Outcome table by holding period --------------------------------
 s, top = content("Risk-Adjusted Outcomes",
@@ -2593,10 +2607,12 @@ _refs(r2, Inches(0.6), Inches(2.12), Inches(6.0), [
 _refhead(r2, Inches(6.95), Inches(1.75), Inches(5.85), "DATA & METHODOLOGY")
 _md = tbox(r2, Inches(6.95), Inches(2.12), Inches(5.85), Inches(4.6))
 para(_md, "All Athanase figures are computed from the fund’s audited net "
-     f"monthly return series ({_NM} months, 2006–2025):", 9.5, BODY,
+     "monthly return series across two vehicles (Öresund/Creades Jan 2006–"
+     "Jun 2014; AIPFII from 23 Feb 2015):", 9.5, BODY,
      first=True, after=6, lead=1.15, track=0)
 for _mt in [
-    "Annualised return — geometric compounding of monthly net returns (16.0%).",
+    "Annualised return — cumulative net return compounded, then annualised over "
+    "actual invested time (19.51 yrs, excluding the 2014–15 setup gap): 16.1%.",
     "Total volatility — st. dev. of monthly returns × √12 (27.0%).",
     "Downside volatility — deviation of negative months below a 0% MAR × √12 "
     "(10.9%).",
