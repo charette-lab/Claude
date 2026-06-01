@@ -2246,9 +2246,10 @@ para(tbox(s, cx3, cy3 + Inches(0.3), cw3, Inches(1.9)),
 rect(s, Inches(0.6), Inches(6.62), Inches(12.13), Inches(0.46), fill=NAVY)
 para(tbox(s, Inches(0.78), Inches(6.62), Inches(11.8), Inches(0.46),
           anchor=MSO_ANCHOR.MIDDLE),
-     "The blend is not a trade-off — every allocation improves the portfolio, so "
-     "the case is to size up within prudent 3–8% limits, not to chase the "
-     "mathematical optimum.", 12, WHITE, first=True, italic=True, after=0, track=0)
+     "The blend is not a trade-off: every allocation raises return and lowers "
+     "downside risk — so to a committee this is a mathematical risk-reduction "
+     "tool, not a risky bet, sized within prudent 3–8% limits.",
+     12, WHITE, first=True, italic=True, after=0, track=0)
 para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
      f"Source: monthly net returns, {_NM} months (2006–2025), monthly rebalanced "
      "blends. The minimum-risk point is in-sample and shown for shape, not as "
