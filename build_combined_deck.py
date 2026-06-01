@@ -2787,15 +2787,16 @@ para(_md, "Private-equity figures are taken from the cited research. "
 def _toc_col(col_x, col_w, header, entries, groups=None):
     """entries: list of (num, title, ref). groups: optional dict mapping the
     leading sub-section index (str) -> sub-section name, inserted as headers."""
-    htf = tbox(agenda_s, col_x, agenda_top, col_w, Inches(0.4))
+    t0 = Emu(int(agenda_top) - int(Inches(0.12)))
+    htf = tbox(agenda_s, col_x, t0, col_w, Inches(0.4))
     para(htf, header, 14, SLATE, first=True, bold=True, after=0, font=SERIF)
-    ytf = tbox(agenda_s, col_x, Emu(int(agenda_top) + int(Inches(0.42))),
-               col_w, Inches(5.7))
+    ytf = tbox(agenda_s, col_x, Emu(int(t0) + int(Inches(0.4))),
+               col_w, Inches(5.3))
     n_lines = len(entries) + (len(groups) if groups else 0)
     dense = n_lines > 30
     long_col = len(entries) > 12
     fs = 9 if dense else (10 if long_col else 11.5)
-    sa = 1.5 if dense else (3 if long_col else 7)
+    sa = 0.8 if dense else (3 if long_col else 7)
     lh = 1.0 if dense else 1.02
     first = True
     seen = set()
@@ -2807,8 +2808,8 @@ def _toc_col(col_x, col_w, header, entries, groups=None):
                 seen.add(gkey)
                 p = ytf.paragraphs[0] if first else ytf.add_paragraph()
                 first = False
-                p.space_before = Pt(0 if len(seen) == 1 else (3 if dense else 5))
-                p.space_after = Pt(1.5 if dense else 2.5); p.line_spacing = 1.0
+                p.space_before = Pt(0 if len(seen) == 1 else (2 if dense else 5))
+                p.space_after = Pt(1 if dense else 2.5); p.line_spacing = 1.0
                 gr = p.add_run()
                 gr.text = f"{gkey}   {groups.get(gkey, '')}"
                 gr.font.size = Pt(fs + 0.5); gr.font.bold = True
