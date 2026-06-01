@@ -2853,71 +2853,89 @@ checklist(s, [
      "Swedish FI-registered AIFM."),
 ], top, size=16, gap=14)
 
-# ---- Objection handling: the declines we hear (not numbered / not in TOC) ---
+# ---- Objection handling: declines + the arsenal (not numbered / not in TOC) -
 s, top = content("The Case",
-                 "The objections we hear — and the answers",
+                 "The objections we hear — and the arsenal to answer them",
                  "The common declines are rarely about the returns. Each "
-                 "underlying concern has a structural answer.", number=False)
-obj = [
-    ("“It falls between our buckets.”",
-     "Idiosyncratic alpha means tracking error against the benchmark.",
-     "Fund it from whichever sleeve it best replaces — public equity, "
-     "event-driven or private equity. Sized at 1–3%, the tracking error is "
-     "pre-agreed and judged on fundamentals, not on benchmark-hugging."),
-    ("“Key-person risk at a boutique.”",
-     "A niche firm offers less political cover than a household name.",
-     "A five-partner team 20 years together, an independent operations / risk "
-     "/ valuation layer, SEB · MUFG · KPMG oversight and an independently "
-     "validated 20-year record — institutional process, not a flyer."),
-    ("“Capacity — only one deal a year.”",
-     "Is a 1–3% sleeve worth the internal effort to approve?",
-     "Selectivity is the edge, not a constraint; the book compounds spare "
-     "capital in a 30-stock core, and capacity comfortably supports an "
-     "institutional ticket within prudent sizing."),
-    ("“Duration ties up our risk budget.”",
-     "The J-curve pain is early; the payoff lands on a later review cycle.",
-     "Daily liquidity and zero lock-up mean no trapped capital. Pre-agree the "
-     "drawdown tolerance and judge business risk — board seat secured, earnings "
-     "improving — so the path is owned, not a surprise."),
+                 "concern has a concrete, quantified rebuttal.", number=False)
+data = [
+    ("“It falls between our buckets.”", "Concern: tracking-error fear", [
+        ("0.44 correlation, 43% down-capture", "the divergence is portfolio "
+         "armour, not a risk — it stops you riding the index to the bottom."),
+        ("Alpha from corporate events", "stripping growth traps, reallocating "
+         "to ROIIC — measurable, not macro."),
+        ("When the market tanks", "that deliberate divergence defends your "
+         "short-term numbers.")]),
+    ("“Key-person risk at a boutique.”", "Concern: political cover", [
+        ("Segregation of duties", "operations, risk and finance sit fully "
+         "independent of the investment team."),
+        ("SEB · MUFG · KPMG", "custody, administration and audit verify every "
+         "move — a heavyweight institutional fortress."),
+        ("A 20-year playbook (Brokk, Creades)", "is institutional memory that "
+         "engineers out permanent loss — not key-person risk.")]),
+    ("“Capacity — only one deal a year.”", "Concern: effort vs. sleeve size", [
+        ("A 3–8% sleeve is not a rounding error", "it shifts the whole equity "
+         "book’s frontier up-and-to-the-left — real basis points."),
+        ("No fees on undeployed dry powder", "deploy once, capital works "
+         "immediately."),
+        ("No blind-pool capital calls", "none of the administration that comes "
+         "with them.")]),
+    ("“Duration ties up our risk budget.”", "Concern: comp-cycle mismatch", [
+        ("Down months ~1.5% vs the market’s ~3.8%", "immediate downside "
+         "preservation, this year."),
+        ("−10% / −20% / −30% hard triggers", "cap drawdowns before they spiral "
+         "and remove PM bias."),
+        ("Worst-ever entry still +7% net", "a statistical safety blanket over "
+         "the holding period.")]),
 ]
-tl = Inches(0.55); cwo = [Inches(3.0), Inches(3.0), Inches(5.8)]
+tl = Inches(0.55); c1 = Inches(3.5); c2 = Inches(8.3)
 y = top
-for ri, row in enumerate([("The objection", "The underlying concern",
-                           "The structural answer")] + obj):
-    head = ri == 0
-    rh = Inches(0.4) if head else Inches(0.96)
-    x = tl
-    for ci, cell in enumerate(row):
-        ans = (ci == 2)
-        if head:
-            fill = NAVY if ans else SLATE
-        elif ans:
-            fill = BLUE5 if ri % 2 == 0 else HEADERBG
-        else:
-            fill = HEADERBG if ri % 2 == 0 else WHITE
-        rect(s, x, y, cwo[ci], rh, fill=fill)
-        ctf = tbox(s, Emu(int(x) + int(Inches(0.14))), y,
-                   Emu(int(cwo[ci]) - int(Inches(0.26))), rh,
-                   anchor=MSO_ANCHOR.MIDDLE)
-        if head:
-            col = WHITE
-        elif ci == 0:
-            col = NAVY_TX
-        elif ans:
-            col = NAVY_TX
-        else:
-            col = SUBTLE
-        para(ctf, cell, 11.5 if head else 10, col,
-             bold=(head or ans), italic=(not head and ci == 0),
-             first=True, after=0, lead=1.06,
-             font=(SERIF if (not head and ci == 0) else SANS))
-        x = Emu(int(x) + int(cwo[ci]))
+# header
+for cx, cw_, htxt in [(tl, c1, "The objection"),
+                      (Emu(int(tl) + int(c1)), c2,
+                       "The arsenal — how we answer it")]:
+    rect(s, cx, y, cw_, Inches(0.4), fill=NAVY if cw_ == c2 else SLATE)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.14))), y,
+              Emu(int(cw_) - int(Inches(0.24))), Inches(0.4),
+              anchor=MSO_ANCHOR.MIDDLE),
+         htxt, 11.5, WHITE, first=True, bold=True, after=0, track=0)
+y = Emu(int(y) + int(Inches(0.4)))
+rh = Inches(1.0)
+for ri, (quote, concern, bullets) in enumerate(data):
+    alt = ri % 2 == 0
+    # col 1
+    rect(s, tl, y, c1, rh, fill=HEADERBG if alt else WHITE)
+    t1 = tbox(s, Emu(int(tl) + int(Inches(0.16))), y,
+              Emu(int(c1) - int(Inches(0.3))), rh, anchor=MSO_ANCHOR.MIDDLE)
+    para(t1, quote, 11.5, NAVY_TX, first=True, bold=True, after=3, lead=1.05,
+         font=SERIF, italic=True, track=0)
+    para(t1, concern, 9, SUBTLE, italic=True, after=0, lead=1.0, track=0)
+    # col 2 — arsenal bullets
+    x2 = Emu(int(tl) + int(c1))
+    rect(s, x2, y, c2, rh, fill=BLUE5 if alt else HEADERBG)
+    t2 = tbox(s, Emu(int(x2) + int(Inches(0.18))), y,
+              Emu(int(c2) - int(Inches(0.34))), rh, anchor=MSO_ANCHOR.MIDDLE)
+    for bi, (lead, rest) in enumerate(bullets):
+        p = t2.paragraphs[0] if bi == 0 else t2.add_paragraph()
+        p.space_after = Pt(2.5); p.line_spacing = 1.04
+        hang = int(round(9.5 * 1.25 * 12700))
+        pPr = p._p.get_or_add_pPr()
+        pPr.set("marL", str(hang)); pPr.set("indent", str(-hang))
+        r0 = p.add_run(); r0.text = "›  "
+        r0.font.size = Pt(9.5); r0.font.bold = True
+        r0.font.color.rgb = SLATE_LT; r0.font.name = SANS
+        r1 = p.add_run(); r1.text = lead
+        r1.font.size = Pt(9.5); r1.font.bold = True
+        r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
+        r2 = p.add_run(); r2.text = " — " + rest
+        r2.font.size = Pt(9.5); r2.font.color.rgb = BODY; r2.font.name = SANS
     y = Emu(int(y) + int(rh))
 para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.13))), Inches(12.3),
           Inches(0.4)),
      "We meet each objection where it sits — and answer it with structure, not "
      "optimism. The allocation is engineered to be defensible, not just to "
      "perform.", 12, SLATE, first=True, italic=True, after=0, track=0)
+
 
 # ---- Capstone: the investment-committee pitch (not numbered / not in TOC) ---
 s, top = content("The Case",
