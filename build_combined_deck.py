@@ -1267,6 +1267,62 @@ para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.18))), Inches(12.2), Inches
 # ===========================================================================
 subdivider("How we invest")
 
+# ---- How we invest 0: HOW DECISIONS ARE MADE (gates, owners, governance) ----
+s, top = content("How we invest · Decisions",
+                 "How decisions are made: three tollgates, clear owners",
+                 "Every idea passes through the same three gates — each with an "
+                 "explicit bar and a named decision-maker. The process is "
+                 "documented, governed and repeatable.")
+gates = [
+    ("Tollgate 1 · Valuation", "After sourcing & screening",
+     "Is it cheap enough even if we change nothing?",
+     "The core business alone justifies the price — a 30–40% margin of safety "
+     "versus a private-equity bidder.",
+     "Investment team"),
+    ("Tollgate 2 · The plan", "After research & due diligence",
+     "Is the improvement plan real — and can we deliver it?",
+     "Upside quantified across the six value levers and validated with "
+     "management and industry experts, with a credible path to a board seat.",
+     "Deal lead + Head of Research"),
+    ("Tollgate 3 · Go / No-Go", "Investment Committee",
+     "Right risk, right size, right fit?",
+     "Within risk and portfolio limits, conviction-sized, with no better use "
+     "of the capital available.",
+     "Investment Committee — CIO + PMs; risk independent"),
+]
+cw = Inches(3.86); gx = Inches(0.18); x = Inches(0.62); hh = Inches(0.5)
+bodyH = Inches(3.18)
+for name, when, q, bar, who in gates:
+    rect(s, x, top, cw, hh, fill=NAVY)
+    htf = tbox(s, x, top, cw, hh, anchor=MSO_ANCHOR.MIDDLE)
+    para(htf, name, 13.5, WHITE, bold=True, first=True, align=PP_ALIGN.CENTER,
+         after=0, font=SERIF, track=0)
+    by = Emu(int(top) + int(hh))
+    rect(s, x, by, cw, bodyH, fill=HEADERBG)
+    tf = tbox(s, Emu(int(x) + int(Inches(0.18))),
+              Emu(int(by) + int(Inches(0.14))),
+              Emu(int(cw) - int(Inches(0.36))), Emu(int(bodyH) - int(Inches(0.26))))
+    para(tf, when.upper(), 8.5, SLATE_LT, first=True, bold=True, after=6, track=0)
+    para(tf, "THE QUESTION", 8.5, SLATE, bold=True, after=2, track=0)
+    para(tf, "“" + q + "”", 11, NAVY_TX, italic=True, after=7, lead=1.1,
+         font=SERIF, track=0)
+    para(tf, "PASS ONLY IF", 8.5, SLATE, bold=True, after=2, track=0)
+    para(tf, bar, 9.5, BODY, after=7, lead=1.12, track=0)
+    para(tf, "DECIDED BY", 8.5, SLATE, bold=True, after=2, track=0)
+    para(tf, who, 9.5, NAVY_TX, bold=True, after=0, lead=1.1, track=0)
+    x = Emu(int(x) + int(cw) + int(gx))
+rect(s, Inches(0.62), Inches(6.2), Inches(11.94), Inches(0.62), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.2), Inches(11.6), Inches(0.62),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Repeatable by design — the same gates the team has run since 2006, a "
+     "written investment case, minuted decisions, and every holding "
+     "re-underwritten each quarter. About 1 in 1,000 screened names is bought.",
+     12, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s, Inches(0.62), Inches(7.0), Inches(12.0), Inches(0.4)),
+     "A “no” at any gate ends the process — most ideas are rejected at "
+     "Tollgate 1 or 2, long before capital is at risk.", 9, FOOT, first=True,
+     after=0, track=0, lead=1.1)
+
 # ---- How we invest 1: SOURCE & SCREEN --------------------------------------
 _f_src = fig()
 s, top = content("How we invest · Source",
