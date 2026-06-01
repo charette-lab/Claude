@@ -415,10 +415,10 @@ def _pair(a, m):
 _PAIR = _pair(_ATH_X, _MSCI_X)
 
 
-def _entry_month_avg():
-    """Average annualised NET return if invested in any single month and held to
-    the end — read directly from the workbook's 'invested in the month
-    specified' table (AIPFII). Answers the entry-timing-robustness question."""
+def _entry_month_stats():
+    """Annualised NET return if invested in any single month and held to the end
+    — read directly from the workbook's 'invested in the month specified' table
+    (AIPFII). Returns (average, worst, n) — the entry-timing-robustness stats."""
     wb = openpyxl.load_workbook("data/AIP_Trackrecord.xlsx",
                                 data_only=True)["Monthly Returns"]
     vals = []
@@ -427,10 +427,12 @@ def _entry_month_avg():
             v = wb.cell(r, c).value
             if isinstance(v, (int, float)) and v != 0:
                 vals.append(v)
-    return (sum(vals) / len(vals)) if vals else 0.0, len(vals)
+    if not vals:
+        return 0.0, 0.0, 0
+    return sum(vals) / len(vals), min(vals), len(vals)
 
 
-_ENTRY_AVG, _ENTRY_N = _entry_month_avg()    # ~18.8% across ~107 entry months
+_ENTRY_AVG, _ENTRY_WORST, _ENTRY_N = _entry_month_stats()   # ~18.8% / ~6.8% / 107
 
 
 def _project(T, r, dd):
@@ -651,7 +653,7 @@ s, top = content("Overview", "Athanase at a glance")
 # four big stats
 stats = [("40+", "investments as\nengaged owners"),
          (f"{_ENTRY_AVG*100:.0f}%", "avg annualised NET,\nany entry month*"),
-         ("20 yrs", "team working\ntogether"),
+         (f"{_ENTRY_WORST*100:.0f}%", "worst-ever entry,\nstill positive*"),
          (f"{_ATH['mult']:.0f}×", "growth of capital\nsince 2006")]
 bw = Inches(2.95); gapx = Inches(0.18); x = Inches(0.75); y = top
 for big, lab in stats:
@@ -666,10 +668,11 @@ checklist(s, [
     (f"~{_ENTRY_AVG*100:.0f}% average annualised return*",
      "whatever month you invested and held to today — entry timing has barely "
      "mattered."),
+    (f"~{_ENTRY_WORST*100:.0f}% in the single worst entry month",
+     "even the unluckiest possible entry still compounded at a mid-single-digit "
+     "net return — no investor lost over the holding period."),
     (f"{_ATH['ann_ret']*100:.1f}% time-weighted NET since 2006",
      f"vs MSCI IMI {_MSCI['ann_ret']*100:.1f}% — net of all fees."),
-    ("+0.2% in down markets", "versus the market at –1.7% — downside "
-     "protection when it matters most."),
 ], top + Inches(2.15), size=15, gap=10)
 nt = tbox(s, Inches(0.75), Inches(6.75), Inches(11.8), Inches(0.4))
 para(nt, "*Average of the annualised NET return earned investing in each "
