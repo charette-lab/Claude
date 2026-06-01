@@ -861,8 +861,9 @@ def _person_card(x, y, w, h, nm, role, line):
 para(tbox(s, Inches(0.6), Inches(2.18), Inches(8), Inches(0.3)),
      "INVESTMENT TEAM", 11, SLATE, first=True, bold=True, after=0, track=0)
 inv = [
-    ("Stefan Charette", "CIO & Partner", "Ex-CEO/CIO of Brokk; Lehman Brothers, "
-     "Salomon Smith Barney."),
+    ("Stefan Charette", "CIO & Partner", "CEO/CIO of Custos, Investment AB "
+     "Öresund and Creades; CEO of Brokk; investment banker at Lehman Brothers "
+     "and Salomon Smith Barney."),
     ("Kenth Eriksson", "Senior PM & Partner", "Ex-CEO of Tradimus; Senior VP, "
      "Electrolux; tech owner-operator."),
     ("Sven Thorén", "PM & Partner", "Ex-PM at Adrigo, Catella, Pan Capital and "
