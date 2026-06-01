@@ -411,11 +411,12 @@ _MSCI_X, _ATH_X = _load_cmp()
 _NM = len(_MSCI_X)
 # Annualise over ACTUAL invested time, not observation count. The track record
 # is two periods with a gap (team set up AIPFII in between):
-#   P1  1 Jan 2006 – 30 Jun 2014  = 3,103 days
+#   P1  9 Mar 2006 – 30 Jun 2014  = 3,035 days  (2006 starts 9 Mar; 62.5% is
+#                                                 the Mar–Dec 2006 return)
 #   gap 30 Jun 2014 – 23 Feb 2015 =   238 days  (EXCLUDED — not invested)
-#   P2  23 Feb 2015 – 28 Feb 2026 = 4,024 days
-# Total invested = 7,127 days / 365.25 = 19.513 years.
-_INVESTED_YEARS = 7127 / 365.25
+#   P2  23 Feb 2015 – 28 Feb 2026 = 4,023 days
+# Total invested = 7,058 days / 365.25 = 19.32 years.
+_INVESTED_YEARS = 7058 / 365.25
 
 
 def _cmp_stats(x, mar=0.0, years=_INVESTED_YEARS):
@@ -1287,7 +1288,7 @@ rows = [
      "with daily liquidity and zero capital-call liability."),
     ("What you’re buying",
      "A brand — but brand recognition does not compound capital.",
-     "Asymmetric capture (93% up / 43% down) and a validated 16.1% net, "
+     "Asymmetric capture (93% up / 43% down) and a validated 16.3% net, "
      "+7% worst-entry record — institutional process, not a logo."),
 ]
 tl = Inches(0.55); cwx = [Inches(2.0), Inches(5.05), Inches(5.05)]
@@ -1860,7 +1861,7 @@ s, top = content("Independent Review",
                  "A prospective LP’s investment committee reconciled the "
                  "security-level (StatPro) data against the LP-level NET return "
                  "series.")
-stats = [(f"+{_ATH['cum_ret']*100:,.0f}%", "cumulative NET return\nover 19.5 years"),
+stats = [(f"+{_ATH['cum_ret']*100:,.0f}%", "cumulative NET return\nover 19.3 years"),
          (f"+{_ATH['ann_ret']*100:.1f}%", "annualised NET\n(net of all fees)"),
          (f"+{(_ATH['ann_ret']-_MSCI['ann_ret'])*100:.0f} pts",
           "annualised alpha,\nnet, vs the market"),
@@ -3012,7 +3013,7 @@ quads = [
          "automatic −10% / −20% / −30% triggers force a thesis review and "
          "exit.")]),
     ("4 · The proof — two decades of compounding", [
-        ("16.1% net p.a.; capital grown 18×",
+        ("16.3% net p.a.; capital grown 18×",
          "across multiple market cycles."),
         ("92% deal-level hit rate (39 deals)",
          "a 5× MOIC roughly every two years."),
@@ -3285,7 +3286,7 @@ para(_md, "All Athanase figures are computed from the fund’s audited net "
      first=True, after=6, lead=1.15, track=0)
 for _mt in [
     "Annualised return — cumulative net return compounded, then annualised over "
-    "actual invested time (19.51 yrs, excluding the 2014–15 setup gap): 16.1%.",
+    "actual invested time (19.32 yrs, excluding the 2014–15 setup gap): 16.3%.",
     "Total volatility — st. dev. of monthly returns × √12 (27.0%).",
     "Downside volatility — deviation of negative months below a 0% MAR × √12 "
     "(10.9%).",
