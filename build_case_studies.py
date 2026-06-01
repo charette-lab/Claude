@@ -396,6 +396,7 @@ def overview():
         ["Lindab AB", "32%", "1.6×"],
         ["Transcom SA", "30%", "3.0×"],
         ["DistIt / Alcadon", "—", "—"],
+        ["Renold plc", "234%", "1.6×"],
     ]
     ores_rows = [
         ["J&W", "94.4%", "2000–01"],
@@ -486,7 +487,9 @@ def case_native_right(sections, label, title, badge_text, kind, data,
         badge(s, rx, Inches(1.95), rw, badge_text)
     y = Emu(int(y) + int(Inches(0.2)))
     if kind == "value":
-        value_bar(s, rx, y, rw, Inches(3.1), data["cats"], data["vals"])
+        value_bar(s, rx, y, rw, Inches(3.1), data["cats"], data["vals"],
+                  unit=data.get("unit", "SEK M"),
+                  title=data.get("title", "Initial investment vs. current value"))
         if callout:
             ct = tbox(s, rx, Inches(5.5), rw, Inches(0.8))
             para(ct, callout, 12, SLATE, bold=True, first=True,
@@ -740,6 +743,48 @@ case_image_right(
     "Case · AIP fund era", "Investment case study: DistIt / Alcadon",
     "Investment 2015 – present", os.path.join(CHARTS, "distit_line.png"),
     note=NOTE_MODERN, chart_img2=os.path.join(CHARTS, "distit_op.png"))
+
+# Renold plc -- opportunistic value stake, realised into a recommended takeover
+case_native_right(
+    [("para", "Company description",
+      "Renold plc is a London-listed global leader in industrial chain and "
+      "torque-transmission products — roller chain, couplings, gearboxes and "
+      "clutches — serving mining, materials-handling, transport and energy "
+      "customers worldwide. A market-leading niche franchise (inventor of the "
+      "bush roller chain, 1879) with a large installed base and recurring "
+      "aftermarket demand."),
+     ("bullets", "Recognized opportunities", [
+         "Market-leading niche industrial — strong brand, global installed "
+         "base, recurring aftermarket",
+         "Mispriced, under-followed UK small-cap at a deep discount to earnings "
+         "power (~50p)",
+         "Multi-year self-help underway — margin expansion and operational "
+         "improvement",
+         "Strong cash generation and a de-risking balance sheet",
+         "A credible consolidation / takeover candidate, with limited downside "
+         "at entry"]),
+     ("para", "Initial plan",
+      "An opportunistic position rather than a control engagement: build a "
+      "meaningful stake at a deep discount to intrinsic value, underwrite the "
+      "downside through asset and earnings-power support, and let the "
+      "catalysts — margin improvement and likely strategic interest — close "
+      "the gap."),
+     ("checks", "Results", [
+         "Built ~5.3m shares at ~50p average from spring 2024; core position "
+         "from December 2024 — about six months before the takeover",
+         "A recommended cash takeover emerged in 2025 at ~81p per share",
+         "Realised the entire position into the offer at ~81p over June–July "
+         "2025",
+         "~1.6× money multiple, +62% gross (SEK 20.9m); money-weighted IRR "
+         "~234%"])],
+    "Case · AIP fund era", "Investment case study: Renold plc",
+    "IRR 234% · Money multiple 1.6×", "value",
+    {"cats": ["Capital invested", "Realised proceeds"], "vals": [35, 56],
+     "unit": "SEK m", "title": "Capital invested vs. realised proceeds"},
+    note="Source: AIPFII transaction history (Apr 2024 – Jul 2025). IRR is "
+         "money-weighted; the short opportunistic hold lifts the annualised "
+         "figure. Past performance is not indicative of future results.",
+    callout="Bought at ~50p; acquired at ~81p in a recommended takeover")
 
 # --------------------------------------------------------------------- ORESUND
 era_divider("Part II · Investment AB Öresund (1994–2007)",
