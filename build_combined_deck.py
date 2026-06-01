@@ -570,7 +570,66 @@ checklist(s, [
      "pricing, transparency, lower fees and better liquidity."),
 ], top, size=16.5, gap=16)
 
-# ---- I.4 Governance / ESG ----
+# ---- I.4 Where the allocation fits (which bucket) --------------------------
+s, top = content("Portfolio",
+                 "Where the allocation fits: three legitimate homes",
+                 "Engaged ownership does not need a bucket of its own. It can be "
+                 "funded from public equity, event-driven hedge funds or private "
+                 "equity — each defensible, depending on what it replaces.")
+buckets = [
+    ("Public equity", [
+        ("The lens", "A concentrated, active equity sleeve — long-only public "
+         "companies with daily pricing and full transparency."),
+        ("Why fund it here", "Adds idiosyncratic, governance-driven alpha to a "
+         "beta-dominated equity book, while keeping liquidity, transparency and "
+         "low fees inside an existing equity mandate."),
+        ("The trade-off", "Higher active risk than an index sleeve — it is "
+         "meant to differ from the benchmark.")]),
+    ("Event-driven hedge funds", [
+        ("The lens", "A catalyst strategy — returns come from proxy contests, "
+         "board change, spin-offs, M&A and capital-return programmes, not "
+         "market direction."),
+        ("Why fund it here", "The return driver is event-specific and largely "
+         "independent of rates and growth; it diversifies an absolute-return "
+         "book and matches how the alpha is actually generated."),
+        ("The trade-off", "More concentrated and longer-horizon than a typical "
+         "multi-strategy fund; positions are owned outright, not hedged.")]),
+    ("Private equity", [
+        ("The lens", "PE-style value creation — board influence, operational "
+         "improvement and multi-year holds — executed in public markets."),
+        ("Why fund it here", "The same engaged-ownership return engine as "
+         "private equity, but with public-market liquidity, daily transparency, "
+         "lower fees and no J-curve or lock-up."),
+        ("The trade-off", "Marked to market daily — honest volatility instead "
+         "of smoothed quarterly appraisals (see Part II).")]),
+]
+cw = Inches(3.86); gapx = Inches(0.18); x = Inches(0.62)
+hh = Inches(0.5); bodyH = Inches(3.5)
+for name, blocks in buckets:
+    rect(s, x, top, cw, hh, fill=NAVY)
+    htf = tbox(s, x, top, cw, hh, anchor=MSO_ANCHOR.MIDDLE)
+    para(htf, name, 15, WHITE, bold=True, first=True, align=PP_ALIGN.CENTER,
+         after=0, font=SERIF)
+    by = Emu(int(top) + int(hh))
+    rect(s, x, by, cw, bodyH, fill=HEADERBG)
+    btf = tbox(s, Emu(int(x) + int(Inches(0.18))),
+               Emu(int(by) + int(Inches(0.14))),
+               Emu(int(cw) - int(Inches(0.36))),
+               Emu(int(bodyH) - int(Inches(0.28))))
+    first = True
+    for label, txt in blocks:
+        para(btf, label.upper(), 10.5, SLATE, bold=True, first=first, after=2)
+        first = False
+        para(btf, txt, 11, BODY, after=8, lead=1.13)
+    x = Emu(int(x) + int(cw) + int(gapx))
+rect(s, Inches(0.62), Inches(6.45), Inches(11.94), Inches(0.52), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.45), Inches(11.6), Inches(0.52),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "The same strategy, three valid homes — fund it wherever engaged "
+     "ownership is the better risk-adjusted alternative to what it replaces.",
+     13, WHITE, first=True, italic=True, after=0)
+
+# ---- I.5 Governance / ESG ----
 s, top = content("Stewardship", "Governance and the ESG synergy")
 checklist(s, [
     ("Applied governance.", "Board independence, pay-for-performance and capital "
