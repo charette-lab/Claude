@@ -2851,6 +2851,79 @@ for qi, (qt, bullets) in enumerate(quads):
         r2 = p.add_run(); r2.text = " — " + body
         r2.font.size = Pt(9); r2.font.color.rgb = BODY; r2.font.name = SANS
 
+# ---- Capstone 2: what protects the committee (not numbered / not in TOC) ----
+s, top = content("The Case",
+                 "What protects the committee — not just the capital",
+                 "Beyond the returns, four things an investment committee can "
+                 "point to — a due-diligence shield, a capital floor, "
+                 "peer-reviewed cover and a liquidity escape hatch.",
+                 number=False)
+quads2 = [
+    ("1 · Independent validation", [
+        ("Independently validated",
+         "the 20-year net record was reconciled from security-level StatPro "
+         "data to actual LP-level returns — not a back-test or internal "
+         "spreadsheet."),
+        ("SEB · MUFG · KPMG",
+         "custody, administration and audit by top-tier institutions verify "
+         "every NAV and fee."),
+        ("An air-tight paper trail",
+         "no auditor or regulator can level an accusation of lax oversight.")]),
+    ("2 · No investor has lost capital", [
+        (f"{_ENTRY_AVG*100:.0f}% average net return",
+         "regardless of the month an investor entered the fund."),
+        (f"+{_ENTRY_WORST*100:.0f}% in the worst entry month",
+         "the single unluckiest entry over 20 years was still positive, net."),
+        ("Zero holding-period losses",
+         "historically, no investor has lost money over a holding period.")]),
+    ("3 · Backed by peer-reviewed science", [
+        ("Settled in the literature",
+         "13D alpha and PE’s volatility laundering / de-smoothing are backed by "
+         "the Journal of Finance and Review of Financial Studies."),
+        (f"{_PAIR['corr']:.2f} correlation, by the science",
+         "the low correlation and risk/return profile are established, not "
+         "asserted."),
+        ("Cover in a bad quarter",
+         "point to the evidence, not to hope — a fundamentally sound economic "
+         "engine.")]),
+    ("4 · A liquidity escape hatch", [
+        ("Daily pricing and liquidity",
+         "the strategy lives entirely in listed public equities."),
+        ("No lock-up or capital-call queue",
+         "none of PE’s 10-year blind-pool traps or blind extensions."),
+        ("Total optionality",
+         "if style drifts or the landscape changes, the committee can vote to "
+         "pivot out seamlessly.")]),
+]
+cw = Inches(5.86); gx = Inches(0.18); gy = Inches(0.1)
+hh = Inches(0.46); bodyH = Inches(1.74)
+cardH = int(hh) + int(bodyH)
+for qi, (qt, bullets) in enumerate(quads2):
+    x = Inches(0.62) if qi % 2 == 0 else Emu(int(Inches(0.62)) + int(cw) + int(gx))
+    y = top if qi < 2 else Emu(int(top) + cardH + int(gy))
+    rect(s, x, y, cw, hh, fill=NAVY)
+    para(tbox(s, Emu(int(x) + int(Inches(0.16))), y, Emu(int(cw) - int(Inches(0.3))),
+              hh, anchor=MSO_ANCHOR.MIDDLE),
+         qt, 12.5, WHITE, first=True, bold=True, after=0, font=SERIF, track=0)
+    by = Emu(int(y) + int(hh))
+    rect(s, x, by, cw, bodyH, fill=HEADERBG)
+    tf = tbox(s, Emu(int(x) + int(Inches(0.18))), Emu(int(by) + int(Inches(0.12))),
+              Emu(int(cw) - int(Inches(0.36))), Emu(int(bodyH) - int(Inches(0.2))))
+    for bi, (lead, body) in enumerate(bullets):
+        p = tf.paragraphs[0] if bi == 0 else tf.add_paragraph()
+        p.space_after = Pt(4); p.line_spacing = 1.08
+        hang = int(round(9 * 1.3 * 12700))
+        pPr = p._p.get_or_add_pPr()
+        pPr.set("marL", str(hang)); pPr.set("indent", str(-hang))
+        r0 = p.add_run(); r0.text = "›  "
+        r0.font.size = Pt(9); r0.font.bold = True
+        r0.font.color.rgb = SLATE_LT; r0.font.name = SANS
+        r1 = p.add_run(); r1.text = lead
+        r1.font.size = Pt(9); r1.font.bold = True
+        r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
+        r2 = p.add_run(); r2.text = " — " + body
+        r2.font.size = Pt(9); r2.font.color.rgb = BODY; r2.font.name = SANS
+
 # ===========================================================================
 # CLOSING
 # ===========================================================================
