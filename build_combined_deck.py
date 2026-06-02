@@ -1369,8 +1369,8 @@ checklist(s, [
 
 # --- sum-of-the-parts bar visual (right) ---
 ptf = tbox(s, Inches(7.3), top - Inches(0.05), Inches(5.4), Inches(0.3))
-para(ptf, f"{_f2}  ·  SUM-OF-THE-PARTS (ILLUSTRATIVE, INDEXED)", 11, SLATE,
-     first=True, bold=True, align=PP_ALIGN.CENTER, after=0)
+para(ptf, f"{_f2}  ·  SUM-OF-THE-PARTS (ILLUSTRATIVE · CONSTANT MULTIPLE)", 11,
+     SLATE, first=True, bold=True, align=PP_ALIGN.CENTER, after=0)
 base = Inches(5.5)
 unit = 0.017
 
@@ -1399,9 +1399,9 @@ gtf = tbox(s, Inches(8.15), Emu(int(top140) + int(Inches(0.04))),
 para(gtf, "+40% hidden value", 12, HILITE, first=True, bold=True,
      align=PP_ALIGN.LEFT, after=0)
 para(tbox(s, Inches(0.7), Inches(6.45), Inches(12.0), Inches(0.5)),
-     "We remove the drag and refocus capital on the core — positive selection on "
-     "a concealed asset, not negative selection on a lemon.", 13, SLATE,
-     first=True, italic=True, after=0)
+     "The +40% is pure earnings and mix — the same multiple on a cleaner, "
+     "higher-ROIIC core. Any re-rating is upside we underwrite at zero.", 13,
+     SLATE, first=True, italic=True, after=0)
 
 # ---- II.3c How Athanase differs: quality-core constructivism vs Elliott ----
 s, top = content("Investment Strategy",
@@ -1472,8 +1472,8 @@ s, top = content("Investment Strategy",
 rows = [
     ("Metric", "Private Equity (take-private)", "Athanase (engaged owner)"),
     ("Entry basis", "$140  (market + 40% premium)", "$100  (exhaustion price)"),
-    ("Holding period", "5 years", "3 years (rerating cycle)"),
-    ("Value growth required", "+148% total growth", "+73% total growth"),
+    ("Holding period", "5 years", "3 years (earnings inflection)"),
+    ("Earnings growth required", "+148% total growth", "+73% total growth"),
     ("Operational success needed", "~85–100% of thesis", "~45–55% of thesis"),
 ]
 tbl_l = Inches(0.75); tbl_t = top; col_w = [Inches(4.0), Inches(4.0), Inches(3.85)]
@@ -1997,12 +1997,13 @@ para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.62),
 # ---- II.5b Strategic reframing: the discomfort is the moat ----
 s, top = content("Strategic Case", "The visible risks are the engine — not the cost",
                  "From “corporate raider” to “industrial constructivist”: "
-                 "reputational friction and the public J-curve source the alpha "
-                 "and protect it from arbitrage.")
+                 "reputational friction buys the control to compound earnings — "
+                 "and protects the edge from arbitrage.")
 checklist(s, [
-    ("Friction is the catalyst.", "Quiet engagement does not reprice a stock; "
-     "public engagement forces the market to re-rate — and a 20-year reputation "
-     "pulls sophisticated capital in behind us (the coattail effect)."),
+    ("Friction buys control, not a re-rating.", "Public engagement is how we win "
+     "board seats and the mandate to act — the return then comes from compounding "
+     "earnings and rising ROIC under that control, never from persuading the "
+     "market to pay a higher multiple."),
     ("The discomfort is the moat.", "Few managers have the industrial background "
      "and stamina to wage a multi-year campaign — so headline-shy capital leaves "
      "a persistent pricing inefficiency for those who will."),
@@ -2016,12 +2017,48 @@ checklist(s, [
      "allocation — the discipline behind a 92% deal-level hit rate over 20 years."),
 ], top, size=14.5, gap=11)
 
+# ---- II.5b2 Returns come from earnings, not re-rating ----
+s, top = content("Strategic Case",
+                 "Earnings compound the value — re-rating is upside we don’t need",
+                 "Historically the returns came from a better business, not a "
+                 "higher multiple — and board control lets us realise them without "
+                 "waiting for the market.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.3))
+para(colL, "THE ENGINE IS EARNINGS, NOT THE MULTIPLE", 12.5, SLATE, first=True,
+     bold=True, after=8)
+for t in ["The 20-year record was driven by earnings, ROIC and ROIIC "
+          "improvement — not by paying-up multiple expansion.",
+          "Every deal is underwritten to a constant exit multiple; a re-rating is "
+          "modelled at zero and treated as optional upside.",
+          "As quality rises a higher multiple is often warranted — but the return "
+          "never depends on the market granting it."]:
+    para(colL, t, 13.5, BODY, after=11, lead=1.16)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.3))
+para(colR, "WE DON’T NEED THE MARKET TO BANK IT", 12.5, SLATE, first=True,
+     bold=True, after=8)
+for t in ["Board control returns cash directly — special dividends, buybacks and "
+          "the sale of non-core divisions — without selling a share.",
+          "Concentrated stakes are realised through corporate transactions — "
+          "trade sale, strategic buyer, take-private — that clear the whole block "
+          "at fair value, not into thin daily liquidity.",
+          "If the market never re-rates, intrinsic value keeps compounding and we "
+          "keep owning a better business — with no fund clock or capital calls, "
+          "we are never a forced seller."]:
+    para(colR, t, 13.5, BODY, after=11, lead=1.16)
+rect(s, Inches(0.6), Inches(6.42), Inches(12.13), Inches(0.62), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.42), Inches(11.7), Inches(0.62),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "A flat share price is not a failed investment: the earnings keep "
+     "compounding, the discount to intrinsic value widens, and the eventual "
+     "buyer pays for the value we built.", 13, WHITE, first=True, italic=True,
+     after=0, track=0)
+
 # ---- II.5c The non-linear path, honestly priced ----
 _f3 = fig()
 s, top = content("Strategic Case", "A non-linear path — honestly priced",
                  "Public engaged ownership marks to market every day. The "
-                 "destination is the multiple; the route is rarely a straight "
-                 "line.", ref=_f3)
+                 "destination is compounding intrinsic value; the route is rarely "
+                 "a straight line.", ref=_f3)
 # explanatory bullets (left)
 checklist(s, [
     ("Value moves over the holding period.", "A 5× outcome is realised over "
@@ -2075,7 +2112,8 @@ s, top = content("Strategic Case", "Risk reframing for the investment committee"
 rows = [
     ("What the IC sees", "What it is actually underwriting"),
     ("Reputational / headline risk",
-     "The catalyst that forces repricing — and a moat that keeps competitors out"),
+     "The catalyst that wins control to drive the operational turn — and a moat "
+     "that keeps competitors out"),
     ("Public J-curve & mark-to-market drawdown",
      "A live, tradable entry into an asset already de-risked by board control"),
     ("~50% peak-to-trough swings",
