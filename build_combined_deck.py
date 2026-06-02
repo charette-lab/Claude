@@ -1946,8 +1946,8 @@ for t in ["We have never needed a public fight to win a board seat — and will 
           "Once we hold a position, if the board obstructs we replace the board "
           "and management — through the shareholder-led committee, not a proxy "
           "war.",
-          "In every case where that has been required, we secured the change — a "
-          "100% record."]:
+          "In every case where that has been required, we have secured the "
+          "change."]:
     para(colR, t, 12.5, BODY, after=9, lead=1.14)
 rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
 para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
