@@ -2311,6 +2311,43 @@ checklist(s, [
      "allocation — the discipline behind a 92% deal-level hit rate over 20 years."),
 ], top, size=14.5, gap=11)
 
+# ---- II.5b1b Restructuring, honestly — and the headline question -----------
+s, top = content("Strategic Case",
+                 "Restructuring, honestly — and the headline question",
+                 "Operational change is not always bloodless. Here is what we "
+                 "actually do — and why the headline risk is smaller, not larger, "
+                 "than with a brand-name activist.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.3))
+para(colL, "WHAT WE ACTUALLY DO", 12.5, SLATE, first=True, bold=True, after=8)
+for t in ["We reallocate capital to grow the winning core — not asset-strip for "
+          "financial engineering (the raider / PE model we explicitly reject).",
+          "The fix is usually redirecting investment and management focus; where "
+          "cost must come out, it is to save and grow a viable business, not to "
+          "dress it for a quick sale.",
+          "It is done by agreement with the board and management — constructive, "
+          "not imposed; we would rather walk away than fight.",
+          "We don’t claim it is costless: change can affect jobs and sites, and "
+          "we own that honestly."]:
+    para(colL, t, 12.5, BODY, after=9, lead=1.14)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.3))
+para(colR, "THE HEADLINE QUESTION", 12.5, SLATE, first=True, bold=True, after=8)
+for t in ["Adversarial, brand-name activists generate far more press — proxy "
+          "fights and public campaigns are their tool, and their main event.",
+          "We engage privately and by agreement, so there is rarely a public "
+          "“battle” to report in the first place.",
+          "A global brand attracts scrutiny; it does not deflect it — the biggest "
+          "names draw the most coverage.",
+          "And as a small, reversible, daily-priced sleeve, the committee is "
+          "never locked into a position that turns uncomfortable in the press."]:
+    para(colR, t, 12.5, BODY, after=9, lead=1.14)
+rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "We grow good businesses, by agreement — and generate fewer headlines than "
+     "the brand names, not more. We don’t pretend change is painless; we make "
+     "sure it is constructive and reversible.", 12, WHITE, first=True,
+     italic=True, after=0, track=0)
+
 # ---- II.5b2 Returns come from earnings, not re-rating ----
 s, top = content("Strategic Case",
                  "Earnings compound the value — re-rating is upside we don’t need",
@@ -3077,6 +3114,52 @@ para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
      "Past performance is not indicative of future results.",
      7.5, FOOT, first=True, after=0, track=0, lead=1.1)
 
+
+# ---- II.6i2  A drawdown you can actually defend ----------------------------
+s, top = content("Portfolio Impact",
+                 "A drawdown you can actually defend",
+                 "The fear is defending a halved position in a live crisis review. "
+                 "The arithmetic — and the down-capture — make this the line item "
+                 "you point to with relief, not apology.")
+# left: the full-fund arithmetic card
+rect(s, Inches(0.6), top, Inches(5.85), Inches(4.25), fill=HEADERBG)
+rect(s, Inches(0.6), top, Inches(0.07), Inches(4.25), fill=NAVY)
+para(tbox(s, Inches(0.85), Emu(int(top) + int(Inches(0.18))), Inches(5.4), Inches(0.3)),
+     "THE FULL-FUND ARITHMETIC", 12, SLATE, first=True, bold=True, after=0)
+para(tbox(s, Inches(0.85), Emu(int(top) + int(Inches(0.6))), Inches(5.4), Inches(0.7)),
+     "≈ 1% of the fund", 30, NAVY_TX, first=True, bold=True, after=0, font=SERIF)
+para(tbox(s, Inches(0.85), Emu(int(top) + int(Inches(1.28))), Inches(5.4), Inches(0.4)),
+     "is what a 50% drawdown in a 2% sleeve costs at the total-fund level — "
+     "inside a normal month’s equity noise.", 12, BODY, first=True, after=0,
+     lead=1.16)
+para(tbox(s, Inches(0.85), Emu(int(top) + int(Inches(2.05))), Inches(5.4), Inches(0.4)),
+     "≈ 1.5% at a 3% sleeve — recoverable, and small.", 12, BODY, first=True,
+     after=0, lead=1.16)
+para(tbox(s, Inches(0.85), Emu(int(top) + int(Inches(2.7))), Inches(5.4), Inches(1.3)),
+     "Sized so that no single name — and no sleeve-wide drawdown — can move the "
+     "fund’s outcome. The position is liquid and daily-priced, so the committee "
+     "can exit at will: it is never locked in defending it.", 12, BODY,
+     first=True, after=0, lead=1.18)
+# right: why it cushions
+colR = tbox(s, Inches(6.9), top, Inches(5.95), Inches(4.25))
+para(colR, "WHY IT CUSHIONS, NOT AMPLIFIES", 12, SLATE, first=True, bold=True,
+     after=8)
+for t in ["At 43% down-capture, in a macro selloff the sleeve falls roughly half "
+          "as much as the equity book — it softens the crisis, it doesn’t add to "
+          "it.",
+          "Down months average ~1.5% versus the market’s ~3.8%.",
+          "Daily marks and zero capital calls — no forced selling of good assets "
+          "at the bottom (the denominator effect that traps PE allocators).",
+          "The two ~50% episodes were idiosyncratic and fully recovered (2010, "
+          "2020); Sortino 2.40."]:
+    para(colR, t, 12.5, BODY, after=10, lead=1.16)
+rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "A 50% drawdown on a small, liquid, low-down-capture sleeve is a ~1% fund "
+     "event you can exit at will — not a career-defining hole you are locked "
+     "into. The PE alternative is also down ~50%, but invisible and illiquid.",
+     11.5, WHITE, first=True, italic=True, after=0, track=0)
 
 # ---- II.6j  Efficient frontier ---------------------------------------------
 def _ann_b(xs):
@@ -4250,17 +4333,18 @@ para(_md, "Private-equity figures are taken from the cited research. "
 def _toc_col(col_x, col_w, header, entries, groups=None):
     """entries: list of (num, title, ref). groups: optional dict mapping the
     leading sub-section index (str) -> sub-section name, inserted as headers."""
-    t0 = Emu(int(agenda_top) - int(Inches(0.2)))
+    t0 = Emu(int(agenda_top) - int(Inches(0.32)))
     htf = tbox(agenda_s, col_x, t0, col_w, Inches(0.4))
     para(htf, header, 14, SLATE, first=True, bold=True, after=0, font=SERIF)
-    ytf = tbox(agenda_s, col_x, Emu(int(t0) + int(Inches(0.4))),
-               col_w, Inches(5.3))
+    ytf = tbox(agenda_s, col_x, Emu(int(t0) + int(Inches(0.38))),
+               col_w, Inches(5.6))
     n_lines = len(entries) + (len(groups) if groups else 0)
+    very_dense = n_lines > 42
     dense = n_lines > 30
     long_col = len(entries) > 14
-    fs = 8.0 if dense else (10 if long_col else 11.5)
-    sa = 0.6 if dense else (3 if long_col else 7)
-    lh = 1.0 if dense else 1.02
+    fs = 7.0 if very_dense else (8.0 if dense else (10 if long_col else 11.5))
+    sa = 0.3 if very_dense else (0.6 if dense else (3 if long_col else 7))
+    lh = 0.95 if very_dense else (1.0 if dense else 1.02)
     first = True
     seen = set()
     for num, title, ref in entries:
@@ -4271,8 +4355,10 @@ def _toc_col(col_x, col_w, header, entries, groups=None):
                 seen.add(gkey)
                 p = ytf.paragraphs[0] if first else ytf.add_paragraph()
                 first = False
-                p.space_before = Pt(0 if len(seen) == 1 else (1.5 if dense else 5))
-                p.space_after = Pt(1 if dense else 2.5); p.line_spacing = 1.0
+                p.space_before = Pt(0 if len(seen) == 1
+                                    else (0.5 if very_dense else (1.5 if dense else 5)))
+                p.space_after = Pt(0.5 if very_dense else (1 if dense else 2.5))
+                p.line_spacing = 1.0
                 gr = p.add_run()
                 gr.text = f"{gkey}   {groups.get(gkey, '')}"
                 gr.font.size = Pt(fs + 0.5); gr.font.bold = True
