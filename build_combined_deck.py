@@ -1853,6 +1853,55 @@ def _step_row(s, y, h, num, name, body):
     para(bt, body, 10.5, BODY, first=True, after=0, lead=1.16, track=0)
 
 
+# ---- How we invest 1b: DUE DILIGENCE — COMPETITIVE-POSITION DURABILITY ------
+s, top = content("How we invest · Due diligence",
+                 "Due diligence: is the competitive position durable?",
+                 "Every diligence has one goal — the sustainability of the moat. "
+                 "We build the view from proprietary data, then field-test it with "
+                 "everyone who knows the company.")
+dd_layers = [
+    ("LAYER 1", "Economic reality",
+     "From our proprietary database of ~60,000 companies, we restate accounting "
+     "numbers into economic reality — separating the true performance of the "
+     "profitable core from management’s newer strategic pivot, the part "
+     "destroying value."),
+    ("LAYER 2", "Moat & CEO scoring",
+     "The database carries our own moat scores on ~20,000 companies, paired with "
+     "our CEO evaluation — a quantified first read on durability and on the "
+     "people running it."),
+    ("LAYER 3", "Field-tested",
+     "We then interview customers (quality, product ROI, competitive position), "
+     "competitors, suppliers, former employees and former directors — to a "
+     "structured question set built over 20 years, including what our own "
+     "mistakes taught us."),
+    ("LAYER 4", "The incumbents, last",
+     "Only then do we hear how current management and the board see the company — "
+     "testing their view against the evidence we have already built, not the "
+     "other way round."),
+]
+bh = Inches(0.82); gap = Inches(0.12); y = top
+for eyebrow, title, body in dd_layers:
+    rect(s, Inches(0.6), y, Inches(3.3), bh, fill=NAVY)
+    lt = tbox(s, Inches(0.78), y, Inches(3.0), bh, anchor=MSO_ANCHOR.MIDDLE)
+    para(lt, eyebrow, 9, DIVIDER, first=True, bold=True, after=2, track=0)
+    para(lt, title, 13, WHITE, bold=True, after=0, font=SERIF, track=0, lead=1.04)
+    bt = tbox(s, Inches(4.1), y, Inches(8.63), bh, anchor=MSO_ANCHOR.MIDDLE)
+    para(bt, body, 11, BODY, first=True, after=0, lead=1.14, track=0)
+    y = Emu(int(y) + int(bh) + int(gap))
+yb = Emu(int(y) + int(Inches(0.04)))
+rect(s, Inches(0.6), yb, Inches(12.13), Inches(0.82), fill=HEADERBG)
+rect(s, Inches(0.6), yb, Inches(0.07), Inches(0.82), fill=NAVY)
+para(tbox(s, Inches(0.85), Emu(int(yb) + int(Inches(0.1))), Inches(11.6),
+          Inches(0.3)), "WHERE WE HUNT", 11, NAVY, first=True, bold=True,
+     after=3, track=0)
+para(tbox(s, Inches(0.85), Emu(int(yb) + int(Inches(0.38))), Inches(11.7),
+          Inches(0.4)),
+     "Slow-innovation industries where the future is predictable and market "
+     "share has not shifted more than ~2% in five years — so our read on the "
+     "competitive position is as certain as it can be.", 11, BODY, first=True,
+     after=0, lead=1.12)
+
+
 # ---- How we invest 2: RESEARCH (steps 1-4) ---------------------------------
 s, top = content("How we invest · Research",
                  "Research & due diligence: four analytical steps")
