@@ -2547,11 +2547,12 @@ for yy, hh_, ld, bs, ldr, bd in [
      "ownership it dilutes the board control that actually de-risks the asset."),
     (3.11, 1.28, 12.5, 10.5,
      "The churn tax — measured, not asserted.",
-     "Peer-reviewed estimates put the direct cost of a single activist campaign "
-     "at ~$10.7m (Gantchev, 2013), and the target re-rates ~7% around the 13D "
-     "disclosure (Brav et al., 2008) — so every fresh campaign re-incurs "
-     "underwriting and market impact that a high-cadence book pays each turn, "
-     "while a long holder amortises it over years."),
+     "Each campaign carries a large fixed cost — ~$10.7m on average (Gantchev, "
+     "2013) — recovered only by holding through the operating turnaround, where "
+     "the value is actually made: activist targets keep improving operationally "
+     "for years after intervention (Bebchuk, Brav & Jiang, 2015). A high-cadence "
+     "book re-pays that cost every turn and exits before the change compounds; "
+     "we hold until it does."),
     (4.39, 0.74, 12.5, 11,
      "Forced deployment lowers the bar.",
      "A high-velocity machine must keep buying — pushing managers to thinner "
@@ -2565,8 +2566,8 @@ for yy, hh_, ld, bs, ldr, bd in [
     para(tf, ldr, ld, SLATE, first=True, bold=True, after=3, lead=1.04)
     para(tf, bd, bs, BODY, after=0, lead=1.12)
 para(tbox(s, rx, Inches(5.82), rw, Inches(0.2)),
-     "Sources: Gantchev (2013), JFE; Brav et al. (2008), J. Finance — "
-     "population averages.", 7.5, FOOT, first=True, italic=True, after=0)
+     "Sources: Gantchev (2013), JFE; Bebchuk, Brav & Jiang (2015), Columbia Law "
+     "Review.", 7.5, FOOT, first=True, italic=True, after=0)
 # bottom — anchored to our own record
 rect(s, Inches(0.6), Inches(6.04), Inches(12.13), Inches(0.95), fill=NAVY)
 bnd = tbox(s, Inches(0.85), Inches(6.04), Inches(11.65), Inches(0.95),
