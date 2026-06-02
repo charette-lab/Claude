@@ -711,6 +711,52 @@ para(tbox(s, Inches(0.6), Inches(7.12), Inches(12.1), Inches(0.34)),
      first=True, after=0, lead=1.05)
 
 
+# ---- I.0d Transition: from passive risk to active opportunity -------------
+s, top = content("Market Context",
+                 "From passive risk to active opportunity",
+                 "An expensive, concentrated, passive-dominated market is "
+                 "exactly the environment active management is built for — but "
+                 "the durable edge is ownership, not stock-picking.")
+steps = [
+    ("The setup", "Expensive equities, record index concentration, and "
+     "price-insensitive passive flows that inflate the most crowded names."),
+    ("Why active now", "Wider mispricing and dispersion; valuation discipline "
+     "is rewarded again. The “active underperforms” critique is cyclical — and "
+     "weakest in exactly this market."),
+    ("A better kind of active", "But stock-picking still mostly buys beta with "
+     "tracking error and fees. The durable edge is active ownership — buying "
+     "mispriced businesses and changing the outcome."),
+]
+cw = Inches(3.7); cgap = Inches(0.45); cx = Inches(0.6)
+hh = Inches(0.52); bodyH = Inches(2.7)
+ends = []
+for i, (ti, bd) in enumerate(steps):
+    rect(s, cx, top, cw, hh, fill=NAVY)
+    para(tbox(s, cx, top, cw, hh, anchor=MSO_ANCHOR.MIDDLE), f"{i + 1} · {ti}",
+         13.5, WHITE, first=True, bold=True, align=PP_ALIGN.CENTER, after=0,
+         font=SERIF, track=0)
+    by = Emu(int(top) + int(hh))
+    rect(s, cx, by, cw, bodyH, fill=HEADERBG)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.22))),
+              Emu(int(by) + int(Inches(0.2))),
+              Emu(int(cw) - int(Inches(0.44))),
+              Emu(int(bodyH) - int(Inches(0.3)))),
+         bd, 13, BODY, first=True, after=0, lead=1.2, track=0)
+    ends.append(Emu(int(cx) + int(cw)))
+    cx = Emu(int(cx) + int(cw) + int(cgap))
+ay = Emu(int(top) + int(Inches(1.25)))
+for k in range(len(steps) - 1):
+    para(tbox(s, ends[k], ay, cgap, Inches(0.6), anchor=MSO_ANCHOR.MIDDLE),
+         "→", 26, SLATE_LT, first=True, bold=True, align=PP_ALIGN.CENTER,
+         after=0, track=0)
+rect(s, Inches(0.6), Inches(6.32), Inches(12.13), Inches(0.62), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.62),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "When the index is the crowded, expensive, fragile trade, the answer is "
+     "not to pick stocks and hope — it is to own undervalued businesses and "
+     "make them better. That is engaged ownership.", 13, WHITE, first=True,
+     italic=True, after=0, track=0)
+
 # ---- I.1 Return & alpha ----
 s, top = content("The Proposition",
                  "A catalyst-driven source of return",
@@ -3546,7 +3592,7 @@ def _toc_col(col_x, col_w, header, entries, groups=None):
                col_w, Inches(5.3))
     n_lines = len(entries) + (len(groups) if groups else 0)
     dense = n_lines > 30
-    long_col = len(entries) > 12
+    long_col = len(entries) > 13
     fs = 8.0 if dense else (10 if long_col else 11.5)
     sa = 0.6 if dense else (3 if long_col else 7)
     lh = 1.0 if dense else 1.02
