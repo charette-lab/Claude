@@ -1348,8 +1348,9 @@ for t in ["Core & satellite: a 30-stock equal-weighted index compounds all "
           "≤20% probability of a 30% drawdown before funding.",
           "Eleven standardised risk tags cap any single macro/business factor "
           "at ~20% of the concentrated book.",
-          "Hard triggers at −10% / −20% / −30% force thesis review and exit — "
-          "removing emotion and PM bias."]:
+          "Hard triggers at −10% / −20% / −30% force a mandatory re-underwrite — "
+          "and an exit where the thesis is broken — removing emotion and PM "
+          "bias."]:
     para(tbox(s, Inches(7.1), gy3, Inches(5.65), Inches(0.9)),
          t, 12, BODY, first=True, after=0, lead=1.16, track=0)
     gy3 = Emu(int(gy3) + int(Inches(0.92)))
@@ -2062,8 +2063,8 @@ for t in ["Secure board seats and chairmanships as a prerequisite — not "
           "proxy threats",
           "Mandated rectification: freeze prestige projects the moment the macro "
           "shifts",
-          "Automatic risk metrics (10/20/30% triggers) remove portfolio-manager "
-          "bias"]:
+          "Automatic −10/−20/−30% triggers force a mandatory re-underwrite — "
+          "removing portfolio-manager bias"]:
     para(colR, t, 14, BODY, after=9, lead=1.12)
 # core & satellite line
 para(tbox(s, Inches(0.75), Inches(6.35), Inches(11.8), Inches(0.6)),
@@ -2102,8 +2103,9 @@ rr_rows = [
      "underwrote."),
     ("Behavioural “hold-the-loser” risk",
      "Conviction curdles into denial; managers average down on emotion.",
-     "Automatic −10 / −20 / −30% triggers force a thesis review and exit — "
-     "bias removed."),
+     "Automatic −10/−20/−30% triggers force a mandatory re-underwrite — exit a "
+     "broken thesis; control stakes are realised through the board, not a "
+     "forced sale."),
 ]
 rtl = Inches(0.6); rcw = [Inches(3.05), Inches(4.45), Inches(4.6)]
 ry = top
@@ -2224,9 +2226,10 @@ for t in ["The deal lead and investment team re-underwrite each name and "
 rect(s, Inches(0.6), Inches(6.32), Inches(12.13), Inches(0.62), fill=NAVY)
 para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.62),
           anchor=MSO_ANCHOR.MIDDLE),
-     "And a hard backstop: automatic −10% / −20% / −30% triggers force a thesis "
-     "review and exit — so no position can spiral on portfolio-manager "
-     "emotion.", 13, WHITE, first=True, italic=True, after=0, track=0)
+     "And a hard backstop: automatic −10% / −20% / −30% triggers force a "
+     "mandatory re-underwrite — and an exit where the thesis is broken — so no "
+     "position spirals on portfolio-manager emotion.", 13, WHITE, first=True,
+     italic=True, after=0, track=0)
 
 # ---- II.5b Strategic reframing: the discomfort is the moat ----
 s, top = content("Strategic Case", "The visible risks are the engine — not the cost",
@@ -2407,8 +2410,9 @@ anx = [
     ("Concentration", "Floored by hardened guardrails", [
         ("A valuation floor", "every idea clears a tollgate where the core "
          "alone justifies the price: a structural 30–40% margin of safety."),
-        ("Mechanized triggers", "automatic −10% / −20% / −30% force a thesis "
-         "review and exit — removing PM emotion before a position spirals."),
+        ("Mechanized triggers", "automatic −10% / −20% / −30% force a mandatory "
+         "re-underwrite — and an exit where the thesis is broken — removing PM "
+         "emotion."),
         ("A core-and-satellite buffer", "8–12 conviction ideas sit on a "
          "30-stock equal-weighted core that absorbs idiosyncratic shocks.")]),
 ]
@@ -3653,8 +3657,8 @@ data = [
     ("“Duration ties up our risk budget.”", "Concern: comp-cycle mismatch", [
         ("Down months ~1.5% vs the market’s ~3.8%", "immediate downside "
          "preservation, this year."),
-        ("−10% / −20% / −30% hard triggers", "cap drawdowns before they spiral "
-         "and remove PM bias."),
+        ("−10% / −20% / −30% hard triggers", "force a re-underwrite and exit a "
+         "broken thesis — capping drawdowns and removing PM bias."),
         ("Worst-ever entry still +7% net", "a statistical safety blanket over "
          "the holding period.")]),
 ]
@@ -3738,8 +3742,8 @@ quads = [
          "authority to freeze bad capital deployment the moment the macro "
          "shifts."),
         ("Mechanized discipline",
-         "automatic −10% / −20% / −30% triggers force a thesis review and "
-         "exit.")]),
+         "automatic −10% / −20% / −30% triggers force a re-underwrite and exit "
+         "a broken thesis.")]),
     ("4 · The proof — two decades of compounding", [
         ("16.3% net p.a.; capital grown 18×",
          "across multiple market cycles."),
