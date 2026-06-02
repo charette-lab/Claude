@@ -556,10 +556,10 @@ for t in ["The zero-rate, disinflationary backdrop that lifted every asset for "
 rect(s, Inches(0.6), Inches(6.32), Inches(12.13), Inches(0.6), fill=NAVY)
 para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.6),
           anchor=MSO_ANCHOR.MIDDLE),
-     "When beta is priced for perfection and the macro tailwind has reversed, "
-     "index returns are set to be lower and riskier — the moment idiosyncratic, "
-     "valuation-disciplined returns matter most.", 13, WHITE, first=True,
-     italic=True, after=0)
+     "Whether or not AI-driven productivity lifts returns, beta is priced for "
+     "perfection and the easy tailwind has shifted — so idiosyncratic, "
+     "valuation-disciplined returns matter more, not less.", 13, WHITE,
+     first=True, italic=True, after=0)
 para(tbox(s, Inches(0.6), Inches(7.12), Inches(8.0), Inches(0.36)),
      "Illustrative, recent data (2024–25); sources: R. Shiller (Yale) CAPE; "
      "S&P Dow Jones Indices; consensus forward earnings. Valuations move — the "
@@ -715,17 +715,19 @@ para(tbox(s, Inches(0.6), Inches(7.12), Inches(12.1), Inches(0.34)),
 s, top = content("Market Context",
                  "From passive risk to active opportunity",
                  "An expensive, concentrated, passive-dominated market is "
-                 "exactly the environment active management is built for — but "
-                 "the durable edge is ownership, not stock-picking.")
+                 "exactly the environment active management is built for — and as "
+                 "analysis itself commoditises, the most durable edge is "
+                 "ownership, not stock-picking.")
 steps = [
     ("The setup", "Expensive equities, record index concentration, and "
      "price-insensitive passive flows that inflate the most crowded names."),
     ("Why active now", "Wider mispricing and dispersion; valuation discipline "
      "is rewarded again. The “active underperforms” critique is cyclical — and "
      "weakest in exactly this market."),
-    ("A better kind of active", "But stock-picking still mostly buys beta with "
-     "tracking error and fees. The durable edge is active ownership — buying "
-     "mispriced businesses and changing the outcome."),
+    ("A better kind of active", "Other genuine edges exist — quant and "
+     "specialist alpha — but they compete on analysing the same public data, "
+     "which is what commoditises fastest. The most durable edge is ownership: "
+     "buying mispriced businesses and changing the outcome."),
 ]
 cw = Inches(3.7); cgap = Inches(0.45); cx = Inches(0.6)
 hh = Inches(0.52); bodyH = Inches(2.7)
@@ -2066,9 +2068,10 @@ para(colR, "THE DISCIPLINE — AND THE BACKSTOP", 12.5, SLATE, first=True,
      bold=True, after=8)
 for t in ["We have never needed a public fight to win a board seat — and will "
           "not stake a 20-year reputation on one.",
-          "If alignment can’t be reached, we walk away. That is cheaper than "
-          "being wrong: no capital committed, no reputational toll, no protracted "
-          "defense.",
+          "If alignment can’t be reached, we walk away — and the sequencing "
+          "makes that easy: we secure agreement before the larger commitment, so "
+          "little is ever sunk at the decision point. The gates enforce it, not "
+          "willpower.",
           "Once we hold a position, if the board obstructs we replace the board "
           "and management — through the shareholder-led committee, not a proxy "
           "war.",
@@ -2464,7 +2467,10 @@ for t in ["The 20-year record was driven by earnings, ROIC and ROIIC "
           "Every deal is underwritten to a constant exit multiple; a re-rating is "
           "modelled at zero and treated as optional upside.",
           "As quality rises a higher multiple is often warranted — but the return "
-          "never depends on the market granting it."]:
+          "never depends on the market granting it.",
+          "And if the industry degrades, even a constant multiple isn’t "
+          "guaranteed — so the entry floor, bought at exhaustion below the core’s "
+          "value, is what carries the downside."]:
     para(colL, t, 13.5, BODY, after=11, lead=1.16)
 colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.3))
 para(colR, "WE DON’T NEED THE MARKET TO BANK IT", 12.5, SLATE, first=True,
