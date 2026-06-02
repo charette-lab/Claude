@@ -670,25 +670,37 @@ s, top = content("Market Context",
                  "The headline expense ratio is the smallest part of the cost — "
                  "and you pay full price to own concentration and rich "
                  "valuations.")
-colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.0))
-para(colL, "THE COSTS YOU DON’T SEE", 13, SLATE, first=True, bold=True, after=8)
-for t in ["Bid-ask spreads and market impact on every trade — and on every "
-          "index rebalance.",
-          "Index reconstitution forces buying additions high and selling "
-          "deletions low, in size, on known dates.",
-          "Premium/discount to NAV, securities-lending give-up and tax drag all "
-          "sit on top of the headline fee."]:
-    para(colL, t, 13.5, BODY, after=10, lead=1.16)
-colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.0))
-para(colR, "THE COST THAT MATTERS MOST", 13, SLATE, first=True, bold=True,
-     after=8)
-for t in ["A 3–9 bp fee looks cheap — but it buys the most expensive companies "
-          "at peak weights, with no valuation discipline.",
-          "No one is improving the underlying businesses; you simply own "
-          "crowded beta at full price.",
+ccards = [("3–9 bps", "the headline fee —\nall you are quoted"),
+          ("20–80 bps", "a year, from index\nreconstitution alone*"),
+          ("$1–2 bn", "a year transferred to\narbitrageurs**")]
+bw = Inches(3.9); gpx = Inches(0.2); cx = Inches(0.75)
+for big, lab in ccards:
+    rect(s, cx, top, bw, Inches(1.4), fill=HEADERBG)
+    rect(s, cx, top, bw, Inches(0.06), fill=NAVY)
+    ctf = tbox(s, cx, Emu(int(top) + int(Inches(0.2))), bw, Inches(1.12))
+    para(ctf, big, 29, NAVY_TX, first=True, align=PP_ALIGN.CENTER, after=3,
+         font=SERIF)
+    for line in lab.split("\n"):
+        para(ctf, line, 11.5, SUBTLE, align=PP_ALIGN.CENTER, after=0)
+    cx = Emu(int(cx) + int(bw) + int(gpx))
+yb = Emu(int(top) + int(Inches(1.64)))
+colL = tbox(s, Inches(0.75), yb, Inches(5.85), Inches(2.6))
+para(colL, "THE COSTS YOU DON’T SEE", 12.5, SLATE, first=True, bold=True,
+     after=7)
+for t in ["Index reconstitution forces funds to buy additions high and sell "
+          "deletions low, on predictable dates — the ~20–80 bps above "
+          "(Petajisto, 2011).",
+          "Bid-ask spreads, market impact, premium/discount to NAV and tax drag "
+          "all sit on top of the headline fee."]:
+    para(colL, t, 12.5, BODY, after=8, lead=1.15)
+colR = tbox(s, Inches(7.0), yb, Inches(5.85), Inches(2.6))
+para(colR, "THE COST THAT MATTERS MOST", 12.5, SLATE, first=True, bold=True,
+     after=7)
+for t in ["You buy the most expensive companies at peak weights — no valuation "
+          "discipline, and no one improving the businesses.",
           "“Cheap” fees on an expensive, concentrated portfolio are a false "
-          "economy — the price you pay is the risk you take."]:
-    para(colR, t, 13.5, BODY, after=10, lead=1.16)
+          "economy: the price you pay is the risk you take."]:
+    para(colR, t, 12.5, BODY, after=8, lead=1.15)
 rect(s, Inches(0.6), Inches(6.32), Inches(12.13), Inches(0.6), fill=NAVY)
 para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.6),
           anchor=MSO_ANCHOR.MIDDLE),
@@ -696,10 +708,11 @@ para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.6),
      "concentration risk — precisely why a valuation-disciplined, idiosyncratic "
      "return engine earns its place.", 13, WHITE, first=True, italic=True,
      after=0)
-para(tbox(s, Inches(0.6), Inches(7.12), Inches(8.6), Inches(0.36)),
-     "Large S&P 500 ETF expense ratios are ~3–9 bps; total cost of ownership is "
-     "higher once spreads, market impact, rebalancing and tax are included.",
-     7.5, FOOT, first=True, after=0, lead=1.05)
+para(tbox(s, Inches(0.6), Inches(7.06), Inches(8.7), Inches(0.4)),
+     "*Reconstitution cost, lower bound: ~21–28 bps/yr S&P 500, ~38–77 bps/yr "
+     "Russell 2000 (Petajisto, 2011). **Combined index-fund losses to arbitrage "
+     "(Chen, Noronha & Singal, 2006). See references.", 7.5, FOOT, first=True,
+     after=0, lead=1.05)
 
 
 # ---- I.1 Return & alpha ----
@@ -3388,13 +3401,17 @@ _refs(r1, Inches(0.6), Inches(2.12), Inches(6.0), [
 ])
 _refhead(r1, Inches(0.6), Inches(4.28), Inches(6.0),
          "PASSIVE INVESTING & MARKET STRUCTURE (PART I)")
-_refs(r1, Inches(0.6), Inches(4.62), Inches(6.0), [
+_refs(r1, Inches(0.6), Inches(4.55), Inches(6.0), [
     [("Ben-David, I., Franzoni, F., & Moussawi, R. (2018). Do ETFs increase "
       "volatility? ", False), ("The Journal of Finance, 73", True),
      ("(6), 2471–2535. https://doi.org/10.1111/jofi.12727", False)],
     [("Bond, P., & García, D. (2022). The equilibrium consequences of "
       "indexing. ", False), ("The Review of Financial Studies, 35", True),
      ("(7), 3175–3230.", False)],
+    [("Chen, H., Noronha, G., & Singal, V. (2006). Index changes and losses to "
+      "index fund investors. ", False),
+     ("Financial Analysts Journal, 62", True),
+     ("(4), 31–47. https://doi.org/10.2469/faj.v62.n4.4185", False)],
     [("Chinco, A., & Sammon, M. (2024). The passive-ownership share is double "
       "what you think. ", False), ("SSRN Electronic Journal", True),
      (".", False)],
@@ -3402,10 +3419,13 @@ _refs(r1, Inches(0.6), Inches(4.62), Inches(6.0), [
       "financial fluctuations: The inelastic markets hypothesis. ", False),
      ("NBER Working Paper No. 28967", True),
      (". https://doi.org/10.3386/w28967", False)],
+    [("Petajisto, A. (2011). The index premium and its hidden cost for index "
+      "funds. ", False), ("Journal of Empirical Finance, 18", True),
+     ("(2), 271–288. https://doi.org/10.1016/j.jempfin.2010.10.002", False)],
     [("Wurgler, J. (2011). On the economic consequences of index-linked "
       "investing. ", False), ("NBER Working Paper No. 16376", True),
      (". https://doi.org/10.3386/w16376", False)],
-])
+], size=8.5)
 _refhead(r1, Inches(6.95), Inches(1.75), Inches(5.85),
          "PRIVATE EQUITY RISK & RETURN (PART II)")
 _refs(r1, Inches(6.95), Inches(2.12), Inches(5.85), [
