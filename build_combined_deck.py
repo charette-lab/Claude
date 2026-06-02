@@ -1811,9 +1811,9 @@ deal_table(s, Inches(6.95), top, HIST[half:], cwh, font=10,
 sy = top + Inches(3.55)
 rect(s, Inches(0.6), sy, Inches(11.05), Inches(0.34), fill=NAVY)
 stf = tbox(s, Inches(0.75), sy, Inches(10.7), Inches(0.34), anchor=MSO_ANCHOR.MIDDLE)
-para(stf, "21 deals   ·   weighted MOIC 2.6x   ·   average IRR 68%   ·   "
-     "index outperformance +25 pts (invested-weighted)", 10.5, WHITE, first=True,
-     after=0)
+para(stf, "21 deals  ·  weighted MOIC 2.6x  ·  capital-weighted IRR 38.4% "
+     "(+25 pts vs index)  ·  average IRR 67.7% (+53.5 pts)", 9.5, WHITE,
+     first=True, after=0)
 nt = tbox(s, Inches(0.6), Inches(6.95), Inches(11.8), Inches(0.4))
 para(nt, "Selected larger deals of the investment team. Losses shown in italic. "
      "Capital in SEK; ~$400M invested over the period.", 8.5, FOOT, first=True,
@@ -1849,8 +1849,9 @@ sy = Emu(int(max(int(endL), int(endR))) + int(Inches(0.14)))
 rect(s, Inches(0.6), sy, Inches(11.05), Inches(0.34), fill=NAVY)
 stf = tbox(s, Inches(0.75), sy, Inches(10.7), Inches(0.34),
            anchor=MSO_ANCHOR.MIDDLE)
-para(stf, "10 deals   ·   weighted MOIC 2.0x   ·   gross IRR 22%   ·   "
-     "+9.9% p.a. vs the SIX index", 10.5, WHITE, first=True, after=0)
+para(stf, "10 deals  ·  weighted MOIC 2.0x  ·  capital-weighted IRR 22% "
+     "(+9.9 pts vs index)  ·  average IRR 31.7% (+19.6 pts)", 9.5, WHITE,
+     first=True, after=0)
 nt = tbox(s, Inches(0.6), Emu(int(sy) + int(Inches(0.46))), Inches(11.8),
           Inches(0.4))
 para(nt, "Selected larger deals led by members of the current team from 1996, "
