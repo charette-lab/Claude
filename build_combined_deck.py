@@ -664,55 +664,51 @@ para(tbox(s, Inches(0.6), Inches(7.12), Inches(12.0), Inches(0.36)),
      7.5, FOOT, first=True, after=0, lead=1.05)
 
 
-# ---- I.0c "Cheap" passive is not cheap -------------------------------------
+# ---- I.0c Total cost of ownership (the full hidden-cost stack) -------------
 s, top = content("Market Context",
-                 "“Cheap” index exposure is not cheap",
-                 "The headline expense ratio is the smallest part of the cost — "
-                 "and you pay full price to own concentration and rich "
-                 "valuations.")
-ccards = [("3–9 bps", "the headline fee —\nall you are quoted"),
-          ("20–80 bps", "a year, from index\nreconstitution alone*"),
-          ("$1–2 bn", "a year transferred to\narbitrageurs**")]
-bw = Inches(3.9); gpx = Inches(0.2); cx = Inches(0.75)
-for big, lab in ccards:
-    rect(s, cx, top, bw, Inches(1.4), fill=HEADERBG)
-    rect(s, cx, top, bw, Inches(0.06), fill=NAVY)
-    ctf = tbox(s, cx, Emu(int(top) + int(Inches(0.2))), bw, Inches(1.12))
-    para(ctf, big, 29, NAVY_TX, first=True, align=PP_ALIGN.CENTER, after=3,
-         font=SERIF)
-    for line in lab.split("\n"):
-        para(ctf, line, 11.5, SUBTLE, align=PP_ALIGN.CENTER, after=0)
-    cx = Emu(int(cx) + int(bw) + int(gpx))
-yb = Emu(int(top) + int(Inches(1.64)))
-colL = tbox(s, Inches(0.75), yb, Inches(5.85), Inches(2.6))
-para(colL, "THE COSTS YOU DON’T SEE", 12.5, SLATE, first=True, bold=True,
-     after=7)
-for t in ["Index reconstitution forces funds to buy additions high and sell "
-          "deletions low, on predictable dates — the ~20–80 bps above "
-          "(Petajisto, 2011).",
-          "Bid-ask spreads, market impact, premium/discount to NAV and tax drag "
-          "all sit on top of the headline fee."]:
-    para(colL, t, 12.5, BODY, after=8, lead=1.15)
-colR = tbox(s, Inches(7.0), yb, Inches(5.85), Inches(2.6))
-para(colR, "THE COST THAT MATTERS MOST", 12.5, SLATE, first=True, bold=True,
-     after=7)
-for t in ["You buy the most expensive companies at peak weights — no valuation "
-          "discipline, and no one improving the businesses.",
-          "“Cheap” fees on an expensive, concentrated portfolio are a false "
-          "economy: the price you pay is the risk you take."]:
-    para(colR, t, 12.5, BODY, after=8, lead=1.15)
-rect(s, Inches(0.6), Inches(6.32), Inches(12.13), Inches(0.6), fill=NAVY)
-para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.6),
+                 "The total cost of ownership",
+                 "The quoted fee is the smallest, most visible layer — the real "
+                 "cost of owning the index is a multiple of it, and largely "
+                 "undisclosed.")
+para(tbox(s, Inches(0.7), top, Inches(5.85), Inches(0.3)),
+     "MEASURABLE ANNUAL DRAG", 12.5, SLATE, first=True, bold=True, after=0,
+     track=0)
+checklist(s, [
+    ("3–9 bps", "the headline expense ratio — all you are quoted."),
+    ("~20–80 bps/yr", "index reconstitution / front-running (Petajisto, 2011)."),
+    ("~30 bps+", "unrecovered foreign dividend-withholding tax on international "
+     "holdings — more for emerging markets."),
+    ("$1–2 bn/yr", "transferred to arbitrageurs at index changes (Chen, "
+     "Noronha & Singal, 2006)."),
+], Emu(int(top) + int(Inches(0.4))), left=Inches(0.7), width=Inches(5.85),
+   size=12, gap=10)
+para(tbox(s, Inches(7.0), top, Inches(5.85), Inches(0.3)),
+     "FURTHER, HARDER-TO-SEE COSTS", 12.5, SLATE, first=True, bold=True,
+     after=0, track=0)
+checklist(s, [
+    ("Tracking difference", "— funds lag the index by more than their fee."),
+    ("Bid-ask spread & market impact", "on every trade and every rebalance."),
+    ("Cash drag", "from the uninvested buffer, in rising markets."),
+    ("Premium / discount to NAV", "— widens exactly when you need to sell."),
+    ("Securities lending", "— revenue give-up and counterparty risk; it also "
+     "supplies short-sellers."),
+    ("Liquidity illusion / fire-sale risk", "in illiquid underlyings "
+     "(Ben-David et al., 2018)."),
+    ("Capital-gains overhang", "in index mutual funds."),
+], Emu(int(top) + int(Inches(0.4))), left=Inches(7.0), width=Inches(5.85),
+   size=10.5, gap=6)
+rect(s, Inches(0.6), Inches(6.32), Inches(12.13), Inches(0.62), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.62),
           anchor=MSO_ANCHOR.MIDDLE),
-     "The default “safe and cheap” choice now embeds maximum valuation and "
-     "concentration risk — precisely why a valuation-disciplined, idiosyncratic "
-     "return engine earns its place.", 13, WHITE, first=True, italic=True,
-     after=0)
-para(tbox(s, Inches(0.6), Inches(7.06), Inches(8.7), Inches(0.4)),
-     "*Reconstitution cost, lower bound: ~21–28 bps/yr S&P 500, ~38–77 bps/yr "
-     "Russell 2000 (Petajisto, 2011). **Combined index-fund losses to arbitrage "
-     "(Chen, Noronha & Singal, 2006). See references.", 7.5, FOOT, first=True,
-     after=0, lead=1.05)
+     "Quoted at a few basis points, the true cost runs into the tens — before "
+     "the biggest cost of all: paying peak prices for the most crowded "
+     "companies. That is what valuation-disciplined, idiosyncratic ownership is "
+     "paid to avoid.", 12.5, WHITE, first=True, italic=True, after=0, track=0)
+para(tbox(s, Inches(0.6), Inches(7.12), Inches(12.1), Inches(0.34)),
+     "Peer-reviewed: Petajisto (2011); Chen, Noronha & Singal (2006); Ben-David "
+     "et al. (2018). Withholding and other costs are structural/illustrative and "
+     "vary by fund, domicile and period. See references.", 7.5, FOOT,
+     first=True, after=0, lead=1.05)
 
 
 # ---- I.1 Return & alpha ----
