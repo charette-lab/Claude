@@ -994,10 +994,17 @@ for ri, row in enumerate(rows):
              bold=(head or ci == 0 or mid), first=True, after=0, lead=1.05)
         x = Emu(int(x) + int(cw3[ci]))
     y = Emu(int(y) + int(rh))
-para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.16))), Inches(12.2), Inches(0.5)),
+para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.14))), Inches(12.2), Inches(0.42)),
      "Mid-market companies are run well enough to be worth owning, yet small "
      "enough that an engaged owner can still change — and grow — them.",
      13, SLATE, first=True, italic=True, after=0)
+para(tbox(s, Inches(0.55), Emu(int(y) + int(Inches(0.66))), Inches(12.2), Inches(0.6)),
+     "And the opportunity set is deep and global: ~50,000 listed companies "
+     "worldwide (World Federation of Exchanges, 2024); the investable MSCI ACWI "
+     "IMI spans ~8,800 large-, mid- and small-cap names across 23 developed and "
+     "24 emerging markets — about 1,600 of them mid-caps (MSCI, 2024). Our "
+     "€50m–€3bn target band, in markets with a stable legal system, is a large "
+     "subset.", 9.5, FOOT, first=True, after=0, lead=1.16, track=0)
 
 # ---- I.6 Why mid-cap management listens ------------------------------------
 s, top = content("The Opportunity", "Why mid-cap management listens",
@@ -4145,6 +4152,9 @@ _refs(r2, Inches(0.6), Inches(2.12), Inches(6.0), [
     [("Morningstar. (2023). ", False),
      ("Volatility laundering: How private equity funds understate the risk of "
       "their investments.", True), (" Chicago: Morningstar, Inc.", False)],
+    [("MSCI. (2024). ", False),
+     ("MSCI ACWI IMI Index and MSCI ACWI Mid Cap Index — factsheets.", True),
+     (" New York: MSCI Inc.", False)],
     [("PIMCO. (2022). ", False),
      ("The discreet charm of private assets: De-smoothing and the true "
       "volatility of private equity.", True), (" Newport Beach: PIMCO.", False)],
@@ -4154,6 +4164,9 @@ _refs(r2, Inches(0.6), Inches(2.12), Inches(6.0), [
     [("Two Sigma Investments. (2024). ", False),
      ("The alternative truth of private equity (Venn by Two Sigma).", True),
      (" New York: Two Sigma.", False)],
+    [("World Federation of Exchanges. (2024). ", False),
+     ("WFE market statistics — number of listed companies.", True),
+     (" London: WFE.", False)],
 ], size=8.5)
 _refhead(r2, Inches(6.95), Inches(1.75), Inches(5.85), "DATA & METHODOLOGY")
 _md = tbox(r2, Inches(6.95), Inches(2.12), Inches(5.85), Inches(4.6))
