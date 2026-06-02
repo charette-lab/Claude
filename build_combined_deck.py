@@ -2289,17 +2289,18 @@ para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.62),
 
 # ---- II.5b Strategic reframing: the discomfort is the moat ----
 s, top = content("Strategic Case", "The visible risks are the engine — not the cost",
-                 "From “corporate raider” to “industrial constructivist”: "
-                 "reputational friction buys the control to compound earnings — "
-                 "and protects the edge from arbitrage.")
+                 "From “corporate raider” to “industrial constructivist”: the "
+                 "willingness to own publicly — and sit through a visible J-curve "
+                 "— is what competitors won’t, and what keeps the edge from being "
+                 "arbitraged away.")
 checklist(s, [
-    ("Friction buys control, not a re-rating.", "Public engagement is how we win "
-     "board seats and the mandate to act — the return then comes from compounding "
-     "earnings and rising ROIC under that control, never from persuading the "
-     "market to pay a higher multiple."),
-    ("The discomfort is the moat.", "Few managers have the industrial background "
-     "and stamina to wage a multi-year campaign — so headline-shy capital leaves "
-     "a persistent pricing inefficiency for those who will."),
+    ("Visibility, not confrontation.", "We win board seats by agreement — never a "
+     "proxy war, and we walk away rather than fight — so the return comes from "
+     "compounding earnings under that control, not from a public battle or a "
+     "market re-rating."),
+    ("The discomfort is the moat.", "Few managers will own publicly and see a "
+     "multi-year engagement through a visible J-curve — so headline-shy, "
+     "scale-constrained capital leaves the inefficiency to those who will."),
     ("A board seat de-risks the asset.", "We trade optical, mark-to-market "
      "volatility for direct control of cash flow, capex and pay. Fundamental risk "
      "falls the moment control is secured — whatever the share price does."),
@@ -3949,6 +3950,44 @@ for qi, (qt, bullets) in enumerate(quads2):
         r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
         r2 = p.add_run(); r2.text = " — " + body
         r2.font.size = Pt(9); r2.font.color.rgb = BODY; r2.font.name = SANS
+
+# ---- Capstone 3: the brand-name fallacy (not numbered / not in TOC) ---------
+s, top = content("The Case",
+                 "Is a household name really the safer choice?",
+                 "The instinct to reach for a tier-one brand is understandable — "
+                 "but for a fund our size it adds correlated risk and cost, and it "
+                 "is not what discharges fiduciary duty.", number=False)
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.3))
+para(colL, "THE BRAND PROMISES COVER — BUT", 12.5, SLATE, first=True, bold=True,
+     after=8)
+for t in ["“No one is fired for picking a household name.” Yet fiduciary duty is "
+          "discharged by process and outcome — not by brand recognition.",
+          "A mega-cap activist’s returns are leveraged beta — ~0.89 correlated to "
+          "equities once de-smoothed: correlated risk dressed as diversification, "
+          "at tier-one fees.",
+          "When that book falls with the market, the brand is no defence — and "
+          "you have paid up for the privilege.",
+          "Reaching for the familiar name is herding; crowding into the same "
+          "mega-cap trades is itself a fiduciary risk."]:
+    para(colL, t, 12.5, BODY, after=9, lead=1.14)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.3))
+para(colR, "WHAT ACTUALLY PROTECTS A FIDUCIARY", 12.5, SLATE, first=True,
+     bold=True, after=8)
+for t in ["A documented, repeatable process and a 20-year record independently "
+          "reconciled and audited — SEB · MUFG · KPMG.",
+          "Daily transparency — a drawdown you can explain with facts, and exit "
+          "at will — not an opaque mark you must take on faith.",
+          "Alignment — the team invests its own capital alongside yours.",
+          "A genuine 0.44-correlation diversifier that defends the book when the "
+          "index falls — the opposite of buying more of what you already own."]:
+    para(colR, t, 12.5, BODY, after=9, lead=1.14)
+rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Brand is reputational comfort, not fiduciary protection. The defensible "
+     "choice is the one backed by process, independent validation and genuine "
+     "diversification — not the most familiar logo.", 12.5, WHITE, first=True,
+     italic=True, after=0, track=0)
 
 # ===========================================================================
 # CLOSING
