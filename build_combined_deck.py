@@ -757,52 +757,67 @@ para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.62),
      "make them better. That is engaged ownership.", 13, WHITE, first=True,
      italic=True, after=0, track=0)
 
-# ---- I.1 Return & alpha ----
-s, top = content("The Proposition",
-                 "A catalyst-driven source of return",
-                 "Engaged owners change the outcome — they do not merely absorb "
-                 "underperformance.")
-checklist(s, [
-    ("~7% announcement return.", "Average abnormal return around an activist "
-     "filing, with no reversal over the following year; success or partial "
-     "success in ~two-thirds of campaigns (Brav, Jiang, Partnoy & Thomas, 2008)."),
-    ("~10.2% around the 13D,", "plus a further ~11.4% over the next year for "
-     "engaged-owner targets (Klein & Zur, 2009)."),
-    ("No long-term give-back.", "~2,000 interventions show no negative drift and "
-     "no “pump-and-dump” (Bebchuk, Brav & Jiang, 2015)."),
-    ("Real, not financial, value.", "Production efficiency improves in the three "
-     "years after intervention (Brav, Jiang & Kim, 2015)."),
-    ("Idiosyncratic alpha.", "Returns tied to a specific change at a specific "
-     "company — scarce in a beta-dominated portfolio."),
-], top, size=15.5, gap=12)
-
-# ---- I.2 Horizon & fiduciary ----
-s, top = content("Fit", "Aligned with horizon and fiduciary duty")
-checklist(s, [
-    ("Patient capital wins.", "Board seats, strategic reviews and turnarounds "
-     "play out over years — perpetual endowments and long-dated pensions can "
-     "hold through to full value realisation."),
-    ("Stewardship is the duty.", "Engaged ownership expresses fiduciary "
-     "obligation (UK Stewardship Code; UN PRI) rather than conflicting with it."),
-    ("Mission alignment.", "Demanding accountability and good governance reflects "
-     "institutional values and is defensible to beneficiaries."),
-    ("Engagement as risk management.", "Turns hidden governance risk in the "
-     "portfolio into a remediable, return-generating exposure."),
-], top, size=16.5, gap=16)
-
-# ---- I.3 Diversification ----
-s, top = content("Portfolio", "Diversification and the total-portfolio view")
-checklist(s, [
-    ("A distinct return engine.", "Alpha driven by proxy contests, spin-offs and "
-     "capital-return programmes — largely independent of rates, growth and "
-     "inflation."),
-    ("Diversifies the equity book.", "Small- and mid-cap value and special "
-     "situations, typically underweight in institutional portfolios."),
-    ("Counter-cyclical dry powder.", "Dislocations create the next targets; "
-     "patient capital deploys into weakness rather than selling it."),
-    ("PE-style upside, public-market terms.", "Operational engagement with daily "
-     "pricing, transparency, lower fees and better liquidity."),
-], top, size=16.5, gap=16)
+# ---- I.0e Public vs private active ownership ------------------------------
+s, top = content("Active Ownership",
+                 "Two ways to own actively: public or private",
+                 "The same operational value creation is available in both "
+                 "private equity and public markets — but the public route "
+                 "keeps what private gives up.")
+pvp_rows = [
+    ("", "Private — PE / buyout", "Public — engaged ownership"),
+    ("How you act", "Buy and control the whole company",
+     "Take a board seat and real influence"),
+    ("Entry price", "A ~40% control premium, up front",
+     "Market price — often at a discount"),
+    ("Liquidity", "A 10-year lock-up; blind-pool capital calls",
+     "Daily liquidity; exit at any time"),
+    ("Pricing", "Smoothed quarterly appraisal marks",
+     "Honest daily market prices"),
+    ("Fees", "2 & 20, plus fees on idle dry powder",
+     "Lower, on capital actually deployed"),
+    ("The value engine", "Board-led operational improvement",
+     "The same — board-led operational improvement"),
+]
+tl = Inches(0.55); cwx = [Inches(2.4), Inches(4.85), Inches(4.85)]
+y = top
+for ri, row in enumerate(pvp_rows):
+    head = ri == 0
+    rh = Inches(0.42) if head else Inches(0.56)
+    x = tl
+    for ci, cell in enumerate(row):
+        pub = (ci == 2)
+        if head:
+            fill = NAVY if pub else (SLATE if ci == 1 else WHITE)
+        elif pub:
+            fill = BLUE5 if ri % 2 == 0 else HEADERBG
+        elif ci == 1:
+            fill = HEADERBG if ri % 2 == 0 else WHITE
+        else:
+            fill = WHITE
+        rect(s, x, y, cwx[ci], rh, fill=fill)
+        ctf = tbox(s, Emu(int(x) + int(Inches(0.14))), y,
+                   Emu(int(cwx[ci]) - int(Inches(0.24))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        if head:
+            col = WHITE
+        elif ci == 0:
+            col = SLATE
+        elif pub:
+            col = NAVY_TX
+        else:
+            col = SUBTLE
+        para(ctf, cell, 12 if head else 11.5, col,
+             bold=(head or ci == 0 or pub), first=True, after=0, lead=1.04)
+        x = Emu(int(x) + int(cwx[ci]))
+    y = Emu(int(y) + int(rh))
+rect(s, Inches(0.55), Emu(int(y) + int(Inches(0.14))), Inches(12.15),
+     Inches(0.56), fill=NAVY)
+para(tbox(s, Inches(0.75), Emu(int(y) + int(Inches(0.14))), Inches(11.75),
+          Inches(0.56), anchor=MSO_ANCHOR.MIDDLE),
+     "Both are active ownership. The public route captures the same value "
+     "creation while keeping liquidity, transparency and lower fees — and skips "
+     "the control premium and the lock-up (Part II quantifies this).", 12.5,
+     WHITE, first=True, italic=True, after=0, track=0)
 
 # ---- I.4 Where the allocation fits (which bucket) --------------------------
 s, top = content("Portfolio",
@@ -862,6 +877,53 @@ para(tbox(s, Inches(0.8), Inches(6.45), Inches(11.6), Inches(0.52),
      "The same strategy, three valid homes — fund it wherever engaged "
      "ownership is the better risk-adjusted alternative to what it replaces.",
      13, WHITE, first=True, italic=True, after=0)
+
+# ---- I.1 Return & alpha ----
+s, top = content("The Proposition",
+                 "A catalyst-driven source of return",
+                 "Engaged owners change the outcome — they do not merely absorb "
+                 "underperformance.")
+checklist(s, [
+    ("~7% announcement return.", "Average abnormal return around an activist "
+     "filing, with no reversal over the following year; success or partial "
+     "success in ~two-thirds of campaigns (Brav, Jiang, Partnoy & Thomas, 2008)."),
+    ("~10.2% around the 13D,", "plus a further ~11.4% over the next year for "
+     "engaged-owner targets (Klein & Zur, 2009)."),
+    ("No long-term give-back.", "~2,000 interventions show no negative drift and "
+     "no “pump-and-dump” (Bebchuk, Brav & Jiang, 2015)."),
+    ("Real, not financial, value.", "Production efficiency improves in the three "
+     "years after intervention (Brav, Jiang & Kim, 2015)."),
+    ("Idiosyncratic alpha.", "Returns tied to a specific change at a specific "
+     "company — scarce in a beta-dominated portfolio."),
+], top, size=15.5, gap=12)
+
+# ---- I.2 Horizon & fiduciary ----
+s, top = content("Fit", "Aligned with horizon and fiduciary duty")
+checklist(s, [
+    ("Patient capital wins.", "Board seats, strategic reviews and turnarounds "
+     "play out over years — perpetual endowments and long-dated pensions can "
+     "hold through to full value realisation."),
+    ("Stewardship is the duty.", "Engaged ownership expresses fiduciary "
+     "obligation (UK Stewardship Code; UN PRI) rather than conflicting with it."),
+    ("Mission alignment.", "Demanding accountability and good governance reflects "
+     "institutional values and is defensible to beneficiaries."),
+    ("Engagement as risk management.", "Turns hidden governance risk in the "
+     "portfolio into a remediable, return-generating exposure."),
+], top, size=16.5, gap=16)
+
+# ---- I.3 Diversification ----
+s, top = content("Portfolio", "Diversification and the total-portfolio view")
+checklist(s, [
+    ("A distinct return engine.", "Alpha driven by proxy contests, spin-offs and "
+     "capital-return programmes — largely independent of rates, growth and "
+     "inflation."),
+    ("Diversifies the equity book.", "Small- and mid-cap value and special "
+     "situations, typically underweight in institutional portfolios."),
+    ("Counter-cyclical dry powder.", "Dislocations create the next targets; "
+     "patient capital deploys into weakness rather than selling it."),
+    ("PE-style upside, public-market terms.", "Operational engagement with daily "
+     "pricing, transparency, lower fees and better liquidity."),
+], top, size=16.5, gap=16)
 
 # ---- I.5 Governance / ESG ----
 s, top = content("Stewardship", "Governance and the ESG synergy")
@@ -3592,7 +3654,7 @@ def _toc_col(col_x, col_w, header, entries, groups=None):
                col_w, Inches(5.3))
     n_lines = len(entries) + (len(groups) if groups else 0)
     dense = n_lines > 30
-    long_col = len(entries) > 13
+    long_col = len(entries) > 14
     fs = 8.0 if dense else (10 if long_col else 11.5)
     sa = 0.6 if dense else (3 if long_col else 7)
     lh = 1.0 if dense else 1.02
