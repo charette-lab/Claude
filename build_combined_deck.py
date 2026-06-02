@@ -2110,10 +2110,11 @@ _wa = [
      "working, not a loss."),
     ("The walk-away ledger",
      "A documented record of situations we declined when alignment couldn’t be "
-     "secured. Robit is a clear case: first invested May 2015, followed with "
-     "add-ons, and began negotiating a board seat in 2019. When we couldn’t "
-     "secure it we exited — disciplined, yet still profitable: a ~14% annual IRR, "
-     "more than twice the index per year."),
+     "secured. Robit is a clear case: first invested May 2015, added over time, "
+     "and began negotiating a board seat in 2019. Unable to secure it, we exited "
+     "— disciplined, yet still profitable at a ~14% annual IRR (more than twice "
+     "the index). The shares have since halved: walking away was also avoided "
+     "loss."),
 ]
 bw = Inches(5.92); bh = Inches(1.92); gx = Inches(0.29); gy = Inches(0.14)
 bx0 = Inches(0.6)
