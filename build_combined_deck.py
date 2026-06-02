@@ -2006,6 +2006,41 @@ para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
      "whether we invest, how we engage, and how we protect the capital once we "
      "do.", 12.5, WHITE, first=True, italic=True, after=0, track=0)
 
+# ---- How we invest 6: HOW WE WORK IN THE BOARDROOM -------------------------
+s, top = content("How we invest · Boardroom",
+                 "In the boardroom: consensus, one conversation at a time",
+                 "A structured divide-and-build approach — Sun Tzu’s principle of "
+                 "taking one position at a time — applied to align an entire "
+                 "governing team behind the plan.")
+steps_br = [
+    ("1", "Map every motivation",
+     "One-on-one with each director and senior manager to understand their "
+     "incentives, priorities and what truly matters to them — whether they have "
+     "articulated it or not."),
+    ("2", "Profile the whole team",
+     "We build a profile of every member of the governing team; with "
+     "psychologists we model how each behaves in a group — not just one-on-one — "
+     "anticipating the room before we enter it."),
+    ("3", "Open with a small, reasonable ask",
+     "Begin with a modest, easy-to-accept proposal. Early agreement is easy to "
+     "give and sets a constructive, consistent tone for what follows."),
+    ("4", "Win agreement one by one",
+     "Secure each director individually and, with their consent, carry that "
+     "endorsement to the next — building momentum and peer support so consensus "
+     "forms before any formal meeting."),
+    ("5", "Build from there",
+     "Each small commitment makes the next step the natural, consistent choice — "
+     "so the board arrives aligned, and decisions pass without a public fight."),
+]
+rh = Inches(0.86); gap = Inches(0.1); y = top
+for num, name, body in steps_br:
+    _step_row(s, y, rh, num, name, body)
+    y = Emu(int(y) + int(rh) + int(gap))
+para(tbox(s, Inches(0.6), Inches(7.14), Inches(12.6), Inches(0.4)),
+     "The same approach aligns management. Done well, the hard decisions are "
+     "agreed quietly, in advance — not fought over in public.",
+     9, FOOT, first=True, after=0, track=0, lead=1.1)
+
 
 subdivider("Risk, honestly")
 # ---- II.5 Risk system ----
