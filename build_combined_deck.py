@@ -2167,6 +2167,40 @@ para(tbox(s, Inches(0.6), Inches(7.14), Inches(12.6), Inches(0.4)),
      "agreed quietly, in advance — not fought over in public.",
      9, FOOT, first=True, after=0, track=0, lead=1.1)
 
+# ---- How we invest 7: HOW WE USE AI ----------------------------------------
+s, top = content("How we invest · AI",
+                 "How we use AI — and why it widens our edge",
+                 "We hand the commoditised work to machines and spend the time we "
+                 "save on the parts that actually generate alpha — the hard, "
+                 "human, non-consensus work.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.3))
+para(colL, "WHERE AI ACCELERATES US", 12.5, SLATE, first=True, bold=True, after=8)
+for t in ["AI does the heavy lifting on gathering and structuring public data — "
+          "filings, transcripts, financials, news — at machine speed.",
+          "It compresses the rote analysis competitors now also automate, so we "
+          "reach a working picture faster and cheaper.",
+          "That frees our analysts’ time for the parts of the job that don’t "
+          "scale — and don’t commoditise."]:
+    para(colL, t, 12.5, BODY, after=10, lead=1.15)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.3))
+para(colR, "WHERE THE HUMAN EDGE IS", 12.5, SLATE, first=True, bold=True, after=8)
+for t in ["Our interviews: we read far more than a transcript — what is unsaid, "
+          "how it is said — and we change the questions in real time as the "
+          "conversation turns. AI can’t run that today.",
+          "Non-consensus truth: an LLM returns the most likely answer, so it is "
+          "poor at conclusions that are true but not yet common knowledge — which "
+          "is exactly where investment edge lives.",
+          "Engagement and execution: changing the company from the boardroom — "
+          "not something a model can do."]:
+    para(colR, t, 12.5, BODY, after=10, lead=1.15)
+rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "So more competition doesn’t shrink our edge — it widens it: the machine "
+     "handles the commoditised work, and we spend the time saved on the hard "
+     "things AI can’t do.", 12.5, WHITE, first=True, italic=True, after=0,
+     track=0)
+
 
 subdivider("Risk, honestly")
 # ---- II.5 Risk system ----
