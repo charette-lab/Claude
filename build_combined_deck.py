@@ -2086,6 +2086,53 @@ para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
      "board and management if needed.", 12.5, WHITE, first=True, italic=True,
      after=0, track=0)
 
+# ---- How we invest 4b: WALKING AWAY, HARDWIRED -----------------------------
+s, top = content("How we invest · Discipline",
+                 "Walking away is a mechanic, not a mood",
+                 "Emotional detachment from a researched deal is hard — so we "
+                 "don’t rely on it. Four hardwired controls take portfolio-manager "
+                 "emotion out of the decision.")
+_wa = [
+    ("The toehold rule",
+     "Position size is capped at a minimal toehold until the board seat is "
+     "secured and minuted; if the board obstructs, the toehold is liquidated. "
+     "“Agreement before capital” is a sizing limit, not a promise."),
+    ("The psychometric tollgate",
+     "At Tollgate 2 a behavioural read of the CEO and chair is exclusionary: a "
+     "high-conflict, entrenched-obstructer profile is an automatic No-Go, as "
+     "rigid as our ≤20% drawdown-probability limit. The one override — undisputed "
+     "shareholder support for change (as at Haldex: with major institutions we "
+     "replaced the whole board, took the chair and changed the CEO)."),
+    ("No research is ever sunk",
+     "We run no per-deal diligence P&L. Research is the continuous cost of "
+     "covering our industries and ~20,000 scored companies — reusable on the same "
+     "name at a new price, or across its competitors. Passing is the funnel "
+     "working, not a loss."),
+    ("The walk-away ledger",
+     "We keep a documented record of deep-diligence situations we declined when "
+     "alignment couldn’t be secured — available in diligence; proof the "
+     "sunk-cost fallacy is defeated, and often a source of avoided loss."),
+]
+bw = Inches(5.92); bh = Inches(1.92); gx = Inches(0.29); gy = Inches(0.14)
+bx0 = Inches(0.6)
+for i, (h, b) in enumerate(_wa):
+    bxi = Emu(int(bx0) + (i % 2) * (int(bw) + int(gx)))
+    byi = Emu(int(top) + (i // 2) * (int(bh) + int(gy)))
+    rect(s, bxi, byi, bw, bh, fill=HEADERBG)
+    rect(s, bxi, byi, Inches(0.07), bh, fill=NAVY)
+    para(tbox(s, Emu(int(bxi) + int(Inches(0.26))), Emu(int(byi) + int(Inches(0.12))),
+              Emu(int(bw) - int(Inches(0.42))), Inches(0.4)),
+         h, 13, NAVY, first=True, bold=True, after=0, font=SERIF)
+    para(tbox(s, Emu(int(bxi) + int(Inches(0.26))), Emu(int(byi) + int(Inches(0.52))),
+              Emu(int(bw) - int(Inches(0.46))), Inches(1.42)),
+         b, 10.5, BODY, first=True, after=0, lead=1.12)
+yb = Emu(int(top) + 2 * int(bh) + int(gy) + int(Inches(0.12)))
+rect(s, Inches(0.6), yb, Inches(12.16), Inches(0.5), fill=NAVY)
+para(tbox(s, Inches(0.8), yb, Inches(11.8), Inches(0.5), anchor=MSO_ANCHOR.MIDDLE),
+     "Walking away isn’t willpower — it’s a sizing limit, a hard tollgate, a "
+     "research model with no sunk cost, and a documented record. The emotion is "
+     "engineered out.", 11.5, WHITE, first=True, italic=True, after=0, track=0)
+
 # ---- How we invest 5: BOARD & MANAGEMENT EVALUATION ------------------------
 s, top = content("How we invest · People",
                  "Evaluating the board and management — before we commit",
