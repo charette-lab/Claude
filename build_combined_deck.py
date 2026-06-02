@@ -2883,6 +2883,83 @@ para(tbox(s, Inches(0.82), Inches(6.28), Inches(11.5), Inches(0.62),
      "a bad quarter is underwritten, not a surprise.",
      12.5, WHITE, first=True, italic=True, after=0, track=0)
 
+# ---- II.5e2 The harder, structural objections — answered for the committee --
+s, top = content("Strategic Case",
+                 "Built for the committee: the harder objections, answered",
+                 "Beyond volatility, headline and concentration (prior page), "
+                 "four structural objections decide a conservative allocation — "
+                 "each answered so the choice is defensible to a board, not just "
+                 "attractive in a model.", number=False)
+oc_cols = ["The objection", "The concern beneath it",
+           "The structural cover we provide"]
+oc_w = [Inches(3.0), Inches(3.45), Inches(5.65)]
+oc_rows = [
+    ("It doesn’t fit our public- or private-equity bucket.",
+     "Public-sleeve tracking error invites scrutiny; PE-sleeve liquidity invites "
+     "the auditors.",
+     "Sits in the PE sleeve as a liquidity-positive complement — PE-style "
+     "operational returns (~16% net) with daily marks and zero capital calls, so "
+     "it cushions the denominator effect instead of feeding it."),
+    ("A boutique carries key-person risk for a small sleeve.",
+     "If a boutique stumbles, the choice is hard to defend without a household "
+     "name behind it.",
+     "A boutique team inside an institutional fortress: investment, risk and "
+     "valuation segregated; custody SEB, administration MUFG, audit KPMG — an "
+     "independently validated, tier-one paper trail."),
+    ("~One mid-cap deal a year can’t move our needle.",
+     "Hard to justify the team’s underwriting bandwidth on a 1–3% sleeve.",
+     "A first-right co-investment “free look”: scale nominal exposure into the "
+     "highest-conviction, already board-de-risked targets — without diluting the "
+     "core fund’s agility."),
+]
+ox0 = Inches(0.6); oy = top
+ohh = Inches(0.5)
+x = ox0
+for ci, c in enumerate(oc_cols):
+    rect(s, x, oy, oc_w[ci], ohh, fill=SLATE)
+    para(tbox(s, Emu(int(x) + int(Inches(0.14))), oy,
+              Emu(int(oc_w[ci]) - int(Inches(0.22))), ohh, anchor=MSO_ANCHOR.MIDDLE),
+         c, 10.5, WHITE, first=True, bold=True, after=0)
+    x = Emu(int(x) + int(oc_w[ci]))
+oy = Emu(int(oy) + int(ohh))
+orh = Inches(1.02)
+for ri, row in enumerate(oc_rows):
+    x = ox0
+    fill = HEADERBG if ri % 2 == 0 else WHITE
+    for ci, cell in enumerate(row):
+        rect(s, x, oy, oc_w[ci], orh, fill=fill)
+        if ci == 0:
+            rect(s, x, oy, Inches(0.06), orh, fill=NAVY)
+        col = NAVY_TX if ci == 0 else (FOOT if ci == 1 else BODY)
+        sz = 10.5 if ci == 0 else (9.5 if ci == 1 else 10)
+        para(tbox(s, Emu(int(x) + int(Inches(0.18))),
+                  Emu(int(oy) + int(Inches(0.11))),
+                  Emu(int(oc_w[ci]) - int(Inches(0.3))),
+                  Emu(int(orh) - int(Inches(0.2)))),
+             cell, sz, col, bold=(ci == 0), italic=(ci == 1), first=True,
+             after=0, lead=1.12)
+        x = Emu(int(x) + int(oc_w[ci]))
+    oy = Emu(int(oy) + int(orh))
+# closer — the worst-entry statistical blanket
+oby = Inches(6.0)
+rect(s, Inches(0.6), oby, Inches(12.1), Inches(0.98), fill=NAVY)
+para(tbox(s, Inches(0.85), oby, Inches(6.55), Inches(0.98),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "And the statistical blanket: across 20 years of live cycles, even the "
+     "single unluckiest entry month still compounded positively — net of all "
+     "fees.", 11, WHITE, first=True, italic=True, after=0, lead=1.14, track=0)
+osx = Inches(7.55)
+for big, lab in [(f"~{_ENTRY_AVG*100:.0f}%", "avg net, any\nentry month"),
+                 (f"+{_ENTRY_WORST*100:.0f}%", "worst-ever\nentry month"),
+                 ("0%", "lost over the\nhold period")]:
+    para(tbox(s, osx, Emu(int(oby) + int(Inches(0.07))), Inches(1.65),
+              Inches(0.5), anchor=MSO_ANCHOR.BOTTOM),
+         big, 22, WHITE, first=True, after=0, font=SERIF,
+         align=PP_ALIGN.CENTER, track=0)
+    para(tbox(s, osx, Emu(int(oby) + int(Inches(0.6))), Inches(1.65), Inches(0.35)),
+         lab, 8, BLUE5, first=True, after=0, align=PP_ALIGN.CENTER, lead=1.0)
+    osx = Emu(int(osx) + int(Inches(1.65)))
+
 subdivider("The 20-year track record")
 # ---- II.6 Track record (chart) ----
 _f4 = fig()
