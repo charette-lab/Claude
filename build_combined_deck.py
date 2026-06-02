@@ -2136,6 +2136,63 @@ para(tbox(s, Inches(0.8), yb, Inches(11.8), Inches(0.5), anchor=MSO_ANCHOR.MIDDL
      "research model with no sunk cost, and a documented record. The emotion is "
      "engineered out.", 11.5, WHITE, first=True, italic=True, after=0, track=0)
 
+# ---- How we invest 4c: THE WALK-AWAY LEDGER (real entry: Robit) -------------
+s, top = content("How we invest · Discipline",
+                 "The walk-away ledger: agreement before capital, in practice",
+                 "We log every Tollgate-2 “No-Go.” We will not size to conviction "
+                 "without secured board alignment — if alignment fails, the "
+                 "position is unwound. One documented entry; the full ledger is "
+                 "available in diligence.", number=False)
+led_cols = ["Situation", "Value hypothesis (Tollgate 1)", "Diligence & sizing",
+            "The breaking point (Tollgate 2)", "Exit & post-walk-away outcome"]
+led_w = [Inches(2.25), Inches(2.55), Inches(2.25), Inches(2.45), Inches(2.6)]
+led_row = [
+    "Robit Plc — Finnish-listed drilling tools & consumables (Nasdaq Helsinki).",
+    "Niche consumables franchise below intrinsic value; correctable cost base "
+    "and capital allocation — a board-level engagement.",
+    "Invested in stages from May 2015; followed and added on over several years "
+    "while pursuing engagement.",
+    "From 2019 we sought a board seat to formalise the plan — and could not "
+    "secure board alignment.",
+    "Exited rather than stay without influence — still ~14% IRR (>2× the "
+    "index). Shares have since roughly halved: the discipline avoided the loss.",
+]
+lx = Inches(0.6); ly = top
+# header
+hh = Inches(0.55)
+x = lx
+for ci, c in enumerate(led_cols):
+    rect(s, x, ly, led_w[ci], hh, fill=SLATE)
+    para(tbox(s, Emu(int(x) + int(Inches(0.1))), ly,
+              Emu(int(led_w[ci]) - int(Inches(0.18))), hh, anchor=MSO_ANCHOR.MIDDLE),
+         c, 9.5, WHITE, first=True, bold=True, after=0, lead=1.04)
+    x = Emu(int(x) + int(led_w[ci]))
+ly = Emu(int(ly) + int(hh))
+# Robit data row
+drh = Inches(1.95)
+x = lx
+for ci, cell in enumerate(led_row):
+    rect(s, x, ly, led_w[ci], drh, fill=HEADERBG if ci % 2 == 0 else WHITE)
+    if ci == 0:
+        rect(s, x, ly, Inches(0.06), drh, fill=NAVY)
+    para(tbox(s, Emu(int(x) + int(Inches(0.15))), Emu(int(ly) + int(Inches(0.12))),
+              Emu(int(led_w[ci]) - int(Inches(0.26))), Emu(int(drh) - int(Inches(0.2)))),
+         cell, 9, NAVY_TX if ci == 0 else BODY, bold=(ci == 0), first=True,
+         after=0, lead=1.12)
+    x = Emu(int(x) + int(led_w[ci]))
+ly = Emu(int(ly) + int(drh))
+para(tbox(s, Inches(0.6), Emu(int(ly) + int(Inches(0.1))), Inches(12.1), Inches(0.3)),
+     "One documented entry shown; further Tollgate-2 No-Go decisions are logged "
+     "and available in diligence. Robit was a built, multi-year position, not a "
+     "small toehold — the discipline is the same.", 8.5, FOOT, first=True,
+     italic=True, after=0, lead=1.1)
+rect(s, Inches(0.6), Inches(6.4), Inches(12.16), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.4), Inches(11.8), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "The exit trade is small and clean — but the point is the fundamental risk "
+     "we avoided: we take a paper cut over a value trap, every time.", 12,
+     WHITE, first=True, italic=True, after=0, track=0)
+
 # ---- How we invest 5: BOARD & MANAGEMENT EVALUATION ------------------------
 s, top = content("How we invest · People",
                  "Evaluating the board and management — before we commit",
