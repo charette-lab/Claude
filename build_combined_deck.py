@@ -1030,6 +1030,112 @@ para(tbox(s, Inches(0.78), Inches(6.35), Inches(11.8), Inches(0.6),
      "change: the conditions under which engaged ownership compounds.",
      13, WHITE, first=True, italic=True, after=0)
 
+# ---- I.6b Why boards comply — the mechanics of constructive control --------
+s, top = content("The Opportunity",
+                 "Why boards say yes — constructive control, not a proxy war",
+                 "Four structural reasons mid-cap boards adopt the plan — the same "
+                 "edge Cevian, ValueAct and TCI built, applied where it meets the "
+                 "least resistance.")
+_mech = [
+    ("The capital-allocation blind spot",
+     "Mid-cap CEOs are first-time chiefs promoted from operations or sales — they "
+     "have rarely run M&A, financing or portfolio capital allocation. Firms "
+     "systematically misallocate across divisions and are slow to correct it "
+     "(Scharfstein & Stein, 2000; Lindlbauer, 2025) — a real, correctable gap they "
+     "know they have."),
+    ("Industrial-peer credibility",
+     "The owner arrives as a 20-year operator who speaks ROIC, ROIIC and operations "
+     "— not a financial engineer. Met as a peer who supplies the missing "
+     "experience, defensiveness gives way to collaboration."),
+    ("The board seat is the start, not a threat",
+     "Secured as a precondition — often the nomination committee itself proposes "
+     "the director. Granting board seats is the proven, low-cost route to change "
+     "(Bebchuk, Brav, Jiang & Keusch, 2020) versus the ~$10.7m and entrenchment a "
+     "proxy fight triggers (Gantchev, 2013)."),
+    ("We fund their best business",
+     "Quality-core constructivism: cut the loss-making “growth-trap” adjacencies "
+     "and reinvest in the winning core. Management complies because we champion the "
+     "part of the company they are proud of — not break up the house."),
+]
+bw = Inches(5.92); bh = Inches(1.94); gx = Inches(0.29); gy = Inches(0.16)
+bx0 = Inches(0.6)
+for i, (h, b) in enumerate(_mech):
+    bxi = Emu(int(bx0) + (i % 2) * (int(bw) + int(gx)))
+    byi = Emu(int(top) + (i // 2) * (int(bh) + int(gy)))
+    rect(s, bxi, byi, bw, bh, fill=HEADERBG)
+    rect(s, bxi, byi, Inches(0.07), bh, fill=NAVY)
+    para(tbox(s, Emu(int(bxi) + int(Inches(0.26))), Emu(int(byi) + int(Inches(0.13))),
+              Emu(int(bw) - int(Inches(0.42))), Inches(0.4)),
+         h, 13.5, NAVY, first=True, bold=True, after=0, font=SERIF)
+    para(tbox(s, Emu(int(bxi) + int(Inches(0.26))), Emu(int(byi) + int(Inches(0.55))),
+              Emu(int(bw) - int(Inches(0.46))), Inches(1.3)),
+         b, 11, BODY, first=True, after=0, lead=1.13)
+yb = Emu(int(top) + 2 * int(bh) + int(gy) + int(Inches(0.16)))
+rect(s, Inches(0.6), yb, Inches(12.16), Inches(0.5), fill=NAVY)
+para(tbox(s, Inches(0.8), yb, Inches(11.8), Inches(0.5), anchor=MSO_ANCHOR.MIDDLE),
+     "A proxy fight is expensive and breeds defenses; a board seat by agreement is "
+     "faster, cheaper and collaborative — which is why ~two-thirds of engagements "
+     "succeed without ever seeking control (Brav, Jiang, Partnoy & Thomas, 2008).",
+     12, WHITE, first=True, italic=True, after=0, track=0)
+
+# ---- I.6c The evidence: constructive engagement works ----------------------
+s, top = content("The Opportunity",
+                 "The evidence: constructive engagement works",
+                 "Three decades of peer-reviewed research — across the US and "
+                 "Europe — converge on the same finding.", ref=tbl())
+ev_rows = [
+    ("Study", "What it covers", "What it establishes"),
+    ("Brav, Jiang, Partnoy & Thomas (2008) · J. Finance",
+     "1,000+ US engagements, 2001–06",
+     "Activists “seldom seek control” and are “nonconfrontational”; ~2/3 reach full "
+     "or partial success; +7% announcement return with no reversal; payout, "
+     "operating performance and CEO turnover all rise."),
+    ("Becht, Franks, Grant & Wagner (2017) · Rev. Fin. Studies",
+     "1,740 engagements, 23 countries",
+     "Outcomes and market responses are similar in Europe and North America — the "
+     "playbook travels; board representation is a central, value-creating outcome."),
+    ("Becht, Franks, Mayer & Rossi (2009) · Rev. Fin. Studies",
+     "Clinical study — Hermes UK Focus Fund",
+     "Returns come from engagement, not stock-picking — via private, cooperative "
+     "interventions: refocus on the core, return cash, change the CEO / chair."),
+    ("Bebchuk, Brav, Jiang & Keusch (2020) · J. Fin. Economics",
+     "US settlement agreements",
+     "Boards settle by granting board seats — the intermediary step to the "
+     "operational and leadership change activists seek. Exactly the precondition "
+     "model."),
+    ("Gantchev (2013) · J. Fin. Economics",
+     "1,492 campaigns, 2000–07",
+     "A campaign escalating to a proxy fight costs ~$10.7m; settling at the "
+     "board-representation stage avoids most of it — collaboration is cheaper."),
+]
+etl = Inches(0.6); ecw = [Inches(3.35), Inches(2.55), Inches(6.26)]
+ey = top
+for ri, row in enumerate(ev_rows):
+    head = ri == 0
+    rh = Inches(0.4) if head else Inches(0.86)
+    x = etl
+    for ci, cell in enumerate(row):
+        fill = SLATE if head else (HEADERBG if ri % 2 == 1 else WHITE)
+        rect(s, x, ey, ecw[ci], rh, fill=fill)
+        ctf = tbox(s, Emu(int(x) + int(Inches(0.13))), ey,
+                   Emu(int(ecw[ci]) - int(Inches(0.24))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        if head:
+            col = WHITE
+        elif ci == 0:
+            col = NAVY_TX
+        else:
+            col = BODY
+        para(ctf, cell, 11 if head else (10 if ci == 0 else 9.5), col,
+             bold=(head or ci == 0), first=True, after=0, lead=1.08)
+        x = Emu(int(x) + int(ecw[ci]))
+    ey = Emu(int(ey) + int(rh))
+para(tbox(s, Inches(0.6), Emu(int(ey) + int(Inches(0.12))), Inches(12.1),
+          Inches(0.5)),
+     "The academic record converges with our own 38 engagements: control secured "
+     "cooperatively through a board seat is how operational value is created.",
+     12.5, SLATE, first=True, italic=True, after=0)
+
 # ---- I.5 What to look for (bridge) ----
 s, top = content("Selection", "What separates a great engaged owner",
                  "Dispersion is wide — manager selection matters more here "
@@ -3678,13 +3784,24 @@ def _refs(sl, x, y, w, items, size=9):
             r.font.name = SANS; r.font.color.rgb = BODY
 
 
-r1 = _ref_slide(" — Peer-reviewed literature", "1 of 2")
+r1 = _ref_slide(" — Peer-reviewed literature (Part I)", "1 of 3")
 _refhead(r1, Inches(0.6), Inches(1.75), Inches(6.0),
-         "ENGAGED OWNERSHIP / ACTIVISM (PART I)")
+         "ENGAGED OWNERSHIP, ACTIVISM & CAPITAL ALLOCATION")
 _refs(r1, Inches(0.6), Inches(2.12), Inches(6.0), [
     [("Bebchuk, L. A., Brav, A., & Jiang, W. (2015). The long-term effects of "
       "hedge fund activism. ", False), ("Columbia Law Review, 115", True),
      ("(5), 1085–1156.", False)],
+    [("Bebchuk, L. A., Brav, A., Jiang, W., & Keusch, T. (2020). Dancing with "
+      "activists. ", False), ("Journal of Financial Economics, 137", True),
+     ("(1), 1–41. https://doi.org/10.1016/j.jfineco.2020.01.001", False)],
+    [("Becht, M., Franks, J., Mayer, C., & Rossi, S. (2009). Returns to "
+      "shareholder activism: Evidence from a clinical study of the Hermes UK "
+      "Focus Fund. ", False), ("The Review of Financial Studies, 22", True),
+     ("(8), 3093–3129. https://doi.org/10.1093/rfs/hhn054", False)],
+    [("Becht, M., Franks, J. R., Grant, J., & Wagner, H. F. (2017). Returns to "
+      "hedge fund activism: An international study. ", False),
+     ("The Review of Financial Studies, 30", True),
+     ("(9), 2933–2971. https://doi.org/10.1093/rfs/hhx048", False)],
     [("Brav, A., Jiang, W., Partnoy, F., & Thomas, R. (2008). Hedge fund "
       "activism, corporate governance, and firm performance. ", False),
      ("The Journal of Finance, 63", True),
@@ -3693,14 +3810,26 @@ _refs(r1, Inches(0.6), Inches(2.12), Inches(6.0), [
       "activism: Productivity, asset allocation, and labor outcomes. ", False),
      ("The Review of Financial Studies, 28", True),
      ("(10), 2723–2769. https://doi.org/10.1093/rfs/hhv037", False)],
+    [("Gantchev, N. (2013). The costs of shareholder activism: Evidence from a "
+      "sequential decision model. ", False),
+     ("Journal of Financial Economics, 107", True),
+     ("(3), 610–631. https://doi.org/10.1016/j.jfineco.2012.09.007", False)],
     [("Klein, A., & Zur, E. (2009). Entrepreneurial shareholder activism: Hedge "
       "funds and other private investors. ", False),
      ("The Journal of Finance, 64", True),
      ("(1), 187–229. https://doi.org/10.1111/j.1540-6261.2008.01432.x", False)],
-])
-_refhead(r1, Inches(0.6), Inches(4.28), Inches(6.0),
-         "PASSIVE INVESTING & MARKET STRUCTURE (PART I)")
-_refs(r1, Inches(0.6), Inches(4.55), Inches(6.0), [
+    [("Lindlbauer, N. (2025). Unpacking the inertia in resource allocation "
+      "adjustments of multi-business firms. ", False),
+     ("Strategic Management Journal", True),
+     (", advance online publication. https://doi.org/10.1002/smj.3722", False)],
+    [("Scharfstein, D. S., & Stein, J. C. (2000). The dark side of internal "
+      "capital markets: Divisional rent-seeking and inefficient investment. ",
+      False), ("The Journal of Finance, 55", True),
+     ("(6), 2537–2564. https://doi.org/10.1111/0022-1082.00299", False)],
+], size=8.5)
+_refhead(r1, Inches(6.95), Inches(1.75), Inches(5.85),
+         "PASSIVE INVESTING & MARKET STRUCTURE")
+_refs(r1, Inches(6.95), Inches(2.12), Inches(5.85), [
     [("Ben-David, I., Franzoni, F., & Moussawi, R. (2018). Do ETFs increase "
       "volatility? ", False), ("The Journal of Finance, 73", True),
      ("(6), 2471–2535. https://doi.org/10.1111/jofi.12727", False)],
@@ -3725,9 +3854,11 @@ _refs(r1, Inches(0.6), Inches(4.55), Inches(6.0), [
       "investing. ", False), ("NBER Working Paper No. 16376", True),
      (". https://doi.org/10.3386/w16376", False)],
 ], size=8.5)
-_refhead(r1, Inches(6.95), Inches(1.75), Inches(5.85),
+
+r1b = _ref_slide(" — Peer-reviewed literature (Part II)", "2 of 3")
+_refhead(r1b, Inches(0.6), Inches(1.75), Inches(6.0),
          "PRIVATE EQUITY RISK & RETURN (PART II)")
-_refs(r1, Inches(6.95), Inches(2.12), Inches(5.85), [
+_refs(r1b, Inches(0.6), Inches(2.12), Inches(6.0), [
     [("Ang, A., Chen, B., Goetzmann, W. N., & Phalippou, L. (2018). Estimating "
       "private equity returns from limited partner cash flows. ", False),
      ("The Journal of Finance, 73", True),
@@ -3747,6 +3878,10 @@ _refs(r1, Inches(6.95), Inches(2.12), Inches(5.85), [
       "serial correlation and illiquidity in hedge fund returns. ", False),
      ("Journal of Financial Economics, 74", True),
      ("(3), 529–609. https://doi.org/10.1016/j.jfineco.2004.04.001", False)],
+], size=8.5)
+_refhead(r1b, Inches(6.95), Inches(1.75), Inches(5.85),
+         "PRIVATE EQUITY RISK & RETURN (CONT.)")
+_refs(r1b, Inches(6.95), Inches(2.12), Inches(5.85), [
     [("Harris, R. S., Jenkinson, T., & Kaplan, S. N. (2014). Private equity "
       "performance: What do we know? ", False),
      ("The Journal of Finance, 69", True),
@@ -3768,7 +3903,7 @@ _refs(r1, Inches(6.95), Inches(2.12), Inches(5.85), [
      ("(1), 11–39. https://doi.org/10.3905/joi.2020.1.153", False)],
 ], size=8.5)
 
-r2 = _ref_slide(" — Datasets, practitioner research & methodology", "2 of 2")
+r2 = _ref_slide(" — Datasets, practitioner research & methodology", "3 of 3")
 _refhead(r2, Inches(0.6), Inches(1.75), Inches(6.0),
          "INDUSTRY DATASETS & PRACTITIONER RESEARCH")
 _refs(r2, Inches(0.6), Inches(2.12), Inches(6.0), [
