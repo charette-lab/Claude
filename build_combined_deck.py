@@ -2546,12 +2546,12 @@ for yy, hh_, ld, bs, ldr, bd in [
      "Diversification lowers idiosyncratic risk in passive equity; in engaged "
      "ownership it dilutes the board control that actually de-risks the asset."),
     (3.11, 1.28, 12.5, 10.5,
-     "The churn tax — real money, paid every turn.",
-     "Accumulating a control block can move an illiquid small/mid-cap ~3–8% "
-     "against you on entry and suppress it on exit; round-trip spreads add "
-     "~20–50 bps, and front-end 13D, legal and advisory underwriting runs to "
-     "six figures per campaign — re-paid every turn by a high-cadence book, "
-     "amortised over years by us."),
+     "The churn tax — measured, not asserted.",
+     "Peer-reviewed estimates put the direct cost of a single activist campaign "
+     "at ~$10.7m (Gantchev, 2013), and the target re-rates ~7% around the 13D "
+     "disclosure (Brav et al., 2008) — so every fresh campaign re-incurs "
+     "underwriting and market impact that a high-cadence book pays each turn, "
+     "while a long holder amortises it over years."),
     (4.39, 0.74, 12.5, 11,
      "Forced deployment lowers the bar.",
      "A high-velocity machine must keep buying — pushing managers to thinner "
@@ -2564,10 +2564,9 @@ for yy, hh_, ld, bs, ldr, bd in [
     tf = tbox(s, rx, Inches(yy), rw, Inches(hh_))
     para(tf, ldr, ld, SLATE, first=True, bold=True, after=3, lead=1.04)
     para(tf, bd, bs, BODY, after=0, lead=1.12)
-para(tbox(s, rx, Inches(5.86), rw, Inches(0.2)),
-     "Frictional ranges are illustrative of small/mid-cap block accumulation; "
-     "they vary with liquidity and stake size.", 7.5, FOOT, first=True,
-     italic=True, after=0)
+para(tbox(s, rx, Inches(5.82), rw, Inches(0.2)),
+     "Sources: Gantchev (2013), JFE; Brav et al. (2008), J. Finance — "
+     "population averages.", 7.5, FOOT, first=True, italic=True, after=0)
 # bottom — anchored to our own record
 rect(s, Inches(0.6), Inches(6.04), Inches(12.13), Inches(0.95), fill=NAVY)
 bnd = tbox(s, Inches(0.85), Inches(6.04), Inches(11.65), Inches(0.95),
