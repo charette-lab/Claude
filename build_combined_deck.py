@@ -2534,40 +2534,52 @@ ruin_card(Emu(int(top) + int(Inches(2.12))), "100",
           "High cadence → ≈ 8 concurrent crises",
           "In public engagement a “failure” is a broken turnaround or board "
           "battle — eight running at once.", NAVY)
-para(tbox(s, lx, Emu(int(top) + int(Inches(3.44))), lw, Inches(0.6)),
+para(tbox(s, lx, Emu(int(top) + int(Inches(3.28))), lw, Inches(0.6)),
      "Absolute exposure to tail events scales with the number of transactions — "
      "not with the percentage loss rate.", 10.5, FOOT, first=True, italic=True,
      after=0, lead=1.15)
 # RIGHT — the four structural drags
 rx, rw = Inches(6.95), Inches(5.8)
-ry = top
-for lead, body in [
-    ("Activity is not risk management.",
+for yy, hh_, ld, bs, ldr, bd in [
+    (2.35, 0.76, 12.5, 11,
+     "Activity is not risk management.",
      "Diversification lowers idiosyncratic risk in passive equity; in engaged "
      "ownership it dilutes the board control that actually de-risks the asset."),
-    ("The churn tax.",
-     "Block accumulation moves price against you on entry and suppresses it on "
-     "exit; spreads, 13D underwriting and advisory fees are re-paid every "
-     "campaign instead of amortised over a multi-year hold."),
-    ("Forced deployment lowers the bar.",
+    (3.11, 1.28, 12.5, 10.5,
+     "The churn tax — real money, paid every turn.",
+     "Accumulating a control block can move an illiquid small/mid-cap ~3–8% "
+     "against you on entry and suppress it on exit; round-trip spreads add "
+     "~20–50 bps, and front-end 13D, legal and advisory underwriting runs to "
+     "six figures per campaign — re-paid every turn by a high-cadence book, "
+     "amortised over years by us."),
+    (4.39, 0.74, 12.5, 11,
+     "Forced deployment lowers the bar.",
      "A high-velocity machine must keep buying — pushing managers to thinner "
      "margins of safety and weaker turnarounds to keep capital moving."),
-    ("Reputational surface area.",
+    (5.13, 0.70, 12.5, 11,
+     "Reputational surface area.",
      "Every public campaign is an option on controversy. High velocity "
-     "multiplies the headline surface; conviction holders win seats by quiet, "
-     "pre-agreed alignment."),
+     "multiplies the headline surface; conviction holders win seats quietly."),
 ]:
-    tf = tbox(s, rx, ry, rw, Inches(0.95))
-    para(tf, lead, 13, SLATE, first=True, bold=True, after=3, lead=1.05)
-    para(tf, body, 11, BODY, after=0, lead=1.14)
-    ry = Emu(int(ry) + int(Inches(0.97)))
-rect(s, Inches(0.6), Inches(6.42), Inches(12.13), Inches(0.6), fill=NAVY)
-para(tbox(s, Inches(0.8), Inches(6.42), Inches(11.7), Inches(0.6),
-          anchor=MSO_ANCHOR.MIDDLE),
-     "Prioritising cadence over net realised alpha is a failure of fiduciary "
-     "underwriting — it mistakes the motion of trading for the disciplined "
-     "compounding of corporate value.", 12.5, WHITE, first=True, italic=True,
-     after=0, track=0)
+    tf = tbox(s, rx, Inches(yy), rw, Inches(hh_))
+    para(tf, ldr, ld, SLATE, first=True, bold=True, after=3, lead=1.04)
+    para(tf, bd, bs, BODY, after=0, lead=1.12)
+para(tbox(s, rx, Inches(5.86), rw, Inches(0.2)),
+     "Frictional ranges are illustrative of small/mid-cap block accumulation; "
+     "they vary with liquidity and stake size.", 7.5, FOOT, first=True,
+     italic=True, after=0)
+# bottom — anchored to our own record
+rect(s, Inches(0.6), Inches(6.04), Inches(12.13), Inches(0.95), fill=NAVY)
+bnd = tbox(s, Inches(0.85), Inches(6.04), Inches(11.65), Inches(0.95),
+           anchor=MSO_ANCHOR.MIDDLE)
+para(bnd, "Our record: 38 deals in 20 years — about one a year, held ~5 years "
+     "across 8–12 names, at a 92% deal-level hit rate.", 12.5, WHITE, first=True,
+     bold=True, after=4, lead=1.08, track=0)
+para(bnd, "We pay these frictions once per hold and let earnings growth "
+     "amortise them; a high-cadence book re-pays them every turn — taxing the "
+     "compounding it claims to diversify.", 11.5, WHITE, italic=True, after=0,
+     lead=1.08, track=0)
+
 
 # ---- II.5b Strategic reframing: the discomfort is the moat ----
 s, top = content("Strategic Case", "The visible risks are the engine — not the cost",
