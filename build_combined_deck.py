@@ -1861,13 +1861,14 @@ s, top = content("How we invest · Due diligence",
                  "everyone who knows the company.")
 dd_layers = [
     ("LAYER 1", "Economic reality",
-     "From our proprietary database of ~60,000 companies, we restate accounting "
-     "numbers into economic reality — separating the true performance of the "
-     "profitable core from management’s newer strategic pivot, the part "
+     "Our financial database spans just under 60,000 companies; we restate their "
+     "accounting numbers into economic reality — separating the true performance "
+     "of the profitable core from management’s newer strategic pivot, the part "
      "destroying value."),
     ("LAYER 2", "Moat & CEO scoring",
-     "The database carries our own moat scores on ~20,000 companies, paired with "
-     "our CEO evaluation — a quantified first read on durability and on the "
+     "From that universe — after deselecting whole geographies and industries — "
+     "we narrow to ~20,000 companies for deeper work: our own moat scores paired "
+     "with our CEO evaluation, a quantified first read on durability and the "
      "people running it."),
     ("LAYER 3", "Field-tested",
      "We then interview customers (quality, product ROI, competitive position), "
