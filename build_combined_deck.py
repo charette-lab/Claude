@@ -2499,6 +2499,76 @@ para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.62),
      "position spirals on portfolio-manager emotion.", 13, WHITE, first=True,
      italic=True, after=0, track=0)
 
+# ---- II.5a4 Why low cadence is the risk control (cadence rebuttal) ---------
+s, top = content("Risk Management",
+                 "Low cadence is the risk control — not the risk",
+                 "The objection: a higher deal count diversifies risk. In engaged "
+                 "ownership that logic inverts — every additional campaign "
+                 "compounds frictional, operational and reputational exposure. "
+                 "Concentration under board control is the discipline, not the "
+                 "hazard.", number=False)
+# LEFT — the mathematics of ruin
+lx, lw = Inches(0.6), Inches(5.95)
+para(tbox(s, lx, top, lw, Inches(0.4)),
+     "THE MATHEMATICS OF RUIN", 12.5, SLATE, first=True, bold=True, after=2)
+para(tbox(s, lx, Emu(int(top) + int(Inches(0.32))), lw, Inches(0.4)),
+     "Hold the loss rate fixed at 8%. The crisis count is not.", 11.5, BODY,
+     first=True, italic=True, after=0)
+def ruin_card(y, big, lead, body, tab):
+    rect(s, lx, y, lw, Inches(1.12), fill=HEADERBG)
+    rect(s, lx, y, Inches(0.08), Inches(1.12), fill=tab)
+    nb = tbox(s, Emu(int(lx) + int(Inches(0.22))), y, Inches(1.55),
+              Inches(1.12), anchor=MSO_ANCHOR.MIDDLE)
+    para(nb, big, 38, NAVY_TX, first=True, after=0, font=SERIF, lead=0.95)
+    para(nb, "DEALS", 9, SLATE_LT, bold=True, after=0)
+    tx = tbox(s, Emu(int(lx) + int(Inches(1.85))), y,
+              Emu(int(lw) - int(Inches(2.05))), Inches(1.12),
+              anchor=MSO_ANCHOR.MIDDLE)
+    para(tx, lead, 12.5, NAVY_TX, first=True, bold=True, after=3, lead=1.05)
+    para(tx, body, 10.5, BODY, after=0, lead=1.12)
+ruin_card(Emu(int(top) + int(Inches(0.82))), "10",
+          "Low cadence → ≈ 1 situation to contain",
+          "Highly vetted; a single underperformer to manage and contain.",
+          SLATE_LT)
+ruin_card(Emu(int(top) + int(Inches(2.12))), "100",
+          "High cadence → ≈ 8 concurrent crises",
+          "In public engagement a “failure” is a broken turnaround or board "
+          "battle — eight running at once.", NAVY)
+para(tbox(s, lx, Emu(int(top) + int(Inches(3.44))), lw, Inches(0.6)),
+     "Absolute exposure to tail events scales with the number of transactions — "
+     "not with the percentage loss rate.", 10.5, FOOT, first=True, italic=True,
+     after=0, lead=1.15)
+# RIGHT — the four structural drags
+rx, rw = Inches(6.95), Inches(5.8)
+ry = top
+for lead, body in [
+    ("Activity is not risk management.",
+     "Diversification lowers idiosyncratic risk in passive equity; in engaged "
+     "ownership it dilutes the board control that actually de-risks the asset."),
+    ("The churn tax.",
+     "Block accumulation moves price against you on entry and suppresses it on "
+     "exit; spreads, 13D underwriting and advisory fees are re-paid every "
+     "campaign instead of amortised over a multi-year hold."),
+    ("Forced deployment lowers the bar.",
+     "A high-velocity machine must keep buying — pushing managers to thinner "
+     "margins of safety and weaker turnarounds to keep capital moving."),
+    ("Reputational surface area.",
+     "Every public campaign is an option on controversy. High velocity "
+     "multiplies the headline surface; conviction holders win seats by quiet, "
+     "pre-agreed alignment."),
+]:
+    tf = tbox(s, rx, ry, rw, Inches(0.95))
+    para(tf, lead, 13, SLATE, first=True, bold=True, after=3, lead=1.05)
+    para(tf, body, 11, BODY, after=0, lead=1.14)
+    ry = Emu(int(ry) + int(Inches(0.97)))
+rect(s, Inches(0.6), Inches(6.42), Inches(12.13), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.42), Inches(11.7), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Prioritising cadence over net realised alpha is a failure of fiduciary "
+     "underwriting — it mistakes the motion of trading for the disciplined "
+     "compounding of corporate value.", 12.5, WHITE, first=True, italic=True,
+     after=0, track=0)
+
 # ---- II.5b Strategic reframing: the discomfort is the moat ----
 s, top = content("Strategic Case", "The visible risks are the engine — not the cost",
                  "From “corporate raider” to “industrial constructivist”: the "
