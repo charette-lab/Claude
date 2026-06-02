@@ -2103,9 +2103,8 @@ rr_rows = [
      "underwrote."),
     ("Behavioural “hold-the-loser” risk",
      "Conviction curdles into denial; managers average down on emotion.",
-     "Automatic −10/−20/−30% triggers force a mandatory re-underwrite — exit a "
-     "broken thesis; control stakes are realised through the board, not a "
-     "forced sale."),
+     "Automatic −10/−20/−30% triggers force a mandatory re-underwrite — and a "
+     "determined (not forced) exit if the thesis is broken."),
 ]
 rtl = Inches(0.6); rcw = [Inches(3.05), Inches(4.45), Inches(4.6)]
 ry = top
@@ -2288,6 +2287,46 @@ para(tbox(s, Inches(0.8), Inches(6.42), Inches(11.7), Inches(0.62),
      "A flat share price is not a failed investment: the earnings keep "
      "compounding, the discount to intrinsic value widens, and the eventual "
      "buyer pays for the value we built.", 13, WHITE, first=True, italic=True,
+     after=0, track=0)
+
+# ---- II.5b3 Determined, not forced sellers (broken thesis) -----------------
+s, top = content("Strategic Case",
+                 "When the thesis breaks: determined, not forced",
+                 "The patient case holds while the business compounds. When its "
+                 "competitive position weakens, we sell decisively — even at a "
+                 "discount — and diversification is what lets us.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.3))
+para(colL, "WHEN WE SELL — AND WHY", 12.5, SLATE, first=True, bold=True, after=8)
+for t in ["The thesis breaks when the competitive position weakens — surfaced by "
+          "a price-drop re-underwrite, new information from our board seat, or the "
+          "news flow.",
+          "Then we sell. Not because we are forced to — no margin or capital "
+          "calls — but because we are determined to: redeploying into a winner "
+          "beats nursing a loser.",
+          "We accept that the mark falls meanwhile: in an illiquid name our own "
+          "selling pushes the price toward the now-lower intrinsic value. We take "
+          "that cost knowingly.",
+          "Twenty years have taught us that hesitating here costs far more than "
+          "the exit discount."]:
+    para(colL, t, 12.5, BODY, after=9, lead=1.14)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.3))
+para(colR, "WHY THE PROCESS AND PORTFOLIO MAKE IT WORK", 12.5, SLATE, first=True,
+     bold=True, after=8)
+for t in ["The purpose of our due diligence is to avoid businesses whose "
+          "competitive position will deteriorate — so this is the exception, not "
+          "the rule.",
+          "We hold a portfolio, not a single bet, precisely so no one thesis can "
+          "sink the fund.",
+          "Diversification is what lets us sell even an illiquid stake at the "
+          "necessary discount and still stay within our risk limits.",
+          "The board seat that surfaces the change early is also why we often see "
+          "it before the market does."]:
+    para(colR, t, 12.5, BODY, after=9, lead=1.14)
+rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Patient while the business compounds; decisive the moment it doesn’t — and "
+     "diversified enough to act.", 12.5, WHITE, first=True, italic=True,
      after=0, track=0)
 
 # ---- II.5c The non-linear path, honestly priced ----
