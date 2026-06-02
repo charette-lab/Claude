@@ -2109,9 +2109,9 @@ _wa = [
      "name at a new price, or across its competitors. Passing is the funnel "
      "working, not a loss."),
     ("The walk-away ledger",
-     "We keep a documented record of deep-diligence situations we declined when "
-     "alignment couldn’t be secured — available in diligence; proof the "
-     "sunk-cost fallacy is defeated, and often a source of avoided loss."),
+     "A documented record of situations we declined when alignment couldn’t be "
+     "secured. Robit is a clear case: we held a position, couldn’t negotiate a "
+     "board seat, and sold our shares — discipline over sunk cost."),
 ]
 bw = Inches(5.92); bh = Inches(1.92); gx = Inches(0.29); gy = Inches(0.14)
 bx0 = Inches(0.6)
