@@ -1837,6 +1837,74 @@ para(tbox(s, Inches(0.75), Inches(6.35), Inches(11.8), Inches(0.6)),
      "8–12 concentrated ideas must clear a 12% IRR hurdle and a ≤20% "
      "downside gate.", 13, SUBTLE, first=True, italic=True, after=0)
 
+# ---- II.5a1 Which risks we avoid, and why ---------------------------------
+s, top = content("Risk Management",
+                 "Which risks we are trying to avoid — and why",
+                 "Four levers — knowledge, influence, diversification and low "
+                 "leverage — each aimed at a specific risk we refuse to carry.",
+                 ref=tbl())
+rr_rows = [
+    ("The risk we refuse", "Why it is the one that matters",
+     "How the system removes it"),
+    ("Permanent loss of capital",
+     "The only loss that never recovers — and the one that ends careers.",
+     "Enter at the valuation floor; value only the rectifiable core; a "
+     "structural 30–40% margin of safety."),
+    ("Operational / execution risk",
+     "A cheap stock can still be run into the ground from the inside.",
+     "Board seats and control posts — chair and committees — so we hold the "
+     "levers to act, not just advise."),
+    ("Concentration risk",
+     "One bad underlying driver can sink a focused book.",
+     "Hard limits on the economic drivers — sector, cycle, geography, "
+     "maturity — never on industry labels."),
+    ("Leverage / solvency risk",
+     "Debt turns a drawdown into a wipeout and forces selling at the bottom.",
+     "Leverage is low and isolated to a single investment — never at the "
+     "fund level."),
+    ("Unwanted, uncompensated exposure",
+     "FX, raw materials and weak divisions add risk we are not paid to take.",
+     "Hedged or carved out — we keep only the exposure we actually "
+     "underwrote."),
+    ("Behavioural “hold-the-loser” risk",
+     "Conviction curdles into denial; managers average down on emotion.",
+     "Automatic −10 / −20 / −30% triggers force a thesis review and exit — "
+     "bias removed."),
+]
+rtl = Inches(0.6); rcw = [Inches(3.05), Inches(4.45), Inches(4.6)]
+ry = top
+for ri, row in enumerate(rr_rows):
+    head = ri == 0
+    rh = Inches(0.42) if head else Inches(0.665)
+    x = rtl
+    for ci, cell in enumerate(row):
+        if head:
+            fill = SLATE
+        else:
+            fill = HEADERBG if ri % 2 == 1 else WHITE
+        rect(s, x, ry, rcw[ci], rh, fill=fill)
+        ctf = tbox(s, Emu(int(x) + int(Inches(0.14))), ry,
+                   Emu(int(rcw[ci]) - int(Inches(0.26))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        if head:
+            col = WHITE
+        elif ci == 0:
+            col = SLATE
+        else:
+            col = BODY
+        para(ctf, cell, 11.5 if head else (11.5 if ci == 0 else 11), col,
+             bold=(head or ci == 0), first=True, after=0, lead=1.08)
+        x = Emu(int(x) + int(rcw[ci]))
+    ry = Emu(int(ry) + int(rh))
+rect(s, Inches(0.6), Emu(int(ry) + int(Inches(0.14))), Inches(12.1),
+     Inches(0.5), fill=NAVY)
+para(tbox(s, Inches(0.8), Emu(int(ry) + int(Inches(0.14))), Inches(11.7),
+          Inches(0.5), anchor=MSO_ANCHOR.MIDDLE),
+     "We do not try to avoid volatility — we try to avoid the losses that do "
+     "not come back. The limits and the board seat are what make that a "
+     "discipline, not a hope.", 12, WHITE, first=True, italic=True, after=0,
+     track=0)
+
 # ---- II.5a2 The risk limits (diversification by design) -------------------
 s, top = content("Risk Management",
                  "Diversification by design: the risk limits",
