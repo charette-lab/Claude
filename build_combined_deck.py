@@ -525,6 +525,118 @@ agenda_s, agenda_top = content("Overview", "Contents")
 # ===========================================================================
 divider("Why allocate to engaged ownership", kicker="Part I  ·  The asset class")
 
+# ---- I.0a Market backdrop: expensive equities + sticky rates ---------------
+s, top = content("Market Context",
+                 "Why now — the easy decade for beta is over",
+                 "Equities are expensive on almost every measure, and the "
+                 "disinflation and zero-rate tailwind that lifted all assets has "
+                 "reversed.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.0))
+para(colL, "EXPENSIVE ON MOST MEASURES", 13, SLATE, first=True, bold=True,
+     after=8)
+for t in ["Shiller CAPE near ~36× — close to the dot-com extreme, and roughly "
+          "double the long-run ~17×.",
+          "Forward P/E ~22× against a ~16× long-run average; the equity risk "
+          "premium is compressed to multi-decade lows.",
+          "Most of the 2010s’ return came from re-rating — paying more per "
+          "dollar of earnings — not earnings growth. That lever is largely "
+          "spent."]:
+    para(colL, t, 13.5, BODY, after=10, lead=1.16)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.0))
+para(colR, "THE MACRO TAILWIND HAS REVERSED", 13, SLATE, first=True, bold=True,
+     after=8)
+for t in ["The zero-rate, disinflationary backdrop that lifted every asset for "
+          "a decade has reversed.",
+          "Deglobalisation, fiscal deficits and demographics point to "
+          "structurally higher inflation and rates — higher for longer.",
+          "A higher cost of capital compresses valuations and punishes "
+          "long-duration, unprofitable growth — the opposite of the last "
+          "cycle."]:
+    para(colR, t, 13.5, BODY, after=10, lead=1.16)
+rect(s, Inches(0.6), Inches(6.32), Inches(12.13), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "When beta is priced for perfection and the macro tailwind has reversed, "
+     "index returns are set to be lower and riskier — the moment idiosyncratic, "
+     "valuation-disciplined returns matter most.", 13, WHITE, first=True,
+     italic=True, after=0)
+para(tbox(s, Inches(0.6), Inches(7.12), Inches(8.0), Inches(0.36)),
+     "Illustrative, recent data (2024–25); sources: R. Shiller (Yale) CAPE; "
+     "S&P Dow Jones Indices; consensus forward earnings. Valuations move — the "
+     "regime, not the decimal, is the point.", 7.5, FOOT, first=True, after=0,
+     lead=1.05)
+
+# ---- I.0b The passive paradox: concentration & factor risk -----------------
+s, top = content("Market Context",
+                 "Passive has become a concentrated bet",
+                 "A cap-weighted index puts the most money into the stocks that "
+                 "have already risen the most — concentration and factor risk "
+                 "dressed as diversification.")
+cstats = [("~38%", "of the S&P 500 in its\n10 largest stocks*"),
+          ("~33%", "in the “Magnificent\nSeven” alone*"),
+          ("~50 yrs", "since US equity was\nthis concentrated*")]
+bw = Inches(3.9); gpx = Inches(0.2); cx = Inches(0.75)
+for big, lab in cstats:
+    rect(s, cx, top, bw, Inches(1.5), fill=HEADERBG)
+    rect(s, cx, top, bw, Inches(0.06), fill=NAVY)
+    ctf = tbox(s, cx, Emu(int(top) + int(Inches(0.22))), bw, Inches(1.2))
+    para(ctf, big, 30, NAVY_TX, first=True, align=PP_ALIGN.CENTER, after=3,
+         font=SERIF)
+    for line in lab.split("\n"):
+        para(ctf, line, 11.5, SUBTLE, align=PP_ALIGN.CENTER, after=0)
+    cx = Emu(int(cx) + int(bw) + int(gpx))
+checklist(s, [
+    ("Cap-weighting buys high by design.", "The more a stock rises, the more of "
+     "it you must own — the opposite of buy-low discipline."),
+    ("A concentrated factor bet.", "The “diversified” index is now a leveraged "
+     "position in large-cap growth, momentum and a single theme (AI) — not "
+     "diversification."),
+    ("Breadth is fragile.", "A stumble in a handful of mega-caps now moves the "
+     "entire index; the rest of the market has been left behind."),
+], Emu(int(top) + int(Inches(1.72))), size=14, gap=12)
+para(tbox(s, Inches(0.6), Inches(7.12), Inches(8.0), Inches(0.36)),
+     "*Illustrative, recent data (2024–25); source: S&P Dow Jones Indices. "
+     "Index concentration and factor tilts change over time.", 7.5, FOOT,
+     first=True, after=0, lead=1.05)
+
+# ---- I.0c "Cheap" passive is not cheap -------------------------------------
+s, top = content("Market Context",
+                 "“Cheap” index exposure is not cheap",
+                 "The headline expense ratio is the smallest part of the cost — "
+                 "and you pay full price to own concentration and rich "
+                 "valuations.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.0))
+para(colL, "THE COSTS YOU DON’T SEE", 13, SLATE, first=True, bold=True, after=8)
+for t in ["Bid-ask spreads and market impact on every trade — and on every "
+          "index rebalance.",
+          "Index reconstitution forces buying additions high and selling "
+          "deletions low, in size, on known dates.",
+          "Premium/discount to NAV, securities-lending give-up and tax drag all "
+          "sit on top of the headline fee."]:
+    para(colL, t, 13.5, BODY, after=10, lead=1.16)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.0))
+para(colR, "THE COST THAT MATTERS MOST", 13, SLATE, first=True, bold=True,
+     after=8)
+for t in ["A 3–9 bp fee looks cheap — but it buys the most expensive companies "
+          "at peak weights, with no valuation discipline.",
+          "No one is improving the underlying businesses; you simply own "
+          "crowded beta at full price.",
+          "“Cheap” fees on an expensive, concentrated portfolio are a false "
+          "economy — the price you pay is the risk you take."]:
+    para(colR, t, 13.5, BODY, after=10, lead=1.16)
+rect(s, Inches(0.6), Inches(6.32), Inches(12.13), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "The default “safe and cheap” choice now embeds maximum valuation and "
+     "concentration risk — precisely why a valuation-disciplined, idiosyncratic "
+     "return engine earns its place.", 13, WHITE, first=True, italic=True,
+     after=0)
+para(tbox(s, Inches(0.6), Inches(7.12), Inches(8.6), Inches(0.36)),
+     "Large S&P 500 ETF expense ratios are ~3–9 bps; total cost of ownership is "
+     "higher once spreads, market impact, rebalancing and tax are included.",
+     7.5, FOOT, first=True, after=0, lead=1.05)
+
+
 # ---- I.1 Return & alpha ----
 s, top = content("The Proposition",
                  "A catalyst-driven source of return",
