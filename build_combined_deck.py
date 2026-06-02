@@ -600,35 +600,57 @@ para(tbox(s, Inches(0.6), Inches(7.12), Inches(8.0), Inches(0.36)),
      first=True, after=0, lead=1.05)
 
 # ---- I.0b2 Reflexivity: passive flows cut both ways ------------------------
+def _passive_chart(path):
+    yrs = [1995, 2000, 2005, 2010, 2013, 2016, 2019, 2021, 2024]
+    shr = [4, 9, 13, 19, 25, 34, 43, 50, 55]
+    fig, ax = plt.subplots(figsize=(5.95, 3.5))
+    ax.fill_between(yrs, shr, color=H_BLUE4, alpha=0.22, zorder=1)
+    ax.plot(yrs, shr, color=H_NAVY, lw=2.6, zorder=3)
+    ax.axhline(50, color=H_BLUE4, lw=1.0, ls=(0, (4, 3)), zorder=2)
+    ax.text(1996, 51.5, "≈ passive overtakes active", color=H_BLUE3,
+            fontsize=9.5, style="italic")
+    ax.scatter([2024], [55], color=H_NAVY, s=30, zorder=4)
+    ax.annotate("~55%", (2024, 55), textcoords="offset points", xytext=(-4, 7),
+                ha="right", color=H_NAVY, fontsize=12, fontweight="bold")
+    ax.annotate("~4%", (1995, 4), textcoords="offset points", xytext=(3, 6),
+                color=H_BLUE3, fontsize=9.5)
+    ax.set_xlim(1994.5, 2025.5); ax.set_ylim(0, 66)
+    ax.set_yticks([0, 20, 40, 60]); ax.set_yticklabels(["0%", "20%", "40%", "60%"])
+    ax.set_xticks([1995, 2000, 2005, 2010, 2015, 2020, 2024])
+    ax.set_title("Passive share of US equity fund assets, 1995–2024",
+                 color=H_NAVY, fontsize=12.5, fontweight="bold", loc="left",
+                 pad=10)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    ax.spines["left"].set_color(H_BLUE5); ax.spines["bottom"].set_color(H_BLUE5)
+    ax.tick_params(colors=H_BODY, labelsize=9.5)
+    ax.grid(axis="y", color=H_BLUE5, lw=0.6, zorder=0)
+    fig.tight_layout()
+    fig.savefig(path, dpi=200, transparent=True)
+    plt.close(fig)
+
+
+_passive_chart("/tmp/mc_passive.png")
 s, top = content("Market Context",
                  "Passive flows cut both ways",
-                 "Price-insensitive index buying has inflated the largest "
-                 "stocks — and the same mechanics can force selling on the way "
-                 "down. The research is now substantial.")
-colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.0))
-para(colL, "WHAT THE RESEARCH SHOWS", 13, SLATE, first=True, bold=True, after=8)
-for t in ["Markets are inelastic: a $1 flow into equities can move aggregate "
-          "value by ~$5 — flows, not fundamentals, set much of the level "
-          "(Gabaix & Koijen, 2021).",
-          "ETF ownership raises the volatility of the underlying stocks and "
-          "spreads non-fundamental shocks (Ben-David, Franzoni & Moussawi, "
-          "2018).",
-          "Index inclusion lifts a stock’s price and its comovement with the "
-          "index — detaching it from fundamentals (Wurgler, 2011).",
-          "Passive ownership is roughly double the reported figure — a large, "
-          "price-insensitive base (Chinco & Sammon, 2024)."]:
-    para(colL, t, 12.5, BODY, after=9, lead=1.14)
-colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.0))
-para(colR, "WHY IT CAN REVERSE", 13, SLATE, first=True, bold=True, after=8)
-for t in ["Index funds buy in proportion to weight, regardless of price — so "
-          "years of inflows bid up the largest, most-weighted names the most.",
-          "The multiplier runs in reverse: slowing or reversing flows force "
-          "mechanical selling by the funds that must track the index.",
-          "With few price-sensitive buyers left to absorb it, the "
-          "concentration that amplified the rise can amplify the fall.",
-          "The crowded mega-caps are the most exposed — the more the index owns "
-          "them, the more must be sold."]:
-    para(colR, t, 12.5, BODY, after=9, lead=1.14)
+                 "Index buying has grown from a niche to the majority of US "
+                 "equity fund assets — and the same price-insensitive mechanics "
+                 "can force selling on the way down.")
+s.shapes.add_picture("/tmp/mc_passive.png", Inches(0.6),
+                     Emu(int(top) + int(Inches(0.05))), width=Inches(6.15))
+colR = tbox(s, Inches(7.05), top, Inches(5.6), Inches(4.2))
+para(colR, "WHY IT CUTS BOTH WAYS", 12.5, SLATE, first=True, bold=True, after=8)
+for t in ["Markets are inelastic — a $1 flow can move aggregate value by ~$5; "
+          "flows increasingly set the level (Gabaix & Koijen, 2021).",
+          "ETFs raise the volatility of the stocks they hold (Ben-David et al., "
+          "2018); index inclusion inflates prices and comovement (Wurgler, "
+          "2011).",
+          "The reported passive share understates the true price-insensitive "
+          "base (Chinco & Sammon, 2024).",
+          "The multiplier runs in reverse: if flows slow, the most-owned "
+          "mega-caps face mechanical selling — with few price-sensitive buyers "
+          "left to absorb it."]:
+    para(colR, t, 12, BODY, after=9, lead=1.16)
 rect(s, Inches(0.6), Inches(6.32), Inches(12.13), Inches(0.6), fill=NAVY)
 para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.6),
           anchor=MSO_ANCHOR.MIDDLE),
@@ -636,10 +658,11 @@ para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.6),
      "forced-seller overhang on the way down — a risk you do not carry when "
      "returns come from company-specific change, not from flows.", 13, WHITE,
      first=True, italic=True, after=0)
-para(tbox(s, Inches(0.6), Inches(7.12), Inches(8.6), Inches(0.36)),
-     "Peer-reviewed and working-paper research; full citations in references. "
-     "Findings summarised — magnitudes vary by study and period.", 7.5, FOOT,
-     first=True, after=0, lead=1.05)
+para(tbox(s, Inches(0.6), Inches(7.12), Inches(12.0), Inches(0.36)),
+     "Passive share approximate; sources: ICI, Morningstar (index funds + ETFs "
+     "as a share of US equity fund assets). Research citations in references.",
+     7.5, FOOT, first=True, after=0, lead=1.05)
+
 
 # ---- I.0c "Cheap" passive is not cheap -------------------------------------
 s, top = content("Market Context",
