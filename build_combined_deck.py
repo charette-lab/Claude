@@ -766,7 +766,7 @@ subdivider("Team & operations")
 # ---- II.1 At a glance ----
 s, top = content("Overview", "Athanase at a glance")
 # four big stats
-stats = [("39", "investments as\nengaged owners"),
+stats = [("38", "investments as\nengaged owners"),
          (f"{_ENTRY_AVG*100:.0f}%", "avg annualised NET,\nany entry month*"),
          (f"{_ENTRY_WORST*100:.0f}%", "worst-ever entry,\nstill positive*"),
          (f"{_ATH['mult']:.0f}×", "growth of capital\nsince 2006")]
@@ -825,7 +825,7 @@ for i, (yr, name) in enumerate(nodes):
               Inches(2.2), Inches(0.3))
     para(nt, name, 12, SLATE, first=True, align=PP_ALIGN.CENTER, after=0)
 checklist(s, [
-    ("39 companies managed,", "with a proven ability to tell a “strong "
+    ("38 companies managed,", "with a proven ability to tell a “strong "
      "core” from a “prestige trap”."),
     ("30+ public board seats", "— real experience mandating pivots and "
      "protecting shareholder interests, not writing engagement letters."),
@@ -960,7 +960,7 @@ para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
 
 # ---- II.2e Ownership model (the value-creation playbook) -------------------
 s, top = content("Ownership Model",
-                 "The ownership playbook, honed over 39 investments",
+                 "The ownership playbook, honed over 38 investments",
                  "A repeatable sequence that turns a board seat into operational "
                  "value — refocusing a good core, then growing it.")
 steps = [
@@ -1006,7 +1006,7 @@ for idx, (num, ti, bd) in enumerate(steps):
               Emu(int(sw) - int(Inches(0.45))), Inches(0.85)),
          bd, 9.5, BODY, first=True, after=0, lead=1.12, track=0)
 para(tbox(s, Inches(0.6), Inches(6.5), Inches(12.2), Inches(0.5)),
-     "The same playbook across 39 companies — value created by fixing capital "
+     "The same playbook across 38 companies — value created by fixing capital "
      "allocation, not by financial engineering or leverage.",
      12.5, SLATE, first=True, italic=True, after=0)
 
@@ -1788,7 +1788,7 @@ sy = Emu(int(endy) + int(Inches(0.10)))
 rect(s, Inches(0.75), sy, Inches(10.7), Inches(0.34), fill=NAVY)
 stf = tbox(s, Inches(0.9), sy, Inches(10.4), Inches(0.34), anchor=MSO_ANCHOR.MIDDLE)
 para(stf, "17 deals   ·   weighted MOIC 2.2x   ·   ex best/worst IRR 41% vs "
-     "index ~9%   ·   36 of 39 deals profitable since 2006", 10.5, WHITE,
+     "index ~9%   ·   35 of 38 deals profitable since 2006", 10.5, WHITE,
      first=True, after=0)
 ny = Emu(int(sy) + int(Inches(0.34)) + int(Inches(0.08)))
 nt = tbox(s, Inches(0.75), ny, Inches(11.8), Inches(0.35))
@@ -1822,7 +1822,7 @@ para(nt, "Selected larger deals of the investment team. Losses shown in italic. 
 # ---- II.6c-2 Earlier deals — part of the team (1996-2004) ------------------
 s, top = content("Track Record",
                  "Earlier deals — part of the team (1996–2006)",
-                 "The 39-deal record is the full team since 2006. Earlier, "
+                 "The 38-deal record is the full team since 2006. Earlier, "
                  "members of the team led these larger deals from 1996 — the "
                  "same engaged-ownership playbook, through earlier cycles.",
                  ref=tbl())
@@ -1897,12 +1897,12 @@ para(nt, "Source: independent institutional due-diligence review, May 2026, on "
 s, top = content("Independent Review",
                  "Repeatable and conviction-sized — not lucky",
                  "The review tested the “you can’t rely on the big winners” "
-                 "objection directly against 39 deals over 20 years.")
+                 "objection directly against 38 deals over 20 years.")
 colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.6))
 para(colL, "REPEATABLE", 13, SLATE, first=True, bold=True, after=7)
-for t in ["92% deal-level hit rate (36 of 39 profitable); losses ~8% of "
+for t in ["92% deal-level hit rate (35 of 38 profitable); losses ~8% of "
           "cumulative invested capital",
-          "10 of 39 deals returned ≥5× MOIC — one such win every ~2 years",
+          "9 of 38 deals returned ≥5× MOIC — one such win every ~2 years",
           "Two decade-definers, not one: Klarna 28× (2007) and Athanase Tech "
           "5.4× (2021)"]:
     para(colL, t, 14, BODY, after=11, lead=1.13)
@@ -3019,7 +3019,7 @@ quads = [
     ("4 · The proof — two decades of compounding", [
         ("16.3% net p.a.; capital grown 18×",
          "across multiple market cycles."),
-        ("92% deal-level hit rate (39 deals)",
+        ("92% deal-level hit rate (38 deals)",
          "a 5× MOIC roughly every two years."),
         ("93% up-capture vs 43% down-capture",
          "losing less than half preserves the compounding base.")]),
