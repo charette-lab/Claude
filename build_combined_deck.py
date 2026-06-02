@@ -1775,6 +1775,9 @@ para(pr, f"Losing less in drawdowns leaves more capital working in the recovery 
 
 # ---- II.6b Transactions: AIP Fund II ----
 FUND2, HIST = load_transactions()
+# Brokk (2003–2006) ended in 2006 — it belongs in the earlier (pre-2006)
+# deals table, not the 2006–2014 prior-period bucket.
+HIST = [d for d in HIST if d["company"].strip().lower() != "brokk"]
 s, top = content("Track Record", "AIP Fund II — transactions (2015–present)",
                  "Each position shown against its benchmark; invested capital "
                  "weighted MOIC of 2.2x.", ref=tbl())
@@ -1808,7 +1811,7 @@ deal_table(s, Inches(6.95), top, HIST[half:], cwh, font=10,
 sy = top + Inches(3.55)
 rect(s, Inches(0.6), sy, Inches(11.05), Inches(0.34), fill=NAVY)
 stf = tbox(s, Inches(0.75), sy, Inches(10.7), Inches(0.34), anchor=MSO_ANCHOR.MIDDLE)
-para(stf, "22 deals   ·   weighted MOIC 2.7x   ·   average IRR 68%   ·   "
+para(stf, "21 deals   ·   weighted MOIC 2.7x   ·   average IRR 68%   ·   "
      "index outperformance +25 pts (invested-weighted)", 10.5, WHITE, first=True,
      after=0)
 nt = tbox(s, Inches(0.6), Inches(6.95), Inches(11.8), Inches(0.4))
@@ -1818,7 +1821,7 @@ para(nt, "Selected larger deals of the investment team. Losses shown in italic. 
 
 # ---- II.6c-2 Earlier deals — part of the team (1996-2004) ------------------
 s, top = content("Track Record",
-                 "Earlier deals — part of the team (1996–2004)",
+                 "Earlier deals — part of the team (1996–2006)",
                  "The 39-deal record is the full team since 2006. Earlier, "
                  "members of the team led these larger deals from 1996 — the "
                  "same engaged-ownership playbook, through earlier cycles.",
@@ -1833,6 +1836,7 @@ EARLY = [
     dict(company="Perstorp", period="1996–01", irr=0.104, moic=1.6, outp=-0.060),
     dict(company="Acando", period="1999–04", irr=-0.023, moic=0.9, outp=-0.068),
     dict(company="Pergo", period="2001–03", irr=-0.224, moic=0.9, outp=-0.151),
+    dict(company="Brokk", period="2003–06", irr=0.738, moic=5.25, outp=0.460),
 ]
 cwh = [Inches(2.7), Inches(1.45), Inches(1.45)]
 endL = deal_table(s, Inches(0.6), top, EARLY[:5], cwh, font=10,
@@ -1845,13 +1849,13 @@ sy = Emu(int(max(int(endL), int(endR))) + int(Inches(0.14)))
 rect(s, Inches(0.6), sy, Inches(11.05), Inches(0.34), fill=NAVY)
 stf = tbox(s, Inches(0.75), sy, Inches(10.7), Inches(0.34),
            anchor=MSO_ANCHOR.MIDDLE)
-para(stf, "9 deals   ·   weighted MOIC 1.9x   ·   gross IRR 22%   ·   "
+para(stf, "10 deals   ·   weighted MOIC 2.0x   ·   gross IRR 22%   ·   "
      "+9.9% p.a. vs the SIX index", 10.5, WHITE, first=True, after=0)
 nt = tbox(s, Inches(0.6), Emu(int(sy) + int(Inches(0.46))), Inches(11.8),
           Inches(0.4))
 para(nt, "Selected larger deals led by members of the current team from 1996, "
      "before the full team formed in 2006. Losses shown in lighter type. "
-     "Capital in SEK; SEK 7.1bn invested → SEK 13.7bn returned.", 8.5, FOOT,
+     "Capital in SEK; SEK 7.2bn invested → SEK 14.3bn returned.", 8.5, FOOT,
      first=True, after=0, lead=1.1)
 
 
