@@ -1811,7 +1811,7 @@ deal_table(s, Inches(6.95), top, HIST[half:], cwh, font=10,
 sy = top + Inches(3.55)
 rect(s, Inches(0.6), sy, Inches(11.05), Inches(0.34), fill=NAVY)
 stf = tbox(s, Inches(0.75), sy, Inches(10.7), Inches(0.34), anchor=MSO_ANCHOR.MIDDLE)
-para(stf, "21 deals   ·   weighted MOIC 2.7x   ·   average IRR 68%   ·   "
+para(stf, "21 deals   ·   weighted MOIC 2.6x   ·   average IRR 68%   ·   "
      "index outperformance +25 pts (invested-weighted)", 10.5, WHITE, first=True,
      after=0)
 nt = tbox(s, Inches(0.6), Inches(6.95), Inches(11.8), Inches(0.4))
