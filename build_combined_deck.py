@@ -1837,6 +1837,95 @@ para(tbox(s, Inches(0.75), Inches(6.35), Inches(11.8), Inches(0.6)),
      "8–12 concentrated ideas must clear a 12% IRR hurdle and a ≤20% "
      "downside gate.", 13, SUBTLE, first=True, italic=True, after=0)
 
+# ---- II.5a2 The risk limits (diversification by design) -------------------
+s, top = content("Risk Management",
+                 "Diversification by design: the risk limits",
+                 "Hard limits on the underlying economic drivers — not industry "
+                 "labels — so the portfolio can never quietly become a single "
+                 "bet.", ref=tbl())
+rl_rows = [
+    ("Risk dimension", "Max % of NAV", "How it is spread"),
+    ("Sector", "≤ 50%", "≤ 30% in any one; at least 5 sectors"),
+    ("Economic cycle", "≤ 60%", "early / mid / late — at least 2 represented"),
+    ("Development maturity", "≤ 60%",
+     "early / mid / late stage — at least 2 represented"),
+    ("Geography", "≤ 50%", "≤ 30% in any one; at least 4 of 6 regions"),
+    ("Core ownership stake", "≤ 40%", "8–12 high-conviction positions"),
+    ("Single financial position", "≤ 20% long / ≤ 10% short",
+     "satellite book; single-name shorts ≤ 30% in total"),
+]
+tl = Inches(0.6); cwl = [Inches(3.3), Inches(2.85), Inches(5.95)]
+y = top
+for ri, row in enumerate(rl_rows):
+    head = ri == 0
+    rh = Inches(0.42) if head else Inches(0.52)
+    x = tl
+    for ci, cell in enumerate(row):
+        if head:
+            fill = NAVY if ci == 1 else SLATE
+        else:
+            fill = HEADERBG if ri % 2 == 1 else WHITE
+        rect(s, x, y, cwl[ci], rh, fill=fill)
+        ctf = tbox(s, Emu(int(x) + int(Inches(0.14))), y,
+                   Emu(int(cwl[ci]) - int(Inches(0.24))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        if head:
+            col = WHITE
+        elif ci == 0:
+            col = SLATE
+        elif ci == 1:
+            col = NAVY_TX
+        else:
+            col = BODY
+        para(ctf, cell, 11.5 if head else 11, col,
+             bold=(head or ci <= 1), first=True, after=0, lead=1.03,
+             align=(PP_ALIGN.CENTER if (head and ci == 1) or (not head and ci == 1) else PP_ALIGN.LEFT))
+        x = Emu(int(x) + int(cwl[ci]))
+    y = Emu(int(y) + int(rh))
+rect(s, Inches(0.6), Emu(int(y) + int(Inches(0.16))), Inches(12.1),
+     Inches(0.62), fill=NAVY)
+para(tbox(s, Inches(0.8), Emu(int(y) + int(Inches(0.16))), Inches(11.7),
+          Inches(0.62), anchor=MSO_ANCHOR.MIDDLE),
+     "Limits are set on the underlying macroeconomic drivers, not labels. "
+     "Leverage is limited and isolated to the single investment; unwanted "
+     "exposures — FX, raw materials, weak divisions — are hedged out.", 12.5,
+     WHITE, first=True, italic=True, after=0, track=0)
+
+# ---- II.5a3 How risk is governed (cadence + who decides) ------------------
+s, top = content("Risk Management",
+                 "How risk is governed: who decides, and when",
+                 "Every holding is re-underwritten continuously by the people "
+                 "closest to it — with sizing and exits owned at the committee, "
+                 "and operations independent.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.2))
+para(colL, "THE CADENCE — RE-UNDERWRITTEN, NOT SET-AND-FORGET", 12.5, SLATE,
+     first=True, bold=True, after=8)
+for t in ["Continuous monitoring of every holding against the original thesis "
+          "and operating plan.",
+          "Each quarter, the company’s operating model is rebuilt from new "
+          "financials — earnings power, competitive position and economic-cycle "
+          "exposure re-assessed.",
+          "Stress tests on each holding’s financial and operating performance "
+          "to find weak spots and refine the action plan."]:
+    para(colL, t, 13, BODY, after=11, lead=1.16)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.2))
+para(colR, "WHO DECIDES", 12.5, SLATE, first=True, bold=True, after=8)
+for t in ["The deal lead and investment team re-underwrite each name and "
+          "propose the action.",
+          "The Investment Committee owns position sizing and portfolio-level "
+          "risk.",
+          "Operations, risk and valuation sit independent of the investment "
+          "team — SEB · MUFG · KPMG verify every mark.",
+          "The board seat is the lever to act — freeze bad capital allocation, "
+          "change management."]:
+    para(colR, t, 13, BODY, after=10, lead=1.16)
+rect(s, Inches(0.6), Inches(6.32), Inches(12.13), Inches(0.62), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.62),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "And a hard backstop: automatic −10% / −20% / −30% triggers force a thesis "
+     "review and exit — so no position can spiral on portfolio-manager "
+     "emotion.", 13, WHITE, first=True, italic=True, after=0, track=0)
+
 # ---- II.5b Strategic reframing: the discomfort is the moat ----
 s, top = content("Strategic Case", "The visible risks are the engine — not the cost",
                  "From “corporate raider” to “industrial constructivist”: "
