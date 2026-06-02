@@ -897,6 +897,74 @@ checklist(s, [
      "company — scarce in a beta-dominated portfolio."),
 ], top, size=15.5, gap=12)
 
+# ---- I.1b The AI shift: what it commoditises, and what it can't ------------
+s, top = content("The Proposition", "What AI changes — and what it can’t",
+                 "As machine analysis becomes ubiquitous, information-based edges "
+                 "are competed away faster. Engaged ownership creates the change "
+                 "rather than reads it — the least commoditised style.", ref=tbl())
+ai_rows = [
+    ("Investment style", "How AI changes it", "Effect on the edge"),
+    ("Quantitative / factor",
+     "Known signals are replicated and arbitraged at machine speed.",
+     "More crowded — published factors already fade ~58% post-publication "
+     "(McLean & Pontiff, 2016)."),
+    ("Growth & value (fundamental)",
+     "LLMs already match or beat analysts at predicting the direction of "
+     "earnings (Kim, Muhn & Nikolaev, 2024).",
+     "The analytical edge commoditises; the crowd grows and the edge thins."),
+    ("Passive / index",
+     "Method unchanged — but more capital chases a shrinking pool of active "
+     "alpha.",
+     "Concentration and reflexivity risk rise (see §2–3)."),
+    ("Engaged ownership",
+     "Alpha comes from changing the earnings trajectory from a board seat — not "
+     "from reading public data faster. AI augments our sourcing and diligence; "
+     "it can’t replicate access, influence or execution.",
+     "Least commoditised — the edge is created, not discovered."),
+]
+aitl = Inches(0.6); aicw = [Inches(2.75), Inches(5.15), Inches(4.2)]
+aihs = [Inches(0.4), Inches(0.78), Inches(0.84), Inches(0.66), Inches(1.06)]
+ay = top
+for ri, row in enumerate(ai_rows):
+    head = ri == 0
+    emph = (ri == len(ai_rows) - 1)
+    rh = aihs[ri]
+    x = aitl
+    for ci, cell in enumerate(row):
+        if head:
+            fill = SLATE
+        elif emph and ci == 0:
+            fill = NAVY
+        elif emph:
+            fill = BLUE5
+        else:
+            fill = HEADERBG if ri % 2 == 1 else WHITE
+        rect(s, x, ay, aicw[ci], rh, fill=fill)
+        ctf = tbox(s, Emu(int(x) + int(Inches(0.14))), ay,
+                   Emu(int(aicw[ci]) - int(Inches(0.26))), rh,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        if head:
+            col = WHITE
+        elif emph and ci == 0:
+            col = WHITE
+        elif ci == 0:
+            col = SLATE
+        elif ci == 2:
+            col = NAVY_TX
+        else:
+            col = BODY
+        para(ctf, cell, 11.5 if head else (11 if ci == 0 else 10.5), col,
+             bold=(head or ci == 0 or ci == 2), first=True, after=0, lead=1.08)
+        x = Emu(int(x) + int(aicw[ci]))
+    ay = Emu(int(ay) + int(rh))
+rect(s, Inches(0.6), Emu(int(ay) + int(Inches(0.14))), Inches(12.1), Inches(0.55),
+     fill=NAVY)
+para(tbox(s, Inches(0.8), Emu(int(ay) + int(Inches(0.14))), Inches(11.7),
+          Inches(0.55), anchor=MSO_ANCHOR.MIDDLE),
+     "When everyone can analyse, analysis stops being an edge. The durable edge "
+     "is the one AI can’t run — changing the company itself.", 12.5, WHITE,
+     first=True, italic=True, after=0, track=0)
+
 # ---- I.2 Horizon & fiduciary ----
 s, top = content("Fit", "Aligned with horizon and fiduciary duty")
 checklist(s, [
@@ -4197,6 +4265,14 @@ _refs(r1, Inches(6.95), Inches(2.12), Inches(5.85), [
       "financial fluctuations: The inelastic markets hypothesis. ", False),
      ("NBER Working Paper No. 28967", True),
      (". https://doi.org/10.3386/w28967", False)],
+    [("Kim, A. G., Muhn, M., & Nikolaev, V. V. (2024). Financial statement "
+      "analysis with large language models. ", False),
+     ("Chicago Booth Research Paper (working paper)", True),
+     (". https://doi.org/10.48550/arXiv.2407.17866", False)],
+    [("McLean, R. D., & Pontiff, J. (2016). Does academic research destroy "
+      "stock return predictability? ", False),
+     ("The Journal of Finance, 71", True),
+     ("(1), 5–32. https://doi.org/10.1111/jofi.12365", False)],
     [("Petajisto, A. (2011). The index premium and its hidden cost for index "
       "funds. ", False), ("Journal of Empirical Finance, 18", True),
      ("(2), 271–288. https://doi.org/10.1016/j.jempfin.2010.10.002", False)],
