@@ -1988,6 +1988,17 @@ for t in ["It is a tollgate input: a credible path to alignment is a "
           "The backstop: if the read is wrong and the board obstructs, board "
           "control lets us change it — otherwise we walk away."]:
     para(colR, t, 12.5, BODY, after=9, lead=1.14)
+rect(s, Inches(0.6), Inches(5.28), Inches(12.16), Inches(0.92), fill=HEADERBG)
+rect(s, Inches(0.6), Inches(5.28), Inches(0.07), Inches(0.92), fill=NAVY)
+para(tbox(s, Inches(0.85), Inches(5.36), Inches(11.6), Inches(0.3)),
+     "THE PROPRIETARY EDGE", 12, NAVY, first=True, bold=True, after=4)
+para(tbox(s, Inches(0.85), Inches(5.66), Inches(11.7), Inches(0.5)),
+     "A proprietary database of ~20,000 CEOs — adjusted for industry and size — "
+     "benchmarks each management team’s real track record. For the behavioural "
+     "read we bring in psychologists to assess the actions of the board and "
+     "management, and apply our own interviewing — a core skill honed over "
+     "countless meetings — to hear what they really say and mean.",
+     11, BODY, first=True, after=0, lead=1.14)
 rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
 para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
           anchor=MSO_ANCHOR.MIDDLE),
