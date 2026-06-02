@@ -1048,8 +1048,9 @@ _mech = [
      "— not a financial engineer. Met as a peer who supplies the missing "
      "experience, defensiveness gives way to collaboration."),
     ("The board seat is the start, not a threat",
-     "Secured as a precondition — often the nomination committee itself proposes "
-     "the director. Granting board seats is the proven, low-cost route to change "
+     "In the Nordics the nomination committee is shareholder-led and rarely "
+     "includes sitting directors — owners reshape boards without a public fight. "
+     "Secured as a precondition, it is the proven, low-cost route to change "
      "(Bebchuk, Brav, Jiang & Keusch, 2020) versus the ~$10.7m and entrenchment a "
      "proxy fight triggers (Gantchev, 2013)."),
     ("We fund their best business",
@@ -1912,6 +1913,49 @@ para(tbox(s, Inches(0.6), Inches(7.14), Inches(12.6), Inches(0.4)),
      "Roughly one investment a year clears all three tollgates. The board seat "
      "is the engine of both value creation and risk control.",
      9, FOOT, first=True, after=0, track=0, lead=1.1)
+
+# ---- How we invest 4: THE CONSTRUCTIVE ENGAGEMENT FRAMEWORK -----------------
+s, top = content("How we invest · Engage",
+                 "Constructive by design — agreement before capital",
+                 "A Nordic governance model, exported and honed over 20 years: we "
+                 "secure the board’s agreement before we commit — and never stake "
+                 "our reputation on a public fight.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.3))
+para(colL, "HOW WE SECURE CHANGE WITHOUT A FIGHT", 12.5, SLATE, first=True,
+     bold=True, after=8)
+for t in ["Nordic roots: there the nomination committee is appointed by "
+          "shareholders and rarely includes sitting directors — owners reshape "
+          "the board, incumbents don’t defend it. We built the model there and "
+          "exported it.",
+          "Agreement before capital: we secure the board’s alignment before "
+          "committing a larger position — the engagement risk is underwritten "
+          "before the capital is.",
+          "We pre-screen management and run a behavioural analysis, so we know "
+          "how each board and CEO will respond before we engage.",
+          "Honed over 20 years by trial and error with immediate feedback — every "
+          "engagement reinforces what works."]:
+    para(colL, t, 12.5, BODY, after=9, lead=1.14)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.3))
+para(colR, "THE DISCIPLINE — AND THE BACKSTOP", 12.5, SLATE, first=True,
+     bold=True, after=8)
+for t in ["We have never needed a public fight to win a board seat — and will "
+          "not stake a 20-year reputation on one.",
+          "If alignment can’t be reached, we walk away. That is cheaper than "
+          "being wrong: no capital committed, no reputational toll, no protracted "
+          "defense.",
+          "Once we hold a position, if the board obstructs we replace the board "
+          "and management — through the shareholder-led committee, not a proxy "
+          "war.",
+          "In every case where that has been required, we secured the change — a "
+          "100% record."]:
+    para(colR, t, 12.5, BODY, after=9, lead=1.14)
+rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Constructive by default, decisive when required: agreement before capital, "
+     "the willingness to walk away, and a shareholder-led route to change the "
+     "board and management if needed.", 12.5, WHITE, first=True, italic=True,
+     after=0, track=0)
 
 
 subdivider("Risk, honestly")
