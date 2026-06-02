@@ -599,6 +599,48 @@ para(tbox(s, Inches(0.6), Inches(7.12), Inches(8.0), Inches(0.36)),
      "Index concentration and factor tilts change over time.", 7.5, FOOT,
      first=True, after=0, lead=1.05)
 
+# ---- I.0b2 Reflexivity: passive flows cut both ways ------------------------
+s, top = content("Market Context",
+                 "Passive flows cut both ways",
+                 "Price-insensitive index buying has inflated the largest "
+                 "stocks — and the same mechanics can force selling on the way "
+                 "down. The research is now substantial.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.0))
+para(colL, "WHAT THE RESEARCH SHOWS", 13, SLATE, first=True, bold=True, after=8)
+for t in ["Markets are inelastic: a $1 flow into equities can move aggregate "
+          "value by ~$5 — flows, not fundamentals, set much of the level "
+          "(Gabaix & Koijen, 2021).",
+          "ETF ownership raises the volatility of the underlying stocks and "
+          "spreads non-fundamental shocks (Ben-David, Franzoni & Moussawi, "
+          "2018).",
+          "Index inclusion lifts a stock’s price and its comovement with the "
+          "index — detaching it from fundamentals (Wurgler, 2011).",
+          "Passive ownership is roughly double the reported figure — a large, "
+          "price-insensitive base (Chinco & Sammon, 2024)."]:
+    para(colL, t, 12.5, BODY, after=9, lead=1.14)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.0))
+para(colR, "WHY IT CAN REVERSE", 13, SLATE, first=True, bold=True, after=8)
+for t in ["Index funds buy in proportion to weight, regardless of price — so "
+          "years of inflows bid up the largest, most-weighted names the most.",
+          "The multiplier runs in reverse: slowing or reversing flows force "
+          "mechanical selling by the funds that must track the index.",
+          "With few price-sensitive buyers left to absorb it, the "
+          "concentration that amplified the rise can amplify the fall.",
+          "The crowded mega-caps are the most exposed — the more the index owns "
+          "them, the more must be sold."]:
+    para(colR, t, 12.5, BODY, after=9, lead=1.14)
+rect(s, Inches(0.6), Inches(6.32), Inches(12.13), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.7), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "The concentration that flattered index returns on the way up is a "
+     "forced-seller overhang on the way down — a risk you do not carry when "
+     "returns come from company-specific change, not from flows.", 13, WHITE,
+     first=True, italic=True, after=0)
+para(tbox(s, Inches(0.6), Inches(7.12), Inches(8.6), Inches(0.36)),
+     "Peer-reviewed and working-paper research; full citations in references. "
+     "Findings summarised — magnitudes vary by study and period.", 7.5, FOOT,
+     first=True, after=0, lead=1.05)
+
 # ---- I.0c "Cheap" passive is not cheap -------------------------------------
 s, top = content("Market Context",
                  "“Cheap” index exposure is not cheap",
@@ -3320,6 +3362,26 @@ _refs(r1, Inches(0.6), Inches(2.12), Inches(6.0), [
       "funds and other private investors. ", False),
      ("The Journal of Finance, 64", True),
      ("(1), 187–229. https://doi.org/10.1111/j.1540-6261.2008.01432.x", False)],
+])
+_refhead(r1, Inches(0.6), Inches(4.28), Inches(6.0),
+         "PASSIVE INVESTING & MARKET STRUCTURE (PART I)")
+_refs(r1, Inches(0.6), Inches(4.62), Inches(6.0), [
+    [("Ben-David, I., Franzoni, F., & Moussawi, R. (2018). Do ETFs increase "
+      "volatility? ", False), ("The Journal of Finance, 73", True),
+     ("(6), 2471–2535. https://doi.org/10.1111/jofi.12727", False)],
+    [("Bond, P., & García, D. (2022). The equilibrium consequences of "
+      "indexing. ", False), ("The Review of Financial Studies, 35", True),
+     ("(7), 3175–3230.", False)],
+    [("Chinco, A., & Sammon, M. (2024). The passive-ownership share is double "
+      "what you think. ", False), ("SSRN Electronic Journal", True),
+     (".", False)],
+    [("Gabaix, X., & Koijen, R. S. J. (2021). In search of the origins of "
+      "financial fluctuations: The inelastic markets hypothesis. ", False),
+     ("NBER Working Paper No. 28967", True),
+     (". https://doi.org/10.3386/w28967", False)],
+    [("Wurgler, J. (2011). On the economic consequences of index-linked "
+      "investing. ", False), ("NBER Working Paper No. 16376", True),
+     (". https://doi.org/10.3386/w16376", False)],
 ])
 _refhead(r1, Inches(6.95), Inches(1.75), Inches(5.85),
          "PRIVATE EQUITY RISK & RETURN (PART II)")
