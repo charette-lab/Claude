@@ -400,6 +400,7 @@ def overview():
         ["Transcom SA", "30%", "3.0×"],
         ["DistIt / Alcadon", "—", "—"],
         ["Renold plc", "234%", "1.6×"],
+        ["Robit Plc (exited)", "14%", "—"],
     ]
     ores_rows = [
         ["J&W", "94.4%", "2000–01"],
@@ -831,6 +832,48 @@ case_native_right(
          "money-weighted; the short opportunistic hold lifts the annualised "
          "figure. Past performance is not indicative of future results.",
     callout="Bought at ~50p; acquired at ~81p in a recommended takeover")
+
+# Robit Plc -- the disciplined walk-away: profitable exit, then the stock halved
+case_native_right(
+    [("para", "Company description",
+      "Robit Plc is a Finnish-listed (Nasdaq Helsinki) manufacturer of drilling "
+      "tools and consumables for mining, construction and well-drilling — a "
+      "niche industrial with a global distribution footprint and recurring "
+      "aftermarket demand."),
+     ("bullets", "Why we invested", [
+         "An under-followed Nordic small-cap with a recurring-revenue "
+         "consumables franchise",
+         "Trading well below intrinsic value, with a correctable cost base and "
+         "footprint",
+         "A clear path to value through board-level engagement and capital "
+         "discipline",
+         "Limited downside at entry; a multi-year compounding opportunity"]),
+     ("para", "The engagement plan",
+      "Build the position in stages, follow the company closely, and secure a "
+      "board seat to drive the operational and capital-allocation changes — "
+      "engaged ownership, not a passive bet."),
+     ("checks", "What happened — and the discipline", [
+         "First invested May 2015; followed the company and added on over "
+         "several years",
+         "Began negotiating a board seat in 2019 to formalise the engagement",
+         "Unable to secure board alignment, we exited rather than stay without "
+         "influence",
+         "Still profitable: a ~14% annual IRR — more than twice the index over "
+         "the hold",
+         "Since our exit the shares have roughly halved — walking away was also "
+         "avoided loss"])],
+    "Case · AIP fund era", "Investment case study: Robit Plc",
+    "IRR ~14% p.a. · > 2× the index · disciplined exit", "value",
+    {"cats": ["At our exit", "Today"], "vals": [100, 50],
+     "unit": "Indexed to 100 at our exit (indicative)",
+     "title": "Robit share price after we exited",
+     "vfmt": lambda v: f"{v}"},
+    note="Source: AIPFII transaction history (first investment May 2015; "
+         "board-seat negotiation 2019; exited thereafter). IRR is money-weighted "
+         "and net of costs; benchmark is the relevant equity index; the "
+         "post-exit move is indicative. Past performance is not indicative of "
+         "future results.",
+    callout="We exited profitably (~14% IRR); the shares then halved")
 
 # --------------------------------------------------------------------- ORESUND
 era_divider("Part II · Investment AB Öresund (1994–2007)",
