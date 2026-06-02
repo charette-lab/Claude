@@ -1802,10 +1802,11 @@ para(tbox(s, Inches(0.62), Inches(7.0), Inches(12.0), Inches(0.4)),
 # ---- How we invest 1: SOURCE & SCREEN --------------------------------------
 _f_src = fig()
 s, top = content("How we invest · Source",
-                 "Sourcing & screening: from ~7,200 names to a shortlist",
-                 "Five sourcing channels feed a funnel that narrows the whole "
-                 "European listed market to a handful of candidates — before "
-                 "a single krona is committed.", ref=_f_src)
+                 "Sourcing & screening: from ~20,000 to a shortlist",
+                 "Five sourcing channels feed a funnel that narrows our "
+                 "moat-scored universe — across every market with a stable legal "
+                 "system that supports ownership (Europe, Japan, Korea, Australia "
+                 "and more) — to a handful of candidates.", ref=_f_src)
 para(tbox(s, Inches(0.7), top, Inches(8), Inches(0.3)),
      "FIVE SOURCING CHANNELS", 11, SLATE, first=True, bold=True, after=0, track=0)
 chips = ["Network", "Own research", "Interviews", "Company visits",
@@ -1816,9 +1817,9 @@ for ch in chips:
     para(tbox(s, cx, cy, ccw, Inches(0.46), anchor=MSO_ANCHOR.MIDDLE), ch, 11,
          WHITE, first=True, bold=True, align=PP_ALIGN.CENTER, after=0, track=0)
     cx = Emu(int(cx) + int(ccw) + int(cgx))
-fnl = [("≈ 7,200", "listed companies in selected European markets", 7.2),
-       ("≈ 2,800", "with a market cap between €50m and €3bn", 6.0),
-       ("≈ 2,500", "in our selected sectors", 4.8),
+fnl = [("≈ 20,000", "moat-scored universe (from our ~60k database)", 7.2),
+       ("≈ 7,200", "in our selected geographies", 6.0),
+       ("≈ 2,800", "with a market cap between €50m and €3bn", 4.8),
        ("Shortlist", "suitable shareholder base for constructive ownership", 3.6)]
 fy = cy + Inches(0.72)
 for big, lab, win in fnl:
@@ -1866,10 +1867,9 @@ dd_layers = [
      "of the profitable core from management’s newer strategic pivot, the part "
      "destroying value."),
     ("LAYER 2", "Moat & CEO scoring",
-     "From that universe — after deselecting whole geographies and industries — "
-     "we narrow to ~20,000 companies for deeper work: our own moat scores paired "
-     "with our CEO evaluation, a quantified first read on durability and the "
-     "people running it."),
+     "From that universe — minus industries we don’t cover — we do deeper work on "
+     "~20,000 companies: our own moat scores and CEO evaluation distil to a real "
+     "target universe of about 2,500 companies."),
     ("LAYER 3", "Field-tested",
      "We then interview customers (quality, product ROI, competitive position), "
      "competitors, suppliers, former employees and former directors — to a "
@@ -3815,7 +3815,7 @@ quads = [
          "board independence, capital discipline and pay-for-performance — "
          "fulfilling UN PRI fiduciary duty.")]),
     ("2 · The engine — quality-core constructivism", [
-        ("Market-leading European mid-caps",
+        ("Market-leading developed-market mid-caps",
          "with highly profitable, durable cores — not broken turnarounds."),
         ("We enter at “shareholder exhaustion”",
          "the buyer of last resort after management diluted the core chasing "
