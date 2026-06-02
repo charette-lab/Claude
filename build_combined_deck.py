@@ -1957,6 +1957,44 @@ para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
      "board and management if needed.", 12.5, WHITE, first=True, italic=True,
      after=0, track=0)
 
+# ---- How we invest 5: BOARD & MANAGEMENT EVALUATION ------------------------
+s, top = content("How we invest · People",
+                 "Evaluating the board and management — before we commit",
+                 "People decide whether the plan gets executed — so management and "
+                 "board quality is underwritten as rigorously as the numbers, and "
+                 "it gates the investment.")
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.3))
+para(colL, "WHAT WE ASSESS", 12.5, SLATE, first=True, bold=True, after=8)
+for t in ["Capability & track record: operational strength versus the "
+          "capital-allocation gap — their history of M&A, financing and capital "
+          "returns, and whether they built or diluted the core.",
+          "Incentives & alignment: pay-for-performance, ownership and skin in the "
+          "game, and any related-party or governance red flags.",
+          "Behavioural profile: how the CEO and chair respond to scrutiny and "
+          "change — collaborator, fence-sitter or obstructer — read from "
+          "references, the public record and direct interaction.",
+          "Board & governance: independence, the nomination-committee structure, "
+          "and whether owners can reshape the board without a public fight."]:
+    para(colL, t, 12.5, BODY, after=9, lead=1.14)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.3))
+para(colR, "HOW IT GATES THE DECISION", 12.5, SLATE, first=True, bold=True,
+     after=8)
+for t in ["It is a tollgate input: a credible path to alignment is a "
+          "precondition — no path, no position.",
+          "It sets the engagement plan: who to back, who to replace, and what to "
+          "expect the moment we engage.",
+          "It sizes the risk: management and execution risk is the one a cheap "
+          "stock cannot survive — so it is underwritten, not assumed.",
+          "The backstop: if the read is wrong and the board obstructs, board "
+          "control lets us change it — otherwise we walk away."]:
+    para(colR, t, 12.5, BODY, after=9, lead=1.14)
+rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "This is where the investment process and the risk system meet: it decides "
+     "whether we invest, how we engage, and how we protect the capital once we "
+     "do.", 12.5, WHITE, first=True, italic=True, after=0, track=0)
+
 
 subdivider("Risk, honestly")
 # ---- II.5 Risk system ----
