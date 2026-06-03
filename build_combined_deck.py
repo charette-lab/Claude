@@ -4675,8 +4675,8 @@ al_cols = [
      "largest, most agile institutional anchors."),
     ("A 15% GP-discretionary carve-out",
      "85% is allocated by strict formula to prevent LP infighting; the GP retains "
-     "discretion over the remaining 15% — to reward critical diligence "
-     "intelligence, or to anchor a major new flagship subscription."),
+     "discretion over the remaining 15% — to reward partners who add real value, "
+     "such as critical diligence intelligence, and keep some strategic flexibility."),
 ]
 acw = Emu(int((int(Inches(12.1)) - 2 * int(Inches(0.3))) / 3))
 ay = Emu(int(bar_y) + int(bar_h) + int(Inches(0.45)))
