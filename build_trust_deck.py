@@ -203,15 +203,14 @@ def load_fund2():
     return out
 
 
-def dealtable(s, deals, top, x=Inches(0.6)):
-    cw = [Inches(3.4), Inches(2.6), Inches(2.0), Inches(2.0), Inches(2.13)]
+def dealtable(s, deals, top, x=Inches(0.6), rh=Inches(0.34), font=9.5, hfont=10):
+    cw = [Inches(3.2), Inches(2.4), Inches(2.1), Inches(2.0), Inches(2.43)]
     heads = ("Company", "Holding", "Gross IRR", "MOIC", "vs index")
-    rh = Inches(0.34)
     cx = x
     for ci, ht in enumerate(heads):
         rect(s, cx, top, cw[ci], rh, fill=SLATE)
         para(tbox(s, Emu(int(cx) + int(Inches(0.1))), top, Emu(int(cw[ci]) - int(Inches(0.16))),
-                  rh, anchor=MSO_ANCHOR.MIDDLE), ht, 10, WHITE, bold=True, first=True,
+                  rh, anchor=MSO_ANCHOR.MIDDLE), ht, hfont, WHITE, bold=True, first=True,
              align=PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.RIGHT, after=0)
         cx = Emu(int(cx) + int(cw[ci]))
     y = Emu(int(top) + int(rh))
@@ -225,7 +224,7 @@ def dealtable(s, deals, top, x=Inches(0.6)):
             isl = loss and ci >= 2
             col = LOSS if isl else (NAVY_TX if ci == 0 else BODY)
             para(tbox(s, Emu(int(cx) + int(Inches(0.1))), y, Emu(int(cw[ci]) - int(Inches(0.16))),
-                      rh, anchor=MSO_ANCHOR.MIDDLE), v, 9.5, col, bold=(ci == 0),
+                      rh, anchor=MSO_ANCHOR.MIDDLE), v, font, col, bold=(ci == 0),
                  italic=isl, first=True,
                  align=PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.RIGHT, after=0, track=0)
             cx = Emu(int(cx) + int(cw[ci]))
@@ -234,6 +233,75 @@ def dealtable(s, deals, top, x=Inches(0.6)):
 
 
 IND = "(indicative — to be agreed)"
+
+# ---- performance data + cumulative-growth chart ---------------------------
+import numpy as _np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as _plt
+H_NAVY, H_BLUE4, H_GRID = "#152130", "#556A83", "#E2E5E9"
+from matplotlib import font_manager as _fmgr
+for _ff in ("Arial", "Liberation Sans", "DejaVu Sans"):
+    try:
+        _fmgr.findfont(_ff, fallback_to_default=False)
+        _plt.rcParams["font.family"] = _ff
+        break
+    except Exception:
+        continue
+
+
+def _load_cmp():
+    ws = openpyxl.load_workbook("data/Comparison_returns.xlsx",
+                                data_only=True)["Sheet1"]
+
+    def grab(rows):
+        out = []
+        for c in range(2, ws.max_column + 1):
+            for r in rows:
+                v = ws.cell(r, c).value
+                if isinstance(v, (int, float)):
+                    out.append(v)
+        return out
+    return grab(range(4, 16)), grab(range(22, 34))
+
+
+_MSCI_X, _ATH_X = _load_cmp()
+
+
+def _growth_chart(path):
+    ga, gm = [1.0], [1.0]
+    for r in _ATH_X:
+        ga.append(ga[-1] * (1 + r))
+    for r in _MSCI_X:
+        gm.append(gm[-1] * (1 + r))
+    x = _np.linspace(2006, 2026, len(ga))
+    fig, ax = _plt.subplots(figsize=(7.4, 4.05))
+    ax.plot(x, ga, color=H_NAVY, lw=2.7, label="Athanase (net)", zorder=3)
+    ax.plot(x, gm, color=H_BLUE4, lw=2.0, label="MSCI World IMI", zorder=2)
+    ax.set_yscale("log")
+    ax.set_yticks([1, 2, 5, 10, 20])
+    ax.set_yticklabels(["1×", "2×", "5×", "10×", "20×"])
+    ax.set_ylim(0.8, 27); ax.set_xlim(2006, 2027.6)
+    ax.set_xticks([2006, 2010, 2014, 2018, 2022, 2026])
+    ax.annotate(f"{ga[-1]:.0f}×", (x[-1], ga[-1]), xytext=(7, 0),
+                textcoords="offset points", color=H_NAVY, fontsize=16,
+                fontweight="bold", va="center")
+    ax.annotate(f"{gm[-1]:.1f}×", (x[-1], gm[-1]), xytext=(7, 0),
+                textcoords="offset points", color=H_BLUE4, fontsize=12,
+                fontweight="bold", va="center")
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color("#AAB2BD")
+    ax.tick_params(colors="#556A83", labelsize=10.5)
+    ax.grid(axis="y", color=H_GRID, lw=0.8); ax.set_axisbelow(True)
+    ax.legend(loc="upper left", frameon=False, fontsize=11)
+    fig.tight_layout()
+    fig.savefig(path, dpi=200, bbox_inches="tight", transparent=True)
+    _plt.close(fig)
+
+
+_growth_chart("/tmp/trust_growth.png")
 
 # ===========================================================================
 # 1 · COVER
@@ -512,47 +580,47 @@ closer(s, "Discipline that protected capital — and got sharper each time it wa
 # 14 · REPRESENTATIVE INVESTMENTS (track record table)
 # ===========================================================================
 s, top = content("Section 5 · Portfolio",
-                 "Representative investments — the strategy in practice",
-                 "A selection from the current strategy (AIP Fund II) — winners, "
-                 "and the discipline on the ones that disappoint.")
+                 "Every investment in the current fund (AIP Fund II)",
+                 "The full book, not a selection — winners, and the discipline on "
+                 "the one that disappointed.")
 deals = load_fund2()
-pick = [d for d in deals if d["company"] in
-        ("Bufab", "NgEx", "Ngex", "Alcadon", "Roko", "Zutec", "Zalaris",
-         "DistIt", "Catella", "Actic")]
-ytab = dealtable(s, pick[:9], top)
-para(tbox(s, Inches(0.6), Emu(int(ytab) + int(Inches(0.12))), Inches(12.1), Inches(0.4)),
-     "Gross deal-level figures, AIP Fund II, to 2025; “n.m.” where holding "
-     "periods are short. Selected holdings, not the full portfolio. Past "
-     "performance is not a guide to future returns.", 8, FOOT, first=True,
-     italic=True, after=0, lead=1.12)
-closer(s, "A 92% hit rate over 38 deals — and the few that disappoint are sold "
-          "with discipline, not hope.", y=Inches(6.42), h=Inches(0.56), size=12)
+deals.sort(key=lambda d: d["moic"] if isinstance(d["moic"], (int, float)) else 0,
+           reverse=True)
+ytab = dealtable(s, deals, top, rh=Inches(0.235), font=9, hfont=9.5)
+para(tbox(s, Inches(0.6), Emu(int(ytab) + int(Inches(0.08))), Inches(12.1), Inches(0.4)),
+     "Gross deal-level figures, AIP Fund II, to 2025, ranked by money multiple; "
+     "“n.m.” where holding periods are too short to annualise. Past performance "
+     "is not a guide to future returns.", 7.5, FOOT, first=True, italic=True,
+     after=0, lead=1.1)
 
 # ===========================================================================
 # 15 · PERFORMANCE / TRACK RECORD
 # ===========================================================================
 s, top = content("Section 6 · Track record",
-                 "Two decades of net returns, independently validated",
-                 "A 20-year record built on operating improvement — reconciled "
-                 "and audited by tier-one institutions.")
-statrow(s, [("~16%", "net p.a. over 20 years"),
-            ("+10 pts", "a year vs the index, net"),
-            ("18×", "growth of capital since 2006"),
-            ("0%", "investor loss over a holding period")], top)
-bullets(s, [
-    ("Downside protection.", "two market drawdowns fully recovered (2010, 2020); "
-     "Sortino ratio 2.40 — return with genuine resilience."),
-    ("Entry timing is a non-risk.", "even the worst entry month in 20 years still "
-     "compounded at +7% net."),
-    ("Independently verified.", "custody by SEB, administration by MUFG, audit by "
-     "KPMG."),
-], Emu(int(top) + int(Inches(1.5))), size=13.5, gap=10)
-para(tbox(s, Inches(0.6), Inches(6.06), Inches(12.1), Inches(0.3)),
-     "Net of fees, 2006–2025, independently reconciled. The trust is newly "
-     "proposed; this is the manager’s existing strategy. Past performance is not "
-     "a guide to future returns.", 8, FOOT, first=True, italic=True, after=0)
-closer(s, "Returns from operating improvement — repeatable, and verified by "
-          "tier-one institutions.", y=Inches(6.42), h=Inches(0.56), size=12)
+                 "£1 has become ~£18, net — versus ~£3 for the index",
+                 "Twenty years of compounding from operating improvement — "
+                 "reconciled and audited by tier-one institutions.")
+s.shapes.add_picture("/tmp/trust_growth.png", Inches(0.45), Inches(2.5),
+                     width=Inches(6.9))
+rx = Inches(7.6); ry = Inches(2.55)
+for big, lab in [("~16%", "net p.a. over 20 years"),
+                 ("+10 pts", "a year vs the index, net"),
+                 ("0%", "investor loss over a holding period"),
+                 ("2.40", "Sortino ratio — downside-aware")]:
+    para(tbox(s, rx, ry, Inches(5.0), Inches(0.5)), big, 26, NAVY_TX,
+         first=True, after=0, font=SERIF)
+    para(tbox(s, rx, Emu(int(ry) + int(Inches(0.47))), Inches(5.0), Inches(0.32)),
+         lab, 11, SLATE_LT, first=True, after=0)
+    ry = Emu(int(ry) + int(Inches(0.86)))
+para(tbox(s, rx, ry, Inches(5.0), Inches(0.7)),
+     "Two market drawdowns (2010, 2020) fully recovered; even the worst entry "
+     "month still compounded at +7% net.", 10.5, BODY, first=True, after=0,
+     lead=1.18)
+para(tbox(s, Inches(0.45), Inches(6.46), Inches(6.95), Inches(0.4)),
+     "Cumulative growth of capital, net of fees, 2006–2025 (log scale); SEB · "
+     "MUFG · KPMG. Newly-proposed trust; manager’s existing strategy. Past "
+     "performance is not a guide to future returns.", 7.5, FOOT, first=True,
+     italic=True, after=0, lead=1.1)
 
 # ===========================================================================
 # 16 · DIVERSIFIER / DOWNSIDE
