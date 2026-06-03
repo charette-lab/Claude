@@ -2810,8 +2810,9 @@ for ri, (a, b) in enumerate(rows):
     y = Emu(int(y) + int(rh))
 para(tbox(s, Inches(0.6), Emu(int(y) + int(Inches(0.15))), Inches(12.1), Inches(0.6)),
      "The IC is not paying for safety. It is paying for proven willingness to "
-     "take compensated discomfort — +6 percentage points per year, net of every "
-     "fee, for 20 years.", 13, SLATE, first=True, italic=True, after=0)
+     "take compensated discomfort — +10 percentage points per year versus the "
+     "index, net of every fee, for 20 years.", 13, SLATE, first=True,
+     italic=True, after=0)
 
 # ---- II.5e Why it is not career-ending (three anxieties disarmed) -----------
 s, top = content("Strategic Case",
@@ -3178,8 +3179,8 @@ for t in ["Underwrite whether business risk is falling — board seat secured, "
           "The big winners are realised LP cash, not marks: the value is "
           "bankable, not modelled",
           "Two ~50% drawdowns have already been recovered with the same "
-          "philosophy — the path has been bumpy before and still paid +6 pts/yr "
-          "net"]:
+          "philosophy — the path has been bumpy before and still paid +10 pts/yr "
+          "net versus the index"]:
     para(colR, t, 14, BODY, after=10, lead=1.13)
 sy = Inches(6.25)
 rect(s, Inches(0.75), sy, Inches(11.85), Inches(0.62), fill=NAVY)
