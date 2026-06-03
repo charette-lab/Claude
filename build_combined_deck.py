@@ -4478,12 +4478,79 @@ for t in ["Returns we create, not discover — ours come from board control, "
           "mid-caps that need governance and operating change, not a faster "
           "spreadsheet: our lane."]:
     para(colR, t, 12.5, BODY, after=10, lead=1.14)
+para(tbox(s, Inches(0.75), Inches(6.04), Inches(12.0), Inches(0.22)),
+     "Documented mechanism: LLMs already perform financial-statement analysis at "
+     "analyst level (Kim, Muhn & Nikolaev, 2024); return predictability decays "
+     "once a strategy is replicable (McLean & Pontiff, 2016) — AI accelerates both.",
+     7.5, FOOT, first=True, italic=True, after=0)
 rect(s, Inches(0.6), Inches(6.32), Inches(12.16), Inches(0.66), fill=NAVY)
 para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.8), Inches(0.66),
           anchor=MSO_ANCHOR.MIDDLE),
      "As analytical alpha commoditizes, created — engaged-ownership — alpha "
      "becomes scarcer and more valuable. The edge AI cannot copy is the one to "
      "add now.", 12.5, WHITE, first=True, italic=True, after=0, track=0)
+
+# ---- The Case: when valuations crack — where are you holding? --------------
+s, top = content("The Case",
+                 "When valuations crack, where will you be holding?",
+                 "At record valuations and concentration the cycle will turn. The "
+                 "career risk isn’t a planned drawdown here — it’s being trapped "
+                 "in the most-expensive, least-liquid assets when it does.",
+                 number=False)
+crk = [
+    ("GLOBAL EQUITIES", "Fully exposed", SLATE_LT, [
+        ("You own the peak", "the most-expensive, most-concentrated names take "
+         "the full drawdown — no protection."),
+        ("Concentration cuts both ways", "the crowding that flattered returns on "
+         "the way up amplifies the fall."),
+        ("Nothing to do", "you are the market — there is no lever to pull.")]),
+    ("PRIVATE EQUITY", "The trap", SLATE_LT, [
+        ("Marks catch down", "smoothed valuations lag, then fall; the denominator "
+         "effect pushes PE past its limits."),
+        ("Calls keep coming", "distributions stop while capital calls continue — "
+         "forcing sales of good liquid assets at the bottom."),
+        ("No exit", "illiquidity hides the loss until it is too late to act.")]),
+    ("ATHANASE", "The hedge", NAVY, [
+        ("Risk is floored", "board control owns the cash flow, capex and pay — "
+         "fundamental risk falls whatever the ticker does."),
+        ("Liquid & uncorrelated", "daily liquidity and a genuine 0.44-correlation "
+         "diversifier that defends the book."),
+        ("The crack is the entry", "the dislocation becomes your co-invest free "
+         "look — not your trap.")]),
+]
+cw = Inches(3.86); gx = Inches(0.18); x = Inches(0.62); hh = Inches(0.62)
+bodyH = Inches(3.25)
+for title_c, tag, hfill, bullets in crk:
+    rect(s, x, top, cw, hh, fill=hfill)
+    htf = tbox(s, x, top, cw, hh, anchor=MSO_ANCHOR.MIDDLE)
+    para(htf, title_c, 14, WHITE, bold=True, first=True, align=PP_ALIGN.CENTER,
+         after=1, font=SERIF, track=0)
+    para(htf, tag.upper(), 8.5, WHITE, bold=True, align=PP_ALIGN.CENTER, after=0,
+         track=0)
+    by = Emu(int(top) + int(hh))
+    rect(s, x, by, cw, bodyH, fill=HEADERBG)
+    tf = tbox(s, Emu(int(x) + int(Inches(0.18))), Emu(int(by) + int(Inches(0.15))),
+              Emu(int(cw) - int(Inches(0.36))), Emu(int(bodyH) - int(Inches(0.28))))
+    for i, (lead, body) in enumerate(bullets):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        p.space_after = Pt(7); p.line_spacing = 1.1
+        hang = int(round(9.5 * 1.25 * 12700))
+        pPr = p._p.get_or_add_pPr(); pPr.set("marL", str(hang)); pPr.set("indent", str(-hang))
+        r0 = p.add_run(); r0.text = "›  "
+        r0.font.size = Pt(9.5); r0.font.bold = True
+        r0.font.color.rgb = SLATE_LT; r0.font.name = SANS
+        r1 = p.add_run(); r1.text = lead
+        r1.font.size = Pt(9.5); r1.font.bold = True
+        r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
+        r2 = p.add_run(); r2.text = " — " + body
+        r2.font.size = Pt(9.5); r2.font.color.rgb = BODY; r2.font.name = SANS
+    x = Emu(int(x) + int(cw) + int(gx))
+rect(s, Inches(0.62), Inches(6.3), Inches(11.94), Inches(0.66), fill=NAVY)
+para(tbox(s, Inches(0.82), Inches(6.3), Inches(11.5), Inches(0.66),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "When the cycle turns, two of these put your board review at risk and one "
+     "defends it — and the hedge can only be bought before the crack, not after.",
+     12.5, WHITE, first=True, italic=True, after=0, track=0)
 
 # ---- The Case: the cost of waiting (flip the default; drive action) ---------
 s, top = content("The Case",
@@ -4529,13 +4596,14 @@ para(tbox(s, Inches(0.75), Inches(5.86), Inches(12.0), Inches(0.22)),
 rect(s, Inches(0.6), Inches(6.08), Inches(12.16), Inches(0.9), fill=NAVY)
 wbnd = tbox(s, Inches(0.8), Inches(6.08), Inches(11.8), Inches(0.9),
             anchor=MSO_ANCHOR.MIDDLE)
-para(wbnd, "Deferring €100m by 12 months reaches the same horizon ~€61m smaller "
-     "(≈14% less) — timing, not markets.", 12.5, WHITE, first=True, bold=True,
-     after=4, lead=1.06, track=0)
+para(wbnd, "The bigger risk isn’t the upside you forgo — it’s where you’re "
+     "holding when valuations crack (prior page): a crowded index, or PE you "
+     "cannot exit.", 12.5, WHITE, first=True, bold=True, after=4, lead=1.06,
+     track=0)
 para(wbnd, "Two years on, the harder board question isn’t a planned 2% drawdown "
-     "— it’s why you passed on the only genuine diversifier you were shown. "
-     "Doing nothing is also a decision; it just never gets minuted.", 11, WHITE,
-     italic=True, after=0, lead=1.06, track=0)
+     "here — it’s why you sat in the most-expensive, most-correlated assets with "
+     "no liquid hedge. Doing nothing is also a decision; it just never gets "
+     "minuted.", 11, WHITE, italic=True, after=0, lead=1.06, track=0)
 
 # ===========================================================================
 # CLOSING
