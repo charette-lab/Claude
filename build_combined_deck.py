@@ -4446,6 +4446,46 @@ para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
      "diversification — not the most familiar logo.", 12.5, WHITE, first=True,
      italic=True, after=0, track=0)
 
+# ---- The Case: the cost of waiting (flip the default; drive action) ---------
+s, top = content("The Case",
+                 "Waiting is the riskier decision — and it never gets underwritten",
+                 "Allocating carries a small, bounded, pre-agreed risk. Not "
+                 "allocating carries an open-ended one — concentration you already "
+                 "own, the compounding you forgo, and capacity you cannot get "
+                 "back.", number=False)
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.3))
+para(colL, "THE RISK OF ALLOCATING — BOUNDED & REVERSIBLE", 12.5, SLATE,
+     first=True, bold=True, after=8)
+for t in ["Sized for immunity — a 1–3% sleeve, so no single mark can move the "
+          "fund.",
+          "Pre-underwritten — a ~50% drawdown tolerance signed by the IC: a bad "
+          "quarter is planned, not a surprise.",
+          "Reversible — daily marks and liquidity, exit at will, zero "
+          "capital-call lock.",
+          f"Entry timing is a non-risk — the worst entry month in 20 years still "
+          f"compounded at +{_ENTRY_WORST*100:.0f}% net."]:
+    para(colL, t, 12.5, BODY, after=9, lead=1.14)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.3))
+para(colR, "THE RISK OF WAITING — OPEN-ENDED & UN-MINUTED", 12.5, SLATE,
+     first=True, bold=True, after=8)
+for t in ["Concentration you already own — your equity book is a crowded "
+          "mega-cap factor bet at record valuations; a genuine 0.44-correlation "
+          "diversifier is what cushions it when the index falls.",
+          "The PE denominator trap — in a downturn your illiquid sleeve breaches "
+          "limits and forces selling good assets at the bottom, with nothing "
+          "liquid to absorb it.",
+          "Compounding foregone — at a delivered ~16% net, every year on the "
+          "sidelines is a permanent gap you cannot earn back.",
+          "Capacity forfeited — co-investment is allocated pro-rata to flagship "
+          "commitment; wait, and the free look goes to those already in."]:
+    para(colR, t, 12.5, BODY, after=9, lead=1.14)
+rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Doing nothing is also a decision — the only one that never gets minuted. "
+     "The bounded, reversible risk is the allocation; the open-ended risk is the "
+     "status quo.", 12.5, WHITE, first=True, italic=True, after=0, track=0)
+
 # ===========================================================================
 # CLOSING
 # ===========================================================================
