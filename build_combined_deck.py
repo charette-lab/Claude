@@ -2910,7 +2910,7 @@ oc_rows = [
      "Hard to justify the team’s underwriting bandwidth on a 1–3% sleeve.",
      "A first-right co-investment “free look”: scale nominal exposure into the "
      "highest-conviction, already board-de-risked targets — without diluting the "
-     "core fund’s agility."),
+     "core fund’s agility (full terms in the appendix)."),
 ]
 ox0 = Inches(0.6); oy = top
 ohh = Inches(0.5)
@@ -2959,169 +2959,6 @@ for big, lab in [(f"~{_ENTRY_AVG*100:.0f}%", "avg net, any\nentry month"),
     para(tbox(s, osx, Emu(int(oby) + int(Inches(0.6))), Inches(1.65), Inches(0.35)),
          lab, 8, BLUE5, first=True, after=0, align=PP_ALIGN.CENTER, lead=1.0)
     osx = Emu(int(osx) + int(Inches(1.65)))
-
-# ---- II.5e3 The co-investment "free look": post-engagement drawdown ---------
-s, top = content("Strategic Case",
-                 "The co-investment “free look”: a post-engagement drawdown",
-                 "We decouple the co-investment’s timing from the engagement: the "
-                 "main fund bears the execution risk, and LP capital enters only "
-                 "after the turnaround is board-secured — when the public market "
-                 "discounts the price.", number=False)
-co_cw = Emu(int((int(Inches(12.1)) - 3 * int(Inches(0.18))) / 4))
-co_gap = Inches(0.18)
-co_steps = [
-    ("STEP 1 · MAIN FUND LEADS",
-     "Initiates the position, clears the tollgates and secures the board seat — "
-     "the capital-allocation kill switch. Fundamental risk is structurally "
-     "lowered.", SLATE),
-    ("STEP 2 · FACILITY UNCALLED",
-     "Co-investment is committed but dormant through the engagement — no upfront "
-     "execution risk, control premium or broken-deal cost for the LP.", SLATE),
-    ("STEP 3 · VALUATION TRIGGER",
-     "Activated only if the public market later dislocates and discounts the "
-     "price — after the board seat and operating plan are confirmed.", SLATE),
-    ("STEP 4 · LP CAPITAL ENTERS",
-     "Capital draws instantly at the pre-agreed threshold, accumulating at the "
-     "discounted multiple — below the main fund’s own basis.", NAVY),
-]
-for i, (eyebrow, desc, headfill) in enumerate(co_steps):
-    cx = Emu(int(Inches(0.6)) + i * (int(co_cw) + int(co_gap)))
-    rect(s, cx, top, co_cw, Inches(0.5), fill=headfill)
-    htf = tbox(s, Emu(int(cx) + int(Inches(0.14))), top,
-               Emu(int(co_cw) - int(Inches(0.24))), Inches(0.5),
-               anchor=MSO_ANCHOR.MIDDLE)
-    para(htf, eyebrow, 9.5, WHITE, first=True, bold=True, after=0, lead=1.0,
-         font=SERIF, track=0)
-    cby = Emu(int(top) + int(Inches(0.5)))
-    rect(s, cx, cby, co_cw, Inches(1.18), fill=HEADERBG)
-    para(tbox(s, Emu(int(cx) + int(Inches(0.16))), Emu(int(cby) + int(Inches(0.11))),
-              Emu(int(co_cw) - int(Inches(0.3))), Inches(1.02)),
-         desc, 9.5, BODY, first=True, after=0, lead=1.13)
-    if i < 3:
-        para(tbox(s, Emu(int(cx) + int(co_cw) - int(Inches(0.08))),
-                  Emu(int(top) + int(Inches(0.42))), Inches(0.34), Inches(0.5),
-                  anchor=MSO_ANCHOR.MIDDLE),
-             "›", 18, SLATE_LT, first=True, after=0, align=PP_ALIGN.CENTER)
-
-
-def _cobul(tf, lead, body, sz=9.5):
-    p = tf.add_paragraph()
-    p.space_after = Pt(7); p.line_spacing = 1.12
-    hang = int(round(sz * 1.25 * 12700))
-    pPr = p._p.get_or_add_pPr(); pPr.set("marL", str(hang)); pPr.set("indent", str(-hang))
-    r0 = p.add_run(); r0.text = "›  "
-    r0.font.size = Pt(sz); r0.font.bold = True
-    r0.font.color.rgb = SLATE_LT; r0.font.name = SANS
-    r1 = p.add_run(); r1.text = lead
-    r1.font.size = Pt(sz); r1.font.bold = True
-    r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
-    r2 = p.add_run(); r2.text = " — " + body
-    r2.font.size = Pt(sz); r2.font.color.rgb = BODY; r2.font.name = SANS
-
-
-cl = tbox(s, Inches(0.6), Inches(4.18), Inches(5.95), Inches(1.85))
-para(cl, "WHAT THE CO-INVESTOR GETS", 11, SLATE, first=True, bold=True, after=7)
-_cobul(cl, "De-risked, at a discount.", "a governed, ROIIC-compounding core "
-       "bought after the plan is secured — at a basis below the main fund’s.")
-_cobul(cl, "Zero frictional drag.", "no broken-deal, advisory or syndication "
-       "fees; ~20,000-company research is baseline, so 100% of drawn capital "
-       "compounds in the equity.")
-_cobul(cl, "No blind-pool scramble.", "pre-agreed terms bypass the 3–4-week "
-       "syndication — capital hits the dislocation instantly at the optimal basis.")
-cr = tbox(s, Inches(6.95), Inches(4.18), Inches(5.75), Inches(1.85))
-para(cr, "ALIGNMENT & EXIT GOVERNANCE", 11, SLATE, first=True, bold=True, after=7)
-_cobul(cr, "Pro-rata exit.", "bound to exit in lockstep with the main fund — no "
-       "separate timing, full parity with the Investment Committee.")
-_cobul(cr, "Patient-capital enforcement.", "the same multi-year holding "
-       "discipline — no reactionary selling into daily liquidity before the "
-       "restructuring shows in cash flows and earnings.")
-rect(s, Inches(0.6), Inches(6.06), Inches(12.1), Inches(0.92), fill=NAVY)
-para(tbox(s, Inches(0.85), Inches(6.06), Inches(11.6), Inches(0.92),
-          anchor=MSO_ANCHOR.MIDDLE),
-     "Decoupled in time, optical volatility becomes a pricing advantage — the "
-     "ultimate institutional free look: turnaround execution risk, stripped of "
-     "deal costs, priced at a market-driven discount.", 12.5, WHITE, first=True,
-     italic=True, after=0, track=0)
-
-# ---- II.5e4 Co-investment term sheet (drawdown mechanics) -------------------
-s, top = content("Strategic Case",
-                 "Co-investment term sheet: the drawdown mechanics",
-                 "Dormant until the board seat is secured; drawn only on a 20–30% "
-                 "dislocation to accumulate a 10–20% block; zero fees until the "
-                 "promote; converts to a permanent capital vehicle at 2.5×.",
-                 number=False)
-ts_cards = [
-    ("1 · ACTIVATION PREREQUISITES", SLATE, [
-        ("Board control secured", "the vehicle stays dormant until the main fund "
-         "holds the board seat and the capital-allocation playbook."),
-        ("Zero blind-pool risk", "any drawdown notice names a vetted asset the "
-         "team already runs from the inside.")]),
-    ("2 · DRAWDOWN TRIGGER", SLATE, [
-        ("Price-dislocation gate", "capital is called only on a severe optical "
-         "drawdown — a formal 20–30% price drop."),
-        ("Offensive accumulation", "build a 10–20% block at exhaustion prices — "
-         "arbitrage on market psychology, not a falling knife: the board seat "
-         "already floors fundamental risk.")]),
-    ("3 · CALL EXECUTION & EXPIRY", SLATE, [
-        ("Notice period", "a standard 10–15 business-day capital call funds the "
-         "block build."),
-        ("Expiration window", "capped to 18–24 months post-board-seat; if no "
-         "J-curve appears, the commitment expires uncalled — freeing the LP’s "
-         "risk budget.")]),
-    ("4 · FEES & PROMOTE", SLATE, [
-        ("Zero management fees", "through dormancy and accumulation — only a "
-         "capped pass-through of verified admin and legal costs."),
-        ("2.5× super-promote", "the manager takes a 20% stake in the listed "
-         "vehicle only at 2.5× drawn capital, tested continuously (not a single "
-         "date) — the moment LPs lock a 2.0× net return.")]),
-    ("5 · LIQUIDITY — THE PCV FLIP", SLATE, [
-        ("Direct listing at NAV", "a pre-agreed direct listing — a route the "
-         "team has executed in Sweden — converts the vehicle to a PCV at NAV, "
-         "with no bookbuild discount."),
-        ("NAV-tight & evergreen", "a mandatory buyback whenever the price trades "
-         ">10% below NAV holds the discount tight; LPs get daily liquidity, the "
-         "manager keeps infinite duration.")]),
-    ("LP PROTECTIONS · PROPOSED", SLATE_LT, [
-        ("No gaming the conversion", "NAV is mark-to-market from the listed "
-         "holdings, valued on a 10-day VWAP — no independent appraisal, and a "
-         "continuous test leaves no single window the manager can time."),
-        ("Buyback & negative control", "the >10%-discount buyback is mandated in "
-         "the listed vehicle; an LPAC veto on conversion ratio and promote terms; "
-         "NAV redemption if no listing by the longstop.")]),
-]
-ts_gx = Inches(0.16); ts_gy = Inches(0.14)
-ts_cw = Emu(int((int(Inches(12.1)) - 2 * int(ts_gx)) / 3))
-ts_hh = Inches(0.4); ts_bh = Inches(1.18)
-for idx, (htitle, hfill, terms) in enumerate(ts_cards):
-    coln = idx % 3; rown = idx // 3
-    cx = Emu(int(Inches(0.6)) + coln * (int(ts_cw) + int(ts_gx)))
-    cy = Emu(int(top) + rown * (int(ts_hh) + int(ts_bh) + int(ts_gy)))
-    rect(s, cx, cy, ts_cw, ts_hh, fill=hfill)
-    para(tbox(s, Emu(int(cx) + int(Inches(0.12))), cy,
-              Emu(int(ts_cw) - int(Inches(0.2))), ts_hh, anchor=MSO_ANCHOR.MIDDLE),
-         htitle, 9, WHITE, first=True, bold=True, after=0, track=0)
-    bty = Emu(int(cy) + int(ts_hh))
-    rect(s, cx, bty, ts_cw, ts_bh, fill=HEADERBG)
-    tf = tbox(s, Emu(int(cx) + int(Inches(0.14))), Emu(int(bty) + int(Inches(0.09))),
-              Emu(int(ts_cw) - int(Inches(0.26))), Emu(int(ts_bh) - int(Inches(0.16))))
-    for ti, (lead, detail) in enumerate(terms):
-        p = tf.paragraphs[0] if ti == 0 else tf.add_paragraph()
-        p.space_after = Pt(5); p.line_spacing = 1.08
-        r1 = p.add_run(); r1.text = lead
-        r1.font.size = Pt(8.5); r1.font.bold = True
-        r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
-        r2 = p.add_run(); r2.text = " — " + detail
-        r2.font.size = Pt(8.5); r2.font.color.rgb = BODY; r2.font.name = SANS
-rect(s, Inches(0.6), Inches(5.82), Inches(12.1), Inches(0.5), fill=NAVY)
-para(tbox(s, Inches(0.85), Inches(5.82), Inches(11.6), Inches(0.5),
-          anchor=MSO_ANCHOR.MIDDLE),
-     "Fees accrue to LPs first: nothing to the manager until 2.5× — at which "
-     "point the LP’s 2.0× net is already locked.", 11.5, WHITE, first=True,
-     italic=True, after=0, track=0)
-para(tbox(s, Inches(0.6), Inches(6.42), Inches(12.1), Inches(0.3)),
-     "Indicative terms for IC / LP discussion, subject to final fund "
-     "documentation; the “LP protections” cell is a proposal, not yet agreed.",
-     8, FOOT, first=True, italic=True, after=0)
 
 subdivider("The 20-year track record")
 # ---- II.6 Track record (chart) ----
@@ -4630,6 +4467,175 @@ ot = tbox(s, Inches(9.0), Inches(5.4), Inches(3.8), Inches(1.5))
 para(ot, "Offices", 12, WHITE, first=True, bold=True, after=4)
 para(ot, "Birger Jarlsgatan 6, 114 34 Stockholm, Sweden", 11, SLATE_LT, after=4)
 para(ot, "Landmark Square, West Bay Road, Grand Cayman", 11, SLATE_LT, after=0)
+
+
+# ===========================================================================
+# APPENDIX — optional co-investment facility (back matter; not in TOC)
+# ===========================================================================
+divider("Optional co-investment facility", kicker="Appendix")
+
+# ---- II.5e3 The co-investment "free look": post-engagement drawdown ---------
+s, top = content("Appendix · Co-investment",
+                 "The co-investment “free look”: a post-engagement drawdown",
+                 "We decouple the co-investment’s timing from the engagement: the "
+                 "main fund bears the execution risk, and LP capital enters only "
+                 "after the turnaround is board-secured — when the public market "
+                 "discounts the price.", number=False)
+co_cw = Emu(int((int(Inches(12.1)) - 3 * int(Inches(0.18))) / 4))
+co_gap = Inches(0.18)
+co_steps = [
+    ("STEP 1 · MAIN FUND LEADS",
+     "Initiates the position, clears the tollgates and secures the board seat — "
+     "the capital-allocation kill switch. Fundamental risk is structurally "
+     "lowered.", SLATE),
+    ("STEP 2 · FACILITY UNCALLED",
+     "Co-investment is committed but dormant through the engagement — no upfront "
+     "execution risk, control premium or broken-deal cost for the LP.", SLATE),
+    ("STEP 3 · VALUATION TRIGGER",
+     "Activated only if the public market later dislocates and discounts the "
+     "price — after the board seat and operating plan are confirmed.", SLATE),
+    ("STEP 4 · LP CAPITAL ENTERS",
+     "Capital draws instantly at the pre-agreed threshold, accumulating at the "
+     "discounted multiple — below the main fund’s own basis.", NAVY),
+]
+for i, (eyebrow, desc, headfill) in enumerate(co_steps):
+    cx = Emu(int(Inches(0.6)) + i * (int(co_cw) + int(co_gap)))
+    rect(s, cx, top, co_cw, Inches(0.5), fill=headfill)
+    htf = tbox(s, Emu(int(cx) + int(Inches(0.14))), top,
+               Emu(int(co_cw) - int(Inches(0.24))), Inches(0.5),
+               anchor=MSO_ANCHOR.MIDDLE)
+    para(htf, eyebrow, 9.5, WHITE, first=True, bold=True, after=0, lead=1.0,
+         font=SERIF, track=0)
+    cby = Emu(int(top) + int(Inches(0.5)))
+    rect(s, cx, cby, co_cw, Inches(1.18), fill=HEADERBG)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.16))), Emu(int(cby) + int(Inches(0.11))),
+              Emu(int(co_cw) - int(Inches(0.3))), Inches(1.02)),
+         desc, 9.5, BODY, first=True, after=0, lead=1.13)
+    if i < 3:
+        para(tbox(s, Emu(int(cx) + int(co_cw) - int(Inches(0.08))),
+                  Emu(int(top) + int(Inches(0.42))), Inches(0.34), Inches(0.5),
+                  anchor=MSO_ANCHOR.MIDDLE),
+             "›", 18, SLATE_LT, first=True, after=0, align=PP_ALIGN.CENTER)
+
+
+def _cobul(tf, lead, body, sz=9.5):
+    p = tf.add_paragraph()
+    p.space_after = Pt(7); p.line_spacing = 1.12
+    hang = int(round(sz * 1.25 * 12700))
+    pPr = p._p.get_or_add_pPr(); pPr.set("marL", str(hang)); pPr.set("indent", str(-hang))
+    r0 = p.add_run(); r0.text = "›  "
+    r0.font.size = Pt(sz); r0.font.bold = True
+    r0.font.color.rgb = SLATE_LT; r0.font.name = SANS
+    r1 = p.add_run(); r1.text = lead
+    r1.font.size = Pt(sz); r1.font.bold = True
+    r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
+    r2 = p.add_run(); r2.text = " — " + body
+    r2.font.size = Pt(sz); r2.font.color.rgb = BODY; r2.font.name = SANS
+
+
+cl = tbox(s, Inches(0.6), Inches(4.18), Inches(5.95), Inches(1.85))
+para(cl, "WHAT THE CO-INVESTOR GETS", 11, SLATE, first=True, bold=True, after=7)
+_cobul(cl, "De-risked, at a discount.", "a governed, ROIIC-compounding core "
+       "bought after the plan is secured — at a basis below the main fund’s.")
+_cobul(cl, "Zero frictional drag.", "no broken-deal, advisory or syndication "
+       "fees; ~20,000-company research is baseline, so 100% of drawn capital "
+       "compounds in the equity.")
+_cobul(cl, "No blind-pool scramble.", "pre-agreed terms bypass the 3–4-week "
+       "syndication — capital hits the dislocation instantly at the optimal basis.")
+cr = tbox(s, Inches(6.95), Inches(4.18), Inches(5.75), Inches(1.85))
+para(cr, "ALIGNMENT & EXIT GOVERNANCE", 11, SLATE, first=True, bold=True, after=7)
+_cobul(cr, "Pro-rata exit.", "bound to exit in lockstep with the main fund — no "
+       "separate timing, full parity with the Investment Committee.")
+_cobul(cr, "Patient-capital enforcement.", "the same multi-year holding "
+       "discipline — no reactionary selling into daily liquidity before the "
+       "restructuring shows in cash flows and earnings.")
+rect(s, Inches(0.6), Inches(6.06), Inches(12.1), Inches(0.92), fill=NAVY)
+para(tbox(s, Inches(0.85), Inches(6.06), Inches(11.6), Inches(0.92),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Decoupled in time, optical volatility becomes a pricing advantage — the "
+     "ultimate institutional free look: turnaround execution risk, stripped of "
+     "deal costs, priced at a market-driven discount.", 12.5, WHITE, first=True,
+     italic=True, after=0, track=0)
+
+# ---- II.5e4 Co-investment term sheet (drawdown mechanics) -------------------
+s, top = content("Appendix · Co-investment",
+                 "Co-investment term sheet: the drawdown mechanics",
+                 "Dormant until the board seat is secured; drawn only on a 20–30% "
+                 "dislocation to accumulate a 10–20% block; zero fees until the "
+                 "promote; converts to a permanent capital vehicle at 2.5×.",
+                 number=False)
+ts_cards = [
+    ("1 · ACTIVATION PREREQUISITES", SLATE, [
+        ("Board control secured", "the vehicle stays dormant until the main fund "
+         "holds the board seat and the capital-allocation playbook."),
+        ("Zero blind-pool risk", "any drawdown notice names a vetted asset the "
+         "team already runs from the inside.")]),
+    ("2 · DRAWDOWN TRIGGER", SLATE, [
+        ("Price-dislocation gate", "capital is called only on a severe optical "
+         "drawdown — a formal 20–30% price drop."),
+        ("Offensive accumulation", "build a 10–20% block at exhaustion prices — "
+         "arbitrage on market psychology, not a falling knife: the board seat "
+         "already floors fundamental risk.")]),
+    ("3 · CALL EXECUTION & EXPIRY", SLATE, [
+        ("Notice period", "a standard 10–15 business-day capital call funds the "
+         "block build."),
+        ("Expiration window", "capped to 18–24 months post-board-seat; if no "
+         "J-curve appears, the commitment expires uncalled — freeing the LP’s "
+         "risk budget.")]),
+    ("4 · FEES & PROMOTE", SLATE, [
+        ("Zero management fees", "through dormancy and accumulation — only a "
+         "capped pass-through of verified admin and legal costs."),
+        ("2.5× super-promote", "the manager takes a 20% stake in the listed "
+         "vehicle only at 2.5× drawn capital, tested continuously (not a single "
+         "date) — the moment LPs lock a 2.0× net return.")]),
+    ("5 · LIQUIDITY — THE PCV FLIP", SLATE, [
+        ("Direct listing at NAV", "a pre-agreed direct listing — a route the "
+         "team has executed in Sweden — converts the vehicle to a PCV at NAV, "
+         "with no bookbuild discount."),
+        ("NAV-tight & evergreen", "a mandatory buyback whenever the price trades "
+         ">10% below NAV holds the discount tight; LPs get daily liquidity, the "
+         "manager keeps infinite duration.")]),
+    ("LP PROTECTIONS · PROPOSED", SLATE_LT, [
+        ("No gaming the conversion", "NAV is mark-to-market from the listed "
+         "holdings, valued on a 10-day VWAP — no independent appraisal, and a "
+         "continuous test leaves no single window the manager can time."),
+        ("Buyback & negative control", "the >10%-discount buyback is mandated in "
+         "the listed vehicle; an LPAC veto on conversion ratio and promote terms; "
+         "NAV redemption if no listing by the longstop.")]),
+]
+ts_gx = Inches(0.16); ts_gy = Inches(0.14)
+ts_cw = Emu(int((int(Inches(12.1)) - 2 * int(ts_gx)) / 3))
+ts_hh = Inches(0.4); ts_bh = Inches(1.18)
+for idx, (htitle, hfill, terms) in enumerate(ts_cards):
+    coln = idx % 3; rown = idx // 3
+    cx = Emu(int(Inches(0.6)) + coln * (int(ts_cw) + int(ts_gx)))
+    cy = Emu(int(top) + rown * (int(ts_hh) + int(ts_bh) + int(ts_gy)))
+    rect(s, cx, cy, ts_cw, ts_hh, fill=hfill)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.12))), cy,
+              Emu(int(ts_cw) - int(Inches(0.2))), ts_hh, anchor=MSO_ANCHOR.MIDDLE),
+         htitle, 9, WHITE, first=True, bold=True, after=0, track=0)
+    bty = Emu(int(cy) + int(ts_hh))
+    rect(s, cx, bty, ts_cw, ts_bh, fill=HEADERBG)
+    tf = tbox(s, Emu(int(cx) + int(Inches(0.14))), Emu(int(bty) + int(Inches(0.09))),
+              Emu(int(ts_cw) - int(Inches(0.26))), Emu(int(ts_bh) - int(Inches(0.16))))
+    for ti, (lead, detail) in enumerate(terms):
+        p = tf.paragraphs[0] if ti == 0 else tf.add_paragraph()
+        p.space_after = Pt(5); p.line_spacing = 1.08
+        r1 = p.add_run(); r1.text = lead
+        r1.font.size = Pt(8.5); r1.font.bold = True
+        r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
+        r2 = p.add_run(); r2.text = " — " + detail
+        r2.font.size = Pt(8.5); r2.font.color.rgb = BODY; r2.font.name = SANS
+rect(s, Inches(0.6), Inches(5.82), Inches(12.1), Inches(0.5), fill=NAVY)
+para(tbox(s, Inches(0.85), Inches(5.82), Inches(11.6), Inches(0.5),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Fees accrue to LPs first: nothing to the manager until 2.5× — at which "
+     "point the LP’s 2.0× net is already locked.", 11.5, WHITE, first=True,
+     italic=True, after=0, track=0)
+para(tbox(s, Inches(0.6), Inches(6.42), Inches(12.1), Inches(0.3)),
+     "Indicative terms for IC / LP discussion, subject to final fund "
+     "documentation; the “LP protections” cell is a proposal, not yet agreed.",
+     8, FOOT, first=True, italic=True, after=0)
 
 
 # ===========================================================================
