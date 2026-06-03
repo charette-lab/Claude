@@ -4575,17 +4575,18 @@ ts_cards = [
         ("Zero blind-pool risk", "any drawdown notice names a vetted asset the "
          "team already runs from the inside.")]),
     ("2 · DRAWDOWN TRIGGER", SLATE, [
-        ("Price-dislocation gate", "capital is called only on a severe optical "
-         "drawdown — a formal 20–30% price drop."),
+        ("Price is the sole trigger", "capital is called only if the market "
+         "hands LPs a 20–30% discount; the main fund drives the operational "
+         "change either way."),
         ("Offensive accumulation", "build a 10–20% block at exhaustion prices — "
          "arbitrage on market psychology, not a falling knife: the board seat "
          "already floors fundamental risk.")]),
     ("3 · CALL EXECUTION & EXPIRY", SLATE, [
         ("Notice period", "a standard 10–15 business-day capital call funds the "
          "block build."),
-        ("Expiration window", "capped to 18–24 months post-board-seat; if no "
-         "J-curve appears, the commitment expires uncalled — freeing the LP’s "
-         "risk budget.")]),
+        ("Time is the sole opt-out", "an 18-month sunset from the board seat; if "
+         "no discount appears the commitment expires uncalled — LPs pay next to "
+         "nothing for the optionality and free the risk budget.")]),
     ("4 · FEES & PROMOTE", SLATE, [
         ("Zero management fees", "through dormancy and accumulation — only a "
          "capped pass-through of verified admin and legal costs."),
@@ -4603,9 +4604,9 @@ ts_cards = [
         ("No gaming the conversion", "NAV is mark-to-market from the listed "
          "holdings, valued on a 10-day VWAP — no independent appraisal, and a "
          "continuous test leaves no single window the manager can time."),
-        ("Buyback & negative control", "the >10%-discount buyback is mandated in "
-         "the listed vehicle; an LPAC veto on conversion ratio and promote terms; "
-         "NAV redemption if no listing by the longstop.")]),
+        ("Catastrophe-only LP veto", "the LPAC veto covers fund-level events only "
+         "— key-person or style drift — never the target’s price or operating "
+         "metrics; NAV redemption if no listing by the longstop.")]),
 ]
 ts_gx = Inches(0.16); ts_gy = Inches(0.14)
 ts_cw = Emu(int((int(Inches(12.1)) - 2 * int(ts_gx)) / 3))
@@ -4642,6 +4643,58 @@ para(tbox(s, Inches(0.6), Inches(6.4), Inches(12.1), Inches(0.5)),
      "— not a guarantee. Buybacks are funded from the vehicle’s distributable "
      "cash and capped per year. The “LP protections” cell is a proposal, not yet "
      "agreed.", 7.5, FOOT, first=True, italic=True, after=0, lead=1.18)
+
+# ---- Appendix · Co-investment: capacity allocation -------------------------
+s, top = content("Appendix · Co-investment",
+                 "Co-investment capacity: a dividend for backing the core",
+                 "Capacity is allocated by flagship commitment, not handed out as "
+                 "a marketing tool — so the “free look” rewards the partners who "
+                 "back the core strategy.", number=False)
+# allocation bar: 85% pro-rata / 15% GP discretion
+bar_y = top; bar_h = Inches(0.72); bar_w = Inches(12.1)
+w85 = Emu(int(int(bar_w) * 0.85)); w15 = Emu(int(bar_w) - int(w85))
+rect(s, Inches(0.6), bar_y, w85, bar_h, fill=NAVY)
+rect(s, Emu(int(Inches(0.6)) + int(w85)), bar_y, w15, bar_h, fill=SLATE_LT)
+para(tbox(s, Emu(int(Inches(0.6)) + int(Inches(0.2))), bar_y, w85, bar_h,
+          anchor=MSO_ANCHOR.MIDDLE),
+     "85%  ·  STRICT PRO-RATA — by flagship commitment", 12, WHITE, first=True,
+     bold=True, after=0, track=0)
+para(tbox(s, Emu(int(Inches(0.6)) + int(w85)), bar_y, w15, bar_h,
+          anchor=MSO_ANCHOR.MIDDLE),
+     "15%  ·  GP", 11, WHITE, first=True, bold=True, after=0,
+     align=PP_ALIGN.CENTER, track=0)
+# three mechanics
+al_cols = [
+    ("Pro-rata by flagship commitment",
+     "An LP’s right of first refusal equals its share of main-fund commitments — "
+     "15% of the fund earns first call on 15% of the sidecar. The lucrative free "
+     "look is a structural dividend for the investors who back the core."),
+    ("Roll-up of declined capacity",
+     "Capacity a smaller LP declines is pooled and re-offered, pro-rata, to the "
+     "remaining participants — automatically concentrating the sidecar among the "
+     "largest, most agile institutional anchors."),
+    ("A 15% GP-discretionary carve-out",
+     "85% is allocated by strict formula to prevent LP infighting; the GP retains "
+     "discretion over the remaining 15% — to reward critical diligence "
+     "intelligence, or to anchor a major new flagship subscription."),
+]
+acw = Emu(int((int(Inches(12.1)) - 2 * int(Inches(0.3))) / 3))
+ay = Emu(int(bar_y) + int(bar_h) + int(Inches(0.45)))
+for i, (lead, body) in enumerate(al_cols):
+    ax = Emu(int(Inches(0.6)) + i * (int(acw) + int(Inches(0.3))))
+    rect(s, ax, ay, Inches(0.5), Inches(0.5), fill=NAVY)
+    para(tbox(s, ax, ay, Inches(0.5), Inches(0.5), anchor=MSO_ANCHOR.MIDDLE),
+         str(i + 1), 18, WHITE, first=True, after=0, font=SERIF,
+         align=PP_ALIGN.CENTER, track=0)
+    tf = tbox(s, ax, Emu(int(ay) + int(Inches(0.62))), acw, Inches(2.2))
+    para(tf, lead, 13, SLATE, first=True, bold=True, after=5, lead=1.06)
+    para(tf, body, 11, BODY, after=0, lead=1.16)
+rect(s, Inches(0.6), Inches(6.32), Inches(12.1), Inches(0.62), fill=NAVY)
+para(tbox(s, Inches(0.85), Inches(6.32), Inches(11.6), Inches(0.62),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Capacity rewards conviction: the free look deepens the relationships with "
+     "the anchors who fund the flagship — a structural dividend, not a giveaway.",
+     12, WHITE, first=True, italic=True, after=0, track=0)
 
 
 # ===========================================================================
