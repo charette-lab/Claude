@@ -90,55 +90,74 @@ def content(section, title, subtitle=None):
 
 # ---------------------------------------------------------------------------
 s, top = content(
-    "Case studies · Risk discipline",
-    "Two cases, one discipline: when to walk away, and when to sell",
-    "When we cannot secure alignment we walk away (Robit); when the thesis "
-    "breaks we sell on the facts, not the share price (DistIT) — and the one "
-    "mistake we made built the system.")
+    "Risk system · In practice",
+    "The risk ledger: our system in practice — and how it developed",
+    "Every engagement tests the risk system, and our mistakes refine it. Each "
+    "row shows what the system flagged, the disciplined action it forced, the "
+    "outcome — and what it taught.")
 
-colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.3))
-para(colL, "DISTIT — A THESIS SHIFT, ACTED ON", 12.5, SLATE, first=True,
-     bold=True, after=8)
-for t in ["Built it (from 2015): bought in and installed a new management team "
-          "and board, compounding the platform over years.",
-          "Couldn’t block it, so we governed it (2021): we warned against the "
-          "EFUEL acquisition and held a board seat but could not stop it — so we "
-          "forced the price down ~40%, from SEK 300m upfront to SEK 180m plus an "
-          "earn-out, which never paid.",
-          "Acted on the shift: judging the company overvalued, we sold across two "
-          "blocks — into a rising price, not a falling one — and still made money.",
-          "The honest mistake: we were not determined enough; we should have "
-          "exited in full and taken the ~20% hit at once."]:
-    para(colL, t, 12.5, BODY, after=8, lead=1.14)
-colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.3))
-para(colR, "ROBIT — AGREEMENT BEFORE CAPITAL", 12.5, SLATE, first=True,
-     bold=True, after=8)
-for t in ["Built a position (from May 2015): invested in stages in a niche "
-          "drilling-consumables franchise trading below intrinsic value.",
-          "Sought engagement (from 2019): pursued a board seat to fix the cost "
-          "base and capital allocation — a board-level plan.",
-          "The breaking point: we could not secure board alignment.",
-          "Walked away: unwound rather than stay without influence — exiting at "
-          "~14% IRR (>2× the index). The shares have since roughly halved, so the "
-          "discipline avoided the loss."]:
-    para(colR, t, 12.5, BODY, after=8, lead=1.14)
-rect(s, Inches(0.6), Inches(5.28), Inches(12.16), Inches(0.92), fill=HEADERBG)
-rect(s, Inches(0.6), Inches(5.28), Inches(0.07), Inches(0.92), fill=NAVY)
-para(tbox(s, Inches(0.85), Inches(5.36), Inches(11.6), Inches(0.3)),
-     "THE DISCIPLINE IT BUILT", 12, NAVY, first=True, bold=True, after=4)
-para(tbox(s, Inches(0.85), Inches(5.66), Inches(11.7), Inches(0.5)),
-     "Two routes, one rule — act on the facts, not the share price. Robit set "
-     "the precondition (no board alignment, no capital); DistIT set the exit "
-     "(when the thesis breaks, sell completely). Selling DistIT too gradually is "
-     "the origin of our determined-seller framework.", 11, BODY, first=True,
-     after=0, lead=1.14)
-rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
-para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
+# ---- ledger table (rows = companies; add more rows as the page grows) -------
+cols = ["Company & position", "Thesis & engagement", "The risk trigger",
+        "The disciplined action", "Outcome", "What it taught the system"]
+cw = [Inches(2.05), Inches(1.9), Inches(2.0), Inches(2.35), Inches(1.7),
+      Inches(2.1)]
+rows = [
+    ["DistIT — Nasdaq Stockholm. Bought from 2015; built it with a new "
+     "management team and board.",
+     "Active owner with a board seat — compound a Nordic distribution platform.",
+     "2021: the EFUEL acquisition we had warned against went ahead; we judged "
+     "the company overvalued — thesis broken.",
+     "From the board, forced the price down ~40% (SEK 300m → 180m + earn-out, "
+     "which never paid). Sold across two blocks — into a rising price, not a "
+     "falling one.",
+     "Profitable overall — but we sold too gradually instead of exiting in full.",
+     "Origin of the determined-seller framework: when the thesis breaks, exit "
+     "completely — on the facts, not the price."],
+    ["Robit Plc — Nasdaq Helsinki. Invested in stages from May 2015; a niche "
+     "drilling-consumables franchise below intrinsic value.",
+     "Board-level plan to fix the cost base and capital allocation.",
+     "From 2019 we sought a board seat to formalise the plan — and could not "
+     "secure board alignment.",
+     "Walked away — unwound rather than stay without influence.",
+     "Exited at ~14% IRR (>2× the index); the shares have since roughly halved.",
+     "Reinforced agreement-before-capital: no board alignment, no position."],
+]
+lx = Inches(0.6); ly = top
+# header
+hh = Inches(0.55)
+x = lx
+for ci, c in enumerate(cols):
+    rect(s, x, ly, cw[ci], hh, fill=SLATE)
+    para(tbox(s, Emu(int(x) + int(Inches(0.1))), ly,
+              Emu(int(cw[ci]) - int(Inches(0.18))), hh, anchor=MSO_ANCHOR.MIDDLE),
+         c, 9, WHITE, first=True, bold=True, after=0, lead=1.04)
+    x = Emu(int(x) + int(cw[ci]))
+ly = Emu(int(ly) + int(hh))
+# data rows
+drh = Inches(1.55)
+for ri, row in enumerate(rows):
+    x = lx
+    fill = HEADERBG if ri % 2 == 0 else WHITE
+    for ci, cell in enumerate(row):
+        rect(s, x, ly, cw[ci], drh, fill=fill)
+        if ci == 0:
+            rect(s, x, ly, Inches(0.06), drh, fill=NAVY)
+        para(tbox(s, Emu(int(x) + int(Inches(0.13))), Emu(int(ly) + int(Inches(0.1))),
+                  Emu(int(cw[ci]) - int(Inches(0.22))), Emu(int(drh) - int(Inches(0.18)))),
+             cell, 8.5, NAVY_TX if ci == 0 else BODY, bold=(ci == 0), first=True,
+             after=0, lead=1.12)
+        x = Emu(int(x) + int(cw[ci]))
+    ly = Emu(int(ly) + int(drh))
+para(tbox(s, Inches(0.6), Emu(int(ly) + int(Inches(0.08))), Inches(12.1), Inches(0.3)),
+     "Two entries shown; further cases to be added. The system is not static — "
+     "Robit shaped “agreement before capital,” DistIT built the determined-seller "
+     "exit.", 8, FOOT, first=True, italic=True, after=0, lead=1.1)
+rect(s, Inches(0.6), Inches(6.4), Inches(12.16), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.4), Inches(11.8), Inches(0.6),
           anchor=MSO_ANCHOR.MIDDLE),
-     "Conviction to build, the discipline to exit, and the honesty to "
-     "systematise our own mistakes — both cases protected capital, and made the "
-     "risk system better.", 12.5, WHITE, first=True, italic=True, after=0,
-     track=0)
+     "A risk system we both use and keep building — every engagement tests it, "
+     "and our own mistakes are written back into it.", 12, WHITE, first=True,
+     italic=True, after=0, track=0)
 
 # ---- final 4:3 rescale (match the combined deck output) --------------------
 TARGET_W, TARGET_H = 9753600, 7315200
