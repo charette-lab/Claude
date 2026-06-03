@@ -3072,19 +3072,19 @@ ts_cards = [
         ("Zero management fees", "through dormancy and accumulation — only a "
          "capped pass-through of verified admin and legal costs."),
         ("2.5× super-promote", "the manager takes a 20% stake in the listed "
-         "vehicle only at 2.5× drawn capital — the moment LPs lock a 2.0× net "
-         "return.")]),
+         "vehicle only at 2.5× drawn capital, tested continuously (not a single "
+         "date) — the moment LPs lock a 2.0× net return.")]),
     ("5 · LIQUIDITY — THE PCV FLIP", SLATE, [
-        ("Direct listing at NAV", "as 2.5× nears, a pre-agreed direct listing "
-         "converts the vehicle to a PCV — opening price set at NAV, with no "
-         "underwriter spread or bookbuild discount."),
+        ("Direct listing at NAV", "a pre-agreed direct listing — a route the "
+         "team has executed in Sweden — converts the vehicle to a PCV at NAV, "
+         "with no bookbuild discount."),
         ("NAV-tight & evergreen", "a mandatory buyback whenever the price trades "
          ">10% below NAV holds the discount tight; LPs get daily liquidity, the "
          "manager keeps infinite duration.")]),
     ("LP PROTECTIONS · PROPOSED", SLATE_LT, [
-        ("Pre-agreed listing", "the direct listing is a baked-in term, not a "
-         "manager call; the 2.0× lock crystallises at conversion, valued on a "
-         "10-day VWAP — no independent appraisal needed."),
+        ("No gaming the conversion", "NAV is mark-to-market from the listed "
+         "holdings, valued on a 10-day VWAP — no independent appraisal, and a "
+         "continuous test leaves no single window the manager can time."),
         ("Buyback & negative control", "the >10%-discount buyback is mandated in "
          "the listed vehicle; an LPAC veto on conversion ratio and promote terms; "
          "NAV redemption if no listing by the longstop.")]),
