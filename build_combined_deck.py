@@ -4447,6 +4447,42 @@ para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
      "diversification — not the most familiar logo.", 12.5, WHITE, first=True,
      italic=True, after=0, track=0)
 
+# ---- The Case: the ground is already moving (PE distress + AI, act now) -----
+s, top = content("The Case",
+                 "The ground is already moving — two shocks to a traditional book",
+                 "This is not a forecast. Right now, private markets are gating "
+                 "redemptions and AI is commoditizing the analytical edge active "
+                 "equity is sold on.", number=False)
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.3))
+para(colL, "PRIVATE MARKETS ARE GATING — NOW", 12.5, SLATE, first=True,
+     bold=True, after=8)
+for t in ["Partners Group capped redemptions in its $8.6bn evergreen PE fund at "
+          "5% of NAV after requests hit 9.8% — KKR, Blackstone and Ares fell "
+          "(Bloomberg / CNBC, Jun 2026).",
+          "It is spreading — redemption pressure has moved from private credit "
+          "into private equity, with several managers restricting withdrawals.",
+          "The trap closes: frozen distributions while capital calls continue "
+          "force selling good assets at the bottom — and smoothed marks hid the "
+          "damage until now."]:
+    para(colL, t, 12.5, BODY, after=10, lead=1.14)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.3))
+para(colR, "AI IS COMMODITIZING EQUITY ALPHA", 12.5, SLATE, first=True,
+     bold=True, after=8)
+for t in ["Every manager now runs the same AI-driven analysis instantly; the "
+          "screenable names are bid up and long-only alpha decays toward zero.",
+          "That analytical edge is exactly what active equity fees pay for "
+          "(Kim, Muhn & Nikolaev, 2024; McLean & Pontiff, 2016).",
+          "Passive is no refuge — record concentration in the same mega-caps is "
+          "a crowded trade, not diversification."]:
+    para(colR, t, 12.5, BODY, after=10, lead=1.14)
+rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Both legs of a traditional book — illiquid PE and crowded public equity — "
+     "are under pressure at once. A liquid, low-correlation engaged-ownership "
+     "sleeve is the antidote to both — and the cost is in waiting.", 12.5, WHITE,
+     first=True, italic=True, after=0, track=0)
+
 # ---- The Case: AI commoditizes analytical alpha, not engaged ownership ------
 s, top = content("The Case",
                  "AI commoditizes analytical alpha — not engaged ownership",
