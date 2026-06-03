@@ -3075,17 +3075,19 @@ ts_cards = [
          "vehicle only at 2.5× drawn capital — the moment LPs lock a 2.0× net "
          "return.")]),
     ("5 · LIQUIDITY — THE PCV FLIP", SLATE, [
-        ("Listing conversion", "as 2.5× approaches, the vehicle lists and "
-         "converts to a permanent capital vehicle (PCV)."),
-        ("Evergreen duration", "LPs get fractional daily liquidity in the listed "
-         "shares; the manager keeps infinite duration — no forced block-sale "
-         "discount.")]),
+        ("Direct listing at NAV", "as 2.5× nears, a pre-agreed direct listing "
+         "converts the vehicle to a PCV — opening price set at NAV, with no "
+         "underwriter spread or bookbuild discount."),
+        ("NAV-tight & evergreen", "a mandatory buyback whenever the price trades "
+         ">10% below NAV holds the discount tight; LPs get daily liquidity, the "
+         "manager keeps infinite duration.")]),
     ("LP PROTECTIONS · PROPOSED", SLATE_LT, [
-        ("Consent on the flip", "PCV listing needs LP supermajority consent and "
-         "an independent NAV; the 2.0× lock crystallises at/before conversion."),
-        ("Backstop & negative control", "an LPAC veto on venue, conversion ratio "
-         "and promote terms; a NAV redemption right if no listing by the "
-         "longstop.")]),
+        ("Pre-agreed listing", "the direct listing is a baked-in term, not a "
+         "manager call; the 2.0× lock crystallises at conversion, valued on a "
+         "10-day VWAP — no independent appraisal needed."),
+        ("Buyback & negative control", "the >10%-discount buyback is mandated in "
+         "the listed vehicle; an LPAC veto on conversion ratio and promote terms; "
+         "NAV redemption if no listing by the longstop.")]),
 ]
 ts_gx = Inches(0.16); ts_gy = Inches(0.14)
 ts_cw = Emu(int((int(Inches(12.1)) - 2 * int(ts_gx)) / 3))
