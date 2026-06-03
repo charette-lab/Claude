@@ -203,7 +203,7 @@ s, top = content(
     "A 20-year record built on operating improvement — reconciled and audited by "
     "tier-one institutions.")
 statrow(s, [("~16%", "net p.a. over 20 years"),
-            ("+6 pts", "a year vs the index, net"),
+            ("+10 pts", "a year vs the index, net"),
             ("92%", "deal hit rate (35 of 38)"),
             ("0%", "investor loss over a holding period")], top)
 bullets(s, [
