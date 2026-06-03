@@ -4446,6 +4446,45 @@ para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
      "diversification — not the most familiar logo.", 12.5, WHITE, first=True,
      italic=True, after=0, track=0)
 
+# ---- The Case: AI commoditizes analytical alpha, not engaged ownership ------
+s, top = content("The Case",
+                 "AI commoditizes analytical alpha — not engaged ownership",
+                 "As AI lets every firm run the same financial analysis "
+                 "instantly, the alpha in screenable, well-covered equities is "
+                 "competed away and the “easy” names are bid up. The durable edge "
+                 "shifts from discovering value to creating it.", number=False)
+colL = tbox(s, Inches(0.75), top, Inches(5.85), Inches(4.3))
+para(colL, "WHAT AI COMMODITIZES — DISCOVERED ALPHA", 12.5, SLATE, first=True,
+     bold=True, after=8)
+for t in ["The same analysis, instantly — every manager ingests the same "
+          "filings and data and runs the same models; the analytical edge "
+          "long-only alpha rests on erodes toward zero.",
+          "The “easy” stuff gets bid up — screenable large- and mega-caps are "
+          "arbitraged fastest, compressing margins of safety and deepening the "
+          "index concentration you already carry.",
+          "Your current equity alpha is exposed — much of what active "
+          "global-equity managers charge for is precisely this analytical edge."]:
+    para(colL, t, 12.5, BODY, after=10, lead=1.14)
+colR = tbox(s, Inches(7.0), top, Inches(5.85), Inches(4.3))
+para(colR, "WHAT IT CANNOT — CREATED ALPHA", 12.5, SLATE, first=True, bold=True,
+     after=8)
+for t in ["Returns we create, not discover — ours come from board control, "
+          "capital-allocation change and operational improvement, not a "
+          "mispricing a model can replicate.",
+          "You can’t download a board seat — a multi-year, relationship- and "
+          "execution-dependent turnaround is the opposite of a commoditizable "
+          "screen.",
+          "The inefficiency persists where analysis can’t reach — under-covered "
+          "mid-caps that need governance and operating change, not a faster "
+          "spreadsheet: our lane."]:
+    para(colR, t, 12.5, BODY, after=10, lead=1.14)
+rect(s, Inches(0.6), Inches(6.32), Inches(12.16), Inches(0.66), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.32), Inches(11.8), Inches(0.66),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "As analytical alpha commoditizes, created — engaged-ownership — alpha "
+     "becomes scarcer and more valuable. The edge AI cannot copy is the one to "
+     "add now.", 12.5, WHITE, first=True, italic=True, after=0, track=0)
+
 # ---- The Case: the cost of waiting (flip the default; drive action) ---------
 s, top = content("The Case",
                  "Waiting is the riskier decision — and it never gets underwritten",
@@ -4474,17 +4513,29 @@ for t in ["Concentration you already own — your equity book is a crowded "
           "The PE denominator trap — in a downturn your illiquid sleeve breaches "
           "limits and forces selling good assets at the bottom, with nothing "
           "liquid to absorb it.",
-          "Compounding foregone — at a delivered ~16% net, every year on the "
-          "sidelines is a permanent gap you cannot earn back.",
-          "Capacity forfeited — co-investment is allocated pro-rata to flagship "
-          "commitment; wait, and the free look goes to those already in."]:
-    para(colR, t, 12.5, BODY, after=9, lead=1.14)
-rect(s, Inches(0.6), Inches(6.46), Inches(12.16), Inches(0.6), fill=NAVY)
-para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
-          anchor=MSO_ANCHOR.MIDDLE),
-     "Doing nothing is also a decision — the only one that never gets minuted. "
-     "The bounded, reversible risk is the allocation; the open-ended risk is the "
-     "status quo.", 12.5, WHITE, first=True, italic=True, after=0, track=0)
+          "Alpha decay — AI is commoditizing the analytical edge your active "
+          "equity managers sell (prior page); engaged ownership is the edge it "
+          "cannot copy.",
+          "Compounding foregone — at a delivered ~16% net, €100m deferred 12 "
+          "months reaches the same horizon ~€61m smaller; that gap never returns.",
+          "Capacity forfeited — only ~one deal a year, and co-investment is "
+          "pro-rata to commitment: those in early set their share, latecomers "
+          "take what is left."]:
+    para(colR, t, 12, BODY, after=7, lead=1.13)
+para(tbox(s, Inches(0.75), Inches(5.86), Inches(12.0), Inches(0.22)),
+     "Delay illustration: €100m at ~16% net — nine vs ten years of compounding "
+     "to a common horizon; illustrative only, past returns not indicative.", 7.5,
+     FOOT, first=True, italic=True, after=0)
+rect(s, Inches(0.6), Inches(6.08), Inches(12.16), Inches(0.9), fill=NAVY)
+wbnd = tbox(s, Inches(0.8), Inches(6.08), Inches(11.8), Inches(0.9),
+            anchor=MSO_ANCHOR.MIDDLE)
+para(wbnd, "Deferring €100m by 12 months reaches the same horizon ~€61m smaller "
+     "(≈14% less) — timing, not markets.", 12.5, WHITE, first=True, bold=True,
+     after=4, lead=1.06, track=0)
+para(wbnd, "Two years on, the harder board question isn’t a planned 2% drawdown "
+     "— it’s why you passed on the only genuine diversifier you were shown. "
+     "Doing nothing is also a decision; it just never gets minuted.", 11, WHITE,
+     italic=True, after=0, lead=1.06, track=0)
 
 # ===========================================================================
 # CLOSING
