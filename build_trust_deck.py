@@ -1,29 +1,29 @@
-"""Standalone UK INVESTMENT-TRUST pitch (up to 20 slides), structured to the
-investment-trust pitch outline (7 sections) but populated with Athanase's actual
-engaged-ownership strategy. Launch-specific items (terms, dividend, timetable,
-listing) are clearly marked indicative / proposed — not fabricated. Styled to
-the AIP brand and rescaled to 4:3. Content distilled from build_combined_deck.py.
+"""UK INVESTMENT-TRUST pitch — dark theme to match the 'Engaged Ownership as an
+Asset Class' house style (navy background, bright-blue accents, geometric font,
+big stats, cards), 16:9. Blends the stronger asset-class framings from that deck
+with the trust-specific content. Launch specifics flagged indicative/proposed.
 """
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
-from pptx.oxml.ns import qn as _qn
-from pptx.enum.shapes import MSO_SHAPE_TYPE as _MST
+from pptx.enum.shapes import MSO_SHAPE
 from PIL import Image
 import openpyxl
 
-# ---- brand palette / fonts (AIP Blue group only) --------------------------
-BLUE1 = RGBColor(0x0E, 0x16, 0x20); BLUE2 = RGBColor(0x15, 0x21, 0x30)
-BLUE3 = RGBColor(0x31, 0x43, 0x59); BLUE4 = RGBColor(0x55, 0x6A, 0x83)
-BLUE5 = RGBColor(0xE2, 0xE5, 0xE9); BLUE6 = RGBColor(0xF6, 0xF7, 0xF9)
-NAVY, NAVY_TX, SLATE, SLATE_LT = BLUE2, BLUE3, BLUE3, BLUE4
-HEADERBG, BODY, SUBTLE, DIVIDER = BLUE6, BLUE1, BLUE4, BLUE5
-WHITE = RGBColor(0xFF, 0xFF, 0xFF); FOOT = BLUE4; LOSS = BLUE4
-SERIF, SANS = "Times New Roman", "Arial"
-LOGO_WHITE, MARK_DARK = "assets/logo_white.png", "assets/mark_dark.png"
+# ---- dark palette / fonts -------------------------------------------------
+BG      = RGBColor(0x0E, 0x1A, 0x2B)   # navy background
+BLUE    = RGBColor(0x3E, 0x9C, 0xFF)   # bright accent
+WHITE   = RGBColor(0xFF, 0xFF, 0xFF)
+BODY    = RGBColor(0xC2, 0xCC, 0xD8)   # light-grey body
+MUTED   = RGBColor(0x8A, 0x97, 0xA6)   # subtitle / secondary
+CARD    = RGBColor(0x16, 0x24, 0x39)   # card fill
+CARDLN  = RGBColor(0x2A, 0x3B, 0x54)   # card / rule border
+PANEL   = RGBColor(0x14, 0x22, 0x36)
+HEAD = BODY_F = "Poppins"              # geometric; renders if installed
+BGIMG = "assets/bg_dark.png"
+LOGO_WHITE = "assets/logo_white.png"
 _LW_AR = (lambda s: s[0] / s[1])(Image.open(LOGO_WHITE).size)
-_MD_AR = (lambda s: s[0] / s[1])(Image.open(MARK_DARK).size)
 
 prs = Presentation()
 prs.slide_width = Inches(13.333); prs.slide_height = Inches(7.5)
@@ -32,150 +32,218 @@ BLANK = prs.slide_layouts[6]
 _state = {"n": 0}
 
 
-def rect(slide, l, t, w, h, fill=None):
-    sp = slide.shapes.add_shape(1, l, t, w, h); sp.shadow.inherit = False
+def rrect(s, x, y, w, h, fill=None, line=None, lw=1.0, rad=0.06, rounded=True):
+    shp = s.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE if rounded else MSO_SHAPE.RECTANGLE, x, y, w, h)
+    shp.shadow.inherit = False
+    if rounded:
+        try:
+            shp.adjustments[0] = rad
+        except Exception:
+            pass
     if fill is None:
-        sp.fill.background()
+        shp.fill.background()
     else:
-        sp.fill.solid(); sp.fill.fore_color.rgb = fill
-    sp.line.fill.background()
-    return sp
+        shp.fill.solid(); shp.fill.fore_color.rgb = fill
+    if line is None:
+        shp.line.fill.background()
+    else:
+        shp.line.color.rgb = line; shp.line.width = Pt(lw)
+    return shp
 
 
-def tbox(slide, l, t, w, h, anchor=MSO_ANCHOR.TOP):
-    tb = slide.shapes.add_textbox(l, t, w, h); tf = tb.text_frame
+def tbox(s, x, y, w, h, anchor=MSO_ANCHOR.TOP):
+    tb = s.shapes.add_textbox(x, y, w, h); tf = tb.text_frame
     tf.word_wrap = True; tf.vertical_anchor = anchor
     tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
     return tf
 
 
-def para(tf, text, size, color, bold=False, italic=False, first=False,
-         align=PP_ALIGN.LEFT, after=8, lead=1.1, font=SANS, track=None):
+def para(tf, text, size, color, bold=False, first=False, align=PP_ALIGN.LEFT,
+         after=8, lead=1.12, font=BODY_F, italic=False):
     p = tf.paragraphs[0] if first else tf.add_paragraph()
     p.alignment = align; p.space_after = Pt(after); p.line_spacing = lead
     r = p.add_run(); r.text = text; f = r.font
     f.size = Pt(size); f.bold = bold; f.italic = italic
     f.color.rgb = color; f.name = font
-    if track is None:
-        track = -5 if size >= 48 else (-3 if size >= 24 else 0)
-    if track:
-        r._r.get_or_add_rPr().set("spc", str(int(round(size * track / 100.0 * 100))))
     return p
 
 
-def place_mark(s, l, t, h):
-    s.shapes.add_picture(MARK_DARK, l, t, height=h, width=Emu(int(int(h) * _MD_AR)))
+def runs(p, parts, size, after=8, lead=1.15):
+    p.space_after = Pt(after); p.line_spacing = lead
+    for txt, col, bold in parts:
+        r = p.add_run(); r.text = txt
+        r.font.size = Pt(size); r.font.bold = bold
+        r.font.color.rgb = col; r.font.name = BODY_F
 
 
-def place_logo_white(s, l, t, h):
-    s.shapes.add_picture(LOGO_WHITE, l, t, height=h, width=Emu(int(int(h) * _LW_AR)))
+def newslide():
+    s = prs.slides.add_slide(BLANK)
+    s.shapes.add_picture(BGIMG, 0, 0, SW, SH)
+    return s
 
 
 def footer(s):
     _state["n"] += 1
-    para(tbox(s, Inches(8.6), Inches(7.05), Inches(4.4), Inches(0.3)),
-         f"Strictly confidential  ·  professional & intermediary use only      "
-         f"{_state['n']}", 8, FOOT, first=True, align=PP_ALIGN.RIGHT, after=0)
+    rrect(s, Inches(0.6), Inches(7.04), Inches(12.13), Pt(0.8), fill=CARDLN, rounded=False)
+    para(tbox(s, Inches(0.6), Inches(7.1), Inches(9), Inches(0.3)),
+         "Athanase  ·  strictly confidential  ·  professional & intermediary use only",
+         8, MUTED, first=True, after=0)
+    para(tbox(s, Inches(11.8), Inches(7.1), Inches(0.95), Inches(0.3)),
+         str(_state["n"]), 8, MUTED, first=True, after=0, align=PP_ALIGN.RIGHT)
 
 
-def content(section, title, subtitle=None):
-    s = prs.slides.add_slide(BLANK)
-    rect(s, 0, 0, SW, SH, fill=WHITE)
-    place_mark(s, Inches(0.55), Inches(0.24), Inches(0.26))
-    para(tbox(s, Inches(0.98), Inches(0.27), Inches(9.0), Inches(0.3)),
-         section, 11, SLATE_LT, first=True, after=0)
-    band_h = Inches(1.45) if subtitle else Inches(1.05)
-    rect(s, 0, Inches(0.62), SW, band_h, fill=HEADERBG)
-    para(tbox(s, Inches(0.6), Inches(0.74), Inches(12.1), Inches(0.85)),
-         title, 29, NAVY_TX, first=True, after=2, font=SERIF)
-    body_top = Inches(1.95)
+def content(num, section, title, subtitle=None):
+    s = newslide()
+    t = tbox(s, Inches(0.6), Inches(0.45), Inches(12.1), Inches(0.95))
+    p = t.paragraphs[0]; p.line_spacing = 1.0
+    r0 = p.add_run(); r0.text = f"{num}. "
+    r0.font.size = Pt(30); r0.font.bold = True; r0.font.color.rgb = BLUE; r0.font.name = HEAD
+    r1 = p.add_run(); r1.text = title
+    r1.font.size = Pt(30); r1.font.bold = True; r1.font.color.rgb = WHITE; r1.font.name = HEAD
+    para(tbox(s, Inches(0.62), Inches(0.18), Inches(11), Inches(0.3)),
+         section.upper(), 10.5, BLUE, first=True, after=0)
+    body_top = Inches(1.55)
     if subtitle:
-        para(tbox(s, Inches(0.62), Inches(1.55), Inches(11.9), Inches(0.7)),
-             subtitle, 13, SUBTLE, first=True, italic=True, after=0, lead=1.16)
-        body_top = Inches(2.4)
+        para(tbox(s, Inches(0.62), Inches(1.42), Inches(11.9), Inches(0.7)),
+             subtitle, 13.5, MUTED, first=True, after=0, lead=1.22)
+        body_top = Inches(2.35)
     footer(s)
     return s, body_top
 
 
-def bullets(s, items, top, x=Inches(0.75), w=Inches(11.9), size=14, gap=12, lead=1.18):
-    tf = tbox(s, x, top, w, Inches(4.2))
+def bullets(s, items, top, x=Inches(0.62), w=Inches(5.9), size=13, gap=12, arrow=True):
+    tf = tbox(s, x, top, w, Inches(4.6))
     for i, it in enumerate(items):
-        ld, body = it if isinstance(it, tuple) else ("", it)
+        lead, b = it if isinstance(it, tuple) else ("", it)
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-        p.space_after = Pt(gap); p.line_spacing = lead
-        if ld:
-            r0 = p.add_run(); r0.text = ld + "  "
-            r0.font.size = Pt(size); r0.font.bold = True
-            r0.font.color.rgb = NAVY_TX; r0.font.name = SANS
-        r1 = p.add_run(); r1.text = body
-        r1.font.size = Pt(size); r1.font.color.rgb = BODY; r1.font.name = SANS
+        p.space_after = Pt(gap); p.line_spacing = 1.22
+        if arrow:
+            r = p.add_run(); r.text = "→  "
+            r.font.size = Pt(size); r.font.bold = True; r.font.color.rgb = BLUE; r.font.name = BODY_F
+        if lead:
+            r0 = p.add_run(); r0.text = lead + " "
+            r0.font.size = Pt(size); r0.font.bold = True; r0.font.color.rgb = WHITE; r0.font.name = BODY_F
+        r1 = p.add_run(); r1.text = b
+        r1.font.size = Pt(size); r1.font.color.rgb = BODY; r1.font.name = BODY_F
     return tf
 
 
-def closer(s, text, y=Inches(6.46), h=Inches(0.6), size=12.5):
-    rect(s, Inches(0.6), y, Inches(12.16), h, fill=NAVY)
-    para(tbox(s, Inches(0.8), y, Inches(11.8), h, anchor=MSO_ANCHOR.MIDDLE),
-         text, size, WHITE, first=True, italic=True, after=0, track=0)
+def card(s, x, y, w, h, title, body, tlead=None):
+    rrect(s, x, y, w, h, fill=CARD, line=CARDLN, lw=1.0, rad=0.05)
+    inx = Emu(int(x) + int(Inches(0.28)))
+    para(tbox(s, inx, Emu(int(y) + int(Inches(0.26))), Emu(int(w) - int(Inches(0.56))),
+              Inches(0.5)), title, 15, BLUE, first=True, bold=True, after=0)
+    bt = tbox(s, inx, Emu(int(y) + int(Inches(0.95))), Emu(int(w) - int(Inches(0.56))),
+              Emu(int(h) - int(Inches(1.1))))
+    if tlead:
+        para(bt, tlead, 11, WHITE, first=True, bold=True, after=10, lead=1.2)
+        para(bt, body, 11.5, BODY, after=0, lead=1.3)
+    else:
+        para(bt, body, 12, BODY, first=True, after=0, lead=1.32)
 
 
-def statrow(s, stats, top, h=Inches(1.25)):
-    n = len(stats); gap = Inches(0.15)
-    cw = Emu(int((int(Inches(12.13)) - (n - 1) * int(gap)) / n))
+def bigstats(s, stats, y, h=Inches(1.55)):
+    rrect(s, Inches(0.62), y, Inches(12.1), h, fill=PANEL, line=CARDLN, lw=1.0, rad=0.04)
+    n = len(stats); cw = Emu(int(Inches(12.1)) // n)
     for i, (big, lab) in enumerate(stats):
-        cx = Emu(int(Inches(0.6)) + i * (int(cw) + int(gap)))
-        rect(s, cx, top, cw, h, fill=HEADERBG)
-        para(tbox(s, cx, Emu(int(top) + int(Inches(0.16))), cw, Inches(0.6),
-                  anchor=MSO_ANCHOR.MIDDLE), big, 27, NAVY_TX, first=True,
-             after=0, font=SERIF, align=PP_ALIGN.CENTER)
-        para(tbox(s, Emu(int(cx) + int(Inches(0.1))),
-                  Emu(int(top) + int(Inches(0.8))), Emu(int(cw) - int(Inches(0.2))),
-                  Inches(0.4)), lab, 9.5, SLATE_LT, first=True, after=0,
-             align=PP_ALIGN.CENTER, lead=1.05)
+        cx = Emu(int(Inches(0.62)) + i * int(cw))
+        para(tbox(s, cx, Emu(int(y) + int(Inches(0.22))), cw, Inches(0.7),
+                  anchor=MSO_ANCHOR.MIDDLE), big, 38, BLUE, first=True, bold=True,
+             after=0, align=PP_ALIGN.CENTER)
+        para(tbox(s, Emu(int(cx) + int(Inches(0.2))), Emu(int(y) + int(Inches(0.92))),
+                  Emu(int(cw) - int(Inches(0.4))), Inches(0.5)), lab, 11, BODY,
+             first=True, after=0, align=PP_ALIGN.CENTER, lead=1.15)
 
 
-def kvtable(s, rows, top, x=Inches(0.6), w=Inches(12.13), rh=Inches(0.42),
-            lw=Inches(3.3)):
-    y = top
-    for i, (k, v, *flag) in enumerate(rows):
-        rect(s, x, y, w, rh, fill=HEADERBG if i % 2 == 0 else WHITE)
-        rect(s, x, y, lw, rh, fill=SLATE if i % 2 else BLUE5)
-        para(tbox(s, Emu(int(x) + int(Inches(0.16))), y, Emu(int(lw) - int(Inches(0.3))),
-                  rh, anchor=MSO_ANCHOR.MIDDLE), k, 10.5,
-             WHITE if i % 2 else NAVY_TX, bold=True, first=True, after=0, lead=1.0)
-        vt = tbox(s, Emu(int(x) + int(lw) + int(Inches(0.18))), y,
-                  Emu(int(w) - int(lw) - int(Inches(0.32))), rh,
-                  anchor=MSO_ANCHOR.MIDDLE)
-        p = vt.paragraphs[0]; p.line_spacing = 1.02
-        r = p.add_run(); r.text = v
-        r.font.size = Pt(10.5); r.font.color.rgb = BODY; r.font.name = SANS
-        if flag and flag[0]:
-            r2 = p.add_run(); r2.text = "   " + flag[0]
-            r2.font.size = Pt(8.5); r2.font.italic = True
-            r2.font.color.rgb = SLATE_LT; r2.font.name = SANS
-        y = Emu(int(y) + int(rh))
-    return y
+def callout(s, text, y=Inches(6.05), h=Inches(0.85)):
+    rrect(s, Inches(0.62), y, Inches(12.1), h, fill=CARD, line=CARDLN, lw=1.0, rad=0.06)
+    rrect(s, Inches(0.62), y, Inches(0.07), h, fill=BLUE, rounded=False)
+    para(tbox(s, Inches(0.95), y, Inches(11.5), h, anchor=MSO_ANCHOR.MIDDLE),
+         text, 13, WHITE, first=True, after=0, lead=1.22)
 
 
-def stepflow(s, steps, top, h=Inches(1.55)):
-    n = len(steps); gap = Inches(0.16)
-    cw = Emu(int((int(Inches(12.1)) - (n - 1) * int(gap)) / n))
-    for i, (head, body) in enumerate(steps):
-        cx = Emu(int(Inches(0.6)) + i * (int(cw) + int(gap)))
-        rect(s, cx, top, cw, Inches(0.5), fill=SLATE)
-        para(tbox(s, Emu(int(cx) + int(Inches(0.12))), top,
-                  Emu(int(cw) - int(Inches(0.2))), Inches(0.5),
-                  anchor=MSO_ANCHOR.MIDDLE), head, 9.5, WHITE, first=True,
-             bold=True, after=0, lead=1.0, track=0)
-        by = Emu(int(top) + int(Inches(0.5)))
-        rect(s, cx, by, cw, h, fill=HEADERBG)
-        para(tbox(s, Emu(int(cx) + int(Inches(0.14))), Emu(int(by) + int(Inches(0.12))),
-                  Emu(int(cw) - int(Inches(0.26))), Emu(int(h) - int(Inches(0.2)))),
-             body, 9.5, BODY, first=True, after=0, lead=1.14)
-        if i < n - 1:
-            para(tbox(s, Emu(int(cx) + int(cw) - int(Inches(0.06))),
-                      Emu(int(top) + int(Inches(0.42))), Inches(0.3), Inches(0.5),
-                      anchor=MSO_ANCHOR.MIDDLE), "›", 16, SLATE_LT, first=True,
-                 after=0, align=PP_ALIGN.CENTER)
+def dtable(s, headers, rows, top, colx, hl=True, sizes=(13, 12.5), rh=Inches(0.62)):
+    # headers in blue, blue rule, rows with thin separators; first col blue
+    for j, htext in enumerate(headers):
+        para(tbox(s, colx[j], top, Inches(4.5), Inches(0.4)), htext, sizes[0], BLUE,
+             first=True, bold=True, after=0)
+    ry = Emu(int(top) + int(Inches(0.5)))
+    rrect(s, colx[0], ry, Emu(int(Inches(12.73)) - int(colx[0])), Pt(1.4), fill=BLUE, rounded=False)
+    ry = Emu(int(ry) + int(Inches(0.12)))
+    for row in rows:
+        for j, cell in enumerate(row):
+            bold = isinstance(cell, tuple)
+            txt = cell[0] if bold else cell
+            col = BLUE if j == 0 else (WHITE if bold else BODY)
+            para(tbox(s, colx[j], ry, Emu((int(colx[j + 1]) if j + 1 < len(colx)
+                      else int(Inches(12.8))) - int(colx[j]) - int(Inches(0.2))), rh,
+                      anchor=MSO_ANCHOR.MIDDLE), txt, sizes[1], col, first=True,
+                 bold=(j == 0 or bold), after=0, lead=1.1)
+        ry = Emu(int(ry) + int(rh))
+        rrect(s, colx[0], ry, Emu(int(Inches(12.73)) - int(colx[0])), Pt(0.8),
+              fill=CARDLN, rounded=False)
+    return ry
+
+
+# ---- performance data + dark cumulative-growth chart ----------------------
+import numpy as _np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as _plt
+
+
+def _load_cmp():
+    ws = openpyxl.load_workbook("data/Comparison_returns.xlsx", data_only=True)["Sheet1"]
+
+    def grab(rows):
+        out = []
+        for c in range(2, ws.max_column + 1):
+            for r in rows:
+                v = ws.cell(r, c).value
+                if isinstance(v, (int, float)):
+                    out.append(v)
+        return out
+    return grab(range(4, 16)), grab(range(22, 34))
+
+
+_MSCI_X, _ATH_X = _load_cmp()
+
+
+def _growth_chart(path):
+    ga, gm = [1.0], [1.0]
+    for r in _ATH_X:
+        ga.append(ga[-1] * (1 + r))
+    for r in _MSCI_X:
+        gm.append(gm[-1] * (1 + r))
+    x = _np.linspace(2006, 2026, len(ga))
+    fig, ax = _plt.subplots(figsize=(7.4, 4.1))
+    fig.patch.set_alpha(0); ax.set_facecolor("none")
+    ax.plot(x, ga, color="#3E9CFF", lw=3.0, label="Athanase (net)", zorder=3)
+    ax.plot(x, gm, color="#7C8BA0", lw=2.0, label="MSCI World IMI", zorder=2)
+    ax.set_yscale("log"); ax.set_yticks([1, 2, 5, 10, 20])
+    ax.set_yticklabels(["1×", "2×", "5×", "10×", "20×"])
+    ax.set_ylim(0.8, 27); ax.set_xlim(2006, 2027.6)
+    ax.set_xticks([2006, 2010, 2014, 2018, 2022, 2026])
+    ax.annotate(f"{ga[-1]:.0f}×", (x[-1], ga[-1]), xytext=(7, 0), textcoords="offset points",
+                color="#3E9CFF", fontsize=17, fontweight="bold", va="center")
+    ax.annotate(f"{gm[-1]:.1f}×", (x[-1], gm[-1]), xytext=(7, 0), textcoords="offset points",
+                color="#9AA7B6", fontsize=12, fontweight="bold", va="center")
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for sp in ("left", "bottom"):
+        ax.spines[sp].set_color("#3A4A60")
+    ax.tick_params(colors="#9AA7B6", labelsize=11)
+    ax.grid(axis="y", color="#243349", lw=0.9); ax.set_axisbelow(True)
+    leg = ax.legend(loc="upper left", frameon=False, fontsize=11)
+    for txt in leg.get_texts():
+        txt.set_color("#C2CCD8")
+    fig.tight_layout()
+    fig.savefig(path, dpi=200, bbox_inches="tight", transparent=True)
+    _plt.close(fig)
+
+
+_growth_chart("/tmp/trust_growth_dark.png")
 
 
 def _pct(v):
@@ -203,589 +271,504 @@ def load_fund2():
     return out
 
 
-def dealtable(s, deals, top, x=Inches(0.6), rh=Inches(0.34), font=9.5, hfont=10):
-    cw = [Inches(3.2), Inches(2.4), Inches(2.1), Inches(2.0), Inches(2.43)]
-    heads = ("Company", "Holding", "Gross IRR", "MOIC", "vs index")
-    cx = x
-    for ci, ht in enumerate(heads):
-        rect(s, cx, top, cw[ci], rh, fill=SLATE)
-        para(tbox(s, Emu(int(cx) + int(Inches(0.1))), top, Emu(int(cw[ci]) - int(Inches(0.16))),
-                  rh, anchor=MSO_ANCHOR.MIDDLE), ht, hfont, WHITE, bold=True, first=True,
-             align=PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.RIGHT, after=0)
-        cx = Emu(int(cx) + int(cw[ci]))
-    y = Emu(int(top) + int(rh))
-    for ri, d in enumerate(deals):
-        loss = isinstance(d["moic"], (int, float)) and d["moic"] < 1.0
-        fill = HEADERBG if ri % 2 == 0 else WHITE
-        cx = x
-        vals = [d["company"], d["period"], _irr(d["irr"]), _moic(d["moic"]), _pct(d["outp"])]
-        for ci, v in enumerate(vals):
-            rect(s, cx, y, cw[ci], rh, fill=fill)
-            isl = loss and ci >= 2
-            col = LOSS if isl else (NAVY_TX if ci == 0 else BODY)
-            para(tbox(s, Emu(int(cx) + int(Inches(0.1))), y, Emu(int(cw[ci]) - int(Inches(0.16))),
-                      rh, anchor=MSO_ANCHOR.MIDDLE), v, font, col, bold=(ci == 0),
-                 italic=isl, first=True,
-                 align=PP_ALIGN.LEFT if ci == 0 else PP_ALIGN.RIGHT, after=0, track=0)
-            cx = Emu(int(cx) + int(cw[ci]))
-        y = Emu(int(y) + int(rh))
-    return y
-
-
-IND = "(indicative — to be agreed)"
-
-# ---- performance data + cumulative-growth chart ---------------------------
-import numpy as _np
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as _plt
-H_NAVY, H_BLUE4, H_GRID = "#152130", "#556A83", "#E2E5E9"
-from matplotlib import font_manager as _fmgr
-for _ff in ("Arial", "Liberation Sans", "DejaVu Sans"):
-    try:
-        _fmgr.findfont(_ff, fallback_to_default=False)
-        _plt.rcParams["font.family"] = _ff
-        break
-    except Exception:
-        continue
-
-
-def _load_cmp():
-    ws = openpyxl.load_workbook("data/Comparison_returns.xlsx",
-                                data_only=True)["Sheet1"]
-
-    def grab(rows):
-        out = []
-        for c in range(2, ws.max_column + 1):
-            for r in rows:
-                v = ws.cell(r, c).value
-                if isinstance(v, (int, float)):
-                    out.append(v)
-        return out
-    return grab(range(4, 16)), grab(range(22, 34))
-
-
-_MSCI_X, _ATH_X = _load_cmp()
-
-
-def _growth_chart(path):
-    ga, gm = [1.0], [1.0]
-    for r in _ATH_X:
-        ga.append(ga[-1] * (1 + r))
-    for r in _MSCI_X:
-        gm.append(gm[-1] * (1 + r))
-    x = _np.linspace(2006, 2026, len(ga))
-    fig, ax = _plt.subplots(figsize=(7.4, 4.05))
-    ax.plot(x, ga, color=H_NAVY, lw=2.7, label="Athanase (net)", zorder=3)
-    ax.plot(x, gm, color=H_BLUE4, lw=2.0, label="MSCI World IMI", zorder=2)
-    ax.set_yscale("log")
-    ax.set_yticks([1, 2, 5, 10, 20])
-    ax.set_yticklabels(["1×", "2×", "5×", "10×", "20×"])
-    ax.set_ylim(0.8, 27); ax.set_xlim(2006, 2027.6)
-    ax.set_xticks([2006, 2010, 2014, 2018, 2022, 2026])
-    ax.annotate(f"{ga[-1]:.0f}×", (x[-1], ga[-1]), xytext=(7, 0),
-                textcoords="offset points", color=H_NAVY, fontsize=16,
-                fontweight="bold", va="center")
-    ax.annotate(f"{gm[-1]:.1f}×", (x[-1], gm[-1]), xytext=(7, 0),
-                textcoords="offset points", color=H_BLUE4, fontsize=12,
-                fontweight="bold", va="center")
-    for sp in ("top", "right"):
-        ax.spines[sp].set_visible(False)
-    for sp in ("left", "bottom"):
-        ax.spines[sp].set_color("#AAB2BD")
-    ax.tick_params(colors="#556A83", labelsize=10.5)
-    ax.grid(axis="y", color=H_GRID, lw=0.8); ax.set_axisbelow(True)
-    ax.legend(loc="upper left", frameon=False, fontsize=11)
-    fig.tight_layout()
-    fig.savefig(path, dpi=200, bbox_inches="tight", transparent=True)
-    _plt.close(fig)
-
-
-_growth_chart("/tmp/trust_growth.png")
+IND = "(indicative)"
 
 # ===========================================================================
 # 1 · COVER
 # ===========================================================================
-s = prs.slides.add_slide(BLANK)
-rect(s, 0, 0, SW, SH, fill=NAVY)
-place_logo_white(s, Inches(0.6), Inches(0.55), Inches(0.55))
-rect(s, Inches(0.62), Inches(3.0), Inches(0.5), Pt(2.4), fill=SLATE_LT)
-para(tbox(s, Inches(0.6), Inches(2.45), Inches(11), Inches(0.4)),
-     "FOR DISCUSSION · A PROPOSED UK INVESTMENT TRUST", 13, SLATE_LT, first=True, after=0)
-para(tbox(s, Inches(0.6), Inches(3.2), Inches(11.8), Inches(1.3)),
-     "Engaged ownership, in a listed trust", 42, WHITE, first=True, after=0, font=SERIF)
-para(tbox(s, Inches(0.6), Inches(4.55), Inches(11.2), Inches(1.0)),
-     "A 20-year institutional engaged-ownership strategy — proposed as a UK "
-     "investment trust, giving wealth portfolios listed, liquid access.", 16,
-     DIVIDER, first=True, italic=True, after=0, font=SERIF, lead=1.22)
-para(tbox(s, Inches(0.6), Inches(6.62), Inches(12), Inches(0.4)),
-     "Athanase Industrial Partner    ·    Strictly confidential    ·    For "
-     "professional and intermediary use only", 10.5, SLATE_LT, first=True, after=0)
+s = newslide()
+s.shapes.add_picture(LOGO_WHITE, Inches(0.62), Inches(0.55), height=Inches(0.5),
+                     width=Emu(int(int(Inches(0.5)) * _LW_AR)))
+para(tbox(s, Inches(0.62), Inches(2.65), Inches(11), Inches(0.4)),
+     "A PROPOSED UK INVESTMENT TRUST", 13, MUTED, first=True, after=0)
+rrect(s, Inches(0.64), Inches(3.2), Inches(0.6), Pt(3), fill=BLUE, rounded=False)
+para(tbox(s, Inches(0.6), Inches(3.45), Inches(12), Inches(1.7)),
+     "Engaged ownership, in a listed trust", 46, WHITE, first=True, bold=True,
+     after=0, font=HEAD, lead=1.04)
+para(tbox(s, Inches(0.62), Inches(5.0), Inches(11), Inches(0.5)),
+     "An institutional, 20-year strategy — daily-dealing access for wealth "
+     "portfolios", 18, BLUE, first=True, after=0)
+para(tbox(s, Inches(0.62), Inches(6.7), Inches(12), Inches(0.4)),
+     "For discussion · June 2026 · professional and intermediary use only", 12,
+     MUTED, first=True, after=0)
 
 # ===========================================================================
-# 2 · EXECUTIVE SUMMARY
+# 2 · AT A GLANCE
 # ===========================================================================
-s, top = content("Section 1 · Fund overview", "The proposition, in brief",
-                 "A listed wrapper around a proven, 20-year engaged-ownership "
-                 "strategy — built for UK wealth portfolios.")
+s, top = content("1", "Section 1 · Fund overview", "Athanase at a glance",
+                 "A proven engaged-ownership strategy — proposed in a listed, "
+                 "daily-dealing trust for UK wealth.")
+bigstats(s, [("38", "investments as\nengaged owners"),
+             ("19%", "avg annualised NET,\nany entry month"),
+             ("7%", "worst-ever entry,\nstill positive net"),
+             ("18×", "growth of capital\nsince 2006")], top)
+by = Emu(int(top) + int(Inches(1.85)))
 bullets(s, [
-    ("The mandate.", "long-term capital growth through engaged ownership of "
-     "quality, mispriced listed Nordic and European mid-caps — value we create "
-     "from the boardroom, not market direction."),
-    ("The proof.", "~16% net p.a. over 20 years (+10 pts a year vs the index), a "
-     "92% deal hit rate, and no investor loss over a full holding period."),
-    ("The wrapper.", "a closed-end trust gives the strategy permanent (patient) "
-     "capital, and gives your clients daily dealing on the London Stock Exchange."),
-    ("Why now.", "expensive, concentrated markets and AI-driven alpha decay make "
-     "a created-alpha, low-correlation diversifier timely."),
-], top, size=14, gap=13)
-closer(s, "An institutional strategy, in a structure your clients can buy and "
-          "sell like any listed share.")
+    ("~16% net p.a. since 2006", "versus 6.2% for the MSCI World IMI — +10 pts a "
+     "year, net of all fees."),
+    ("Entry timing barely matters", "the average entry month returned ~19% net; "
+     "even the worst still compounded at +7%."),
+    ("No investor loss", "over any full holding period in 20 years."),
+], by, x=Inches(0.62), w=Inches(6.0), size=12.5, gap=11)
+card(s, Inches(6.9), by, Inches(5.82), Inches(2.55), "An integrated team",
+     "A core team together since 2006 (some since 1996) — 38 companies and 30+ "
+     "public board seats. Operations, valuation and risk sit apart from "
+     "investment decisions, with custody, administration and audit by SEB, MUFG "
+     "and KPMG.")
 
 # ===========================================================================
-# 3 · AT A GLANCE (INDICATIVE TERMS)
+# 3 · TRUST AT A GLANCE (terms)
 # ===========================================================================
-s, top = content("Section 1 · Fund overview",
-                 "The proposed trust at a glance",
+s, top = content("2", "Section 1 · Fund overview", "The proposed trust at a glance",
                  "Indicative parameters for discussion — final terms to be set "
-                 "with the sponsor and in the prospectus.")
-kvtable(s, [
+                 "with the sponsor and prospectus.")
+dtable(s, ["Term", "Proposal"], [
     ("Structure", "UK closed-end investment trust, London-listed"),
-    ("Listing venue", "LSE Main Market or Specialist Fund Segment", IND),
-    ("Investment objective", "Long-term capital growth via engaged ownership"),
-    ("Portfolio", "8–12 high-conviction listed positions; Nordic / European mid-caps"),
-    ("Reference index", "Global / European equities, total return"),
-    ("Target raise & fees", "to be agreed with the sponsor", IND),
-    ("Liquidity", "daily dealing in the listed shares; no capital calls"),
-    ("Discount control", "buyback when shares trade materially below NAV", IND),
-    ("Manager alignment", "significant team co-investment alongside shareholders"),
-    ("Service providers", "Custody SEB · Administration MUFG · Audit KPMG"),
-], top, rh=Inches(0.39))
-para(tbox(s, Inches(0.6), Inches(6.55), Inches(12.1), Inches(0.3)),
-     "Indicative only and subject to contract, regulatory approval and final "
-     "fund documentation. Not an offer of securities.", 8, FOOT, first=True,
-     italic=True, after=0)
+    ("Listing venue", ("LSE Main Market or Specialist Fund Segment " + IND,)),
+    ("Objective", "Long-term capital growth via engaged ownership"),
+    ("Portfolio", "8–12 high-conviction listed Nordic / European mid-caps"),
+    ("Liquidity", "Daily dealing in the shares; no capital calls"),
+    ("Discount control", ("Buyback when shares trade materially below NAV " + IND,)),
+    ("Alignment", "Significant team co-investment alongside shareholders"),
+    ("Providers", "Custody SEB · Administration MUFG · Audit KPMG"),
+], top, colx=[Inches(0.62), Inches(4.1)], rh=Inches(0.46))
+para(tbox(s, Inches(0.62), Inches(6.95), Inches(12), Inches(0.3)),
+     "Indicative and subject to contract, regulatory approval and final fund "
+     "documentation. Not an offer of securities.", 8, MUTED, first=True, after=0)
 
 # ===========================================================================
-# 4 · TEAM & ALIGNMENT
+# 4 · WHY NOW — BETA
 # ===========================================================================
-s, top = content("Section 1 · Fund overview",
-                 "The team, and its alignment with shareholders",
-                 "Boutique conviction, tier-one governance — and real skin in "
-                 "the game.")
+s, top = content("3", "Section 2 · The opportunity",
+                 "Why now — the easy decade for beta is over",
+                 "Equities are expensive on almost every measure, and the "
+                 "zero-rate tailwind that lifted all assets has reversed.")
+para(tbox(s, Inches(0.62), top, Inches(5.9), Inches(0.4)),
+     "Expensive on most measures", 15, WHITE, first=True, bold=True, after=10)
 bullets(s, [
-    ("A 20-year team.", "the same people compounding capital through multiple "
-     "cycles — deep operating and boardroom experience, not a single star "
-     "manager."),
-    ("Skin in the game.", "the team co-invests its own capital alongside "
-     "shareholders — aligned to net realised returns, not assets gathered."),
-    ("A proprietary edge.", "a database of ~20,000 CEOs and a behavioural "
-     "diligence model — the discipline behind a 92% deal-level hit rate."),
-    ("An institutional fortress.", "operations, risk and valuation independent "
-     "of investment decisions; custody, administration and audit by SEB, MUFG "
-     "and KPMG."),
-], top, size=14, gap=13)
-closer(s, "The combination wealth committees ask for: conviction, alignment and "
-          "independent, tier-one governance.")
-
-# ===========================================================================
-# 5 · MARKET OPPORTUNITY — VALUATION DISCONNECT
-# ===========================================================================
-s, top = content("Section 2 · The opportunity",
-                 "Your clients own the most crowded trade in a generation",
-                 "Passive equity has become a concentrated, expensive bet on a "
-                 "handful of mega-caps — correlated risk dressed as diversification.")
+    ("", "Shiller CAPE near ~36× — close to the dot-com extreme, roughly double "
+     "the long-run ~17×."),
+    ("", "Forward P/E ~22× vs a ~16× average; the equity risk premium is at "
+     "multi-decade lows."),
+    ("", "Most of the 2010s’ return came from re-rating, not earnings growth — "
+     "that lever is largely spent."),
+], Emu(int(top) + int(Inches(0.5))), x=Inches(0.62), w=Inches(5.85), size=12.5, gap=12)
+para(tbox(s, Inches(6.9), top, Inches(5.85), Inches(0.4)),
+     "The macro tailwind has reversed", 15, WHITE, first=True, bold=True, after=10)
 bullets(s, [
-    ("A concentrated factor bet.", "the index is more concentrated, and more "
-     "expensive, than at almost any point in 50 years — the same names, owned by "
-     "everyone."),
-    ("It falls together.", "when the leaders re-rate down, “diversified” passive "
-     "falls with them; there is no hiding place in more of the same."),
-    ("The de-rated alternative.", "engaged ownership of quality mid-caps offers "
-     "an attractive entry — a return earned from corporate change, not from the "
-     "same mega-caps re-rating ever higher."),
-], top, size=14.5, gap=14)
-closer(s, "The opportunity: a liquid, differentiated equity holding that earns "
-          "its return from company change, not market direction.")
+    ("", "The zero-rate, disinflationary backdrop that lifted every asset for a "
+     "decade has reversed."),
+    ("", "Deglobalisation, deficits and demographics point to structurally "
+     "higher inflation and rates."),
+    ("", "A higher cost of capital compresses valuations and punishes "
+     "long-duration, unprofitable growth."),
+], Emu(int(top) + int(Inches(0.5))), x=Inches(6.9), w=Inches(5.85), size=12.5, gap=12)
+callout(s, "Whether or not AI lifts productivity, beta is priced for perfection "
+           "and the easy tailwind has shifted — so idiosyncratic, "
+           "valuation-disciplined returns matter more, not less.")
 
 # ===========================================================================
-# 6 · STRUCTURAL INEFFICIENCY + AI DURABILITY
+# 5 · PASSIVE CONCENTRATED
 # ===========================================================================
-s, top = content("Section 2 · The opportunity",
-                 "An inefficiency AI can’t arbitrage away",
-                 "The edge is not faster analysis — it is governance and "
-                 "ownership, where the inefficiency persists.")
+s, top = content("4", "Section 2 · The opportunity",
+                 "Passive has become a concentrated bet",
+                 "A cap-weighted index puts the most money into the stocks that "
+                 "have already risen most — concentration dressed as diversification.")
+bigstats(s, [("~38%", "of the S&P 500 in its\n10 largest stocks"),
+             ("~33%", "in the “Magnificent\nSeven” alone"),
+             ("~50 yrs", "since US equity was\nthis concentrated")], top, h=Inches(1.5))
+cy = Emu(int(top) + int(Inches(1.75))); cw = Inches(3.86); gx = Inches(0.26)
+for i, (t, b) in enumerate([
+    ("Cap-weighting buys high", "The more a stock rises, the more you must own — "
+     "the opposite of buy-low discipline."),
+    ("A concentrated factor bet", "The “diversified” index is now a leveraged "
+     "bet on large-cap growth, momentum and a single theme (AI)."),
+    ("Breadth is fragile", "A stumble in a handful of mega-caps now moves the "
+     "whole index; the rest has been left behind.")]):
+    cx = Emu(int(Inches(0.62)) + i * (int(cw) + int(gx)))
+    card(s, cx, cy, cw, Inches(2.15), t, b)
+
+# ===========================================================================
+# 6 · PASSIVE RISK -> ACTIVE OPPORTUNITY (+AI)
+# ===========================================================================
+s, top = content("5", "Section 2 · The opportunity",
+                 "From passive risk to active opportunity",
+                 "An expensive, concentrated, passive-dominated market is what "
+                 "active is built for — and as analysis commoditises, the durable "
+                 "edge is ownership, not stock-picking.")
 bullets(s, [
-    ("Under-researched, under-governed.", "rising regulation and falling broker "
-     "coverage leave quality mid-caps mispriced — and many carry a correctable "
-     "capital-allocation or governance gap."),
-    ("Analytical alpha is commoditizing.", "AI lets every manager run the same "
-     "financial analysis instantly; the screenable names get bid up and that "
-     "edge decays toward zero."),
-    ("Created, not discovered.", "our return comes from board control and "
-     "operational change — you cannot download a board seat, so the edge "
-     "endures as analysis commoditizes."),
-], top, size=14.5, gap=14)
-para(tbox(s, Inches(0.75), Inches(5.95), Inches(11.9), Inches(0.3)),
-     "Mechanism documented: LLMs already perform financial-statement analysis at "
-     "analyst level (Kim, Muhn & Nikolaev, 2024); predictability decays once a "
-     "strategy is replicable (McLean & Pontiff, 2016).", 8, FOOT, first=True,
-     italic=True, after=0)
-closer(s, "As analytical alpha commoditizes, engaged-ownership alpha becomes "
-          "scarcer — and more valuable.", y=Inches(6.42), h=Inches(0.56))
+    ("The setup —", "expensive equities, record concentration and "
+     "price-insensitive passive flows that inflate the most crowded names."),
+    ("Why active now —", "wider mispricing and dispersion reward valuation "
+     "discipline again; the “active underperforms” critique is cyclical, and "
+     "weakest in exactly this market."),
+    ("AI commoditises analysis —", "quant and specialist edges compete on the "
+     "same public data, which is what commoditises fastest (Kim, Muhn & "
+     "Nikolaev, 2024; McLean & Pontiff, 2016)."),
+], top, x=Inches(0.62), w=Inches(11.9), size=13, gap=13)
+callout(s, "The most durable edge is ownership: buying mispriced businesses and "
+           "changing the outcome — an edge AI cannot copy.", y=Inches(5.7))
 
 # ===========================================================================
-# 7 · WHY NOW — VALUATIONS CRACK
+# 7 · VALUATIONS CRACK (+ live PE gating)
 # ===========================================================================
-s, top = content("Section 2 · The opportunity",
-                 "When valuations crack, where will your clients be holding?",
+s, top = content("6", "Section 2 · The opportunity",
+                 "When valuations crack, where will clients be holding?",
                  "At record valuations the cycle will turn — and the hedge can "
                  "only be bought before the crack, not after.")
-bullets(s, [
-    ("Global equities — fully exposed.", "your clients own the most-expensive, "
+cw = Inches(3.86); gx = Inches(0.26)
+for i, (t, b) in enumerate([
+    ("Global equities", "Fully exposed — clients own the most-expensive, "
      "most-concentrated names, with nothing to do when they fall."),
-    ("Private equity — the trap.", "marks lag then catch down, while "
-     "illiquidity blocks the exit exactly when it is needed."),
-    ("This trust — the hedge.", "board control floors the risk, the shares stay "
-     "liquid, and the dislocation becomes the entry point — not the trap."),
-], top, size=14.5, gap=14)
-rect(s, Inches(0.6), Inches(5.32), Inches(12.16), Inches(0.96), fill=HEADERBG)
-rect(s, Inches(0.6), Inches(5.32), Inches(0.08), Inches(0.96), fill=NAVY)
-para(tbox(s, Inches(0.85), Inches(5.43), Inches(11.6), Inches(0.3)),
-     "LIVE — JUNE 2026  ·  BLOOMBERG / CNBC", 9.5, SLATE, first=True, bold=True,
-     after=4, track=0)
-para(tbox(s, Inches(0.85), Inches(5.72), Inches(11.75), Inches(0.5)),
-     "Partners Group capped redemptions in its $8.6bn evergreen private-equity "
-     "fund at 5% of NAV after withdrawal requests hit 9.8% — KKR, Blackstone and "
-     "Ares fell on the news. The PE exit is closing, exactly as feared.", 11.5,
-     BODY, first=True, after=0, lead=1.16)
-closer(s, "While evergreen PE gates redemptions, a listed trust trades every day "
-          "the market is open — the liquidity your clients keep when it matters.")
+    ("Private equity", "The trap — marks lag then catch down, while illiquidity "
+     "blocks the exit exactly when it is needed."),
+    ("This trust", "The hedge — board control floors the risk, the shares stay "
+     "liquid, and the dislocation becomes the entry.")]):
+    cx = Emu(int(Inches(0.62)) + i * (int(cw) + int(gx)))
+    card(s, cx, top, cw, Inches(2.05), t, b)
+rrect(s, Inches(0.62), Inches(4.75), Inches(12.1), Inches(1.0), fill=CARD, line=CARDLN, rad=0.06)
+rrect(s, Inches(0.62), Inches(4.75), Inches(0.07), Inches(1.0), fill=BLUE, rounded=False)
+para(tbox(s, Inches(0.95), Inches(4.86), Inches(11.5), Inches(0.3)),
+     "LIVE — JUNE 2026 · BLOOMBERG / CNBC", 9.5, BLUE, first=True, bold=True, after=4)
+para(tbox(s, Inches(0.95), Inches(5.16), Inches(11.6), Inches(0.5)),
+     "Partners Group capped redemptions in its $8.6bn evergreen PE fund at 5% of "
+     "NAV after requests hit 9.8% — KKR, Blackstone and Ares fell. The PE exit is "
+     "closing, exactly as feared.", 12, WHITE, first=True, after=0, lead=1.2)
+para(tbox(s, Inches(0.62), Inches(6.05), Inches(12.1), Inches(0.5)),
+     "While evergreen PE gates redemptions, a listed trust trades every day the "
+     "market is open — the liquidity clients keep when it matters.", 13, BLUE,
+     first=True, bold=True, after=0, align=PP_ALIGN.CENTER)
 
 # ===========================================================================
-# 8 · PHILOSOPHY
+# 8 · TWO WAYS TO OWN ACTIVELY
 # ===========================================================================
-s, top = content("Section 3 · Strategy & philosophy",
-                 "We don’t pick stocks — we build companies",
-                 "Quality-core constructivism: own good businesses, and make them "
+s, top = content("7", "Section 3 · The strategy",
+                 "Two ways to own actively: public or private",
+                 "The same operational value creation is available in PE and "
+                 "public markets — but the public route keeps what private gives up.")
+dtable(s, ["Feature", "Private — PE / buyout", "Public — Engaged ownership"], [
+    ("How you act", "Buy and control the whole company", ("Board seat and real influence",)),
+    ("Entry price", "A ~40% control premium, up front", ("Market price — often at a discount",)),
+    ("Liquidity", "10-year lock-up; blind-pool calls", ("Daily liquidity; exit any time",)),
+    ("Pricing", "Smoothed quarterly appraisal marks", ("Honest daily market prices",)),
+    ("Fees", "2 & 20, plus fees on idle dry powder", ("Lower, on capital deployed",)),
+    ("Value engine", "Board-led operational improvement", ("The same — board-led improvement",)),
+], top, colx=[Inches(0.62), Inches(3.5), Inches(8.0)], rh=Inches(0.52))
+
+# ===========================================================================
+# 9 · THREE HOMES
+# ===========================================================================
+s, top = content("8", "Section 3 · The strategy",
+                 "Where it fits in a portfolio: three homes",
+                 "Engaged ownership needs no bucket of its own — it can be funded "
+                 "from public equity, alternatives or private equity.")
+cw = Inches(3.86); gx = Inches(0.26)
+homes = [
+    ("Public equity", "A concentrated, active equity sleeve — long-only listed "
+     "companies with daily pricing and full transparency.",
+     "Adds idiosyncratic, governance-driven alpha to a beta-dominated book."),
+    ("Alternatives", "A catalyst strategy — returns from board change, capital "
+     "returns and corporate events.",
+     "The return driver is event-specific and largely independent of rates and "
+     "growth; it diversifies."),
+    ("Private equity", "PE-style value creation — board influence, operational "
+     "improvement, multi-year holds — in public markets.",
+     "The same engaged-ownership engine as PE, but liquid, with no J-curve or "
+     "lock-up."),
+]
+for i, (t, lens, why) in enumerate(homes):
+    cx = Emu(int(Inches(0.62)) + i * (int(cw) + int(gx)))
+    rrect(s, cx, top, cw, Inches(3.5), fill=CARD, line=CARDLN, rad=0.05)
+    inx = Emu(int(cx) + int(Inches(0.28)))
+    para(tbox(s, inx, Emu(int(top) + int(Inches(0.24))), Emu(int(cw) - int(Inches(0.5))),
+              Inches(0.4)), t, 15, BLUE, first=True, bold=True, after=0)
+    bt = tbox(s, inx, Emu(int(top) + int(Inches(0.85))), Emu(int(cw) - int(Inches(0.56))),
+              Inches(2.5))
+    para(bt, "THE LENS", 9, MUTED, first=True, bold=True, after=4)
+    para(bt, lens, 11.5, BODY, after=12, lead=1.3)
+    para(bt, "WHY FUND IT HERE", 9, MUTED, bold=True, after=4)
+    para(bt, why, 11.5, BODY, after=0, lead=1.3)
+
+# ===========================================================================
+# 10 · WHAT WE DO
+# ===========================================================================
+s, top = content("9", "Section 3 · The strategy",
+                 "What we do — we don’t pick stocks, we build companies",
+                 "Quality-core constructivism: own good businesses and make them "
                  "better from the boardroom.")
 bullets(s, [
-    ("Quality at a discount.", "profitable, high-return businesses bought below "
-     "intrinsic value — never broken companies or turnarounds we cannot "
-     "underwrite."),
-    ("Value we create, not discover.", "board control, capital-allocation "
-     "discipline and operational change — not leverage or financial engineering."),
-    ("Returns from earnings, not re-rating.", "the gain comes from the business "
+    ("Quality at a discount —", "profitable, high-return businesses below "
+     "intrinsic value; never broken turnarounds we cannot underwrite."),
+    ("Value we create, not discover —", "board control, capital-allocation "
+     "discipline and operational change, not leverage or financial engineering."),
+    ("Returns from earnings, not re-rating —", "the gain comes from the business "
      "improving under our influence — bankable cash, not a hoped-for multiple."),
-    ("Constructive, by agreement.", "board seats won collaboratively, not proxy "
+    ("Constructive, by agreement —", "board seats won collaboratively, not proxy "
      "wars fought — a Nordic governance model, 20 years honed."),
-], top, size=14, gap=12)
-closer(s, "Private-equity-style value creation — in transparent, listed, "
-          "daily-liquid form.")
+], top, x=Inches(0.62), w=Inches(11.9), size=13.5, gap=15)
+callout(s, "Private-equity-style value creation — in transparent, listed, "
+           "daily-liquid form.", y=Inches(6.05))
 
 # ===========================================================================
-# 9 · TARGET COMPANY CRITERIA
+# 11 · THREE TOLLGATES
 # ===========================================================================
-s, top = content("Section 3 · Strategy & philosophy",
-                 "What makes a target — the tollgates every idea must clear",
-                 "A repeatable underwriting bar, applied before a single pound is "
-                 "committed.")
+s, top = content("10", "Section 4 · Process", "How we invest: three tollgates",
+                 "Every idea passes the same three gates — each with an explicit "
+                 "bar and a named decision-maker.")
+tg = [
+    ("Tollgate 1 — Valuation", "“Is it cheap enough even if we change nothing?”",
+     "The core business alone justifies the price — a 30–40% margin of safety vs a "
+     "PE bidder.  (Investment Team)"),
+    ("Tollgate 2 — The plan", "“Is the improvement plan real — and can we deliver it?”",
+     "Upside quantified across value levers and validated, with a credible path to "
+     "a board seat; includes psychometric evaluation of CEO / Chair.  (Deal Lead + "
+     "Head of Research)"),
+    ("Tollgate 3 — Go / No-Go", "“Right risk, right size, right fit?”",
+     "Within risk and portfolio limits, conviction-sized, with no better use of "
+     "the capital.  (Investment Committee)"),
+]
+yy = top
+for i, (h, q, p) in enumerate(tg):
+    cy = Emu(int(yy) + i * int(Inches(1.42)))
+    shp = s.shapes.add_shape(MSO_SHAPE.OVAL, Inches(0.62), cy, Inches(0.5), Inches(0.5))
+    shp.shadow.inherit = False; shp.fill.solid(); shp.fill.fore_color.rgb = BLUE
+    shp.line.fill.background()
+    para(tbox(s, Inches(0.62), cy, Inches(0.5), Inches(0.5), anchor=MSO_ANCHOR.MIDDLE),
+         str(i + 1), 16, BG, first=True, bold=True, after=0, align=PP_ALIGN.CENTER)
+    tf = tbox(s, Inches(1.35), cy, Inches(11.3), Inches(1.3))
+    para(tf, h, 15, BLUE, first=True, bold=True, after=3)
+    rp = tf.add_paragraph()
+    runs(rp, [("The question:  ", WHITE, True), (q, BODY, False)], 11.5, after=2)
+    pp = tf.add_paragraph()
+    runs(pp, [("Pass only if:  ", WHITE, True), (p, BODY, False)], 11.5, after=0)
+
+# ===========================================================================
+# 12 · OWNERSHIP PLAYBOOK
+# ===========================================================================
+s, top = content("11", "Section 4 · Process", "The ownership playbook",
+                 "A repeatable sequence, honed over 38 investments, that turns a "
+                 "board seat into operational value.")
+pb = [
+    ("1 · Secure board seat", "Often a precondition to invest — the nomination "
+     "committee proposes an AIP director."),
+    ("2 · Align the thesis", "Collaborate with management and stakeholders to "
+     "agree where the value is."),
+    ("3 · Refocus earnings", "Cut overhead, optimise footprint, exit loss-making "
+     "“growth-trap” ventures."),
+    ("4 · Reallocate to winners", "Redeploy freed-up capital into the profitable "
+     "core and its strongest adjacencies."),
+    ("5 · Grow by acquisition", "Add complementary products or scale through "
+     "value-accretive bolt-ons."),
+    ("6 · Exit", "Realise via M&A or the equity market once the core is "
+     "refocused and compounding."),
+]
+cw = Inches(3.86); gx = Inches(0.26); chh = Inches(1.4)
+for i, (t, b) in enumerate(pb):
+    cx = Emu(int(Inches(0.62)) + (i % 3) * (int(cw) + int(gx)))
+    cy = Emu(int(top) + (i // 3) * (int(chh) + int(Inches(0.2))))
+    rrect(s, cx, cy, cw, chh, fill=CARD, line=CARDLN, rad=0.05)
+    inx = Emu(int(cx) + int(Inches(0.26)))
+    para(tbox(s, inx, Emu(int(cy) + int(Inches(0.18))), Emu(int(cw) - int(Inches(0.5))),
+              Inches(0.35)), t, 13, BLUE, first=True, bold=True, after=5)
+    para(tbox(s, inx, Emu(int(cy) + int(Inches(0.6))), Emu(int(cw) - int(Inches(0.52))),
+              Inches(0.7)), b, 11, BODY, first=True, after=0, lead=1.22)
+para(tbox(s, Inches(0.62), Inches(6.35), Inches(12.1), Inches(0.4)),
+     "We don’t buy broken companies — we buy hidden cores.", 15, BLUE, first=True,
+     bold=True, after=0, align=PP_ALIGN.CENTER)
+
+# ===========================================================================
+# 13 · RISK, HONESTLY
+# ===========================================================================
+s, top = content("12", "Section 4 · Process", "Risk, honestly",
+                 "A risk system built to engineer out permanent loss — controlled "
+                 "before the investment is made.")
+para(tbox(s, Inches(0.62), top, Inches(5.9), Inches(0.4)),
+     "Three pillars of protection", 15, WHITE, first=True, bold=True, after=10)
 bullets(s, [
-    ("A high-quality core.", "durable franchise economics and high returns on "
-     "incremental capital (ROIIC) — “attractive even if we change nothing.”"),
-    ("A structural margin of safety.", "the core alone justifies the price; a "
-     "~30–40% discount to intrinsic value underwrites the downside."),
-    ("A correctable gap.", "an identifiable capital-allocation, cost or "
-     "governance issue we can fix from the board."),
-    ("A credible path to alignment.", "a realistic route to a board seat — no "
-     "path, no position (our walk-away discipline)."),
-], top, size=14, gap=12)
-closer(s, "Roughly one new investment a year clears all three tollgates — "
-          "selectivity is the first risk control.")
-
-# ===========================================================================
-# 10 · PORTFOLIO ARCHITECTURE
-# ===========================================================================
-s, top = content("Section 3 · Strategy & philosophy",
-                 "Portfolio architecture: concentrated, governed, floored",
-                 "Deep ownership where we have influence — sized so no single "
-                 "position can dominate.")
+    ("Predictability —", "only durable, market-leading cores in slow-moving "
+     "industries where future demand is underwritable."),
+    ("Price (a valuation floor) —", "value the rectifiable core, zero for "
+     "“growth-trap” divisions — a structural 30–40% margin of safety vs PE."),
+    ("Influence —", "a board seat as the “kill switch” — the ability to stop a "
+     "bad decision lowers risk below passive or active managers."),
+], Emu(int(top) + int(Inches(0.5))), x=Inches(0.62), w=Inches(5.9), size=12, gap=13)
+rrect(s, Inches(6.9), top, Inches(5.82), Inches(3.7), fill=CARD, line=CARDLN, rad=0.05)
+para(tbox(s, Inches(7.18), Emu(int(top) + int(Inches(0.24))), Inches(5.3), Inches(0.4)),
+     "Automatic guardrails", 14, BLUE, first=True, bold=True, after=0)
 bullets(s, [
-    ("8–12 high-conviction positions.", "concentration is the source of return "
-     "and of boardroom influence — we own enough to matter."),
-    ("Built in stages.", "a researched toehold, then board alignment secured, "
-     "then sized to conviction — never sized to conviction before alignment."),
-    ("Hardened guardrails.", "position and concentration limits, plus automatic "
-     "−10 / −20 / −30% re-underwrite triggers — the determined-seller framework."),
-    ("Liquidity by design.", "listed holdings the trust can exit at will — no "
-     "lock-ups, no capital-call queue, no blind pool."),
-], top, size=14, gap=12)
-closer(s, "Concentrated enough to influence; governed and floored so no holding "
-          "can blow up the trust.")
+    ("Entry gauntlet —", "ideas must clear ≥12% expected IRR and ≤20% probability "
+     "of a 30% drawdown."),
+    ("Diversification limits —", "capped exposures to sector (≤30%), cycle, "
+     "maturity and geography."),
+    ("Mechanised discipline —", "automatic −10 / −20 / −30% triggers force a "
+     "re-underwrite, and an exit if the thesis is broken."),
+    ("No leverage —", "isolated to single investments, never at the fund level."),
+], Emu(int(top) + int(Inches(0.85))), x=Inches(7.18), w=Inches(5.3), size=11, gap=10)
 
 # ===========================================================================
-# 11 · INVESTMENT PROCESS
+# 14 · VERSUS PRIVATE EQUITY
 # ===========================================================================
-s, top = content("Section 4 · Process & engagement",
-                 "The investment process, end to end",
-                 "A disciplined lifecycle from idea to exit — with an independent "
-                 "Investment Committee at the gate.")
-stepflow(s, [
-    ("1 · SOURCE", "Screen ~20,000 scored companies for tangible profits and "
-     "correctable gaps; TR-1 / ownership signals and executive networks."),
-    ("2 · UNDERWRITE", "Desktop modelling, site visits and management "
-     "touchpoints; board and management quality scored as rigorously as the "
-     "numbers."),
-    ("3 · TOLLGATES", "An independent Investment Committee owns sizing and the "
-     "Go / No-Go — three tollgates before capital is committed."),
-    ("4 · ENGAGE & EXIT", "Secure the board seat, execute the plan, and sell on "
-     "a changed thesis — completely, on the facts."),
-], top, h=Inches(1.95))
-closer(s, "Repeatable and governed — the same blueprint behind a 20-year record.",
-       y=Inches(6.42), h=Inches(0.56))
+s, top = content("13", "Section 5 · Track record", "Versus private equity",
+                 "On true risk, PE and Athanase carry similar volatility — but "
+                 "Athanase returns more, with daily liquidity.")
+dtable(s, ["Metric", "Private equity (realised)", "Athanase (engaged owner)"], [
+    ("Real return", "~11–14% (above PME, below us)", ("~16% net, real, fully invested",)),
+    ("Liquidity", "10-year lock-up, blind pools", ("Daily liquidity, listed",)),
+    ("Transparency", "Smoothed, model-marked quarterly", ("Daily marks, public scoreboard",)),
+    ("True volatility", "~28% (de-smoothed, levered)", ("27% (downside only ~11%)",)),
+    ("Downside risk", "~16% chance of 30%+ loss / 3 yrs", ("~2% chance of 30%+ loss / 3 yrs",)),
+], top, colx=[Inches(0.62), Inches(3.5), Inches(8.0)], rh=Inches(0.5))
+para(tbox(s, Inches(0.62), Inches(6.7), Inches(12), Inches(0.4)),
+     "Athanase captures 93% of the market’s upside but only 43% of its downside; "
+     "at 0.44 correlation it improves the whole portfolio’s efficient frontier.",
+     10, MUTED, first=True, after=0, italic=True)
 
 # ===========================================================================
-# 12 · ACTIVE ENGAGEMENT & VALUE CREATION
+# 15 · TRACK RECORD CHART
 # ===========================================================================
-s, top = content("Section 4 · Process & engagement",
-                 "Active engagement: how the value is created",
-                 "A high-touch, boardroom strategy — value built one disciplined "
-                 "decision at a time.")
-bullets(s, [
-    ("Capital allocation first.", "redirect cash to its highest return — "
-     "disciplined M&A, buybacks where the stock is cheap, and an end to "
-     "value-destructive spending."),
-    ("Operational improvement.", "cost base, pricing and focus — working with "
-     "the management we back, and replacing it where we must."),
-    ("Incentives realigned.", "pay-for-performance and ownership, so management "
-     "is paid to compound value, not to grow assets."),
-    ("Consensus, not confrontation.", "we win the boardroom one conversation at "
-     "a time — so decisions pass quietly, not in a public fight."),
-], top, size=14, gap=12)
-closer(s, "The board seat is the lever — it de-risks the asset and turns "
-          "governance into the return engine.")
-
-# ===========================================================================
-# 13 · RISK SYSTEM
-# ===========================================================================
-s, top = content("Section 4 · Process & engagement",
-                 "A risk system we use — and keep building",
-                 "Every engagement tests the system; our own mistakes are written "
-                 "back into it.")
-bullets(s, [
-    ("Agreement before capital.", "no credible path to board alignment, no "
-     "position — and if alignment fails, we walk away (e.g. Robit: exited at "
-     "~14% IRR; the shares later roughly halved)."),
-    ("The determined-seller framework.", "when the thesis breaks, exit "
-     "completely on the facts — born from selling DistIT too gradually."),
-    ("Mechanised, not emotional.", "−10 / −20 / −30% triggers force a "
-     "re-underwrite; sizing and exits owned by the Investment Committee."),
-    ("Avoid the un-recoverable.", "we accept optical volatility, but underwrite "
-     "against the permanent loss that ends a track record."),
-], top, size=14, gap=12)
-closer(s, "Discipline that protected capital — and got sharper each time it was "
-          "tested.")
-
-# ===========================================================================
-# 14 · REPRESENTATIVE INVESTMENTS (track record table)
-# ===========================================================================
-s, top = content("Section 5 · Portfolio",
-                 "Every investment in the current fund (AIP Fund II)",
-                 "The full book, not a selection — winners, and the discipline on "
-                 "the one that disappointed.")
-deals = load_fund2()
-deals.sort(key=lambda d: d["moic"] if isinstance(d["moic"], (int, float)) else 0,
-           reverse=True)
-ytab = dealtable(s, deals, top, rh=Inches(0.235), font=9, hfont=9.5)
-para(tbox(s, Inches(0.6), Emu(int(ytab) + int(Inches(0.08))), Inches(12.1), Inches(0.4)),
-     "Gross deal-level figures, AIP Fund II, to 2025, ranked by money multiple; "
-     "“n.m.” where holding periods are too short to annualise. Past performance "
-     "is not a guide to future returns.", 7.5, FOOT, first=True, italic=True,
-     after=0, lead=1.1)
-
-# ===========================================================================
-# 15 · PERFORMANCE / TRACK RECORD
-# ===========================================================================
-s, top = content("Section 6 · Track record",
+s, top = content("14", "Section 5 · Track record",
                  "£1 has become ~£18, net — versus ~£3 for the index",
-                 "Twenty years of compounding from operating improvement — "
-                 "reconciled and audited by tier-one institutions.")
-s.shapes.add_picture("/tmp/trust_growth.png", Inches(0.45), Inches(2.5),
-                     width=Inches(6.9))
-rx = Inches(7.6); ry = Inches(2.55)
+                 "Twenty years of compounding from operating improvement — net of "
+                 "all fees, independently reconciled.")
+s.shapes.add_picture("/tmp/trust_growth_dark.png", Inches(0.5), Inches(2.35), width=Inches(7.0))
+rx = Inches(7.7); ry = Inches(2.45)
 for big, lab in [("~16%", "net p.a. over 20 years"),
                  ("+10 pts", "a year vs the index, net"),
                  ("0%", "investor loss over a holding period"),
                  ("2.40", "Sortino ratio — downside-aware")]:
-    para(tbox(s, rx, ry, Inches(5.0), Inches(0.5)), big, 26, NAVY_TX,
-         first=True, after=0, font=SERIF)
-    para(tbox(s, rx, Emu(int(ry) + int(Inches(0.47))), Inches(5.0), Inches(0.32)),
-         lab, 11, SLATE_LT, first=True, after=0)
+    para(tbox(s, rx, ry, Inches(5.0), Inches(0.5)), big, 27, BLUE, first=True, bold=True, after=0)
+    para(tbox(s, rx, Emu(int(ry) + int(Inches(0.48))), Inches(5.0), Inches(0.32)),
+         lab, 11, BODY, first=True, after=0)
     ry = Emu(int(ry) + int(Inches(0.86)))
-para(tbox(s, rx, ry, Inches(5.0), Inches(0.7)),
-     "Two market drawdowns (2010, 2020) fully recovered; even the worst entry "
-     "month still compounded at +7% net.", 10.5, BODY, first=True, after=0,
-     lead=1.18)
-para(tbox(s, Inches(0.45), Inches(6.46), Inches(6.95), Inches(0.4)),
-     "Cumulative growth of capital, net of fees, 2006–2025 (log scale); SEB · "
-     "MUFG · KPMG. Newly-proposed trust; manager’s existing strategy. Past "
-     "performance is not a guide to future returns.", 7.5, FOOT, first=True,
-     italic=True, after=0, lead=1.1)
+para(tbox(s, Inches(0.5), Inches(6.78), Inches(12.2), Inches(0.3)),
+     "Cumulative growth of capital, net of fees, 2006–2025 (log scale). Newly "
+     "proposed trust; manager’s existing strategy. Past performance is not a "
+     "guide to future returns.", 8, MUTED, first=True, after=0)
 
 # ===========================================================================
-# 16 · DIVERSIFIER / DOWNSIDE
+# 16 · FULL FUND II BOOK
 # ===========================================================================
-s, top = content("Section 6 · Track record",
-                 "A genuine diversifier that defends the book",
-                 "Low-correlation equity exposure that earns its place beside "
-                 "passive and private equity.")
-bullets(s, [
-    ("0.44 correlation to global equities.", "real diversification — not more of "
-     "what your clients already own through passive."),
-    ("A board seat floors the fundamental risk.", "we own the cash flow, capex "
-     "and pay — so the asset is de-risked whatever the share price does."),
-    ("Uncorrelated by construction.", "returns come from earnings and governance "
-     "change, not from the index re-rating — a different engine entirely."),
-], top, size=14.5, gap=14)
-closer(s, "When the index falls, this is built to defend the portfolio — not "
-          "amplify the fall.")
+s, top = content("15", "Section 5 · Track record",
+                 "Every investment in the current fund (AIP Fund II)",
+                 "The full book, ranked by money multiple — winners, and the "
+                 "discipline on the one that disappointed.")
+deals = load_fund2(); deals.sort(key=lambda d: d["moic"] if isinstance(d["moic"], (int, float)) else 0, reverse=True)
+heads = ("Company", "Holding", "Gross IRR", "MOIC", "vs index")
+colx = [Inches(0.62), Inches(3.6), Inches(6.0), Inches(8.3), Inches(10.6)]
+for j, h in enumerate(heads):
+    para(tbox(s, colx[j], top, Inches(2.4), Inches(0.3)), h, 11, BLUE, first=True, bold=True,
+         after=0, align=PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT)
+ry = Emu(int(top) + int(Inches(0.36)))
+rrect(s, colx[0], ry, Inches(12.11), Pt(1.2), fill=BLUE, rounded=False)
+ry = Emu(int(ry) + int(Inches(0.06)))
+rh = Inches(0.255)
+for d in deals:
+    loss = isinstance(d["moic"], (int, float)) and d["moic"] < 1.0
+    vals = [d["company"], d["period"], _irr(d["irr"]), _moic(d["moic"]), _pct(d["outp"])]
+    for j, v in enumerate(vals):
+        col = (MUTED if loss else (WHITE if j == 0 else BODY))
+        para(tbox(s, colx[j], ry, Inches(2.4) if j else Inches(2.9), rh, anchor=MSO_ANCHOR.MIDDLE),
+             v, 10, col, first=True, bold=(j == 0), italic=loss,
+             align=PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT, after=0)
+    ry = Emu(int(ry) + int(rh))
+para(tbox(s, Inches(0.62), Emu(int(ry) + int(Inches(0.05))), Inches(12.1), Inches(0.3)),
+     "Gross deal-level figures, AIP Fund II to 2025; “n.m.” where holding periods "
+     "are too short to annualise. Past performance is not a guide to future returns.",
+     8, MUTED, first=True, after=0)
 
 # ===========================================================================
-# 17 · DISTRIBUTION POLICY (PROPOSED)
+# 17 · WHY A TRUST
 # ===========================================================================
-s, top = content("Section 6 · Track record",
-                 "Distribution policy — designed around the strategy",
-                 "The strategy is total-return; the trust structure can still "
-                 "deliver a predictable income to clients who want one.")
-bullets(s, [
-    ("Primarily capital growth.", "the engine is compounding corporate value, "
-     "realised as listed gains — a total-return strategy at its core."),
-    ("An optional managed distribution.", "UK trusts can pay a smoothed annual "
-     "dividend from realised gains and revenue reserves — a steady, "
-     "predictable payout where advisers want income.", ),
-    ("Quarterly and smoothed.", "a target yield and frequency to be set at "
-     "launch — funded from reserves so it does not force selling."),
-], top, size=14, gap=14)
-para(tbox(s, Inches(0.75), Inches(5.95), Inches(11.9), Inches(0.3)),
-     "Proposed; any distribution policy and yield to be set with the sponsor and "
-     "board, subject to available reserves and regulation.", 8, FOOT, first=True,
-     italic=True, after=0)
-closer(s, "Growth at the core — with the option of a smoothed income the trust "
-          "wrapper makes possible.", y=Inches(6.42), h=Inches(0.56))
-
-# ===========================================================================
-# 18 · WHY A TRUST / GOVERNANCE
-# ===========================================================================
-s, top = content("Section 7 · Structure & governance",
-                 "Why a listed trust is the ideal home for this strategy",
+s, top = content("16", "Section 6 · Structure & governance",
+                 "Why a listed trust is the ideal home",
                  "A closed-end structure matches long-horizon engaged ownership "
                  "better than any open-ended wrapper.")
 bullets(s, [
-    ("Permanent capital = patient capital.", "no forced redemptions, so we are "
-     "never a forced seller — the multi-year engagement is protected and "
+    ("Permanent capital = patient capital —", "no forced redemptions, so we are "
+     "never a forced seller; the multi-year engagement is protected and "
      "dislocations become opportunities."),
-    ("Daily liquidity for your clients.", "shares trade on the London Stock "
-     "Exchange — daily dealing and no capital calls, while evergreen PE funds are "
-     "gating redemptions (Partners Group, June 2026)."),
-    ("An independent board.", "a majority-independent board oversees the manager "
-     "on shareholders’ behalf — governance advisers and clients can rely on."),
-    ("Tier-one service providers.", "custody, administration and audit "
-     "segregated from investment — SEB · MUFG · KPMG."),
-], top, size=14, gap=12)
-closer(s, "Institutional strategy, listed-share convenience, independent "
-          "oversight — without giving up the patient capital it needs.")
+    ("Daily liquidity for clients —", "shares trade on the LSE — daily dealing, "
+     "no capital calls — while evergreen PE funds gate redemptions (Partners "
+     "Group, June 2026)."),
+    ("An independent board —", "a majority-independent board oversees the manager "
+     "on shareholders’ behalf."),
+    ("Tier-one providers —", "operations, valuation and audit segregated from "
+     "investment — SEB · MUFG · KPMG."),
+], top, x=Inches(0.62), w=Inches(11.9), size=13.5, gap=14)
+callout(s, "An institutional strategy clients can buy and sell like any listed "
+           "share — without giving up the patient capital it needs.", y=Inches(6.0))
 
 # ===========================================================================
-# 19 · DISCOUNT CONTROL, LISTING & TIMETABLE
+# 18 · DISTRIBUTION & DISCOUNT
 # ===========================================================================
-s, top = content("Section 7 · Structure & governance",
-                 "Discount control, listing and an indicative timetable",
-                 "Proactive NAV discipline, a considered listing venue, and a "
-                 "standard launch roadmap.")
-bullets(s, [
-    ("Discount control.", "a buyback policy that triggers when the shares trade "
-     "materially below NAV — keeping any discount tight, supported by realised "
-     "exit gains."),
-    ("Listing venue.", "LSE Main Market or the Specialist Fund Segment — weighed "
-     "on index eligibility, investor base and compliance."),
-], top, size=14, gap=12, w=Inches(12.0))
-stepflow(s, [
-    ("MONTH 1", "Structuring, board and service-provider appointments; mandate "
-     "and policies agreed."),
-    ("MONTH 2", "Draft prospectus and due diligence; discount and distribution "
-     "policies finalised."),
-    ("MONTH 3", "Regulatory review; marketing and cornerstone engagement."),
-    ("MONTH 4", "Roadshow, book-build and admission to listing."),
-], Emu(int(top) + int(Inches(1.7))), h=Inches(1.25))
-para(tbox(s, Inches(0.6), Inches(6.5), Inches(12.1), Inches(0.3)),
-     "Illustrative 3–4 month roadmap; actual timetable, venue and discount "
-     "policy subject to the sponsor, board and regulatory approval.", 8, FOOT,
-     first=True, italic=True, after=0)
+s, top = content("17", "Section 6 · Structure & governance",
+                 "Income and discount control",
+                 "A total-return strategy that the trust structure can still wrap "
+                 "with a predictable income and a tight discount.")
+card(s, Inches(0.62), top, Inches(5.95), Inches(3.3), "Distribution policy (proposed)",
+     "Capital growth at the core — realised as listed gains. UK trusts can pay a "
+     "smoothed annual dividend from realised gains and revenue reserves, so a "
+     "steady, quarterly income is available where advisers want it. Target yield "
+     "and frequency to be set at launch.")
+card(s, Inches(6.77), top, Inches(5.95), Inches(3.3), "Discount control",
+     "A buyback policy that triggers when the shares trade materially below NAV — "
+     "supported by realised exit gains — to keep any discount tight. Listing on "
+     "the LSE Main Market or Specialist Fund Segment, weighed on index "
+     "eligibility, investor base and compliance.")
+para(tbox(s, Inches(0.62), Inches(6.85), Inches(12), Inches(0.3)),
+     "Proposed; distribution policy, yield and discount mechanism to be agreed "
+     "with the sponsor and board, subject to reserves and regulation.", 8, MUTED,
+     first=True, after=0)
 
 # ===========================================================================
-# 20 · THE ASK / CLOSE
+# 19 · TIMETABLE
 # ===========================================================================
-s = prs.slides.add_slide(BLANK)
-rect(s, 0, 0, SW, SH, fill=NAVY)
-place_logo_white(s, Inches(0.6), Inches(0.55), Inches(0.5))
-rect(s, Inches(0.62), Inches(2.35), Inches(0.5), Pt(2.4), fill=SLATE_LT)
-para(tbox(s, Inches(0.6), Inches(2.55), Inches(12), Inches(1.0)),
-     "Bringing institutional engaged ownership to UK wealth", 30, WHITE,
-     first=True, after=0, font=SERIF)
-tf = tbox(s, Inches(0.6), Inches(3.65), Inches(12), Inches(2.4))
+s, top = content("18", "Section 6 · Structure & governance",
+                 "An indicative launch timetable",
+                 "A standard 3–4 month roadmap from mandate to admission.")
+steps = [("MONTH 1", "Structuring, board and provider appointments; mandate and "
+          "policies agreed."),
+         ("MONTH 2", "Draft prospectus and due diligence; discount and "
+          "distribution policies finalised."),
+         ("MONTH 3", "Regulatory review; marketing and cornerstone engagement."),
+         ("MONTH 4", "Roadshow, book-build and admission to listing.")]
+cw = Inches(2.92); gx = Inches(0.16)
+for i, (h, b) in enumerate(steps):
+    cx = Emu(int(Inches(0.62)) + i * (int(cw) + int(gx)))
+    rrect(s, cx, top, cw, Inches(2.4), fill=CARD, line=CARDLN, rad=0.06)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.26))), Emu(int(top) + int(Inches(0.24))),
+              Emu(int(cw) - int(Inches(0.5))), Inches(0.4)), h, 14, BLUE, first=True,
+         bold=True, after=8)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.26))), Emu(int(top) + int(Inches(0.85))),
+              Emu(int(cw) - int(Inches(0.5))), Inches(1.4)), b, 11.5, BODY, first=True,
+         after=0, lead=1.3)
+para(tbox(s, Inches(0.62), Inches(6.55), Inches(12.1), Inches(0.3)),
+     "Illustrative; actual timetable, venue and discount policy subject to the "
+     "sponsor, board and regulatory approval.", 8, MUTED, first=True, after=0)
+
+# ===========================================================================
+# 20 · CLOSE
+# ===========================================================================
+s = newslide()
+s.shapes.add_picture(LOGO_WHITE, Inches(0.62), Inches(0.55), height=Inches(0.5),
+                     width=Emu(int(int(Inches(0.5)) * _LW_AR)))
+rrect(s, Inches(0.64), Inches(2.5), Inches(0.6), Pt(3), fill=BLUE, rounded=False)
+para(tbox(s, Inches(0.6), Inches(2.7), Inches(12), Inches(1.0)),
+     "Bringing institutional engaged ownership to UK wealth", 34, WHITE,
+     first=True, bold=True, after=0, font=HEAD, lead=1.06)
+tf = tbox(s, Inches(0.62), Inches(4.0), Inches(12), Inches(2.2))
 for ld, b in [
     ("For your clients:", " a liquid, listed, differentiated equity holding — a "
      "20-year net track record, real diversification and downside protection, "
-     "with daily dealing."),
-    ("Why now:", " expensive, concentrated markets and decaying analytical alpha "
-     "make a created-alpha diversifier timely — and the hedge is bought before "
-     "the crack."),
-    ("The proposal:", " partner to launch a UK investment trust built on this "
-     "strategy.")]:
+     "daily dealing."),
+    ("Why now:", " expensive, concentrated markets, gating private equity and "
+     "decaying analytical alpha — the hedge is bought before the crack."),
+    ("The proposal:", " partner to launch a UK investment trust on this strategy.")]:
     p = tf.add_paragraph() if tf.paragraphs[0].runs else tf.paragraphs[0]
-    p.space_after = Pt(13); p.line_spacing = 1.2
-    r0 = p.add_run(); r0.text = ld; r0.font.size = Pt(15); r0.font.bold = True
-    r0.font.color.rgb = WHITE; r0.font.name = SANS
-    r1 = p.add_run(); r1.text = b; r1.font.size = Pt(15)
-    r1.font.color.rgb = DIVIDER; r1.font.name = SANS
-para(tbox(s, Inches(0.6), Inches(6.35), Inches(12), Inches(0.6)),
-     "Stefan Charette   ·   Athanase Industrial Partner   ·   "
-     "charette@athanase.se", 13, SLATE_LT, first=True, after=0)
-
-# ===========================================================================
-# final 4:3 rescale
-# ===========================================================================
-TARGET_W, TARGET_H = 9753600, 7315200
-
-
-def _rescale_shape(sh, sx, sy):
-    try:
-        L, T, W, H = sh.left, sh.top, sh.width, sh.height
-    except Exception:
-        L = T = W = H = None
-    is_pic = sh.shape_type == _MST.PICTURE
-    if None not in (L, T, W, H):
-        sh.left = int(L * sx); sh.top = int(T * sy)
-        sh.width = int(W * sx)
-        sh.height = int(H * sx) if is_pic else int(H * sy)
-    if sh.has_text_frame:
-        for p in sh.text_frame.paragraphs:
-            for r in p.runs:
-                if r.font.size is not None:
-                    r.font.size = Pt(round(r.font.size.pt * sx, 1))
-            pPr = p._p.find(_qn("a:pPr"))
-            if pPr is not None:
-                for a in ("marL", "indent"):
-                    v = pPr.get(a)
-                    if v is not None:
-                        pPr.set(a, str(int(round(int(v) * sx))))
-
-
-_sx = TARGET_W / int(prs.slide_width); _sy = TARGET_H / int(prs.slide_height)
-for _sl in prs.slides:
-    for _sh in _sl.shapes:
-        _rescale_shape(_sh, _sx, _sy)
-prs.slide_width = TARGET_W; prs.slide_height = TARGET_H
+    runs(p, [(ld, BLUE, True), (b, BODY, False)], 15, after=14, lead=1.25)
+para(tbox(s, Inches(0.62), Inches(6.45), Inches(12), Inches(0.5)),
+     "Stefan Charette   ·   Athanase Industrial Partner   ·   charette@athanase.se",
+     13, MUTED, first=True, after=0)
 
 prs.save("Athanase_Investment_Trust_Pitch.pptx")
-print(f"saved Athanase_Investment_Trust_Pitch.pptx ({len(prs.slides._sldIdLst)} slides)")
+print(f"saved ({len(prs.slides._sldIdLst)} slides)")
