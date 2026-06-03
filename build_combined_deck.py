@@ -3043,6 +3043,84 @@ para(tbox(s, Inches(0.85), Inches(6.06), Inches(11.6), Inches(0.92),
      "deal costs, priced at a market-driven discount.", 12.5, WHITE, first=True,
      italic=True, after=0, track=0)
 
+# ---- II.5e4 Co-investment term sheet (drawdown mechanics) -------------------
+s, top = content("Strategic Case",
+                 "Co-investment term sheet: the drawdown mechanics",
+                 "Dormant until the board seat is secured; drawn only on a 20–30% "
+                 "dislocation to accumulate a 10–20% block; zero fees until the "
+                 "promote; converts to a permanent capital vehicle at 2.5×.",
+                 number=False)
+ts_cards = [
+    ("1 · ACTIVATION PREREQUISITES", SLATE, [
+        ("Board control secured", "the vehicle stays dormant until the main fund "
+         "holds the board seat and the capital-allocation playbook."),
+        ("Zero blind-pool risk", "any drawdown notice names a vetted asset the "
+         "team already runs from the inside.")]),
+    ("2 · DRAWDOWN TRIGGER", SLATE, [
+        ("Price-dislocation gate", "capital is called only on a severe optical "
+         "drawdown — a formal 20–30% price drop."),
+        ("Offensive accumulation", "build a 10–20% block at exhaustion prices — "
+         "arbitrage on market psychology, not a falling knife: the board seat "
+         "already floors fundamental risk.")]),
+    ("3 · CALL EXECUTION & EXPIRY", SLATE, [
+        ("Notice period", "a standard 10–15 business-day capital call funds the "
+         "block build."),
+        ("Expiration window", "capped to 18–24 months post-board-seat; if no "
+         "J-curve appears, the commitment expires uncalled — freeing the LP’s "
+         "risk budget.")]),
+    ("4 · FEES & PROMOTE", SLATE, [
+        ("Zero management fees", "through dormancy and accumulation — only a "
+         "capped pass-through of verified admin and legal costs."),
+        ("2.5× super-promote", "the manager takes a 20% stake in the listed "
+         "vehicle only at 2.5× drawn capital — the moment LPs lock a 2.0× net "
+         "return.")]),
+    ("5 · LIQUIDITY — THE PCV FLIP", SLATE, [
+        ("Listing conversion", "as 2.5× approaches, the vehicle lists and "
+         "converts to a permanent capital vehicle (PCV)."),
+        ("Evergreen duration", "LPs get fractional daily liquidity in the listed "
+         "shares; the manager keeps infinite duration — no forced block-sale "
+         "discount.")]),
+    ("LP PROTECTIONS · PROPOSED", SLATE_LT, [
+        ("Consent on the flip", "PCV listing needs LP supermajority consent and "
+         "an independent NAV; the 2.0× lock crystallises at/before conversion."),
+        ("Backstop & negative control", "an LPAC veto on venue, conversion ratio "
+         "and promote terms; a NAV redemption right if no listing by the "
+         "longstop.")]),
+]
+ts_gx = Inches(0.16); ts_gy = Inches(0.14)
+ts_cw = Emu(int((int(Inches(12.1)) - 2 * int(ts_gx)) / 3))
+ts_hh = Inches(0.4); ts_bh = Inches(1.18)
+for idx, (htitle, hfill, terms) in enumerate(ts_cards):
+    coln = idx % 3; rown = idx // 3
+    cx = Emu(int(Inches(0.6)) + coln * (int(ts_cw) + int(ts_gx)))
+    cy = Emu(int(top) + rown * (int(ts_hh) + int(ts_bh) + int(ts_gy)))
+    rect(s, cx, cy, ts_cw, ts_hh, fill=hfill)
+    para(tbox(s, Emu(int(cx) + int(Inches(0.12))), cy,
+              Emu(int(ts_cw) - int(Inches(0.2))), ts_hh, anchor=MSO_ANCHOR.MIDDLE),
+         htitle, 9, WHITE, first=True, bold=True, after=0, track=0)
+    bty = Emu(int(cy) + int(ts_hh))
+    rect(s, cx, bty, ts_cw, ts_bh, fill=HEADERBG)
+    tf = tbox(s, Emu(int(cx) + int(Inches(0.14))), Emu(int(bty) + int(Inches(0.09))),
+              Emu(int(ts_cw) - int(Inches(0.26))), Emu(int(ts_bh) - int(Inches(0.16))))
+    for ti, (lead, detail) in enumerate(terms):
+        p = tf.paragraphs[0] if ti == 0 else tf.add_paragraph()
+        p.space_after = Pt(5); p.line_spacing = 1.08
+        r1 = p.add_run(); r1.text = lead
+        r1.font.size = Pt(8.5); r1.font.bold = True
+        r1.font.color.rgb = NAVY_TX; r1.font.name = SANS
+        r2 = p.add_run(); r2.text = " — " + detail
+        r2.font.size = Pt(8.5); r2.font.color.rgb = BODY; r2.font.name = SANS
+rect(s, Inches(0.6), Inches(5.82), Inches(12.1), Inches(0.5), fill=NAVY)
+para(tbox(s, Inches(0.85), Inches(5.82), Inches(11.6), Inches(0.5),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "Fees accrue to LPs first: nothing to the manager until 2.5× — at which "
+     "point the LP’s 2.0× net is already locked.", 11.5, WHITE, first=True,
+     italic=True, after=0, track=0)
+para(tbox(s, Inches(0.6), Inches(6.42), Inches(12.1), Inches(0.3)),
+     "Indicative terms for IC / LP discussion, subject to final fund "
+     "documentation; the “LP protections” cell is a proposal, not yet agreed.",
+     8, FOOT, first=True, italic=True, after=0)
+
 subdivider("The 20-year track record")
 # ---- II.6 Track record (chart) ----
 _f4 = fig()
