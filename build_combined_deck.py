@@ -4650,18 +4650,18 @@ s, top = content("Appendix · Co-investment",
                  "Capacity is allocated by flagship commitment, not handed out as "
                  "a marketing tool — so the “free look” rewards the partners who "
                  "back the core strategy.", number=False)
-# allocation bar: 85% pro-rata / 15% GP discretion
+# allocation bar: 90% pro-rata / 10% GP discretion
 bar_y = top; bar_h = Inches(0.72); bar_w = Inches(12.1)
-w85 = Emu(int(int(bar_w) * 0.85)); w15 = Emu(int(bar_w) - int(w85))
-rect(s, Inches(0.6), bar_y, w85, bar_h, fill=NAVY)
-rect(s, Emu(int(Inches(0.6)) + int(w85)), bar_y, w15, bar_h, fill=SLATE_LT)
-para(tbox(s, Emu(int(Inches(0.6)) + int(Inches(0.2))), bar_y, w85, bar_h,
+w_pro = Emu(int(int(bar_w) * 0.90)); w_gp = Emu(int(bar_w) - int(w_pro))
+rect(s, Inches(0.6), bar_y, w_pro, bar_h, fill=NAVY)
+rect(s, Emu(int(Inches(0.6)) + int(w_pro)), bar_y, w_gp, bar_h, fill=SLATE_LT)
+para(tbox(s, Emu(int(Inches(0.6)) + int(Inches(0.2))), bar_y, w_pro, bar_h,
           anchor=MSO_ANCHOR.MIDDLE),
-     "85%  ·  STRICT PRO-RATA — by flagship commitment", 12, WHITE, first=True,
+     "90%  ·  STRICT PRO-RATA — by flagship commitment", 12, WHITE, first=True,
      bold=True, after=0, track=0)
-para(tbox(s, Emu(int(Inches(0.6)) + int(w85)), bar_y, w15, bar_h,
+para(tbox(s, Emu(int(Inches(0.6)) + int(w_pro)), bar_y, w_gp, bar_h,
           anchor=MSO_ANCHOR.MIDDLE),
-     "15%  ·  GP", 11, WHITE, first=True, bold=True, after=0,
+     "10%  ·  GP", 11, WHITE, first=True, bold=True, after=0,
      align=PP_ALIGN.CENTER, track=0)
 # three mechanics
 al_cols = [
@@ -4673,10 +4673,10 @@ al_cols = [
      "Capacity a smaller LP declines is pooled and re-offered, pro-rata, to the "
      "remaining participants — automatically concentrating the sidecar among the "
      "largest, most agile institutional anchors."),
-    ("A 15% GP-discretionary carve-out",
-     "85% is allocated by strict formula to prevent LP infighting; the GP retains "
-     "discretion over the remaining 15% — to reward partners who add real value, "
-     "such as critical diligence intelligence, and keep some strategic flexibility."),
+    ("A 10% GP-discretionary carve-out",
+     "90% is allocated by strict formula to prevent LP infighting; the remaining "
+     "10% is reserved for LPs who can contribute directly to a deal — bringing "
+     "specific industrial knowledge or operating expertise to the situation."),
 ]
 acw = Emu(int((int(Inches(12.1)) - 2 * int(Inches(0.3))) / 3))
 ay = Emu(int(bar_y) + int(bar_h) + int(Inches(0.45)))
