@@ -448,9 +448,19 @@ bullets(s, [
      "illiquidity blocks the exit exactly when it is needed."),
     ("This trust — the hedge.", "board control floors the risk, the shares stay "
      "liquid, and the dislocation becomes the entry point — not the trap."),
-], top, size=14.5, gap=15)
-closer(s, "The time to own a liquid, low-correlation hedge is while markets are "
-          "still expensive.")
+], top, size=14.5, gap=14)
+rect(s, Inches(0.6), Inches(5.32), Inches(12.16), Inches(0.96), fill=HEADERBG)
+rect(s, Inches(0.6), Inches(5.32), Inches(0.08), Inches(0.96), fill=NAVY)
+para(tbox(s, Inches(0.85), Inches(5.43), Inches(11.6), Inches(0.3)),
+     "LIVE — JUNE 2026  ·  BLOOMBERG / CNBC", 9.5, SLATE, first=True, bold=True,
+     after=4, track=0)
+para(tbox(s, Inches(0.85), Inches(5.72), Inches(11.75), Inches(0.5)),
+     "Partners Group capped redemptions in its $8.6bn evergreen private-equity "
+     "fund at 5% of NAV after withdrawal requests hit 9.8% — KKR, Blackstone and "
+     "Ares fell on the news. The PE exit is closing, exactly as feared.", 11.5,
+     BODY, first=True, after=0, lead=1.16)
+closer(s, "While evergreen PE gates redemptions, a listed trust trades every day "
+          "the market is open — the liquidity your clients keep when it matters.")
 
 # ===========================================================================
 # 8 · PHILOSOPHY
@@ -675,8 +685,8 @@ bullets(s, [
      "never a forced seller — the multi-year engagement is protected and "
      "dislocations become opportunities."),
     ("Daily liquidity for your clients.", "shares trade on the London Stock "
-     "Exchange — an institutional strategy with daily dealing and no capital "
-     "calls."),
+     "Exchange — daily dealing and no capital calls, while evergreen PE funds are "
+     "gating redemptions (Partners Group, June 2026)."),
     ("An independent board.", "a majority-independent board oversees the manager "
      "on shareholders’ behalf — governance advisers and clients can rely on."),
     ("Tier-one service providers.", "custody, administration and audit "
