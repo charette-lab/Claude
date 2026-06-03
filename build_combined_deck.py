@@ -4549,6 +4549,10 @@ _cobul(cr, "Pro-rata exit.", "bound to exit in lockstep with the main fund — n
 _cobul(cr, "Patient-capital enforcement.", "the same multi-year holding "
        "discipline — no reactionary selling into daily liquidity before the "
        "restructuring shows in cash flows and earnings.")
+para(tbox(s, Inches(0.6), Inches(5.8), Inches(12.1), Inches(0.24)),
+     "The core fund carries zero capital calls; this optional facility is the "
+     "single, deliberate exception — and only on a named, board-de-risked asset.",
+     8.5, FOOT, first=True, italic=True, after=0)
 rect(s, Inches(0.6), Inches(6.06), Inches(12.1), Inches(0.92), fill=NAVY)
 para(tbox(s, Inches(0.85), Inches(6.06), Inches(11.6), Inches(0.92),
           anchor=MSO_ANCHOR.MIDDLE),
@@ -4632,10 +4636,12 @@ para(tbox(s, Inches(0.85), Inches(5.82), Inches(11.6), Inches(0.5),
      "Fees accrue to LPs first: nothing to the manager until 2.5× — at which "
      "point the LP’s 2.0× net is already locked.", 11.5, WHITE, first=True,
      italic=True, after=0, track=0)
-para(tbox(s, Inches(0.6), Inches(6.42), Inches(12.1), Inches(0.3)),
+para(tbox(s, Inches(0.6), Inches(6.4), Inches(12.1), Inches(0.5)),
      "Indicative terms for IC / LP discussion, subject to final fund "
-     "documentation; the “LP protections” cell is a proposal, not yet agreed.",
-     8, FOOT, first=True, italic=True, after=0)
+     "documentation. The 2.0× is a contractual lock contingent on the 2.5× test "
+     "— not a guarantee. Buybacks are funded from the vehicle’s distributable "
+     "cash and capped per year. The “LP protections” cell is a proposal, not yet "
+     "agreed.", 7.5, FOOT, first=True, italic=True, after=0, lead=1.18)
 
 
 # ===========================================================================
