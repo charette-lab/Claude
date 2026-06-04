@@ -140,27 +140,45 @@ def pct(x):
     return "n/a" if x is None else f"{x*100:.2f}%"
 
 
-# Industry ROIIC base rates (the long-run level returns mean-revert toward).
-# PLACEHOLDERS — replace with values from the Base Rate Book, by GICS industry.
-INDUSTRY_BASE_RATE = {
-    "Software & Services": 0.16,
-    "Health Care Equipment & Services": 0.13,
-    "Pharmaceuticals, Biotechnology & Life Sciences": 0.14,
-    "Semiconductors & Semiconductor Equipment": 0.10,
-    "Technology Hardware & Equipment": 0.09,
-    "Capital Goods": 0.10,
-    "Materials": 0.08,
-    "Commercial & Professional Services": 0.12,
-    "Media & Entertainment": 0.12,
-    "Consumer Durables & Apparel": 0.10,
-    "Consumer Discretionary Distribution & Retail": 0.11,
-    "Consumer Services": 0.12,
-    "Automobiles & Components": 0.07,
-    "Transportation": 0.07,
-    "Utilities": 0.06,
-    "Food, Beverage & Tobacco": 0.11,
+# ROIIC base rate = long-term sector CFROI median (Mauboussin, The Base Rate
+# Book, 1950-2015). The sheet's GICS industry groups are mapped up to the sector
+# whose CFROI applies. NOTE: CFROI is inflation-adjusted (real); WACC here is
+# nominal. Use --base-inflation to gross the base rate up to nominal if desired.
+SECTOR_CFROI_MEDIAN = {        # sector -> (CFROI median, 5y persistence)
+    "Information Technology": (0.085, 0.50),
+    "Consumer Staples": (0.081, 0.78),
+    "Consumer Discretionary": (0.080, 0.67),
+    "Health Care": (0.083, 0.64),
+    "Financials": (0.075, 0.43),
+    "Industrials": (0.067, 0.62),
+    "Telecommunication Services": (0.057, 0.55),
+    "Energy": (0.050, 0.35),
+    "Materials": (0.046, 0.41),
+    "Utilities": (0.035, 0.57),
 }
-DEFAULT_BASE_RATE = 0.10
+# GICS Industry Group (as it appears in the sheet) -> sector above.
+INDUSTRY_TO_SECTOR = {
+    "Software & Services": "Information Technology",
+    "Technology Hardware & Equipment": "Information Technology",
+    "Semiconductors & Semiconductor Equipment": "Information Technology",
+    "Health Care Equipment & Services": "Health Care",
+    "Pharmaceuticals, Biotechnology & Life Sciences": "Health Care",
+    "Capital Goods": "Industrials",
+    "Commercial & Professional Services": "Industrials",
+    "Transportation": "Industrials",
+    "Materials": "Materials",
+    "Automobiles & Components": "Consumer Discretionary",
+    "Consumer Durables & Apparel": "Consumer Discretionary",
+    "Consumer Discretionary Distribution & Retail": "Consumer Discretionary",
+    "Consumer Services": "Consumer Discretionary",
+    "Food, Beverage & Tobacco": "Consumer Staples",
+    "Media & Entertainment": "Telecommunication Services",  # Comm. Services proxy
+    "Utilities": "Utilities",
+}
+INDUSTRY_BASE_RATE = {
+    ind: SECTOR_CFROI_MEDIAN[sec][0] for ind, sec in INDUSTRY_TO_SECTOR.items()
+}
+DEFAULT_BASE_RATE = 0.055     # full-universe long-term CFROI baseline (~5-6%)
 
 
 def base_rate_for(industry, override=None):
@@ -232,7 +250,10 @@ def main():
                     help="persistence factor phi (0-1); if omitted, from the Moat Score")
     ap.add_argument("--base-rate", type=float, default=None,
                     help="ROIIC base rate the return reverts to; if omitted, from "
-                         "the industry table keyed on the GICS industry column")
+                         "the industry/sector CFROI table keyed on the GICS column")
+    ap.add_argument("--base-inflation", type=float, default=0.0,
+                    help="added to the looked-up CFROI base rate to convert the "
+                         "real CFROI to a nominal base (default 0 = use CFROI as-is)")
     ap.add_argument("--horizon", type=int, default=5,
                     help="holding period in years for the expected-return / IRR (default 5)")
     ap.add_argument("--payout-total", type=float, default=0.0,
@@ -305,6 +326,9 @@ def main():
 
     industry = ws.cell(row=row, column=cols["industry"]).value if cols["industry"] else None
     base, base_src = base_rate_for(industry, args.base_rate)
+    if args.base_rate is None and args.base_inflation:
+        base += args.base_inflation
+        base_src += f" + {pct(args.base_inflation)} infl"
 
     res = value_company(nopat0, roiic0, rr0, r, g_term, cap, phi, base)
     total = res["total"]
