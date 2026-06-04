@@ -285,9 +285,10 @@ def main():
     ap.add_argument("--base-rate", type=float, default=None,
                     help="ROIIC base rate the return reverts to; if omitted, from "
                          "the industry/sector CFROI table keyed on the GICS column")
-    ap.add_argument("--base-inflation", type=float, default=0.025,
-                    help="added to the real CFROI base rate to make it nominal "
-                         "(default 0.025 = gross CFROI; set 0 to use real CFROI)")
+    ap.add_argument("--base-inflation", type=float, default=0.0,
+                    help="added to the real CFROI base rate to make it nominal; "
+                         "default 0 = use real CFROI (mirrors our growth-capitalized, "
+                         "lower ROICm). Set e.g. 0.025 to gross up to nominal.")
     ap.add_argument("--horizon", type=int, default=5,
                     help="holding period in years for the expected-return / IRR (default 5)")
     ap.add_argument("--payout-total", type=float, default=0.0,

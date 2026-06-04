@@ -47,7 +47,7 @@ PV(explicit fade-period FCF) + PV(terminal).
 | `ROIIC_0` (starting) | Excel column **"ROICm 7"** |
 | `RR` (held constant) | Excel column **"RR 7"** |
 | `r` (WACC / required return) | **12%** (`--r`) |
-| `base` (gross CFROI) | sector CFROI median (GICS column) **+ 2.5% inflation**; override `--base-rate` / `--base-inflation` |
+| `base` (CFROI) | real sector CFROI median (GICS column), **no inflation** — mirrors our growth-capitalized, lower ROICm; override `--base-rate` / `--base-inflation` |
 | `n1` (hold) / `n2` (fade) | 1/3 and 2/3 of the Moat-Score life; override `--n1` / `--n2` |
 | `persistence` (φ) | from the **Moat Score** tier; override `--persistence` |
 | `g_term` | **2.5%** default — must be `< r` (`--gterm`) |

@@ -53,10 +53,16 @@ FCF_t = NOPAT_t · (1 − RR)
 ```
 
 Phase 1 assumes the moat lets the company hold its current marginal return
-`ROIIC_0` (ROICm 7); Phase 2 mean-reverts it to the industry `base` rate (gross
-CFROI). The competitive life from the Moat Score: `< 6.0 → <10y`, `6.0–7.5 →
-10–20y`, `> 7.5 → 50y`. `φ` is the moat-tier persistence. (Override `--n1`,
+`ROIIC_0` (ROICm 7); Phase 2 mean-reverts it to the industry `base` rate (real
+sector CFROI). The competitive life from the Moat Score: `< 6.0 → <10y`, `6.0–7.5
+→ 10–20y`, `> 7.5 → 50y`. `φ` is the moat-tier persistence. (Override `--n1`,
 `--n2`, `--persistence`, `--base-rate`.)
+
+**Why real (un-grossed) CFROI:** our ROICm strips growth investments out of
+NOPAT and capitalizes them, so our marginal returns run structurally *below*
+headline industry ROIC. Reverting to the real CFROI median (no inflation
+gross-up) keeps the target on the same conservative footing as our inputs. Add
+`--base-inflation 0.025` only if pairing with headline (un-adjusted) returns.
 
 ## Step 3 — Discount the explicit period
 
@@ -110,7 +116,7 @@ rests on leverage rather than business improvement.
 | `ROIIC_0` | "ROICm 7" |
 | `RR` | "RR 7" (current rate, held constant) |
 | `r` | 12% |
-| `base` (ROIIC base rate) | industry table on "GICS Industry Group Name" (override `--base-rate`) — **placeholders pending the Base Rate Book** |
+| `base` (ROIIC base rate) | real sector CFROI median (Base Rate Book), mapped from "GICS Industry Group Name"; no inflation gross-up (override `--base-rate` / `--base-inflation`) |
 | `CAP`, `φ` | from "Moat Score" (table above; override `--cap` / `--persistence`) |
 | `g_term` | 2.5% (`< r`) |
 
