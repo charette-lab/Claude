@@ -1,117 +1,109 @@
 ---
 name: aip-value
 description: >-
-  AIP Value — value a company with a three-stage, ROIIC-driven DCF run against an attached
-  Excel screener file. The model is anchored in the law that growth requires
-  capital (g = ROIIC x RR) and that competitive advantage fades — returns
-  regress to the cost of capital over a Competitive Advantage Period, a Fade
-  Period, and a Terminal stage. Use when the user attaches an Excel/.xlsx file
-  and asks to value a company, run a DCF / intrinsic value / ROIIC valuation,
-  compute a fair value or expected upside, or compare a stock's price to its
-  operating value.
+  AIP Value — value a company with a ROIIC persistence-fade DCF run against an
+  attached Excel screener file. Growth must be funded (g = ROIIC x RR), and a
+  company's excess return (ROIIC − WACC) decays geometrically toward the cost of
+  capital at a speed set by moat durability — so a cyclically-inflated starting
+  ROIIC is mean-reverted rather than held flat. Use when the user attaches an
+  Excel/.xlsx file and asks to value a company, run a DCF / intrinsic value /
+  ROIIC valuation, compute a fair value, expected return/IRR, or upside, or
+  compare a stock's price to its operating value.
 ---
 
-# Three-Stage ROIIC DCF
+# AIP Value — ROIIC Persistence-Fade DCF
 
 A capital-discipline DCF. Every growth rate must be funded: `g = ROIIC × RR`.
-As the moat erodes, the return on incremental invested capital fades toward the
-cost of capital, so later-stage growth requires more reinvestment and creates
-less value. Total operating value is the sum of three discounted stages.
+The key idea: **excess returns don't persist** — `ROIIC − WACC` decays
+geometrically each year by a **persistence factor** set by moat quality, so a
+high starting ROIIC (e.g. a semiconductor firm at a cyclical demand peak) reverts
+toward the cost of capital instead of being extrapolated. Operating value =
+PV(explicit fade-period FCF) + PV(terminal).
 
 ## Workflow
 
 1. **Get the Excel file.** The user attaches an `.xlsx` screener with one
    company per row and headers in the first row. Note its path.
-2. **Read `reference.md`** for the full formulas and the fixed parameter
-   mapping. Do not re-derive the math by hand — use the calculator.
-3. **Run the calculator** (it reads the sheet, finds the company, pulls the
-   three drivers, and prints every stage):
+2. **Read `reference.md`** for the full formulas and the parameter mapping. Use
+   the calculator — don't re-derive the math by hand.
+3. **Run the calculator** (reads the sheet, finds the company, pulls the drivers,
+   prints the fade schedule and valuation):
    ```bash
    python3 .claude/skills/aip-value/roiic_dcf.py "<file.xlsx>" "<company>"
    # (personal install: python3 ~/.claude/skills/aip-value/roiic_dcf.py ...)
    ```
-   - List companies first if unsure of the exact name: append `--list` (or run
-     with no company argument).
-   - Defaults: `--r 0.12 --n1 15 --n2 10 --gterm 0.025`. Override any of them
-     for sensitivities.
-4. **Present a valuation memo:** total operating value, the PV split across the
-   three stages, the implied equity value / per-share value, and the upside or
-   downside vs. the market (EV, price, market cap). Call out the 2–3 inputs the
-   result is most sensitive to.
+   - List companies first if unsure of the exact name: append `--list`.
+   - Defaults: `--r 0.12 --gterm 0.025 --horizon 5`; CAP and persistence come
+     from the Moat Score. Override with `--cap`, `--persistence`, etc.
+4. **Present a valuation memo:** total operating value, explicit-vs-terminal PV
+   split, implied equity / per-share value, expected return (IRR), and the gap to
+   market. Call out the 2–3 inputs the result is most sensitive to.
 
-## Fixed inputs and stage logic
+## Inputs and engine
 
 | Item | Source / rule |
 |------|---------------|
 | `NOPAT_0` | Excel column **"New Operating Income"** |
-| `ROIIC_1` | Excel column **"ROICm 7"** |
-| `RR_1` | Excel column **"RR 7"** |
-| `r` (cost of capital / required return) | **12%** |
-| `n1` (CAP) | **1/3 of the Moat-Score competitive life** (see below); override `--n1` |
-| `n2` (Fade) | **2/3 of the Moat-Score competitive life**; override `--n2` |
-| `g1` | `ROIIC_1 × RR_1` |
-| `ROIIC_2` | `(ROIIC_1 + r) / 2` |
-| `g2` | `(g1 + g_term) / 2` (growth fades to midpoint of g1 and terminal) |
-| `RR_2` | `g2 / ROIIC_2` (reinvestment *derived* — framework Step 3 / Damodaran) |
-| `ROIIC_term` | `= r` (growth is value-neutral) |
-| `g_term` | **2.5%** default — must be `< r`; configurable via `--gterm` |
-| `RR_term` | `g_term / r` |
+| `ROIIC_0` (starting) | Excel column **"ROICm 7"** |
+| `RR` (held constant) | Excel column **"RR 7"** |
+| `r` (WACC / required return) | **12%** (`--r`) |
+| `CAP` (N, explicit years) | from the **Moat Score** (see below); override `--cap` |
+| `persistence` (φ) | from the **Moat Score**; override `--persistence` |
+| `g_term` | **2.5%** default — must be `< r` (`--gterm`) |
 
-**Note on the terminal stage:** the source spec set `g_term = r = 7%`, which
-makes the Gordon denominator `(r − g_term)` zero. Per the user's decision the
-skill instead uses a terminal growth **below** `r` (default 2.5%) with
-`RR_term = g_term / r`, keeping the terminal value finite and the
-`g = ROIIC × RR` law intact. The earlier `RR_term = RR_2 × 1.5` idea is
-therefore not used. If the user wants a different terminal growth, pass
-`--gterm`.
+**Per-year fade engine** (t = 1…N):
+```
+ROIIC_t = r + (ROIIC_0 − r) · φ^t          # excess return decays geometrically
+g_t     = ROIIC_t · RR                     # RR held at RR_0 (current rate)
+NOPAT_t = NOPAT_(t−1) · (1 + g_t)
+FCF_t   = NOPAT_t · (1 − RR)
+PV_explicit = Σ FCF_t / (1+r)^t
+```
+**Terminal** (after N years ROIIC ≈ r, so growth is value-neutral):
+```
+TV    = NOPAT_N · (1 + g_term) / r
+PV_TV = TV / (1+r)^N
+Total Operating Value = PV_explicit + PV_TV
+```
 
-## Competitive period (n1, n2) from the Moat Score
+## CAP & persistence from the Moat Score (empirical CAP durations)
 
-The **"Moat Score"** column sets the *total* competitive period (the output of
-the eight weighted categories: Criticality 0.20, Premium 0.15, Hegemony 0.15,
-Ecosystem 0.10, Lifecycle 0.10, Substitution 0.10, Demand 0.10, Allocation
-0.10). That total life is then split **1/3 into Stage 1 (CAP)** and **2/3 into
-Stage 2 (Fade)**:
+The **"Moat Score"** column (the weighted eight-category Final Score: Criticality
+0.20, Premium 0.15, Hegemony 0.15, Ecosystem 0.10, Lifecycle 0.10, Substitution
+0.10, Demand 0.10, Allocation 0.10) sets both how long and how slowly the excess
+return fades:
 
-| Moat Score | Verdict | Total life | n1 (1/3) | n2 (2/3) |
-|------------|---------|-----------|----------|----------|
-| `< 6.0` | Pass — vulnerable to disruption | < 10y | ~life/3 | ~2·life/3 |
-| `6.0 – 7.5` | Watchlist — check substitution | 10–20y | ~life/3 | ~2·life/3 |
-| `> 7.5` | Compounder — permanent moat (Lindy) | 50y | ~17y | ~33y |
+| Moat Score | Moat tier | CAP (N) | Persistence φ |
+|------------|-----------|---------|---------------|
+| `> 7.5` | Superior / Wide (network effects, switching costs, regulatory monopoly) | 10–20y | 0.85–0.95 |
+| `6.0 – 7.5` | Narrow / Standard (brand, some pricing power, minor scale) | 5–10y | 0.70–0.80 |
+| `< 6.0` | No moat / cyclical peak (commodity, hardware shortage) | 1–5y | 0.50–0.60 |
 
-Within the bounded bands the total life is interpolated linearly; above 7.5 it
-is 50y. Override either leg with `--n1` / `--n2`. Always
-use the current **"Moat Score"** column (the default). "Moat Score - 7" is the
-score as of 7 years ago — useful only for gauging moat *progression*, not for
-valuation. `--col-moat` exists only for files with a differently named column.
+Values are interpolated within each band by score. A higher φ means the excess
+return persists longer (with φ≈0.9 the "inside view" of high returns is roughly
+half-eroded by year 7, matching the empirical CAP literature). Even superior
+moats must fade because of the **size penalty** (reinvesting ever-larger capital
+at 40–50% becomes impossible as the firm scales to its TAM) and **creative
+destruction** (asymmetric innovation, e.g. on-prem → cloud). Always use the
+current **"Moat Score"**; "Moat Score - 7" is the score 7 years ago (progression
+only). No score → defaults to Narrow (CAP 8y, φ 0.75).
 
-## The three stages
-
-- **Stage 1 — CAP.** High `ROIIC_1`, growth `g1` for `n1` years. PV of a growing
-  annuity of free cash flow `CF_1 = NOPAT_0 (1+g1)(1−RR_1)`.
-- **Stage 2 — Fade.** `ROIIC_2` is the midpoint of `ROIIC_1` and `r`; first cash
-  flow grows base NOPAT through all of Stage 1 then one Stage-2 year. PV of the
-  growing annuity, discounted back over `n1`.
-- **Stage 3 — Terminal.** `ROIIC_term = r` so growth adds no value; Gordon-growth
-  perpetuity on `CF_term_Yr1`, discounted back over `n1 + n2`.
-
-`Total Operating Value = PV_1 + PV_2 + PV_TV`.
+> Notation: the source framework writes the persistence factor as `r`; here `r`
+> is the discount rate, so the persistence factor is `φ` (`--persistence`).
 
 ## Expected return (IRR)
 
-The calculator also annualizes the return over an `n`-year horizon (default 5):
+The calculator annualizes the return over an `n`-year horizon (default 5):
 `EV_target` = total operating value; a **cash sweep** de-levers net debt by the
-forecast free cash flows (`ND_n = ND_0 − ΣCF_t`, less any dividends/buybacks via
+forecast FCF (`ND_n = ND_0 − ΣFCF_t`, less dividends/buybacks via
 `--payout-total`); `EqV_target = EV_target − ND_n`; then
-`Expected Return = (EqV_target / EqV_0)^(1/n) − 1` against current market cap.
-It also reports the **unlevered return** `(EV_target / EV_0)^(1/n) − 1` — if the
-equity IRR is large but the unlevered return is minimal, the thesis leans on
-leverage rather than business improvement. Set the horizon with `--horizon`.
+`Expected Return = (EqV_target / EqV_0)^(1/n) − 1` vs. current market cap. It also
+reports the **unlevered return** `(EV_target / EV_0)^(1/n) − 1`.
 
 ## Output
 
-Deliver a concise memo: the drivers pulled from the sheet, the three-stage PV
-breakdown, total operating value, implied equity and per-share value, and the
-gap to the current market price — plus the key sensitivities (usually `ROICm 7`,
-`RR 7`, `r`, and `g_term`). Flag clearly that this is an analytical framework,
-not investment advice.
+Deliver a concise memo: drivers pulled from the sheet, the moat tier / CAP / φ,
+the fade schedule, total operating value, implied equity & per-share value, the
+expected return, and the gap to market price — plus the key sensitivities
+(usually `ROICm 7`, `RR 7`, the moat tier, `r`). Flag clearly that this is an
+analytical framework, not investment advice.

@@ -1,42 +1,47 @@
 #!/usr/bin/env python3
-"""Three-stage ROIIC-driven DCF valuation, run against an attached Excel file.
+"""AIP Value — ROIIC persistence-fade DCF, run against an attached Excel file.
 
 Economic premise: growth requires capital (g = ROIIC x RR), and a company's
-competitive advantage fades over time so returns regress toward the cost of
-capital. Value is built in three stages:
+*excess* return (ROIIC - WACC) does not persist — it decays geometrically toward
+the cost of capital at a speed set by the durability of the moat. This directly
+handles a cyclically-inflated starting ROIIC (e.g. a semiconductor firm posting
+60% ROIIC at a demand peak): the surge is mean-reverted away over the empirical
+Competitive Advantage Period (CAP) rather than held flat.
 
-  Stage 1  Competitive Advantage Period (CAP)  -> high ROIIC, n1 years
-  Stage 2  Fade Period                         -> ROIIC midpoints to r, n2 years
-  Stage 3  Terminal                            -> ROIIC = r (growth value-neutral)
+Fade engine (per year t, over the CAP of N years):
+    ROIIC_t   = WACC + (ROIIC_0 - WACC) * persistence**t      (excess decays)
+    g_t       = ROIIC_t * RR                                  (RR held at RR_0)
+    NOPAT_t   = NOPAT_(t-1) * (1 + g_t)
+    FCF_t     = NOPAT_t * (1 - RR)
+    PV        = sum_t FCF_t / (1+WACC)**t
+Terminal (after the CAP, ROIIC has reached WACC so growth is value-neutral):
+    TV        = NOPAT_N * (1 + g_term) / WACC ;  PV_TV = TV / (1+WACC)**N
 
-The script reads a screener-style spreadsheet (one company per row, headers in
-the first row), locates the requested company, pulls the three driver inputs,
-and prints the full valuation with a market comparison.
+Empirical CAP durations & persistence, mapped from the Moat Score:
+    Moat > 7.5   Superior / Wide moat  -> CAP 10-20y, persistence 0.85-0.95
+    6.0 - 7.5    Narrow / Standard     -> CAP  5-10y, persistence 0.70-0.80
+    Moat < 6.0   No moat / cyclical    -> CAP  1-5y,  persistence 0.50-0.60
+(interpolated within each band by score; override with --cap / --persistence).
+
+NOTE on notation: the persistence factor is written as 'r' in the source
+framework, but here 'r' is the discount rate / WACC. The persistence factor is
+called 'persistence' (phi) to avoid the clash.
 
 DEFAULT EXCEL COLUMN MAPPING (override with --col-* flags):
-  NOPAT_0   <- "New Operating Income"
-  ROIIC_1   <- "ROICm 7"
-  RR_1      <- "RR 7"
+  NOPAT_0  <- "New Operating Income"   ROIIC_0 <- "ROICm 7"   RR <- "RR 7"
+  moat     <- "Moat Score"
   (comparison) "EV", "Market Cap", "Net debt",
                "Shares used to calculate Diluted EPS - Total", "Close Price"
 
 DEFAULT PARAMETERS (override with flags):
-  r       = 0.12     cost of capital / discount rate (required return)
-  n1, n2  = from the Moat Score: total competitive life split 1/3 (CAP) : 2/3 (Fade)
-  g_term  = 0.025    terminal growth (must be < r)
-
-STAGE LOGIC (fixed by the framework + the user's mapping):
-  Stage 1:  ROIIC_1 = ROICm7;  RR_1 = RR7;  g1 = ROIIC_1 * RR_1
-  Stage 2:  ROIIC_2 = (ROIIC_1 + r) / 2;  RR_2 = RR_1 * 1.5;  g2 = ROIIC_2 * RR_2
-  Terminal: ROIIC_term = r;  RR_term = g_term / r  (growth adds no value)
+  r (WACC) = 0.12     g_term = 0.025 (< r)     horizon = 5 (for the IRR)
 
 Usage:
-  python3 roiic_dcf.py <file.xlsx> "<company name substring>" [options]
-  python3 roiic_dcf.py <file.xlsx> --list        # list companies in the sheet
-
+  python3 roiic_dcf.py <file.xlsx> "<company>" [options]
+  python3 roiic_dcf.py <file.xlsx> --list
 Options:
-  --r FLOAT --n1 INT --n2 INT --gterm FLOAT --sheet NAME
-  --col-nopat STR --col-roiic STR --col-rr STR --col-name STR
+  --r FLOAT --gterm FLOAT --cap INT --persistence FLOAT --horizon INT
+  --payout-total FLOAT --sheet NAME --col-* STR
 """
 
 import argparse
@@ -48,50 +53,33 @@ except ImportError:
     sys.exit("openpyxl is required:  pip install openpyxl")
 
 
-def growing_annuity_pv(cf1, r, g, n):
-    """PV at time 0 of an n-year annuity whose first payment cf1 occurs at t=1
-    and grows at g. Handles the g == r limit safely."""
-    if abs(r - g) < 1e-12:
-        return n * cf1 / (1 + r)
-    return cf1 / (r - g) * (1 - ((1 + g) / (1 + r)) ** n)
+def moat_to_cap_persistence(score):
+    """Map a Moat Score to (CAP years, persistence factor, tier label).
 
-
-def moat_to_life(score):
-    """Total competitive period (years) implied by a Moat Score.
-
-    Thresholds (Moat Life Estimation by Score):
-      score < 6.0      -> short-term moat, < 10y   (linear 0->10 over 0->6)
-      6.0 <= s <= 7.5  -> medium-term,    10-20y   (linear 10->20 over 6->7.5)
-      score > 7.5      -> permanent moat,  50y     ("50+")
-    Returns a whole number of years (>= 1), or None if score is missing. The
-    total life is split 1/3 into Stage 1 (CAP) and 2/3 into Stage 2 (Fade).
+    Empirical CAP durations:
+      score > 7.5      Superior/Wide  -> CAP 10-20y, persistence 0.85-0.95
+      6.0 <= s <= 7.5  Narrow/Std     -> CAP  5-10y, persistence 0.70-0.80
+      score < 6.0      No moat/cyclic -> CAP  1-5y,  persistence 0.50-0.60
+    Values are interpolated linearly within each band. Returns None if missing.
     """
     if score is None:
         return None
-    if score < 6.0:
-        years = score / 6.0 * 10.0
-    elif score <= 7.5:
-        years = 10.0 + (score - 6.0) / (7.5 - 6.0) * 10.0
-    else:
-        years = 50.0
-    return max(1, int(round(years)))
-
-
-def split_life(life):
-    """Split a total competitive period into (n1, n2) = (1/3, 2/3), >= 1y each."""
-    n1 = max(1, int(round(life / 3.0)))
-    n2 = max(1, int(round(life * 2.0 / 3.0)))
-    return n1, n2
-
-
-def moat_band(score):
-    if score is None:
-        return "n/a"
-    if score < 6.0:
-        return "Pass / short-term"
-    if score <= 7.5:
-        return "Watchlist / medium-term"
-    return "Compounder / permanent"
+    if score > 7.5:                                  # Superior / Wide
+        f = min(max((score - 7.5) / (9.0 - 7.5), 0.0), 1.0)
+        cap = 10 + f * (20 - 10)
+        phi = 0.85 + f * (0.95 - 0.85)
+        tier = "Wide"
+    elif score >= 6.0:                               # Narrow / Standard
+        f = (score - 6.0) / (7.5 - 6.0)
+        cap = 5 + f * (10 - 5)
+        phi = 0.70 + f * (0.80 - 0.70)
+        tier = "Narrow"
+    else:                                            # No moat / cyclical
+        f = max(0.0, score) / 6.0
+        cap = 1 + f * (5 - 1)
+        phi = 0.50 + f * (0.60 - 0.50)
+        tier = "Cyclical"
+    return max(1, int(round(cap))), phi, tier
 
 
 def find_columns(ws, wanted):
@@ -151,20 +139,50 @@ def pct(x):
     return "n/a" if x is None else f"{x*100:.2f}%"
 
 
+def value_company(nopat0, roiic0, rr0, r, g_term, cap, phi):
+    """Run the persistence-fade DCF. Returns a dict with the schedule, PVs,
+    total operating value, and a per-year free-cash-flow function."""
+    excess0 = roiic0 - r
+    nopat_path = [nopat0]          # index t -> NOPAT at end of year t (0 = today)
+    fcf_path = [None]
+    sched = []                     # (t, roiic_t, g_t)
+    pv_explicit = 0.0
+    for t in range(1, cap + 1):
+        roiic_t = r + excess0 * (phi ** t)
+        g_t = roiic_t * rr0
+        nopat_t = nopat_path[t - 1] * (1 + g_t)
+        fcf_t = nopat_t * (1 - rr0)
+        nopat_path.append(nopat_t)
+        fcf_path.append(fcf_t)
+        sched.append((t, roiic_t, g_t))
+        pv_explicit += fcf_t / (1 + r) ** t
+    nopat_n = nopat_path[cap]
+    tv = nopat_n * (1 + g_term) / r          # ROIIC_term = r -> value-neutral
+    pv_tv = tv / (1 + r) ** cap
+    total = pv_explicit + pv_tv
+
+    def cf_for_year(t):
+        if 1 <= t <= cap:
+            return fcf_path[t]
+        nopat_t = nopat_n * (1 + g_term) ** (t - cap)
+        return nopat_t * (1 - g_term / r)
+
+    return {"sched": sched, "pv_explicit": pv_explicit, "tv": tv, "pv_tv": pv_tv,
+            "total": total, "nopat_n": nopat_n, "cf_for_year": cf_for_year}
+
+
 def main():
     ap = argparse.ArgumentParser(add_help=True, description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("file")
     ap.add_argument("company", nargs="?", default=None)
     ap.add_argument("--list", action="store_true", help="list companies and exit")
-    ap.add_argument("--r", type=float, default=0.12)
-    ap.add_argument("--n1", type=int, default=None,
-                    help="Stage 1 (CAP) length in years; if omitted = 1/3 of the "
-                         "Moat-Score competitive life")
-    ap.add_argument("--n2", type=int, default=None,
-                    help="Stage 2 (Fade) length in years; if omitted = 2/3 of the "
-                         "Moat-Score competitive life")
+    ap.add_argument("--r", type=float, default=0.12, help="WACC / discount rate")
     ap.add_argument("--gterm", type=float, default=0.025)
+    ap.add_argument("--cap", type=int, default=None,
+                    help="CAP length (years); if omitted, derived from the Moat Score")
+    ap.add_argument("--persistence", type=float, default=None,
+                    help="persistence factor phi (0-1); if omitted, from the Moat Score")
     ap.add_argument("--horizon", type=int, default=5,
                     help="holding period in years for the expected-return / IRR (default 5)")
     ap.add_argument("--payout-total", type=float, default=0.0,
@@ -179,8 +197,7 @@ def main():
     args = ap.parse_args()
 
     if args.gterm >= args.r:
-        sys.exit(f"g_term ({args.gterm}) must be < r ({args.r}) for a finite "
-                 "terminal value.")
+        sys.exit(f"g_term ({args.gterm}) must be < r ({args.r}).")
 
     wb = openpyxl.load_workbook(args.file, data_only=True)
     ws = wb[args.sheet] if args.sheet else wb.worksheets[0]
@@ -214,83 +231,53 @@ def main():
     row, company = matches[0]
 
     nopat0 = num(ws, row, cols["nopat"])
-    roiic1 = num(ws, row, cols["roiic"])
-    rr1 = num(ws, row, cols["rr"])
-    if None in (nopat0, roiic1, rr1):
+    roiic0 = num(ws, row, cols["roiic"])
+    rr0 = num(ws, row, cols["rr"])
+    if None in (nopat0, roiic0, rr0):
         sys.exit(f"Missing driver inputs for {company}: "
-                 f"NOPAT={nopat0}, ROIIC={roiic1}, RR={rr1}")
+                 f"NOPAT={nopat0}, ROIIC={roiic0}, RR={rr0}")
 
     r, g_term = args.r, args.gterm
 
-    # Total competitive period from the Moat Score, split 1/3 CAP : 2/3 Fade.
+    # CAP + persistence from the Moat Score (overridable).
     moat = num(ws, row, cols["moat"])
-    if moat is not None:
-        life = moat_to_life(moat)
-        n1_src = f"Moat Score {moat:.2f} [{moat_band(moat)}], life {life}y, split 1/3:2/3"
+    mp = moat_to_cap_persistence(moat)
+    if mp is not None:
+        d_cap, d_phi, tier = mp
+        src = f"Moat {moat:.2f} [{tier}]"
     else:
-        life = 15
-        n1_src = "no Moat Score; default life 15y, split 1/3:2/3"
-    dn1, dn2 = split_life(life)
-    n1 = args.n1 if args.n1 is not None else dn1
-    n2 = args.n2 if args.n2 is not None else dn2
+        d_cap, d_phi, tier = 8, 0.75, "Narrow(default)"
+        src = "no Moat Score; default Narrow"
+    cap = args.cap if args.cap is not None else d_cap
+    phi = args.persistence if args.persistence is not None else d_phi
 
-    # --- Stage parameters (Step 1: g = ROIIC x RR) ---
-    g1 = roiic1 * rr1
-    roiic2 = (roiic1 + r) / 2
-    g2 = (g1 + g_term) / 2            # growth fades to the midpoint of g1 and terminal
-    rr2 = g2 / roiic2 if abs(roiic2) > 1e-9 else 0.0   # reinvestment derived (Step 3)
-    g2 = roiic2 * rr2                 # restate via the identity (no-op unless guarded)
-    roiic_term = r
-    rr_term = g_term / r
+    res = value_company(nopat0, roiic0, rr0, r, g_term, cap, phi)
+    total = res["total"]
 
-    # --- Stage 1 ---
-    cf1 = nopat0 * (1 + g1) * (1 - rr1)
-    pv1 = growing_annuity_pv(cf1, r, g1, n1)
-
-    # --- Stage 2 ---
-    nopat_end_s1 = nopat0 * (1 + g1) ** n1
-    cf_s2 = nopat_end_s1 * (1 + g2) * (1 - rr2)
-    pv2 = growing_annuity_pv(cf_s2, r, g2, n2) / (1 + r) ** n1
-
-    # --- Terminal ---
-    nopat_end_s2 = nopat_end_s1 * (1 + g2) ** n2
-    cf_term = nopat_end_s2 * (1 + g_term) * (1 - rr_term)
-    tv = cf_term / (r - g_term)
-    pv_tv = tv / (1 + r) ** (n1 + n2)
-
-    total = pv1 + pv2 + pv_tv
-
-    # --- Output ---
     ticker = ws.cell(row=row, column=cols["ticker"]).value if cols["ticker"] else ""
-    print(f"\nTHREE-STAGE ROIIC DCF — {company} {f'({ticker})' if ticker else ''}")
-    print(f"r = {pct(r)}   n1 = {n1}y  n2 = {n2}y  (total {n1+n2}y; {n1_src})   g_term = {pct(g_term)}")
-    print("=" * 66)
+    print(f"\nAIP VALUE — ROIIC persistence-fade DCF — {company} {f'({ticker})' if ticker else ''}")
+    print(f"WACC r = {pct(r)}   CAP = {cap}y   persistence phi = {phi:.2f}   "
+          f"g_term = {pct(g_term)}   ({src})")
+    print("=" * 70)
     print(f"  NOPAT_0 (New Operating Income) .... {money(nopat0)}")
-    print(f"  ROIIC_1 (ROICm 7) ................. {pct(roiic1)}")
-    print(f"  RR_1 (RR 7) ....................... {pct(rr1)}")
+    print(f"  ROIIC_0 (ROICm 7, starting) ....... {pct(roiic0)}   excess over WACC {pct(roiic0 - r)}")
+    print(f"  RR (RR 7, held constant) .......... {pct(rr0)}")
 
-    print("\n  STAGE 1 — Competitive Advantage Period")
-    print(f"    g1 = ROIIC_1 x RR_1 ............. {pct(g1)}")
-    print(f"    CF_1 ........................... {money(cf1)}")
-    print(f"    PV_1 ........................... {money(pv1)}")
+    print(f"\n  FADE SCHEDULE (ROIIC -> WACC at phi={phi:.2f} per year)")
+    sched = res["sched"]
+    marks = sorted(set([1, max(1, cap // 2), cap]))
+    for t, roiic_t, g_t in sched:
+        if t in marks:
+            print(f"    year {t:>2}:  ROIIC {pct(roiic_t):>8}   g {pct(g_t):>8}")
 
-    print("\n  STAGE 2 — Fade Period")
-    print(f"    ROIIC_2 = (ROIIC_1 + r)/2 ...... {pct(roiic2)}")
-    print(f"    g2 = (g1 + g_term)/2 .......... {pct(g2)}")
-    print(f"    RR_2 = g2 / ROIIC_2 ........... {pct(rr2)}")
-    print(f"    CF_Stage2_Yr1 ................. {money(cf_s2)}")
-    print(f"    PV_2 .......................... {money(pv2)}")
-
-    print("\n  STAGE 3 — Terminal (ROIIC_term = r)")
-    print(f"    RR_term = g_term/r ............ {pct(rr_term)}")
-    print(f"    CF_term_Yr1 ................... {money(cf_term)}")
-    print(f"    TV (at end of Stage 2) ........ {money(tv)}")
-    print(f"    PV_TV ......................... {money(pv_tv)}")
-
-    print("\n" + "=" * 66)
-    print(f"  TOTAL OPERATING VALUE ........... {money(total)}")
-    print(f"    PV_1 {pv1/total*100:5.1f}%   PV_2 {pv2/total*100:5.1f}%   "
-          f"PV_TV {pv_tv/total*100:5.1f}%")
+    print(f"\n  PV(explicit FCF, yrs 1-{cap}) ...... {money(res['pv_explicit'])}")
+    print(f"  Terminal value (at yr {cap}) ........ {money(res['tv'])}")
+    print(f"  PV(terminal) ...................... {money(res['pv_tv'])}")
+    print("  " + "-" * 50)
+    print(f"  TOTAL OPERATING VALUE ............. {money(total)}")
+    if total:
+        print(f"    explicit {res['pv_explicit']/total*100:5.1f}%   "
+              f"terminal {res['pv_tv']/total*100:5.1f}%")
 
     # --- Market comparison ---
     ev = num(ws, row, cols["ev"])
@@ -300,10 +287,11 @@ def main():
     mktcap = num(ws, row, cols["mktcap"])
     print("\n  MARKET COMPARISON")
     if ev is not None:
-        upside = total / ev - 1
+        upside = total / ev - 1 if ev else None
         print(f"    Enterprise Value (market) ..... {money(ev)}")
-        print(f"    Model / EV .................... {total/ev:.2f}x  "
-              f"({'+' if upside>=0 else ''}{upside*100:.1f}% vs EV)")
+        if ev:
+            print(f"    Model / EV .................... {total/ev:.2f}x  "
+                  f"({'+' if upside>=0 else ''}{upside*100:.1f}% vs EV)")
     if netdebt is not None:
         equity = total - netdebt
         print(f"    Net debt (neg = net cash) ..... {money(netdebt)}")
@@ -318,20 +306,7 @@ def main():
         print(f"    Market cap .................... {money(mktcap)}")
 
     # --- Expected return (IRR) over the holding horizon ---
-    # EV_target = today's modelled operating value, assumed realised at exit.
-    # Cash sweep: free cash flow over the horizon de-levers net debt
-    # dollar-for-dollar (less any dividends/buybacks paid out).
-    def cf_for_year(t):
-        """Stage-aware free cash flow in year t (t >= 1)."""
-        if t <= n1:
-            nopat_t = nopat0 * (1 + g1) ** t
-            return nopat_t * (1 - rr1)
-        if t <= n1 + n2:
-            nopat_t = nopat0 * (1 + g1) ** n1 * (1 + g2) ** (t - n1)
-            return nopat_t * (1 - rr2)
-        nopat_t = nopat_end_s2 * (1 + g_term) ** (t - n1 - n2)
-        return nopat_t * (1 - rr_term)
-
+    cf_for_year = res["cf_for_year"]
     n = args.horizon
     print(f"\n  EXPECTED RETURN  (horizon n = {n}y)")
     cf_sum = sum(cf_for_year(t) for t in range(1, n + 1))
