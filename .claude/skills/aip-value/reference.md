@@ -42,21 +42,21 @@ impossible as the denominator scales toward the TAM) and *creative destruction*
 
 ## Step 2 — Decay the excess return over the CAP
 
-For each year `t = 1 … N`, ROIIC mean-reverts to the **industry base rate** (the
-long-run level from the Base Rate Book), not all the way to WACC:
+Two phases over the moat-score competitive life, split `n1 = 1/3` (hold) and
+`n2 = 2/3` (fade):
 
 ```
-ROIIC_t = base + (ROIIC_0 − base) · φ^t   # = ROIIC_0·φ^t + (1−φ^t)·base
-g_t     = ROIIC_t · RR                    # RR held at the current rate (RR 7)
-NOPAT_t = NOPAT_(t−1) · (1 + g_t)
-FCF_t   = NOPAT_t · (1 − RR)
+Phase 1, t = 1…n1 :  ROIIC_t = ROIIC_0                          # hold ROICm 7
+Phase 2, k = 1…n2 :  ROIIC_(n1+k) = base + (ROIIC_0 − base)·φ^k  # revert to base
+g_t   = ROIIC_t · RR                 # RR held at the current rate (RR 7)
+FCF_t = NOPAT_t · (1 − RR)
 ```
 
-`ROIIC_0` is the starting marginal return (ROICm 7), which may be cyclically
-elevated; the geometric decay reverts it to the industry `base` rate. Holding
-`RR` constant means growth falls *with* returns — the desired behaviour at a
-cyclical peak. The `base` rate is looked up by GICS industry (override
-`--base-rate`).
+Phase 1 assumes the moat lets the company hold its current marginal return
+`ROIIC_0` (ROICm 7); Phase 2 mean-reverts it to the industry `base` rate (gross
+CFROI). The competitive life from the Moat Score: `< 6.0 → <10y`, `6.0–7.5 →
+10–20y`, `> 7.5 → 50y`. `φ` is the moat-tier persistence. (Override `--n1`,
+`--n2`, `--persistence`, `--base-rate`.)
 
 ## Step 3 — Discount the explicit period
 

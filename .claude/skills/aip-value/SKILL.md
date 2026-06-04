@@ -47,20 +47,21 @@ PV(explicit fade-period FCF) + PV(terminal).
 | `ROIIC_0` (starting) | Excel column **"ROICm 7"** |
 | `RR` (held constant) | Excel column **"RR 7"** |
 | `r` (WACC / required return) | **12%** (`--r`) |
-| `base` (ROIIC base rate) | from the **industry table** (GICS column); override `--base-rate` |
-| `CAP` (N, explicit years) | from the **Moat Score** (see below); override `--cap` |
-| `persistence` (φ) | from the **Moat Score**; override `--persistence` |
+| `base` (gross CFROI) | sector CFROI median (GICS column) **+ 2.5% inflation**; override `--base-rate` / `--base-inflation` |
+| `n1` (hold) / `n2` (fade) | 1/3 and 2/3 of the Moat-Score life; override `--n1` / `--n2` |
+| `persistence` (φ) | from the **Moat Score** tier; override `--persistence` |
 | `g_term` | **2.5%** default — must be `< r` (`--gterm`) |
 
-**Per-year fade engine** (t = 1…N) — ROIIC mean-reverts to the **industry base
-rate**, not all the way to WACC:
+**Two-phase engine.** Phase 1 holds the current ROICm7 (the moat defends the
+high return); Phase 2 mean-reverts ROIIC to the **industry base rate**:
 ```
-ROIIC_t = base + (ROIIC_0 − base) · φ^t     # = ROIIC_0·φ^t + (1−φ^t)·base
-g_t     = ROIIC_t · RR                      # RR held at RR_0 (current rate)
-NOPAT_t = NOPAT_(t−1) · (1 + g_t)
-FCF_t   = NOPAT_t · (1 − RR)
-PV_explicit = Σ FCF_t / (1+r)^t
+Phase 1, t = 1…n1 :  ROIIC_t = ROIIC_0                         # hold ROICm7
+Phase 2, k = 1…n2 :  ROIIC_(n1+k) = base + (ROIIC_0 − base)·φ^k # fade to base
+g_t  = ROIIC_t · RR        # RR held at RR_0 (current rate)
+FCF_t = NOPAT_t · (1 − RR) ;  PV_explicit = Σ FCF_t / (1+r)^t
 ```
+`n1 = 1/3` and `n2 = 2/3` of the moat-score competitive life (`< 6 → <10y`,
+`6–7.5 → 10–20y`, `> 7.5 → 50y`). `φ` from the moat tier (`--persistence`).
 **Terminal** (ROIIC has settled at the base rate; value-driver perpetuity with a
 safe terminal growth g_eff = min(g_term, ~base, ~r)):
 ```

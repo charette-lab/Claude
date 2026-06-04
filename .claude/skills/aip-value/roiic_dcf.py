@@ -8,13 +8,15 @@ handles a cyclically-inflated starting ROIIC (e.g. a semiconductor firm posting
 60% ROIIC at a demand peak): the surge is mean-reverted away over the empirical
 Competitive Advantage Period (CAP) rather than held flat.
 
-Fade engine (per year t, over the CAP of N years) — ROIIC mean-reverts to the
-industry base rate (from the Base Rate Book), not all the way to WACC:
-    ROIIC_t   = base + (ROIIC_0 - base) * persistence**t      (= ROIIC_0*phi^t + (1-phi^t)*base)
-    g_t       = ROIIC_t * RR                                  (RR held at RR_0)
-    NOPAT_t   = NOPAT_(t-1) * (1 + g_t)
-    FCF_t     = NOPAT_t * (1 - RR)
-    PV        = sum_t FCF_t / (1+WACC)**t
+Two-phase engine. Phase 1 (n1 yrs) holds the current ROICm7 (the moat defends
+the high return); Phase 2 (n2 yrs) mean-reverts ROIIC to the industry base rate
+(gross CFROI) at persistence phi:
+    Phase 1, t = 1..n1 :  ROIIC_t = ROIIC_0
+    Phase 2, k = 1..n2 :  ROIIC_(n1+k) = base + (ROIIC_0 - base) * phi**k
+    g_t = ROIIC_t * RR  (RR held) ;  NOPAT_t = NOPAT_(t-1)*(1+g_t)
+    FCF_t = NOPAT_t * (1 - RR) ;  PV = sum_t FCF_t / (1+WACC)**t
+n1 = 1/3 and n2 = 2/3 of the moat-score competitive life (< 6 -> <10y,
+6-7.5 -> 10-20y, > 7.5 -> 50y).
 Terminal (after the CAP, ROIIC has reached WACC so growth is value-neutral):
     TV        = NOPAT_N * (1 + g_term) / WACC ;  PV_TV = TV / (1+WACC)**N
 
@@ -194,27 +196,56 @@ def base_rate_for(industry, override=None):
     return DEFAULT_BASE_RATE, "default"
 
 
-def value_company(nopat0, roiic0, rr0, r, g_term, cap, phi, base):
-    """ROIIC fade-to-base-rate DCF. ROIIC_t = base + (ROIIC_0 - base)*phi**t,
-    i.e. the current marginal return mean-reverts to the industry base rate at
-    fade speed phi. Returns schedule, PVs, total, and a per-year FCF function."""
+def moat_to_life(score):
+    """Total competitive period (years) from the Moat Score:
+       < 6.0 -> linear 0->10 ; 6.0-7.5 -> linear 10->20 ; > 7.5 -> 50."""
+    if score is None:
+        return None
+    if score < 6.0:
+        yrs = score / 6.0 * 10.0
+    elif score <= 7.5:
+        yrs = 10.0 + (score - 6.0) / 1.5 * 10.0
+    else:
+        yrs = 50.0
+    return max(2, int(round(yrs)))
+
+
+def split_life(life):
+    """Split a total competitive period into n1 = 1/3 (hold), n2 = 2/3 (fade)."""
+    n1 = max(1, int(round(life / 3.0)))
+    n2 = max(1, int(round(life * 2.0 / 3.0)))
+    return n1, n2
+
+
+def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base):
+    """Two-phase DCF. Phase 1 (n1 yrs): hold ROIIC at ROICm7. Phase 2 (n2 yrs):
+    ROIIC mean-reverts to the base rate, ROIIC = base + (ROIIC_0 - base)*phi**k.
+    Terminal settles at the base rate. RR held constant throughout."""
     nopat_path = [nopat0]          # index t -> NOPAT at end of year t (0 = today)
     fcf_path = [None]
-    sched = []                     # (t, roiic_t, g_t)
+    sched = []                     # (t, roiic_t, g_t, phase)
     pv_explicit = 0.0
-    for t in range(1, cap + 1):
-        roiic_t = base + (roiic0 - base) * (phi ** t)
+
+    def step(t, roiic_t, phase):
+        nonlocal pv_explicit
         g_t = roiic_t * rr0
         nopat_t = nopat_path[t - 1] * (1 + g_t)
         fcf_t = nopat_t * (1 - rr0)
         nopat_path.append(nopat_t)
         fcf_path.append(fcf_t)
-        sched.append((t, roiic_t, g_t))
+        sched.append((t, roiic_t, g_t, phase))
         pv_explicit += fcf_t / (1 + r) ** t
+
+    for t in range(1, n1 + 1):                       # Phase 1 — hold ROICm7
+        step(t, roiic0, "hold")
+    for k in range(1, n2 + 1):                       # Phase 2 — fade to base
+        step(n1 + k, base + (roiic0 - base) * (phi ** k), "fade")
+
+    cap = n1 + n2
     nopat_n = nopat_path[cap]
 
-    # Terminal: ROIIC has settled at the base rate. Value-driver perpetuity with
-    # a safe terminal growth g_eff (< r and <= base, so reinvestment stays <=100%).
+    # Terminal: ROIIC settled at the base rate; value-driver perpetuity with a
+    # safe terminal growth g_eff (< r and <= base, so reinvestment stays <=100%).
     if base > 0:
         g_eff = min(g_term, 0.99 * base, 0.99 * r)
         rr_term = g_eff / base
@@ -233,7 +264,8 @@ def value_company(nopat0, roiic0, rr0, r, g_term, cap, phi, base):
         return nopat_t * (1 - rr_term)
 
     return {"sched": sched, "pv_explicit": pv_explicit, "tv": tv, "pv_tv": pv_tv,
-            "total": total, "nopat_n": nopat_n, "base": base, "cf_for_year": cf_for_year}
+            "total": total, "nopat_n": nopat_n, "base": base, "n1": n1, "n2": n2,
+            "cf_for_year": cf_for_year}
 
 
 def main():
@@ -244,16 +276,18 @@ def main():
     ap.add_argument("--list", action="store_true", help="list companies and exit")
     ap.add_argument("--r", type=float, default=0.12, help="WACC / discount rate")
     ap.add_argument("--gterm", type=float, default=0.025)
-    ap.add_argument("--cap", type=int, default=None,
-                    help="CAP length (years); if omitted, derived from the Moat Score")
+    ap.add_argument("--n1", type=int, default=None,
+                    help="hold years (ROICm7 flat); if omitted = 1/3 of the moat life")
+    ap.add_argument("--n2", type=int, default=None,
+                    help="fade years (revert to base); if omitted = 2/3 of the moat life")
     ap.add_argument("--persistence", type=float, default=None,
                     help="persistence factor phi (0-1); if omitted, from the Moat Score")
     ap.add_argument("--base-rate", type=float, default=None,
                     help="ROIIC base rate the return reverts to; if omitted, from "
                          "the industry/sector CFROI table keyed on the GICS column")
-    ap.add_argument("--base-inflation", type=float, default=0.0,
-                    help="added to the looked-up CFROI base rate to convert the "
-                         "real CFROI to a nominal base (default 0 = use CFROI as-is)")
+    ap.add_argument("--base-inflation", type=float, default=0.025,
+                    help="added to the real CFROI base rate to make it nominal "
+                         "(default 0.025 = gross CFROI; set 0 to use real CFROI)")
     ap.add_argument("--horizon", type=int, default=5,
                     help="holding period in years for the expected-return / IRR (default 5)")
     ap.add_argument("--payout-total", type=float, default=0.0,
@@ -312,46 +346,50 @@ def main():
 
     r, g_term = args.r, args.gterm
 
-    # CAP + persistence from the Moat Score (overridable).
+    # Competitive period from the Moat Score: total life, split n1 (1/3 hold) :
+    # n2 (2/3 fade). Persistence phi from the moat tier.
     moat = num(ws, row, cols["moat"])
+    life = moat_to_life(moat)
     mp = moat_to_cap_persistence(moat)
-    if mp is not None:
-        d_cap, d_phi, tier = mp
-        src = f"Moat {moat:.2f} [{tier}]"
+    if life is not None and mp is not None:
+        tier, d_phi = mp[2], mp[1]
+        src = f"Moat {moat:.2f} [{tier}], life {life}y"
     else:
-        d_cap, d_phi, tier = 8, 0.75, "Narrow(default)"
-        src = "no Moat Score; default Narrow"
-    cap = args.cap if args.cap is not None else d_cap
+        life, d_phi, tier = 15, 0.75, "Narrow(default)"
+        src = "no Moat Score; default life 15y"
+    dn1, dn2 = split_life(life)
+    n1 = args.n1 if args.n1 is not None else dn1
+    n2 = args.n2 if args.n2 is not None else dn2
     phi = args.persistence if args.persistence is not None else d_phi
 
     industry = ws.cell(row=row, column=cols["industry"]).value if cols["industry"] else None
     base, base_src = base_rate_for(industry, args.base_rate)
     if args.base_rate is None and args.base_inflation:
         base += args.base_inflation
-        base_src += f" + {pct(args.base_inflation)} infl"
+        base_src += f" +{pct(args.base_inflation)} infl"
 
-    res = value_company(nopat0, roiic0, rr0, r, g_term, cap, phi, base)
+    res = value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base)
     total = res["total"]
 
     ticker = ws.cell(row=row, column=cols["ticker"]).value if cols["ticker"] else ""
-    print(f"\nAIP VALUE — ROIIC persistence-fade DCF — {company} {f'({ticker})' if ticker else ''}")
-    print(f"WACC r = {pct(r)}   CAP = {cap}y   persistence phi = {phi:.2f}   "
+    print(f"\nAIP VALUE — two-phase ROIIC DCF — {company} {f'({ticker})' if ticker else ''}")
+    print(f"WACC r = {pct(r)}   n1(hold)={n1}y  n2(fade)={n2}y  phi={phi:.2f}   "
           f"g_term = {pct(g_term)}   ({src})")
     print("=" * 70)
     print(f"  NOPAT_0 (New Operating Income) .... {money(nopat0)}")
-    print(f"  ROIIC_0 (ROICm 7, starting) ....... {pct(roiic0)}")
+    print(f"  ROIIC_0 (ROICm 7, held in phase 1)  {pct(roiic0)}")
     print(f"  ROIIC base rate (revert target) ... {pct(base)}   [{base_src}]")
     print(f"  RR (RR 7, held constant) .......... {pct(rr0)}")
 
-    print(f"\n  FADE SCHEDULE (ROIIC -> base {pct(base)} at phi={phi:.2f} per year)")
+    print(f"\n  SCHEDULE (hold {n1}y at {pct(roiic0)}, then fade to {pct(base)} at phi={phi:.2f})")
     sched = res["sched"]
-    marks = sorted(set([1, max(1, cap // 2), cap]))
-    for t, roiic_t, g_t in sched:
+    marks = sorted(set([1, n1, n1 + max(1, n2 // 2), n1 + n2]))
+    for t, roiic_t, g_t, phase in sched:
         if t in marks:
-            print(f"    year {t:>2}:  ROIIC {pct(roiic_t):>8}   g {pct(g_t):>8}")
+            print(f"    year {t:>2} [{phase}]:  ROIIC {pct(roiic_t):>8}   g {pct(g_t):>8}")
 
-    print(f"\n  PV(explicit FCF, yrs 1-{cap}) ...... {money(res['pv_explicit'])}")
-    print(f"  Terminal value (at yr {cap}) ........ {money(res['tv'])}")
+    print(f"\n  PV(explicit FCF, yrs 1-{n1+n2}) ...... {money(res['pv_explicit'])}")
+    print(f"  Terminal value (at yr {n1+n2}) ........ {money(res['tv'])}")
     print(f"  PV(terminal) ...................... {money(res['pv_tv'])}")
     print("  " + "-" * 50)
     print(f"  TOTAL OPERATING VALUE ............. {money(total)}")
