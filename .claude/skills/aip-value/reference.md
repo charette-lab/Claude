@@ -46,11 +46,18 @@ Two phases over the moat-score competitive life: `n1 = 3y` (fixed hold) and
 `n2 = life − 3` (fade), so `n1 + n2` = the total moat life:
 
 ```
-Phase 1, t = 1…n1 :  ROIIC_t = ROIIC_0                          # hold ROICm 7
-Phase 2, k = 1…n2 :  ROIIC_(n1+k) = base + (ROIIC_0 − base)·φ^k  # revert to base
-g_t   = ROIIC_t · RR                 # RR held at the current rate (RR 7)
-FCF_t = NOPAT_t · (1 − RR)
+Phase 1, t = 1…n1 :  ROIIC_t = ROIIC_0 ;  RR_t = RR_0           # hold ROICm 7, RR 7
+Phase 2, k = 1…n2 :  ROIIC = base + (ROIIC_0 − base)·φ^k        # revert to CFROI base
+                     RR    = RR_target + (RR_0 − RR_target)·φ^k # RR_target = g_term/base
+g_t   = ROIIC_t · RR_t
+FCF_t = NOPAT_t · (1 − RR_t)
 ```
+
+Both ROIIC and RR fade at the same φ: a rational firm reinvests less as returns
+normalise, and `RR_target = g_term/base` is the reinvestment consistent with the
+terminal, so the explicit path connects smoothly (`g → g_term`). An optional
+`--gcap` hard-caps annual growth (trims RR) to enforce `g ≤ r` as a backstop;
+without it, a few early years may still grow above `r` (finite over the horizon).
 
 Phase 1 assumes the moat lets the company hold its current marginal return
 `ROIIC_0` (ROICm 7); Phase 2 mean-reverts it to the industry `base` rate (real

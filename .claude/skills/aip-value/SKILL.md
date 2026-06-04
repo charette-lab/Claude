@@ -45,21 +45,27 @@ PV(explicit fade-period FCF) + PV(terminal).
 |------|---------------|
 | `NOPAT_0` | Excel column **"New Operating Income"** |
 | `ROIIC_0` (starting) | Excel column **"ROICm 7"** |
-| `RR` (held constant) | Excel column **"RR 7"** |
+| `RR_0` (starting) | Excel column **"RR 7"**; fades in Phase 2 to `RR_target = g_term/base` |
 | `r` (WACC / required return) | **12%** (`--r`) |
 | `base` (CFROI) | real sector CFROI median (GICS column), **no inflation** — mirrors our growth-capitalized, lower ROICm; override `--base-rate` / `--base-inflation` |
 | `n1` (hold) / `n2` (fade) | n1 = 3y fixed; n2 = Moat-Score life − 3; override `--n1` / `--n2` |
 | `persistence` (φ) | from the **Moat Score** tier; override `--persistence` |
 | `g_term` | **2.5%** default — must be `< r` (`--gterm`) |
 
-**Two-phase engine.** Phase 1 holds the current ROICm7 (the moat defends the
-high return); Phase 2 mean-reverts ROIIC to the **industry base rate**:
+**Two-phase engine.** Phase 1 holds ROICm7 and RR_0; Phase 2 mean-reverts **both
+ROIIC and RR** to their sustainable levels (a rational firm reinvests less as
+returns normalise):
 ```
-Phase 1, t = 1…n1 :  ROIIC_t = ROIIC_0                         # hold ROICm7
-Phase 2, k = 1…n2 :  ROIIC_(n1+k) = base + (ROIIC_0 − base)·φ^k # fade to base
-g_t  = ROIIC_t · RR        # RR held at RR_0 (current rate)
-FCF_t = NOPAT_t · (1 − RR) ;  PV_explicit = Σ FCF_t / (1+r)^t
+Phase 1, t = 1…n1 :  ROIIC_t = ROIIC_0 ;  RR_t = RR_0
+Phase 2, k = 1…n2 :  ROIIC = base + (ROIIC_0 − base)·φ^k        # fade to CFROI base
+                     RR    = RR_target + (RR_0 − RR_target)·φ^k # RR_target = g_term/base
+g_t  = ROIIC_t · RR_t
+FCF_t = NOPAT_t · (1 − RR_t) ;  PV_explicit = Σ FCF_t / (1+r)^t
 ```
+Optional `--gcap` hard-caps annual growth (trims RR) as a `g ≤ r` backstop;
+off by default. ROIIC and RR both fading guarantees the explicit period connects
+smoothly to the terminal (`g → g_term`).
+
 `n1 = 3y` (fixed hold) and `n2 = moat-life − 3`, so `n1 + n2` = the moat-score
 competitive life (`< 6 → <10y`, `6–7.5 → 10–20y`, `> 7.5 → 50y`). `φ` from the
 moat tier (`--persistence`).
