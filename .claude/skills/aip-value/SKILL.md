@@ -47,24 +47,36 @@ PV(explicit fade-period FCF) + PV(terminal).
 | `ROIIC_0` (starting) | Excel column **"ROICm 7"** |
 | `RR` (held constant) | Excel column **"RR 7"** |
 | `r` (WACC / required return) | **12%** (`--r`) |
+| `base` (ROIIC base rate) | from the **industry table** (GICS column); override `--base-rate` |
 | `CAP` (N, explicit years) | from the **Moat Score** (see below); override `--cap` |
 | `persistence` (φ) | from the **Moat Score**; override `--persistence` |
 | `g_term` | **2.5%** default — must be `< r` (`--gterm`) |
 
-**Per-year fade engine** (t = 1…N):
+**Per-year fade engine** (t = 1…N) — ROIIC mean-reverts to the **industry base
+rate**, not all the way to WACC:
 ```
-ROIIC_t = r + (ROIIC_0 − r) · φ^t          # excess return decays geometrically
-g_t     = ROIIC_t · RR                     # RR held at RR_0 (current rate)
+ROIIC_t = base + (ROIIC_0 − base) · φ^t     # = ROIIC_0·φ^t + (1−φ^t)·base
+g_t     = ROIIC_t · RR                      # RR held at RR_0 (current rate)
 NOPAT_t = NOPAT_(t−1) · (1 + g_t)
 FCF_t   = NOPAT_t · (1 − RR)
 PV_explicit = Σ FCF_t / (1+r)^t
 ```
-**Terminal** (after N years ROIIC ≈ r, so growth is value-neutral):
+**Terminal** (ROIIC has settled at the base rate; value-driver perpetuity with a
+safe terminal growth g_eff = min(g_term, ~base, ~r)):
 ```
-TV    = NOPAT_N · (1 + g_term) / r
+TV    = NOPAT_N · (1 + g_eff) · (1 − g_eff/base) / (r − g_eff)
 PV_TV = TV / (1+r)^N
 Total Operating Value = PV_explicit + PV_TV
 ```
+
+## ROIIC base rate (industry)
+
+The return reverts toward an industry **ROIIC base rate** (from the Base Rate
+Book), looked up from the sheet's "GICS Industry Group Name" column via the
+`INDUSTRY_BASE_RATE` table in `roiic_dcf.py`. Override per run with
+`--base-rate`. **The table values are placeholders until populated from the Base
+Rate Book.** A base rate above WACC implies perpetual value creation in the
+terminal; below WACC, mild value destruction.
 
 ## CAP & persistence from the Moat Score (empirical CAP durations)
 

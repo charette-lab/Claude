@@ -42,18 +42,21 @@ impossible as the denominator scales toward the TAM) and *creative destruction*
 
 ## Step 2 — Decay the excess return over the CAP
 
-For each year `t = 1 … N`:
+For each year `t = 1 … N`, ROIIC mean-reverts to the **industry base rate** (the
+long-run level from the Base Rate Book), not all the way to WACC:
 
 ```
-ROIIC_t = r + (ROIIC_0 − r) · φ^t      # excess return decays geometrically
-g_t     = ROIIC_t · RR                 # RR held at the current rate (RR 7)
+ROIIC_t = base + (ROIIC_0 − base) · φ^t   # = ROIIC_0·φ^t + (1−φ^t)·base
+g_t     = ROIIC_t · RR                    # RR held at the current rate (RR 7)
 NOPAT_t = NOPAT_(t−1) · (1 + g_t)
 FCF_t   = NOPAT_t · (1 − RR)
 ```
 
 `ROIIC_0` is the starting marginal return (ROICm 7), which may be cyclically
-elevated; the geometric decay reverts it to `r`. Holding `RR` constant means
-growth falls *with* returns — exactly the desired behaviour at a cyclical peak.
+elevated; the geometric decay reverts it to the industry `base` rate. Holding
+`RR` constant means growth falls *with* returns — the desired behaviour at a
+cyclical peak. The `base` rate is looked up by GICS industry (override
+`--base-rate`).
 
 ## Step 3 — Discount the explicit period
 
@@ -63,15 +66,19 @@ PV_explicit = Σ_{t=1..N} FCF_t / (1 + r)^t
 
 ## Step 4 — Terminal value
 
-After `N` years the excess return has largely decayed, so `ROIIC_term ≈ r` and
-incremental growth is **value-neutral**:
+After `N` years ROIIC has settled at the industry **base rate**. The terminal is
+the value-driver perpetuity with a safe terminal growth
+`g_eff = min(g_term, ~base, ~r)` (keeps it `< r` and reinvestment `≤ 100%`):
 
 ```
-TV    = NOPAT_N · (1 + g_term) / r          # = NOPAT/r form when ROIIC = r
-PV_TV = TV / (1 + r)^N
+RR_term = g_eff / base
+TV      = NOPAT_N · (1 + g_eff) · (1 − RR_term) / (r − g_eff)
+PV_TV   = TV / (1 + r)^N
 ```
 
-`g_term` must be `< r` (default 2.5%).
+If `base = r` this reduces to the value-neutral `NOPAT/r` form; `base > r` is
+perpetual value creation, `base < r` mild value destruction. (`base ≤ 0` falls
+back to `TV = NOPAT_N / r`.)
 
 ## Step 5 — Total operating value
 
@@ -103,6 +110,7 @@ rests on leverage rather than business improvement.
 | `ROIIC_0` | "ROICm 7" |
 | `RR` | "RR 7" (current rate, held constant) |
 | `r` | 12% |
+| `base` (ROIIC base rate) | industry table on "GICS Industry Group Name" (override `--base-rate`) — **placeholders pending the Base Rate Book** |
 | `CAP`, `φ` | from "Moat Score" (table above; override `--cap` / `--persistence`) |
 | `g_term` | 2.5% (`< r`) |
 

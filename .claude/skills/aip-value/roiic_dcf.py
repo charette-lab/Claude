@@ -8,8 +8,9 @@ handles a cyclically-inflated starting ROIIC (e.g. a semiconductor firm posting
 60% ROIIC at a demand peak): the surge is mean-reverted away over the empirical
 Competitive Advantage Period (CAP) rather than held flat.
 
-Fade engine (per year t, over the CAP of N years):
-    ROIIC_t   = WACC + (ROIIC_0 - WACC) * persistence**t      (excess decays)
+Fade engine (per year t, over the CAP of N years) — ROIIC mean-reverts to the
+industry base rate (from the Base Rate Book), not all the way to WACC:
+    ROIIC_t   = base + (ROIIC_0 - base) * persistence**t      (= ROIIC_0*phi^t + (1-phi^t)*base)
     g_t       = ROIIC_t * RR                                  (RR held at RR_0)
     NOPAT_t   = NOPAT_(t-1) * (1 + g_t)
     FCF_t     = NOPAT_t * (1 - RR)
@@ -139,16 +140,52 @@ def pct(x):
     return "n/a" if x is None else f"{x*100:.2f}%"
 
 
-def value_company(nopat0, roiic0, rr0, r, g_term, cap, phi):
-    """Run the persistence-fade DCF. Returns a dict with the schedule, PVs,
-    total operating value, and a per-year free-cash-flow function."""
-    excess0 = roiic0 - r
+# Industry ROIIC base rates (the long-run level returns mean-revert toward).
+# PLACEHOLDERS — replace with values from the Base Rate Book, by GICS industry.
+INDUSTRY_BASE_RATE = {
+    "Software & Services": 0.16,
+    "Health Care Equipment & Services": 0.13,
+    "Pharmaceuticals, Biotechnology & Life Sciences": 0.14,
+    "Semiconductors & Semiconductor Equipment": 0.10,
+    "Technology Hardware & Equipment": 0.09,
+    "Capital Goods": 0.10,
+    "Materials": 0.08,
+    "Commercial & Professional Services": 0.12,
+    "Media & Entertainment": 0.12,
+    "Consumer Durables & Apparel": 0.10,
+    "Consumer Discretionary Distribution & Retail": 0.11,
+    "Consumer Services": 0.12,
+    "Automobiles & Components": 0.07,
+    "Transportation": 0.07,
+    "Utilities": 0.06,
+    "Food, Beverage & Tobacco": 0.11,
+}
+DEFAULT_BASE_RATE = 0.10
+
+
+def base_rate_for(industry, override=None):
+    """Resolve the ROIIC base rate: explicit override > industry table > default.
+    Returns (rate, source_label)."""
+    if override is not None:
+        return override, "override"
+    if industry:
+        key = " ".join(str(industry).split())          # collapse double spaces
+        for k, v in INDUSTRY_BASE_RATE.items():
+            if " ".join(k.split()).lower() == key.lower():
+                return v, f"{key} (table)"
+    return DEFAULT_BASE_RATE, "default"
+
+
+def value_company(nopat0, roiic0, rr0, r, g_term, cap, phi, base):
+    """ROIIC fade-to-base-rate DCF. ROIIC_t = base + (ROIIC_0 - base)*phi**t,
+    i.e. the current marginal return mean-reverts to the industry base rate at
+    fade speed phi. Returns schedule, PVs, total, and a per-year FCF function."""
     nopat_path = [nopat0]          # index t -> NOPAT at end of year t (0 = today)
     fcf_path = [None]
     sched = []                     # (t, roiic_t, g_t)
     pv_explicit = 0.0
     for t in range(1, cap + 1):
-        roiic_t = r + excess0 * (phi ** t)
+        roiic_t = base + (roiic0 - base) * (phi ** t)
         g_t = roiic_t * rr0
         nopat_t = nopat_path[t - 1] * (1 + g_t)
         fcf_t = nopat_t * (1 - rr0)
@@ -157,18 +194,28 @@ def value_company(nopat0, roiic0, rr0, r, g_term, cap, phi):
         sched.append((t, roiic_t, g_t))
         pv_explicit += fcf_t / (1 + r) ** t
     nopat_n = nopat_path[cap]
-    tv = nopat_n * (1 + g_term) / r          # ROIIC_term = r -> value-neutral
+
+    # Terminal: ROIIC has settled at the base rate. Value-driver perpetuity with
+    # a safe terminal growth g_eff (< r and <= base, so reinvestment stays <=100%).
+    if base > 0:
+        g_eff = min(g_term, 0.99 * base, 0.99 * r)
+        rr_term = g_eff / base
+        cf_term = nopat_n * (1 + g_eff) * (1 - rr_term)
+        tv = cf_term / (r - g_eff)
+    else:
+        g_eff, rr_term = 0.0, 0.0
+        tv = nopat_n / r
     pv_tv = tv / (1 + r) ** cap
     total = pv_explicit + pv_tv
 
     def cf_for_year(t):
         if 1 <= t <= cap:
             return fcf_path[t]
-        nopat_t = nopat_n * (1 + g_term) ** (t - cap)
-        return nopat_t * (1 - g_term / r)
+        nopat_t = nopat_n * (1 + g_eff) ** (t - cap)
+        return nopat_t * (1 - rr_term)
 
     return {"sched": sched, "pv_explicit": pv_explicit, "tv": tv, "pv_tv": pv_tv,
-            "total": total, "nopat_n": nopat_n, "cf_for_year": cf_for_year}
+            "total": total, "nopat_n": nopat_n, "base": base, "cf_for_year": cf_for_year}
 
 
 def main():
@@ -183,6 +230,9 @@ def main():
                     help="CAP length (years); if omitted, derived from the Moat Score")
     ap.add_argument("--persistence", type=float, default=None,
                     help="persistence factor phi (0-1); if omitted, from the Moat Score")
+    ap.add_argument("--base-rate", type=float, default=None,
+                    help="ROIIC base rate the return reverts to; if omitted, from "
+                         "the industry table keyed on the GICS industry column")
     ap.add_argument("--horizon", type=int, default=5,
                     help="holding period in years for the expected-return / IRR (default 5)")
     ap.add_argument("--payout-total", type=float, default=0.0,
@@ -194,6 +244,7 @@ def main():
     ap.add_argument("--col-rr", default="RR 7")
     ap.add_argument("--col-name", default="Company Name")
     ap.add_argument("--col-moat", default="Moat Score")
+    ap.add_argument("--col-industry", default="GICS Industry Group Name")
     args = ap.parse_args()
 
     if args.gterm >= args.r:
@@ -205,6 +256,7 @@ def main():
     cols = find_columns(ws, {
         "name": args.col_name, "nopat": args.col_nopat,
         "roiic": args.col_roiic, "rr": args.col_rr, "moat": args.col_moat,
+        "industry": args.col_industry,
         "ev": "EV", "mktcap": "Market Cap", "netdebt": "Net debt",
         "shares": "Shares used to calculate Diluted EPS - Total",
         "price": "Close Price", "ticker": "Instrument",
@@ -251,7 +303,10 @@ def main():
     cap = args.cap if args.cap is not None else d_cap
     phi = args.persistence if args.persistence is not None else d_phi
 
-    res = value_company(nopat0, roiic0, rr0, r, g_term, cap, phi)
+    industry = ws.cell(row=row, column=cols["industry"]).value if cols["industry"] else None
+    base, base_src = base_rate_for(industry, args.base_rate)
+
+    res = value_company(nopat0, roiic0, rr0, r, g_term, cap, phi, base)
     total = res["total"]
 
     ticker = ws.cell(row=row, column=cols["ticker"]).value if cols["ticker"] else ""
@@ -260,10 +315,11 @@ def main():
           f"g_term = {pct(g_term)}   ({src})")
     print("=" * 70)
     print(f"  NOPAT_0 (New Operating Income) .... {money(nopat0)}")
-    print(f"  ROIIC_0 (ROICm 7, starting) ....... {pct(roiic0)}   excess over WACC {pct(roiic0 - r)}")
+    print(f"  ROIIC_0 (ROICm 7, starting) ....... {pct(roiic0)}")
+    print(f"  ROIIC base rate (revert target) ... {pct(base)}   [{base_src}]")
     print(f"  RR (RR 7, held constant) .......... {pct(rr0)}")
 
-    print(f"\n  FADE SCHEDULE (ROIIC -> WACC at phi={phi:.2f} per year)")
+    print(f"\n  FADE SCHEDULE (ROIIC -> base {pct(base)} at phi={phi:.2f} per year)")
     sched = res["sched"]
     marks = sorted(set([1, max(1, cap // 2), cap]))
     for t, roiic_t, g_t in sched:
