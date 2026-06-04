@@ -62,9 +62,11 @@ Phase 2, k = 1…n2 :  ROIIC = base + (ROIIC_0 − base)·φ^k        # fade to 
 g_t  = ROIIC_t · RR_t
 FCF_t = NOPAT_t · (1 − RR_t) ;  PV_explicit = Σ FCF_t / (1+r)^t
 ```
-Optional `--gcap` hard-caps annual growth (trims RR) as a `g ≤ r` backstop;
-off by default. ROIIC and RR both fading guarantees the explicit period connects
-smoothly to the terminal (`g → g_term`).
+Growth is **not** capped in the moat period — a moat legitimately compounds above
+`r`, and the explicit period is finite so it can't be infinite. Only the
+**terminal** enforces `g_eff < r` (that is what prevents infinite value in
+perpetuity). ROIIC and RR both fading make the explicit period connect smoothly
+to the terminal (`g → g_term`).
 
 `n1 = 3y` (fixed hold) and `n2 = moat-life − 3`, so `n1 + n2` = the moat-score
 competitive life (`< 6 → <10y`, `6–7.5 → 10–20y`, `> 7.5 → 50y`). `φ` from the

@@ -55,9 +55,10 @@ FCF_t = NOPAT_t · (1 − RR_t)
 
 Both ROIIC and RR fade at the same φ: a rational firm reinvests less as returns
 normalise, and `RR_target = g_term/base` is the reinvestment consistent with the
-terminal, so the explicit path connects smoothly (`g → g_term`). An optional
-`--gcap` hard-caps annual growth (trims RR) to enforce `g ≤ r` as a backstop;
-without it, a few early years may still grow above `r` (finite over the horizon).
+terminal, so the explicit path connects smoothly (`g → g_term`). Growth is **not**
+capped in the moat period — a moat can compound above `r`, and the finite explicit
+horizon cannot produce infinite value. Infinite value is only possible in the
+perpetuity, which is prevented by the terminal's `g_eff < r` constraint.
 
 Phase 1 assumes the moat lets the company hold its current marginal return
 `ROIIC_0` (ROICm 7); Phase 2 mean-reverts it to the industry `base` rate (real

@@ -17,7 +17,8 @@ returns normalise:
                           RR    = RR_target + (RR_0 - RR_target)*phi**k
     g_t = ROIIC_t * RR_t ;  NOPAT_t = NOPAT_(t-1)*(1+g_t)
     FCF_t = NOPAT_t * (1 - RR_t) ;  PV = sum_t FCF_t / (1+WACC)**t
-Optional --gcap hard-caps annual growth (trims RR) as a g<=r backstop.
+Growth is not capped in the moat period (finite there); only the terminal
+enforces g_eff < r, which is what prevents infinite value in perpetuity.
 n1 is a fixed 3y hold; n2 = (moat-score life - 3), so n1 + n2 = the total moat
 life (< 6 -> <10y, 6-7.5 -> 10-20y, > 7.5 -> 50y). phi is the moat-tier fade.
 Terminal (after the CAP, ROIIC has reached WACC so growth is value-neutral):
@@ -220,12 +221,13 @@ def split_life(life):
     return n1, n2
 
 
-def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base, gcap=None):
+def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base):
     """Two-phase DCF. Phase 1 (n1 yrs): hold ROIIC at ROICm7 and RR at RR_0.
     Phase 2 (n2 yrs): ROIIC mean-reverts to the base rate and RR mean-reverts to
     the sustainable terminal rate RR_target = g_term/base, both at persistence
-    phi. Terminal settles at the base rate. Optional gcap caps annual growth at
-    gcap (trimming RR) as a g<=r backstop. Returns schedule, PVs, total, FCF fn."""
+    phi. Terminal settles at the base rate. Growth is NOT capped in the moat
+    period (it is finite there); only the terminal enforces g_eff < r. Returns
+    schedule, PVs, total, FCF fn."""
     rr_target = (g_term / base) if base > 0 else 0.0
     nopat_path = [nopat0]          # index t -> NOPAT at end of year t (0 = today)
     fcf_path = [None]
@@ -235,9 +237,6 @@ def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base, gcap=None):
     def step(t, roiic_t, rr_t, phase):
         nonlocal pv_explicit
         g_t = roiic_t * rr_t
-        if gcap is not None and roiic_t > 1e-9 and g_t > gcap:
-            g_t = gcap                       # backstop: trim reinvestment so g<=gcap
-            rr_t = g_t / roiic_t
         nopat_t = nopat_path[t - 1] * (1 + g_t)
         fcf_t = nopat_t * (1 - rr_t)
         nopat_path.append(nopat_t)
@@ -293,9 +292,6 @@ def main():
                     help="fade years (revert to base); if omitted = 2/3 of the moat life")
     ap.add_argument("--persistence", type=float, default=None,
                     help="persistence factor phi (0-1); if omitted, from the Moat Score")
-    ap.add_argument("--gcap", type=float, default=None,
-                    help="optional hard cap on annual growth (e.g. 0.12 = WACC); "
-                         "trims reinvestment so g<=gcap. Off by default.")
     ap.add_argument("--base-rate", type=float, default=None,
                     help="ROIIC base rate the return reverts to; if omitted, from "
                          "the industry/sector CFROI table keyed on the GICS column")
@@ -385,13 +381,13 @@ def main():
         base += args.base_inflation
         base_src += f" +{pct(args.base_inflation)} infl"
 
-    res = value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base, args.gcap)
+    res = value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base)
     total = res["total"]
 
     ticker = ws.cell(row=row, column=cols["ticker"]).value if cols["ticker"] else ""
     print(f"\nAIP VALUE — two-phase ROIIC DCF — {company} {f'({ticker})' if ticker else ''}")
     print(f"WACC r = {pct(r)}   n1(hold)={n1}y  n2(fade)={n2}y  phi={phi:.2f}   "
-          f"g_term = {pct(g_term)}   ({src})" + (f"   gcap={pct(args.gcap)}" if args.gcap is not None else ""))
+          f"g_term = {pct(g_term)}   ({src})")
     print("=" * 70)
     print(f"  NOPAT_0 (New Operating Income) .... {money(nopat0)}")
     print(f"  ROIIC_0 (ROICm 7, held in phase 1)  {pct(roiic0)}")
@@ -401,15 +397,9 @@ def main():
     print(f"\n  SCHEDULE (hold {n1}y, then fade ROIIC->{pct(base)} & RR->{pct(res['rr_target'])} at phi={phi:.2f})")
     sched = res["sched"]
     marks = sorted(set([1, n1, n1 + max(1, n2 // 2), n1 + n2]))
-    gt_above_r = any(g_t > r + 1e-9 for _, _, _, g_t, _ in sched)
     for t, roiic_t, rr_t, g_t, phase in sched:
         if t in marks:
-            flag = "  <-- g>r" if g_t > r + 1e-9 else ""
-            print(f"    year {t:>2} [{phase}]:  ROIIC {pct(roiic_t):>8}  RR {pct(rr_t):>7}  g {pct(g_t):>8}{flag}")
-
-    if gt_above_r and args.gcap is None:
-        print(f"    (note: some early years still grow above r={pct(r)}; finite over "
-              f"{n1+n2}y. Add --gcap {r:.2f} for a hard g<=r backstop.)")
+            print(f"    year {t:>2} [{phase}]:  ROIIC {pct(roiic_t):>8}  RR {pct(rr_t):>7}  g {pct(g_t):>8}")
 
     print(f"\n  PV(explicit FCF, yrs 1-{n1+n2}) ...... {money(res['pv_explicit'])}")
     print(f"  Terminal value (at yr {n1+n2}) ........ {money(res['tv'])}")
