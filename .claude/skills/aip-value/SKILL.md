@@ -1,7 +1,7 @@
 ---
-name: roiic-dcf
+name: aip-value
 description: >-
-  Value a company with a three-stage, ROIIC-driven DCF run against an attached
+  AIP Value — value a company with a three-stage, ROIIC-driven DCF run against an attached
   Excel screener file. The model is anchored in the law that growth requires
   capital (g = ROIIC x RR) and that competitive advantage fades — returns
   regress to the cost of capital over a Competitive Advantage Period, a Fade
@@ -27,7 +27,8 @@ less value. Total operating value is the sum of three discounted stages.
 3. **Run the calculator** (it reads the sheet, finds the company, pulls the
    three drivers, and prints every stage):
    ```bash
-   python3 ~/.claude/skills/roiic-dcf/roiic_dcf.py "<file.xlsx>" "<company>"
+   python3 .claude/skills/aip-value/roiic_dcf.py "<file.xlsx>" "<company>"
+   # (personal install: python3 ~/.claude/skills/aip-value/roiic_dcf.py ...)
    ```
    - List companies first if unsure of the exact name: append `--list` (or run
      with no company argument).
