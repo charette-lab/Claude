@@ -42,8 +42,8 @@ impossible as the denominator scales toward the TAM) and *creative destruction*
 
 ## Step 2 — Decay the excess return over the CAP
 
-Two phases over the moat-score competitive life, split `n1 = 1/3` (hold) and
-`n2 = 2/3` (fade):
+Two phases over the moat-score competitive life: `n1 = 3y` (fixed hold) and
+`n2 = life − 3` (fade), so `n1 + n2` = the total moat life:
 
 ```
 Phase 1, t = 1…n1 :  ROIIC_t = ROIIC_0                          # hold ROICm 7

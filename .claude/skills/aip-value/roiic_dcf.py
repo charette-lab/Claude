@@ -15,8 +15,8 @@ the high return); Phase 2 (n2 yrs) mean-reverts ROIIC to the industry base rate
     Phase 2, k = 1..n2 :  ROIIC_(n1+k) = base + (ROIIC_0 - base) * phi**k
     g_t = ROIIC_t * RR  (RR held) ;  NOPAT_t = NOPAT_(t-1)*(1+g_t)
     FCF_t = NOPAT_t * (1 - RR) ;  PV = sum_t FCF_t / (1+WACC)**t
-n1 = 1/3 and n2 = 2/3 of the moat-score competitive life (< 6 -> <10y,
-6-7.5 -> 10-20y, > 7.5 -> 50y).
+n1 is a fixed 3y hold; n2 = (moat-score life - 3), so n1 + n2 = the total moat
+life (< 6 -> <10y, 6-7.5 -> 10-20y, > 7.5 -> 50y). phi is the moat-tier fade.
 Terminal (after the CAP, ROIIC has reached WACC so growth is value-neutral):
     TV        = NOPAT_N * (1 + g_term) / WACC ;  PV_TV = TV / (1+WACC)**N
 
@@ -347,8 +347,9 @@ def main():
 
     r, g_term = args.r, args.gterm
 
-    # Competitive period from the Moat Score: total life, split n1 (1/3 hold) :
-    # n2 (2/3 fade). Persistence phi from the moat tier.
+    # Competitive period from the Moat Score: total life = n1 + n2. n1 is a
+    # fixed 3y hold of ROICm7; n2 is the rest, fading to the base rate at the
+    # moat-tier persistence phi.
     moat = num(ws, row, cols["moat"])
     life = moat_to_life(moat)
     mp = moat_to_cap_persistence(moat)
@@ -358,7 +359,8 @@ def main():
     else:
         life, d_phi, tier = 15, 0.75, "Narrow(default)"
         src = "no Moat Score; default life 15y"
-    dn1, dn2 = split_life(life)
+    dn1 = min(3, max(1, life - 1))        # 3y hold (shrunk only if life is tiny)
+    dn2 = max(1, life - dn1)
     n1 = args.n1 if args.n1 is not None else dn1
     n2 = args.n2 if args.n2 is not None else dn2
     phi = args.persistence if args.persistence is not None else d_phi

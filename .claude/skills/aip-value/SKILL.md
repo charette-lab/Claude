@@ -48,7 +48,7 @@ PV(explicit fade-period FCF) + PV(terminal).
 | `RR` (held constant) | Excel column **"RR 7"** |
 | `r` (WACC / required return) | **12%** (`--r`) |
 | `base` (CFROI) | real sector CFROI median (GICS column), **no inflation** — mirrors our growth-capitalized, lower ROICm; override `--base-rate` / `--base-inflation` |
-| `n1` (hold) / `n2` (fade) | 1/3 and 2/3 of the Moat-Score life; override `--n1` / `--n2` |
+| `n1` (hold) / `n2` (fade) | n1 = 3y fixed; n2 = Moat-Score life − 3; override `--n1` / `--n2` |
 | `persistence` (φ) | from the **Moat Score** tier; override `--persistence` |
 | `g_term` | **2.5%** default — must be `< r` (`--gterm`) |
 
@@ -60,8 +60,9 @@ Phase 2, k = 1…n2 :  ROIIC_(n1+k) = base + (ROIIC_0 − base)·φ^k # fade to 
 g_t  = ROIIC_t · RR        # RR held at RR_0 (current rate)
 FCF_t = NOPAT_t · (1 − RR) ;  PV_explicit = Σ FCF_t / (1+r)^t
 ```
-`n1 = 1/3` and `n2 = 2/3` of the moat-score competitive life (`< 6 → <10y`,
-`6–7.5 → 10–20y`, `> 7.5 → 50y`). `φ` from the moat tier (`--persistence`).
+`n1 = 3y` (fixed hold) and `n2 = moat-life − 3`, so `n1 + n2` = the moat-score
+competitive life (`< 6 → <10y`, `6–7.5 → 10–20y`, `> 7.5 → 50y`). `φ` from the
+moat tier (`--persistence`).
 **Terminal** (ROIIC has settled at the base rate; value-driver perpetuity with a
 safe terminal growth g_eff = min(g_term, ~base, ~r)):
 ```
