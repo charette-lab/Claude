@@ -53,28 +53,35 @@ python3 .claude/skills/aip-value/rank.py "<file.xlsx>" --re 0.07 [--re2 0.12] \
 |------|---------------|
 | `NOPAT_0` | Excel column **"New Operating Income"** |
 | `ROIIC_0` (starting) | Excel column **"ROICm 7"** |
-| `RR_0` (starting) | Excel column **"RR 7"**; fades in Phase 2 to `RR_target = g_term/base` |
+| `RR_0` (starting) | Excel column **"RR 7"**; held flat as the structural reinvestment rate, but *lifted* when the sales-growth floor binds |
 | `r` (WACC / required return) | **12%** (`--r`) |
 | `base` (CFROI) | real sector CFROI median (GICS column), **no inflation** — mirrors our growth-capitalized, lower ROICm; override `--base-rate` / `--base-inflation` |
 | `n1` (hold) / `n2` (fade) | n1 = 3y fixed; n2 = Moat-Score life − 3; override `--n1` / `--n2` |
 | `persistence` (φ) | from the **Moat Score** tier; override `--persistence` |
 | `g_term` | **2.5%** default — must be `< r` (`--gterm`) |
 
-**Two-phase engine.** Phase 1 holds ROICm7 and RR_0; Phase 2 mean-reverts **both
-ROIIC and RR** to their sustainable levels (a rational firm reinvests less as
-returns normalise):
+**Reinvestment-driven engine.** Growth is whatever the firm's *own* reinvestment
+can fund — `g = ROIIC × RR` — not an externally-imposed industry rate. `RR_0` is
+the structural reinvestment rate, **held flat**; as ROIIC fades the growth falls
+of its own accord. A **sales-growth floor** (the Mauboussin size×industry
+**median** base rate, recomputed as sales compound) stops `g` — and so the
+implied RR — going artificially low. When the floor binds, RR is *lifted* to fund
+it:
 ```
-Phase 1, t = 1…n1 :  ROIIC_t = ROIIC_0 ;  RR_t = RR_0
-Phase 2, k = 1…n2 :  ROIIC = base + (ROIIC_0 − base)·φ^k        # fade to CFROI base
-                     RR    = RR_target + (RR_0 − RR_target)·φ^k # RR_target = g_term/base
-g_t  = ROIIC_t · RR_t
+Phase 1, t = 1…n1 :  ROIIC_t = ROIIC_0
+Phase 2, k = 1…n2 :  ROIIC_t = base + (ROIIC_0 − base)·φ^k        # fade to CFROI base
+g_t  = max( ROIIC_t · RR_0 , sales_base_median(size_t) )          # funded, but ≥ floor
+RR_t = min( g_t / ROIIC_t , 1 )                                   # lifted when floored
 FCF_t = NOPAT_t · (1 − RR_t) ;  PV_explicit = Σ FCF_t / (1+r)^t
 ```
 Growth is **not** capped in the moat period — a moat legitimately compounds above
 `r`, and the explicit period is finite so it can't be infinite. Only the
 **terminal** enforces `g_eff < r` (that is what prevents infinite value in
-perpetuity). ROIIC and RR both fading make the explicit period connect smoothly
-to the terminal (`g → g_term`).
+perpetuity). **Note:** where the faded ROIIC sits *below* WACC, the floor forces
+*value-destroying* reinvestment (RR rises to fund growth earning < cost of
+capital). That is intentional and conservative — it stops an artificially-low RR
+inflating FCF — and it means a longer moat does **not** keep adding value once
+the return has dropped below the cost of capital.
 
 `n1 = 3y` (fixed hold) and `n2 = moat-life − 3`, so `n1 + n2` = the moat-score
 competitive life (`< 6 → <10y`, `6–7.5 → 10–20y`, `> 7.5 → 50y`). `φ` from the
@@ -169,13 +176,16 @@ expected return, and the gap to market price — plus the key sensitivities
 analytical framework, not investment advice.
 
 
-## Sales-growth cap (Base Rate Book)
+## Sales-growth floor (Base Rate Book)
 
-`--growth-cap` caps each year's growth at the **Mauboussin size × industry
-sales-growth base rate** (Exhibit 3, "The Impact of Intangibles on Base Rates",
-2021 — 10y median CAGR + z·std, keyed on the `Sales` column and GICS industry).
-A firm can't out-grow its size; when the cap binds, the surplus is paid out as
-FCF. `--growth-percentile median|p75|p90` (default p75) credits a moat with
-above-median but bounded growth. This kills the high-ROIC extrapolation artifact
-(e.g. Howmet falls from +244% to −24%). The book covers *growth* only — long-run
+By default each year's growth is **floored** at the **Mauboussin size × industry
+*median* sales-growth base rate** (Exhibit 3, "The Impact of Intangibles on Base
+Rates", 2021 — 10y median CAGR, keyed on the `Sales` column and GICS industry,
+recomputed as sales compound into larger size buckets). The floor expresses that
+a firm needs to reinvest *at least* enough to keep its sales growing with its
+industry — so the implied RR can't be artificially low (which would inflate FCF).
+A **floor, not a cap**: a superior company is never pulled *down* to the industry
+average; the floor only lifts `g` when reinvestment-driven growth (`ROIIC·RR_0`)
+has faded below it. Disable with `--no-sales-floor` (then `g = ROIIC·RR_0` with a
+`g_term` floor in the terminal only). The book covers *growth* only — long-run
 **margin** base rates are a separate, not-yet-sourced input.

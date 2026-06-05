@@ -8,21 +8,29 @@ handles a cyclically-inflated starting ROIIC (e.g. a semiconductor firm posting
 60% ROIIC at a demand peak): the surge is mean-reverted away over the empirical
 Competitive Advantage Period (CAP) rather than held flat.
 
-Two-phase engine. Phase 1 (n1 yrs) holds the current ROICm7 and RR_0. Phase 2
-(n2 yrs) mean-reverts BOTH ROIIC (to the CFROI base) and RR (to the sustainable
-RR_target = g_term/base) at persistence phi, so a rational firm reinvests less as
-returns normalise:
-    Phase 1, t = 1..n1 :  ROIIC_t = ROIIC_0 ;  RR_t = RR_0
-    Phase 2, k = 1..n2 :  ROIIC = base + (ROIIC_0 - base)*phi**k
-                          RR    = RR_target + (RR_0 - RR_target)*phi**k
-    g_t = ROIIC_t * RR_t ;  NOPAT_t = NOPAT_(t-1)*(1+g_t)
-    FCF_t = NOPAT_t * (1 - RR_t) ;  PV = sum_t FCF_t / (1+WACC)**t
-Growth is not capped in the moat period (finite there); only the terminal
-enforces g_eff < r, which is what prevents infinite value in perpetuity.
+Reinvestment-driven engine. Growth is whatever the firm's own reinvestment can
+fund — g = ROIIC * RR — NOT an externally imposed industry rate. RR is the
+structural reinvestment rate (RR_0, held); as ROIIC fades toward the CFROI base,
+g = ROIIC * RR falls of its own accord. A SALES-GROWTH FLOOR (the Mauboussin
+size x industry MEDIAN sales-growth base rate) stops g — and so the implied RR —
+from going artificially low: a firm needs to reinvest at least enough to keep its
+sales growing with its industry. When the floor binds, RR is lifted to fund it.
+    Phase 1, t = 1..n1 :  ROIIC_t = ROIIC_0
+    Phase 2, k = 1..n2 :  ROIIC_t = base + (ROIIC_0 - base)*phi**k
+    g_t   = max( ROIIC_t * RR_0 , sales_base_median(size_t) )   # funded, but >= floor
+    RR_t  = min( g_t / ROIIC_t , 1 )                            # lifted when floored
+    NOPAT_t = NOPAT_(t-1)*(1+g_t) ;  FCF_t = NOPAT_t*(1-RR_t)
+    PV = sum_t FCF_t / (1+WACC)**t
 n1 is a fixed 3y hold; n2 = (moat-score life - 3), so n1 + n2 = the total moat
 life (< 6 -> <10y, 6-7.5 -> 10-20y, > 7.5 -> 50y). phi is the moat-tier fade.
-Terminal (after the CAP, ROIIC has reached WACC so growth is value-neutral):
-    TV        = NOPAT_N * (1 + g_term) / WACC ;  PV_TV = TV / (1+WACC)**N
+Note: where the faded ROIIC sits BELOW WACC, the floor forces value-DESTROYING
+reinvestment (RR rises to fund growth that earns < cost of capital) — this is
+correct and conservative: it prevents an artificially-low RR from inflating FCF.
+Terminal (ROIIC has settled at the base rate; value-driver perpetuity, g_eff
+floored at the sales base / g_term and capped < r so value stays finite):
+    g_eff = min( max(base*RR_0, sales_base_median, g_term), 0.99r, 0.99*base )
+    TV    = NOPAT_N*(1+g_eff)*(1 - g_eff/base) / (WACC - g_eff)
+    PV_TV = TV / (1+WACC)**N
 
 Empirical CAP durations & persistence, mapped from the Moat Score:
     Moat > 7.5   Superior / Wide moat  -> CAP 10-20y, persistence 0.85-0.95
@@ -387,53 +395,64 @@ def split_life(life):
 
 
 def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
-                  sales0=None, gics_industry=None, growth_z=None):
-    """Two-phase DCF. Phase 1 (n1 yrs): hold ROIIC at ROICm7 and RR at RR_0.
-    Phase 2 (n2 yrs): ROIIC mean-reverts to the base rate and RR mean-reverts to
-    the sustainable terminal rate RR_target = g_term/base, both at persistence
-    phi. Terminal settles at the base rate. If sales0/gics_industry/growth_z are
-    given, growth each year is capped at the Mauboussin size×industry sales-growth
-    base rate (a firm can't out-grow its size); the surplus is paid out as FCF.
-    Returns schedule, PVs, total, FCF fn."""
-    rr_target = (g_term / base) if base > 0 else 0.0
-    cap_growth = (sales0 is not None and growth_z is not None and sales0 > 0)
-    sales_run = [sales0 if cap_growth else None]
-    nopat_path = [nopat0]          # index t -> NOPAT at end of year t (0 = today)
+                  sales0=None, gics_industry=None, sales_floor=True):
+    """Reinvestment-driven DCF. Phase 1 (n1 yrs) holds ROIIC at ROICm7; Phase 2
+    (n2 yrs) mean-reverts ROIIC to the CFROI base at persistence phi. RR_0 is the
+    structural reinvestment rate, held flat, so growth g = ROIIC * RR_0 falls as
+    ROIIC fades. A SALES-GROWTH FLOOR (Mauboussin size x industry MEDIAN base
+    rate, recomputed as sales compound) keeps g — and the implied RR — from going
+    artificially low: g_t = max(ROIIC_t*RR_0, sales_base_median); when the floor
+    binds, RR_t = g_t/ROIIC_t is lifted to fund it. Where the faded ROIIC < WACC,
+    that forced reinvestment is value-destroying (correct & conservative). With no
+    sales/gics, the floor falls back to g_term. Returns schedule, PVs, total, FCF
+    fn."""
+    use_floor = bool(sales_floor)
+    sales_run = [sales0 if (sales0 and sales0 > 0) else None]
+
+    def floor_at(t):
+        """Sales-growth median floor for the firm's size in year t (g_term if no sales)."""
+        s = sales_run[t - 1] if t - 1 < len(sales_run) else None
+        if not use_floor:
+            return 0.0
+        if s is not None:
+            gb = sales_growth_base(s, gics_industry, z=0.0)   # MEDIAN
+            if gb is not None:
+                return gb
+        return g_term
+
+    nopat_path = [nopat0]           # index t -> NOPAT at end of year t (0 = today)
     fcf_path = [None]
-    sched = []                     # (t, roiic_t, rr_t, g_t, phase)
+    sched = []                      # (t, roiic_t, rr_t, g_t, phase)
     pv_explicit = 0.0
 
-    def step(t, roiic_t, rr_t, phase):
+    def step(t, roiic_t, phase):
         nonlocal pv_explicit
-        g_t = roiic_t * rr_t
-        if cap_growth:
-            g_base = sales_growth_base(sales_run[t - 1], gics_industry, growth_z)
-            if g_base is not None and g_t > g_base:
-                g_t = g_base
-                if roiic_t > 1e-9:
-                    rr_t = g_t / roiic_t          # trim reinvestment; surplus -> FCF
-            sales_run.append(sales_run[t - 1] * (1 + g_t))
+        g_reinv = roiic_t * rr0
+        g_t = max(g_reinv, floor_at(t))
+        rr_t = min(g_t / roiic_t, 1.0) if roiic_t > 1e-9 else 1.0
         nopat_t = nopat_path[t - 1] * (1 + g_t)
         fcf_t = nopat_t * (1 - rr_t)
         nopat_path.append(nopat_t)
         fcf_path.append(fcf_t)
+        if sales_run[0] is not None:
+            sales_run.append(sales_run[t - 1] * (1 + g_t))
         sched.append((t, roiic_t, rr_t, g_t, phase))
         pv_explicit += fcf_t / (1 + r) ** t
 
-    for t in range(1, n1 + 1):                       # Phase 1 — hold ROICm7, RR_0
-        step(t, roiic0, rr0, "hold")
-    for k in range(1, n2 + 1):                       # Phase 2 — fade ROIIC & RR
+    for t in range(1, n1 + 1):                       # Phase 1 — hold ROICm7
+        step(t, roiic0, "hold")
+    for k in range(1, n2 + 1):                       # Phase 2 — fade ROIIC to base
         roiic_k = base + (roiic0 - base) * (phi ** k)
-        rr_k = rr_target + (rr0 - rr_target) * (phi ** k)
-        step(n1 + k, roiic_k, rr_k, "fade")
+        step(n1 + k, roiic_k, "fade")
 
     cap = n1 + n2
     nopat_n = nopat_path[cap]
 
-    # Terminal: ROIIC at base, RR at RR_target -> g_eff; value-driver perpetuity
-    # with a safe terminal growth (< r and <= base, so reinvestment stays <=100%).
+    # Terminal: ROIIC at base; g_eff = reinvestment-driven (base*RR_0) but floored
+    # at the sales base / g_term and capped < r and <= base (rr_term <= 100%).
     if base > 0:
-        g_eff = min(g_term, 0.99 * base, 0.99 * r)
+        g_floor_term = max(floor_at(cap + 1), g_term) if use_floor else g_term
+        g_eff = min(max(base * rr0, g_floor_term), 0.99 * base, 0.99 * r)
         rr_term = g_eff / base
         cf_term = nopat_n * (1 + g_eff) * (1 - rr_term)
         tv = cf_term / (r - g_eff)
@@ -451,7 +470,7 @@ def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
 
     return {"sched": sched, "pv_explicit": pv_explicit, "tv": tv, "pv_tv": pv_tv,
             "total": total, "nopat_n": nopat_n, "base": base, "n1": n1, "n2": n2,
-            "rr_target": rr_target, "cf_for_year": cf_for_year}
+            "rr_term": rr_term, "g_eff": g_eff, "cf_for_year": cf_for_year}
 
 
 def main():
@@ -499,10 +518,9 @@ def main():
     ap.add_argument("--col-moat", default="Moat Score")
     ap.add_argument("--col-industry", default="GICS Industry Group Name")
     ap.add_argument("--col-sales", default="Sales")
-    ap.add_argument("--growth-cap", action="store_true",
-                    help="cap annual growth at the Mauboussin size x industry sales-growth base rate")
-    ap.add_argument("--growth-percentile", default="p75", choices=["median", "p75", "p90"],
-                    help="percentile of the sales-growth base rate to cap at (default p75)")
+    ap.add_argument("--no-sales-floor", action="store_true",
+                    help="disable the Mauboussin sales-growth MEDIAN floor on g "
+                         "(by default g is floored so RR can't be artificially low)")
     args = ap.parse_args()
 
     if args.gterm >= args.r:
@@ -602,16 +620,16 @@ def main():
         base += args.base_inflation
         base_src += f" +{pct(args.base_inflation)} infl"
 
-    sales0 = num(ws, row, cols["sales"]) if (args.growth_cap and cols["sales"]) else None
-    gz = GROWTH_Z[args.growth_percentile] if args.growth_cap else None
+    sales0 = num(ws, row, cols["sales"]) if cols["sales"] else None
+    use_floor = not args.no_sales_floor
     res = value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
-                        sales0=sales0, gics_industry=industry, growth_z=gz)
+                        sales0=sales0, gics_industry=industry, sales_floor=use_floor)
     growth_note = ""
-    if args.growth_cap and sales0:
-        growth_note = (f"  growth cap [{args.growth_percentile}]: sales {money(sales0)} "
+    if use_floor and sales0:
+        growth_note = (f"  sales-growth floor [median]: sales {money(sales0)} "
                        f"[{_size_bucket(sales0)}, "
                        f"{GICS_TO_MAUBOUSSIN.get(' '.join(str(industry).split()),'Other')}]"
-                       f" -> g_base {pct(sales_growth_base(sales0, industry, gz))}")
+                       f" -> g_floor {pct(sales_growth_base(sales0, industry, z=0.0))}")
     total = res["total"]
 
     ticker = ws.cell(row=row, column=cols["ticker"]).value if cols["ticker"] else ""
@@ -626,9 +644,10 @@ def main():
     print(f"  NOPAT_0 (New Operating Income) .... {money(nopat0)}")
     print(f"  ROIIC_0 (ROICm 7, held in phase 1)  {pct(roiic0)}")
     print(f"  ROIIC base rate (revert target) ... {pct(base)}   [{base_src}]")
-    print(f"  RR_0 (RR 7) -> RR_target ({pct(res['rr_target'])}) .. {pct(rr0)} -> {pct(res['rr_target'])}")
+    print(f"  RR_0 (RR 7, held; lifted by floor)  {pct(rr0)}")
 
-    print(f"\n  SCHEDULE (hold {n1}y, then fade ROIIC->{pct(base)} & RR->{pct(res['rr_target'])} at phi={phi:.2f})")
+    print(f"\n  SCHEDULE (hold {n1}y, then fade ROIIC->{pct(base)} at phi={phi:.2f};  "
+          f"g = ROIIC*RR_0, floored at the median sales base)")
     sched = res["sched"]
     marks = sorted(set([1, n1, n1 + max(1, n2 // 2), n1 + n2]))
     for t, roiic_t, rr_t, g_t, phase in sched:

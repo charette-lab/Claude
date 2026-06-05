@@ -38,8 +38,8 @@ def main():
     ap.add_argument("--r", type=float, default=0.12, help="flat firm rate if --re not set")
     ap.add_argument("--country-base", default=None)
     ap.add_argument("--country-crp", default=None, help="override country risk premiums")
-    ap.add_argument("--growth-cap", action="store_true", help="cap growth at Mauboussin sales-growth base rate")
-    ap.add_argument("--growth-percentile", default="p75", choices=["median","p75","p90"])
+    ap.add_argument("--no-sales-floor", action="store_true",
+                    help="disable the Mauboussin sales-growth MEDIAN floor on g")
     ap.add_argument("--gterm", type=float, default=0.025)
     ap.add_argument("--horizon", type=int, default=5)
     ap.add_argument("--max-n2", type=int, default=150)
@@ -65,17 +65,17 @@ def main():
         crp = m.country_risk_premium(country, m.parse_kv_rates(args.country_crp))
         return min(max(m.firm_wacc(re, rd, mktcap, netdebt) + crp, 0.04), 0.25), rd, rating
 
-    gz = m.GROWTH_Z[args.growth_percentile] if args.growth_cap else None
+    floor = not args.no_sales_floor
     def exp_ret(nopat0, roiic0, rr0, r, phi, base, life, mktcap, netdebt, sales0=None, ind=None):
         n1 = min(3, max(1, life - 1)); n2 = max(1, life - n1)
-        res = m.value_company(nopat0, roiic0, rr0, r, args.gterm, n1, n2, phi, base, sales0=sales0, gics_industry=ind, growth_z=gz)
+        res = m.value_company(nopat0, roiic0, rr0, r, args.gterm, n1, n2, phi, base, sales0=sales0, gics_industry=ind, sales_floor=floor)
         cf = sum(res["cf_for_year"](t) for t in range(1, args.horizon + 1))
         eqv = res["total"] - (netdebt - cf)
         return ((eqv / mktcap) ** (1 / args.horizon) - 1) if (eqv > 0 and mktcap > 0) else None
 
     def imp_moat(nopat0, roiic0, rr0, r, phi, base, mktcap, netdebt, sales0=None, ind=None):
         target = mktcap + netdebt
-        tot = lambda n2: m.value_company(nopat0, roiic0, rr0, r, args.gterm, 3, n2, phi, base, sales0=sales0, gics_industry=ind, growth_z=gz)["total"]
+        tot = lambda n2: m.value_company(nopat0, roiic0, rr0, r, args.gterm, 3, n2, phi, base, sales0=sales0, gics_industry=ind, sales_floor=floor)["total"]
         t0 = tot(0)
         if t0 >= target:
             return "<=3y"
@@ -105,7 +105,7 @@ def main():
         life = m.moat_to_life(moat) or 15
         base = m.base_rate_for(ind, None)[0]
         r1, rd, rating = discount_rate(args.re, nopat0, mktcap, netdebt, gross, tax, country)
-        sales0 = m.num(ws, row, C["sales"]) if args.growth_cap else None
+        sales0 = m.num(ws, row, C["sales"]) if floor else None
         er1 = exp_ret(nopat0, roiic0, rr0, r1, phi, base, life, mktcap, netdebt, sales0, ind)
         im1 = imp_moat(nopat0, roiic0, rr0, r1, phi, base, mktcap, netdebt, sales0, ind)
         er2 = None

@@ -46,16 +46,21 @@ Two phases over the moat-score competitive life: `n1 = 3y` (fixed hold) and
 `n2 = life − 3` (fade), so `n1 + n2` = the total moat life:
 
 ```
-Phase 1, t = 1…n1 :  ROIIC_t = ROIIC_0 ;  RR_t = RR_0           # hold ROICm 7, RR 7
-Phase 2, k = 1…n2 :  ROIIC = base + (ROIIC_0 − base)·φ^k        # revert to CFROI base
-                     RR    = RR_target + (RR_0 − RR_target)·φ^k # RR_target = g_term/base
-g_t   = ROIIC_t · RR_t
+Phase 1, t = 1…n1 :  ROIIC_t = ROIIC_0                          # hold ROICm 7
+Phase 2, k = 1…n2 :  ROIIC_t = base + (ROIIC_0 − base)·φ^k      # revert to CFROI base
+g_t   = max( ROIIC_t · RR_0 , sales_base_median(size_t) )       # reinvestment-driven, floored
+RR_t  = min( g_t / ROIIC_t , 1 )                                # lifted when the floor binds
 FCF_t = NOPAT_t · (1 − RR_t)
 ```
 
-Both ROIIC and RR fade at the same φ: a rational firm reinvests less as returns
-normalise, and `RR_target = g_term/base` is the reinvestment consistent with the
-terminal, so the explicit path connects smoothly (`g → g_term`). Growth is **not**
+Growth is **reinvestment-driven**: `RR_0` (RR 7) is the structural reinvestment
+rate, **held flat**, so `g = ROIIC · RR_0` falls naturally as ROIIC fades — the
+growth comes from the company's *own* reinvestment possibility, not an imposed
+industry rate. A **sales-growth floor** (Mauboussin size×industry *median* base
+rate, recomputed as sales compound) stops `g` — and the implied RR — going
+artificially low; when it binds, RR is lifted to fund it. Where the faded ROIIC
+sits below WACC this forces *value-destroying* reinvestment, which is intentional
+and conservative (an artificially-low RR would inflate FCF). Growth is **not**
 capped in the moat period — a moat can compound above `r`, and the finite explicit
 horizon cannot produce infinite value. Infinite value is only possible in the
 perpetuity, which is prevented by the terminal's `g_eff < r` constraint.
@@ -82,7 +87,9 @@ PV_explicit = Σ_{t=1..N} FCF_t / (1 + r)^t
 
 After `N` years ROIIC has settled at the industry **base rate**. The terminal is
 the value-driver perpetuity with a safe terminal growth
-`g_eff = min(g_term, ~base, ~r)` (keeps it `< r` and reinvestment `≤ 100%`):
+`g_eff = min( max(base·RR_0, sales_base_median, g_term), 0.99·base, 0.99·r )` —
+reinvestment-driven, floored at the sales base / `g_term`, capped `< r` and
+`≤ base` (so terminal RR `≤ 100%`):
 
 ```
 RR_term = g_eff / base

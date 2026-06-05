@@ -88,6 +88,7 @@ def main():
         "rr": args.col_rr, "moat": args.col_moat, "industry": args.col_industry,
         "country": args.col_country, "gross": args.col_gross, "tax": args.col_tax,
         "ev": "EV", "mktcap": "Market Cap", "netdebt": "Net debt", "ticker": "Instrument",
+        "sales": "Sales",
     })
     if cols["name"] is None:
         sys.exit(f'Could not find a "{args.col_name}" column in row 1.')
@@ -150,8 +151,11 @@ def main():
     # Target: the operating (enterprise) value implied by today's market cap.
     target_ev = mktcap + netdebt
 
+    sales0 = m.num(ws, row, cols["sales"])
+
     def total_for(n2):
-        return m.value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base)["total"]
+        return m.value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
+                               sales0=sales0, gics_industry=industry)["total"]
 
     # value_company total is monotonic increasing in n2. Scan integer n2, then
     # linearly interpolate the crossing to a fractional year.
