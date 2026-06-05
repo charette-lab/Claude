@@ -39,6 +39,14 @@ PV(explicit fade-period FCF) + PV(terminal).
    split, implied equity / per-share value, expected return (IRR), and the gap to
    market. Call out the 2–3 inputs the result is most sensitive to.
 
+**Whole-sheet ranking in one command** — use `rank.py` to value every company,
+ranked by expected return, with the per-company WACC, rating, and implied moat:
+```bash
+python3 .claude/skills/aip-value/rank.py "<file.xlsx>" --re 0.07 [--re2 0.12] \
+        --country-base "EUR=0.0303,USD=0.0405,JPY=0.0267,KRW=0.0412,SEK=0.0273"
+```
+`--re2` adds a second equity-hurdle ER column; banks are marked `FIN*`.
+
 ## Inputs and engine
 
 | Item | Source / rule |
