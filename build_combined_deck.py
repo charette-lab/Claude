@@ -967,6 +967,55 @@ para(tbox(s, Inches(0.8), Emu(int(ay) + int(Inches(0.14))), Inches(11.7),
      "is the one AI can’t run — changing the company itself.", 12.5, WHITE,
      first=True, italic=True, after=0, track=0)
 
+# ---- I.1c The AI monoculture: convergence, crowding and alpha decay --------
+s, top = content("The Proposition",
+                 "The AI monoculture: machine-run portfolios crowd and decay",
+                 "A growing body of research models the mechanism: as managers "
+                 "adopt similar AI, they herd into the same trades — eroding "
+                 "market depth, crowding factors and accelerating alpha decay. "
+                 "Engaged ownership sits outside the monoculture.", number=False)
+mono = [
+    ("Algorithmic monoculture",
+     "High AI penetration makes managers share a common signal and herd into the "
+     "same trades; correlated pressure erodes market depth, drives down "
+     "fundamental values and amplifies systemic risk.", "Meng & Chen, 2026"),
+    ("Strategy convergence",
+     "Agents trained on overlapping data and rewarded on similar objectives "
+     "synchronise; order books thin and AI-strategy returns decay rapidly.",
+     "Tran, 2026"),
+    ("Algorithmic coherence",
+     "LLM-augmented investors adopt comparable trade logic, crowding the same "
+     "risk-premia, distorting price discovery and amplifying volatility through "
+     "reflexive loops.", "Gimmelberg, 2025"),
+    ("Factor crowding",
+     "LLM agents generate highly redundant factors — so managers select the same "
+     "stocks on the same signals, cannibalising each other’s returns.",
+     "Han et al., 2026"),
+]
+mcw = Inches(5.96); mgx = Inches(0.18); mgy = Inches(0.16); mh = Inches(1.8)
+for i, (t, b, cite) in enumerate(mono):
+    cx = Emu(int(Inches(0.6)) + (i % 2) * (int(mcw) + int(mgx)))
+    cy = Emu(int(top) + (i // 2) * (int(mh) + int(mgy)))
+    rect(s, cx, cy, mcw, mh, fill=HEADERBG)
+    rect(s, cx, cy, Inches(0.07), mh, fill=NAVY)
+    inx = Emu(int(cx) + int(Inches(0.26)))
+    para(tbox(s, inx, Emu(int(cy) + int(Inches(0.16))),
+              Emu(int(mcw) - int(Inches(0.5))), Inches(0.35)), t, 13.5, SLATE,
+         first=True, bold=True, after=0)
+    para(tbox(s, inx, Emu(int(cy) + int(Inches(0.56))),
+              Emu(int(mcw) - int(Inches(0.5))), Inches(0.9)), b, 11, BODY,
+         first=True, after=0, lead=1.2)
+    para(tbox(s, inx, Emu(int(cy) + int(mh) - int(Inches(0.32))),
+              Emu(int(mcw) - int(Inches(0.5))), Inches(0.3)), cite, 9.5, SLATE_LT,
+         first=True, italic=True, after=0)
+mby = Emu(int(top) + 2 * int(mh) + int(mgy) + int(Inches(0.12)))
+rect(s, Inches(0.6), mby, Inches(12.1), Inches(0.5), fill=NAVY)
+para(tbox(s, Inches(0.8), mby, Inches(11.7), Inches(0.5), anchor=MSO_ANCHOR.MIDDLE),
+     "The more the market runs on the same machines, the more it converges on "
+     "one trade — and the faster that edge decays. Changing the company is the "
+     "edge no shared model can copy.", 12.5, WHITE, first=True, italic=True,
+     after=0, track=0)
+
 # ---- I.2 Horizon & fiduciary ----
 s, top = content("Fit", "Aligned with horizon and fiduciary duty")
 checklist(s, [
@@ -5009,7 +5058,10 @@ _refs(r1, Inches(6.95), Inches(2.12), Inches(5.85), [
     [("Wurgler, J. (2011). On the economic consequences of index-linked "
       "investing. ", False), ("NBER Working Paper No. 16376", True),
      (". https://doi.org/10.3386/w16376", False)],
-], size=8.5)
+    [("AI & alpha decay (emerging working papers, 2025–26): ", True),
+     ("Gimmelberg (2025), MDPI; Han et al. (2026), arXiv; Meng & Chen (2026), "
+      "arXiv; Tran (2026), Atlantis Press.", False)],
+], size=8)
 
 r1b = _ref_slide(" — Peer-reviewed literature (Part II)", "2 of 3")
 _refhead(r1b, Inches(0.6), Inches(1.75), Inches(6.0),
