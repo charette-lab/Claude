@@ -206,6 +206,14 @@ cash when received raises the return vs. the old lump-CAGR (e.g. Volvo 7.1%→8.
 static, →10.9% with `--lever-glide`). Also reports the **unlevered return**
 `(EV_target / EV_0)^(1/n) − 1`.
 
+**No-IRR-root fallback.** When the flows are all one sign (an off-the-charts-cheap
+name, or a cash-negative/distressed one) the multi-period IRR has no root. The
+model then falls back to the **lump-CAGR** method — total shareholder wealth at the
+horizon (`= Σflows = EV_target − ND_0 + ΣFCF`) annualised vs. market cap, with no
+interim-cash timing — and **flags it** (`[lump-CAGR fallback]` in the memo, a `c`
+suffix in `rank.py`, a `Method` column in batch CSVs). If projected wealth is still
+≤ 0 (equity underwater) the return is left `n/a`.
+
 ## Output
 
 Deliver a concise memo: drivers pulled from the sheet, the moat tier / CAP / φ,

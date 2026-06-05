@@ -85,7 +85,8 @@ def main():
         res = m.value_company(nopat0, roiic0, rr0, r, args.gterm, n1, n2, phi, base, sales0=sales0, gics_industry=ind, sales_floor=floor, wacc_path=wp, wacc_terminal=wt)
         L = m.target_leverage(ind, args.target_lev) if glide else None
         t = tax if (tax is not None and tax < 1) else 0.25
-        return m.equity_return(res, mktcap, netdebt, args.horizon, tax=t, lever_L=L)[0]
+        val, method = m.equity_return(res, mktcap, netdebt, args.horizon, tax=t, lever_L=L)[:2]
+        return val, method
 
     def imp_moat(nopat0, roiic0, rr0, r, phi, base, mktcap, netdebt, sales0=None, ind=None, glide=None):
         target = mktcap + netdebt
@@ -120,20 +121,23 @@ def main():
         base = m.base_rate_for(ind, None)[0]
         r1, rd, rating, glide1 = discount_rate(args.re, nopat0, mktcap, netdebt, gross, tax, country, ind)
         sales0 = m.num(ws, row, C["sales"]) if floor else None
-        er1 = exp_ret(nopat0, roiic0, rr0, r1, phi, base, life, mktcap, netdebt, sales0, ind, glide1, tax)
+        er1, mth1 = exp_ret(nopat0, roiic0, rr0, r1, phi, base, life, mktcap, netdebt, sales0, ind, glide1, tax)
         im1 = imp_moat(nopat0, roiic0, rr0, r1, phi, base, mktcap, netdebt, sales0, ind, glide1)
-        er2 = None
+        er2, mth2 = None, None
         if args.re2 is not None:
             r2, _, _, glide2 = discount_rate(args.re2, nopat0, mktcap, netdebt, gross, tax, country, ind)
-            er2 = exp_ret(nopat0, roiic0, rr0, r2, phi, base, life, mktcap, netdebt, sales0, ind, glide2, tax)
+            er2, mth2 = exp_ret(nopat0, roiic0, rr0, r2, phi, base, life, mktcap, netdebt, sales0, ind, glide2, tax)
         rows.append({"name": str(name), "moat": moat, "mc": mktcap, "rat": rating or "-",
                      "rd": rd, "wacc": r1, "er1": er1, "er2": er2, "im1": im1,
+                     "mth1": mth1, "mth2": mth2,
                      "fin": "FIN*" if ind in m.FINANCIAL_SECTORS else ""})
 
     rows.sort(key=lambda d: (d["er1"] is not None, d["er1"] if d["er1"] is not None else -9),
               reverse=True)
     fmc = lambda x: f"{x/1e9:,.1f}bn" if x >= 1e9 else f"{x/1e6:,.0f}m"
-    fer = lambda x: f"{x*100:5.1f}%" if x is not None else "  n/a "
+    # trailing 'c' marks the lump-CAGR fallback (no IRR root)
+    fer = lambda x, mth=None: ((f"{x*100:5.1f}%" + ("c" if mth == "CAGR" else " "))
+                               if x is not None else "  n/a  ")
     h = args.horizon
     re1 = m.pct(args.re) if args.re is not None else f"flat {m.pct(args.r)}"
     hdr = f"{'#':>2}  {'Company':27} {'Moat':>5} {'MCap':>7} {'Rat':>4} {'Rd':>5} {'WACC':>5} {'ER1':>7}"
@@ -146,12 +150,14 @@ def main():
     for i, d in enumerate(rows, 1):
         rd = m.pct(d["rd"]) if d["rd"] is not None else "  -  "
         line = (f"{i:>2}  {d['name'][:27]:27} {d['moat'] if d['moat'] is not None else 0:5.2f} "
-                f"{fmc(d['mc']):>7} {d['rat']:>4} {rd:>5} {m.pct(d['wacc']):>5} {fer(d['er1']):>7}")
+                f"{fmc(d['mc']):>7} {d['rat']:>4} {rd:>5} {m.pct(d['wacc']):>5} {fer(d['er1'], d['mth1']):>7}")
         if args.re2 is not None:
-            line += f" {fer(d['er2']):>7}"
+            line += f" {fer(d['er2'], d['mth2']):>7}"
         line += f" {d['im1']:>7}  {d['fin']}"
         print(line)
-    print(f"\nValued: {len(rows)}   (banks marked FIN* — coverage/rating unreliable)")
+    ncagr = sum(1 for d in rows if d["mth1"] == "CAGR")
+    print(f"\nValued: {len(rows)}   (banks marked FIN*; 'c' = lump-CAGR fallback, "
+          f"no IRR root — {ncagr} names)")
 
 
 if __name__ == "__main__":

@@ -612,9 +612,12 @@ def equity_return(res, mktcap, netdebt, horizon, tax=None, lever_L=None):
     shrink or go negative (a cash call) rather than being fabricated — while an
     under-levered firm releases debt capacity as extra distributions. Without
     lever_L, net debt is held flat at ND_0 (all FCF distributed). Terminal equity =
-    total - nd_n. Returns (irr, distributions_list, eqv_n, nd_n)."""
+    total - nd_n. If the multi-period IRR has no root (flows all one sign), falls
+    back to the lump-CAGR method (total wealth / market cap, annualised) and labels
+    it. Returns (return, method, distributions_list, eqv_n, nd_n) where method is
+    "IRR", "CAGR" (fallback), or "n/a"."""
     if not mktcap or mktcap <= 0:
-        return None, [], None, None
+        return None, "n/a", [], None, None
     total = res["total"]
     nfy = res["nopat_for_year"]
     levering = (lever_L is not None and tax is not None and tax < 1)
@@ -633,7 +636,17 @@ def equity_return(res, mktcap, netdebt, horizon, tax=None, lever_L=None):
     nd_n = nd_prev
     eqv_n = total - nd_n
     flows[-1] += eqv_n
-    return solve_irr(mktcap, flows), flows, eqv_n, nd_n
+    irr = solve_irr(mktcap, flows)
+    if irr is not None:
+        return irr, "IRR", flows, eqv_n, nd_n
+    # No IRR root (flows all one sign — e.g. an off-the-charts-cheap name or a
+    # cash-negative/distressed one). Fall back to the lump-CAGR method: total
+    # shareholder wealth at the horizon (= sum of the same flows = total - ND_0 +
+    # sum FCF) annualised vs market cap, with no interim-cash timing. Flagged.
+    wealth = sum(flows)
+    if wealth > 0 and mktcap > 0:
+        return (wealth / mktcap) ** (1.0 / horizon) - 1.0, "CAGR", flows, eqv_n, nd_n
+    return None, "n/a", flows, eqv_n, nd_n
 
 
 def main():
@@ -893,7 +906,7 @@ def main():
     n = args.horizon
     print(f"\n  EXPECTED RETURN  (horizon n = {n}y; distributions credited as received)")
     if netdebt is not None and mktcap and mktcap > 0:
-        eq_irr, flows, eqv_n, nd_n = equity_return(
+        eq_irr, eq_method, flows, eqv_n, nd_n = equity_return(
             res, mktcap, netdebt, n, tax=tax, lever_L=lever_L)
         dist_sum = sum(flows) - eqv_n            # cash distributed over the horizon
         levmode = "lever to target, distribute proceeds + FCF" if lever_L else \
@@ -904,10 +917,13 @@ def main():
         print(f"    ND_{n} (end, {'target L*EBIT' if lever_L else 'held'}) ....... {money(nd_n)}")
         print(f"    EqV_{n} = EV_target - ND_{n} ..... {money(eqv_n)}")
         print(f"    EqV_0 (current market cap) .... {money(mktcap)}")
-        if eq_irr is not None:
+        if eq_irr is not None and eq_method == "IRR":
             print(f"    >> Expected equity return (IRR) {pct(eq_irr)} / yr")
+        elif eq_irr is not None and eq_method == "CAGR":
+            print(f"    >> Expected equity return {pct(eq_irr)} / yr  "
+                  f"[lump-CAGR fallback — no IRR root]")
         elif eqv_n <= 0:
-            print("    >> Projected equity value <= 0; equity IRR undefined.")
+            print("    >> Projected equity value <= 0; equity return undefined.")
     if ev is not None and ev > 0 and total > 0:
         unlev = (total / ev) ** (1 / n) - 1
         print(f"    >> Unlevered return (EV_target/EV_0) {pct(unlev)} / yr")
