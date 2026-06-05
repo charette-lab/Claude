@@ -217,15 +217,18 @@ def base_rate_for(industry, override=None):
 # Cached 10y risk-free BASE by currency (govt 10y; USD already swap-adjusted
 # ~UST-40bp). REFRESH these live each run (pass --country-base "EUR=0.0303,...").
 # As of early June 2026.
-CURRENCY_BASE = {
-    "JPY": 0.0267, "SEK": 0.0273, "EUR": 0.0303, "KRW": 0.0412,
-    "GBP": 0.0485, "USD": 0.0405, "CHF": 0.0050, "NOK": 0.0441, "DKK": 0.0285,
+CURRENCY_BASE = {     # 10y govt yield by currency (~5 Jun 2026; USD already swap-adj UST-40bp)
+    "JPY": 0.0265, "SEK": 0.0279, "EUR": 0.0302, "KRW": 0.0412,
+    "GBP": 0.0485, "USD": 0.0406, "CHF": 0.0040, "NOK": 0.0441, "DKK": 0.0302,
+    "CAD": 0.0344,
 }
 DEFAULT_CCY_BASE = 0.04
 # Country of Headquarters -> currency.
 COUNTRY_TO_CCY = {
-    "United States": "USD", "USA": "USD", "Japan": "JPY", "South Korea": "KRW",
-    "Korea": "KRW", "Korea, Republic of": "KRW", "Sweden": "SEK",
+    "United States": "USD", "USA": "USD", "United States of America": "USD",
+    "Japan": "JPY", "South Korea": "KRW",
+    "Korea": "KRW", "Korea, Republic of": "KRW", "Korea; Republic (S. Korea)": "KRW",
+    "Sweden": "SEK", "Canada": "CAD",
     "United Kingdom": "GBP", "Switzerland": "CHF", "Norway": "NOK",
     "Denmark": "DKK",
     # Eurozone members -> EUR
