@@ -188,14 +188,19 @@ so the user sees what was used). **Exclude banks/financials** — interest
 coverage is meaningless when gross debt is customer funding (the output flags
 them).
 
-## Expected return (IRR)
+## Expected return (equity IRR with distributed cash)
 
-The calculator annualizes the return over an `n`-year horizon (default 5):
-`EV_target` = total operating value; a **cash sweep** de-levers net debt by the
-forecast FCF (`ND_n = ND_0 − ΣFCF_t`, less dividends/buybacks via
-`--payout-total`); `EqV_target = EV_target − ND_n`; then
-`Expected Return = (EqV_target / EqV_0)^(1/n) − 1` vs. current market cap. It also
-reports the **unlevered return** `(EV_target / EV_0)^(1/n) − 1`.
+A proper **multi-period IRR** over an `n`-year horizon (default 5), crediting the
+cash distributed to shareholders **as it is received** (not lumped into a single
+terminal CAGR). Each year's distribution = operating **FCF** plus, under
+`--lever-glide`, the **net new debt raised** to hold target leverage (the
+lever-up proceeds are paid out). The terminal equity at year `n` is
+`EqV_n = EV_target − ND_n`, where `ND_n` is the target `L·EBIT_n` when levering up,
+else net debt held constant (excess cash distributed rather than de-levering).
+The IRR solves `MktCap = Σ_{t=1..n} Dist_t/(1+x)^t + EqV_n/(1+x)^n`. Crediting
+cash when received raises the return vs. the old lump-CAGR (e.g. Volvo 7.1%→8.2%
+static, →10.9% with `--lever-glide`). Also reports the **unlevered return**
+`(EV_target / EV_0)^(1/n) − 1`.
 
 ## Output
 

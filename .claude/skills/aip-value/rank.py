@@ -79,13 +79,13 @@ def main():
     def _path(glide, n1, n2):
         return (m.wacc_glide(glide[0], glide[1], n1, n2), glide[1]) if glide else (None, None)
 
-    def exp_ret(nopat0, roiic0, rr0, r, phi, base, life, mktcap, netdebt, sales0=None, ind=None, glide=None):
+    def exp_ret(nopat0, roiic0, rr0, r, phi, base, life, mktcap, netdebt, sales0=None, ind=None, glide=None, tax=None):
         n1 = min(3, max(1, life - 1)); n2 = max(1, life - n1)
         wp, wt = _path(glide, n1, n2)
         res = m.value_company(nopat0, roiic0, rr0, r, args.gterm, n1, n2, phi, base, sales0=sales0, gics_industry=ind, sales_floor=floor, wacc_path=wp, wacc_terminal=wt)
-        cf = sum(res["cf_for_year"](t) for t in range(1, args.horizon + 1))
-        eqv = res["total"] - (netdebt - cf)
-        return ((eqv / mktcap) ** (1 / args.horizon) - 1) if (eqv > 0 and mktcap > 0) else None
+        L = m.target_leverage(ind, args.target_lev) if glide else None
+        t = tax if (tax is not None and tax < 1) else 0.25
+        return m.equity_return(res, mktcap, netdebt, args.horizon, tax=t, lever_L=L)[0]
 
     def imp_moat(nopat0, roiic0, rr0, r, phi, base, mktcap, netdebt, sales0=None, ind=None, glide=None):
         target = mktcap + netdebt
@@ -120,12 +120,12 @@ def main():
         base = m.base_rate_for(ind, None)[0]
         r1, rd, rating, glide1 = discount_rate(args.re, nopat0, mktcap, netdebt, gross, tax, country, ind)
         sales0 = m.num(ws, row, C["sales"]) if floor else None
-        er1 = exp_ret(nopat0, roiic0, rr0, r1, phi, base, life, mktcap, netdebt, sales0, ind, glide1)
+        er1 = exp_ret(nopat0, roiic0, rr0, r1, phi, base, life, mktcap, netdebt, sales0, ind, glide1, tax)
         im1 = imp_moat(nopat0, roiic0, rr0, r1, phi, base, mktcap, netdebt, sales0, ind, glide1)
         er2 = None
         if args.re2 is not None:
             r2, _, _, glide2 = discount_rate(args.re2, nopat0, mktcap, netdebt, gross, tax, country, ind)
-            er2 = exp_ret(nopat0, roiic0, rr0, r2, phi, base, life, mktcap, netdebt, sales0, ind, glide2)
+            er2 = exp_ret(nopat0, roiic0, rr0, r2, phi, base, life, mktcap, netdebt, sales0, ind, glide2, tax)
         rows.append({"name": str(name), "moat": moat, "mc": mktcap, "rat": rating or "-",
                      "rd": rd, "wacc": r1, "er1": er1, "er2": er2, "im1": im1,
                      "fin": "FIN*" if ind in m.FINANCIAL_SECTORS else ""})

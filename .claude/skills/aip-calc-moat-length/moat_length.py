@@ -61,6 +61,11 @@ def main():
     ap.add_argument("--country-base", default=None,
                     help='refresh risk-free bases, e.g. "EUR=0.0303,USD=0.0405"')
     ap.add_argument("--country-crp", default=None, help="override country risk premiums")
+    ap.add_argument("--lever-glide", action="store_true",
+                    help="de-risk over the fade: glide WACC to a mature target-leverage "
+                         "WACC (matches the aip-value forward model). Requires --re.")
+    ap.add_argument("--target-lev", type=float, default=None,
+                    help="override the mature net debt / EBIT target")
     ap.add_argument("--col-country", default="Country of Headquarters")
     ap.add_argument("--col-gross", default="Gross debt")
     ap.add_argument("--col-tax", default="Income Tax Rate - Instrument")
@@ -119,6 +124,8 @@ def main():
 
     g_term, n1 = args.gterm, args.n1
     rd_note = ""
+    glide = None                # (wacc0, wacc_mature) when --lever-glide
+    industry = ws.cell(row=row, column=cols["industry"]).value if cols["industry"] else None
     if args.re is not None:
         country = ws.cell(row=row, column=cols["country"]).value if cols["country"] else None
         cbase, ccy = m.currency_base(country, m.parse_kv_rates(args.country_base))
@@ -131,10 +138,20 @@ def main():
         cv = ">99" if cov == float("inf") else f"{cov:.1f}x"
         rd_note = (f"WACC (re {m.pct(args.re)}, {ccy} {m.pct(cbase)}, cov {cv} {rating} "
                    f"Rd {m.pct(rd)}" + (f", +CRP {m.pct(crp)}" if crp else "") + f") = {m.pct(r)}")
+        if args.lever_glide:
+            L = m.target_leverage(industry, args.target_lev)
+            rd_m = m.mature_cost_of_debt(L, cbase, mktcap)[0]
+            w0 = min(max(m.firm_wacc_taxed(args.re, rd, mktcap, netdebt, tax) + crp, 0.04), args.re + crp)
+            wm = min(max(m.mature_wacc(args.re, rd_m, L, tax)[0] + crp, 0.04), 0.25)
+            glide = (w0, wm)
+            r = w0                       # report the starting WACC
+            rd_note += (f"  |  lever-glide -> mature {m.pct(wm)} "
+                        f"[L={L:.1f}x, Rd {m.pct(rd_m)}]")
     else:
         r = args.r
-    if g_term >= r:
-        sys.exit(f"g_term ({g_term}) must be < r ({r:.4f}).")
+    r_check = glide[1] if glide else r
+    if g_term >= r_check:
+        sys.exit(f"g_term ({g_term}) must be < r ({r_check:.4f}).")
 
     moat = m.num(ws, row, cols["moat"])
     mp = m.moat_to_cap_persistence(moat)
@@ -142,7 +159,6 @@ def main():
     tier = mp[2] if mp else "n/a"
     score_life = m.moat_to_life(moat)            # moat-score-implied length, for comparison
 
-    industry = ws.cell(row=row, column=cols["industry"]).value if cols["industry"] else None
     base, base_src = m.base_rate_for(industry, args.base_rate)
     if args.base_rate is None and args.base_inflation:
         base += args.base_inflation
@@ -154,8 +170,12 @@ def main():
     sales0 = m.num(ws, row, cols["sales"])
 
     def total_for(n2):
+        wp = wt = None
+        if glide:
+            wp, wt = m.wacc_glide(glide[0], glide[1], n1, n2), glide[1]
         return m.value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
-                               sales0=sales0, gics_industry=industry)["total"]
+                               sales0=sales0, gics_industry=industry,
+                               wacc_path=wp, wacc_terminal=wt)["total"]
 
     # value_company total is monotonic increasing in n2. Scan integer n2, then
     # linearly interpolate the crossing to a fractional year.

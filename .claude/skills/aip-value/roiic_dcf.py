@@ -567,10 +567,58 @@ def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
         nopat_t = nopat_n * (1 + g_eff) ** (t - cap)
         return nopat_t * (1 - rr_term)
 
+    def nopat_for_year(t):
+        if 0 <= t <= cap:
+            return nopat_path[t]
+        return nopat_n * (1 + g_eff) ** (t - cap)
+
     return {"sched": sched, "pv_explicit": pv_explicit, "tv": tv, "pv_tv": pv_tv,
             "total": total, "nopat_n": nopat_n, "base": base, "n1": n1, "n2": n2,
             "rr_term": rr_term, "g_eff": g_eff, "roiic_term": roiic_term,
-            "r_term": r_term, "cf_for_year": cf_for_year}
+            "r_term": r_term, "cf_for_year": cf_for_year,
+            "nopat_for_year": nopat_for_year, "nopat_path": nopat_path}
+
+
+def solve_irr(outlay, flows, lo=-0.95, hi=5.0):
+    """IRR of an investment: -outlay at t0, then flows[t] at t=1,2,.... Bisection."""
+    def npv(x):
+        return -outlay + sum(cf / (1 + x) ** t for t, cf in enumerate(flows, 1))
+    f_lo, f_hi = npv(lo), npv(hi)
+    if f_lo * f_hi > 0:
+        return None
+    for _ in range(200):
+        mid = (lo + hi) / 2.0
+        fm = npv(mid)
+        if abs(fm) < 1.0:
+            return mid
+        if f_lo * fm <= 0:
+            hi = mid
+        else:
+            lo, f_lo = mid, fm
+    return (lo + hi) / 2.0
+
+
+def equity_return(res, mktcap, netdebt, horizon, tax=None, lever_L=None):
+    """Equity IRR that credits the cash distributed to shareholders. Each year's
+    distribution = operating FCF (+ net new debt raised to hold target leverage,
+    when lever_L is given — the lever-up proceeds are paid out). Terminal equity at
+    the horizon = total operating value − net debt (the target L*EBIT when levering,
+    else net debt held constant). Solves the multi-period IRR against today's market
+    cap. Returns (irr, distributions_list, eqv_n, nd_n)."""
+    if not mktcap or mktcap <= 0:
+        return None, [], None, None
+    total = res["total"]
+    nfy = res["nopat_for_year"]
+    levering = (lever_L is not None and tax is not None and tax < 1)
+    flows = []
+    for t in range(1, horizon + 1):
+        fcf_t = res["cf_for_year"](t)
+        d_debt = lever_L * (nfy(t) - nfy(t - 1)) / (1 - tax) if levering else 0.0
+        flows.append(fcf_t + d_debt)
+    nd_n = lever_L * nfy(horizon) / (1 - tax) if levering else netdebt
+    eqv_n = total - nd_n
+    flows[-1] += eqv_n
+    return solve_irr(mktcap, flows), flows, eqv_n, nd_n
 
 
 def main():
@@ -733,11 +781,13 @@ def main():
     # Optional: de-risk / lever-up glide — WACC falls over the fade to a mature
     # target-leverage WACC (net debt = L*EBIT, re-rated credit, tax shield).
     wacc_path = wacc_terminal = None
+    lever_L = None
     glide_note = ""
     if args.lever_glide:
         if args.re is None:
             sys.exit("--lever-glide requires --re (the equity hurdle).")
         L = target_leverage(industry, args.target_lev)
+        lever_L = L
         rd_m, rat_m, cov_m = mature_cost_of_debt(L, cbase, mktcap)
         wacc0 = min(max(firm_wacc_taxed(args.re, rd, mktcap, netdebt, tax) + crp, 0.04), args.re + crp)
         wm, wd_m = mature_wacc(args.re, rd_m, L, tax)
@@ -824,26 +874,24 @@ def main():
     if mktcap is not None:
         print(f"    Market cap .................... {money(mktcap)}")
 
-    # --- Expected return (IRR) over the holding horizon ---
-    cf_for_year = res["cf_for_year"]
+    # --- Expected return (equity IRR with distributed cash) over the horizon ---
     n = args.horizon
-    print(f"\n  EXPECTED RETURN  (horizon n = {n}y)")
-    cf_sum = sum(cf_for_year(t) for t in range(1, n + 1))
-    print(f"    EV_target (operating value) ... {money(total)}")
-    print(f"    Sum FCF yrs 1..{n} ............. {money(cf_sum)}")
-    if args.payout_total:
-        print(f"    - Dividends/buybacks (horizon)  {money(args.payout_total)}")
-    if netdebt is not None:
-        nd5 = netdebt - (cf_sum - args.payout_total)
-        eqv_target = total - nd5
+    print(f"\n  EXPECTED RETURN  (horizon n = {n}y; distributions credited as received)")
+    if netdebt is not None and mktcap and mktcap > 0:
+        eq_irr, flows, eqv_n, nd_n = equity_return(
+            res, mktcap, netdebt, n, tax=tax, lever_L=lever_L)
+        dist_sum = sum(flows) - eqv_n            # cash distributed over the horizon
+        levmode = "lever to target, distribute proceeds + FCF" if lever_L else \
+                  "hold leverage, distribute FCF"
+        print(f"    EV_target (operating value) ... {money(total)}    [{levmode}]")
+        print(f"    Cash distributed yrs 1..{n} .... {money(dist_sum)}")
         print(f"    ND_0 (current net debt) ....... {money(netdebt)}")
-        print(f"    ND_{n} (after cash sweep) ....... {money(nd5)}")
-        print(f"    EqV_target = EV_target - ND_{n} . {money(eqv_target)}")
-        if mktcap and mktcap > 0 and eqv_target > 0:
-            eq_irr = (eqv_target / mktcap) ** (1 / n) - 1
-            print(f"    EqV_0 (current market cap) .... {money(mktcap)}")
+        print(f"    ND_{n} (end, {'target L*EBIT' if lever_L else 'held'}) ....... {money(nd_n)}")
+        print(f"    EqV_{n} = EV_target - ND_{n} ..... {money(eqv_n)}")
+        print(f"    EqV_0 (current market cap) .... {money(mktcap)}")
+        if eq_irr is not None:
             print(f"    >> Expected equity return (IRR) {pct(eq_irr)} / yr")
-        elif eqv_target <= 0:
+        elif eqv_n <= 0:
             print("    >> Projected equity value <= 0; equity IRR undefined.")
     if ev is not None and ev > 0 and total > 0:
         unlev = (total / ev) ** (1 / n) - 1
