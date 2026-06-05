@@ -236,6 +236,32 @@ RATING_SMALL = [(12.5, "AAA", .0059), (9.5, "AA", .0078), (7.5, "A+", .0098),
                 (0.8, "CC", .0864), (0.5, "C", .1134), (-9e9, "D", .1512)]
 FINANCIAL_SECTORS = {"Financials", "Banks", "Diversified Financials", "Insurance"}
 
+# Country risk premium (≈ Damodaran country default spread, ~2025-26). Added to
+# the discount rate for a USD-denominated valuation of a non-AAA-sovereign firm.
+# 0 for developed AAA/AA sovereigns. REFRESH live; override with --country-crp.
+COUNTRY_RISK_PREMIUM = {
+    "United States of America": 0.0, "USA": 0.0, "United States": 0.0,
+    "Germany": 0.0, "Netherlands": 0.0, "Switzerland": 0.0, "Sweden": 0.0,
+    "Denmark": 0.0, "Norway": 0.0, "Finland": 0.0, "Austria": 0.0,
+    "Ireland": 0.0, "Singapore": 0.0, "Canada": 0.0, "New Zealand": 0.0,
+    "United Kingdom": 0.003, "France": 0.003,
+    "Japan": 0.004, "Korea; Republic (S. Korea)": 0.004, "South Korea": 0.004,
+    "Korea": 0.004, "Taiwan": 0.004, "Israel": 0.010, "Italy": 0.015,
+    "China": 0.007, "India": 0.025, "Indonesia": 0.018, "Philippines": 0.018,
+    "Vietnam": 0.027, "Brazil": 0.030, "Turkey": 0.060,
+}
+
+
+def country_risk_premium(country, overrides=None):
+    """Country/sovereign risk premium for a USD valuation (0 for DM AAA/AA)."""
+    if not country:
+        return 0.0
+    key = " ".join(str(country).split())
+    ov = overrides or {}
+    if key in ov:
+        return ov[key]
+    return COUNTRY_RISK_PREMIUM.get(key, 0.0)
+
 
 def currency_base(country, overrides=None):
     """Risk-free base for a company's country. overrides: dict currency->rate."""
@@ -381,6 +407,8 @@ def main():
                          "credit rating (interest coverage) + the country risk-free base")
     ap.add_argument("--country-base", default=None,
                     help='refresh risk-free bases, e.g. "EUR=0.0303,USD=0.0405,JPY=0.0267"')
+    ap.add_argument("--country-crp", default=None,
+                    help='override country risk premiums, e.g. "India=0.025,China=0.007"')
     ap.add_argument("--col-country", default="Country of Headquarters")
     ap.add_argument("--col-gross", default="Gross debt")
     ap.add_argument("--col-tax", default="Income Tax Rate - Instrument")
@@ -472,10 +500,13 @@ def main():
         rd, rating, cov = synthetic_rd(ebit, gross, mktcap, cbase)
         industry_raw = ws.cell(row=row, column=cols["industry"]).value if cols["industry"] else ""
         is_fin = " ".join(str(industry_raw).split()) in FINANCIAL_SECTORS
+        crp = country_risk_premium(country, parse_kv_rates(args.country_crp))
         r = firm_wacc(args.re, rd, mktcap, netdebt) if (mktcap and mktcap > 0) else args.re
+        r = min(max(r + crp, 0.04), 0.25)
         cv = ">99" if cov == float("inf") else f"{cov:.1f}x"
         wacc_note = (f"  WACC (re {pct(args.re)}, {ccy} base {pct(cbase)}, cov {cv} -> "
-                     f"{rating} Rd {pct(rd)}) = {pct(r)}"
+                     f"{rating} Rd {pct(rd)}" + (f", +CRP {pct(crp)}" if crp else "")
+                     + f") = {pct(r)}"
                      + ("   [FINANCIAL: rating/coverage unreliable]" if is_fin else ""))
     else:
         r = args.r

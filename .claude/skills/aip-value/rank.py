@@ -37,6 +37,7 @@ def main():
     ap.add_argument("--re2", type=float, default=None, help="optional 2nd equity hurdle column")
     ap.add_argument("--r", type=float, default=0.12, help="flat firm rate if --re not set")
     ap.add_argument("--country-base", default=None)
+    ap.add_argument("--country-crp", default=None, help="override country risk premiums")
     ap.add_argument("--gterm", type=float, default=0.025)
     ap.add_argument("--horizon", type=int, default=5)
     ap.add_argument("--max-n2", type=int, default=150)
@@ -59,7 +60,8 @@ def main():
         cbase, ccy = m.currency_base(country, overrides)
         t = tax if (tax is not None and tax < 1) else 0.25
         rd, rating, cov = m.synthetic_rd(nopat0 / (1 - t), gross, mktcap, cbase)
-        return m.firm_wacc(re, rd, mktcap, netdebt), rd, rating
+        crp = m.country_risk_premium(country, m.parse_kv_rates(args.country_crp))
+        return min(max(m.firm_wacc(re, rd, mktcap, netdebt) + crp, 0.04), 0.25), rd, rating
 
     def exp_ret(nopat0, roiic0, rr0, r, phi, base, life, mktcap, netdebt):
         n1 = min(3, max(1, life - 1)); n2 = max(1, life - n1)

@@ -135,7 +135,7 @@ WACC = (MktCap/EV)·R_e + (NetDebt/EV)·R_d           (capped to [4%, 12%])
   Headquarters" (Europe→EUR/SEK/GBP/CHF/…, US→USD swap, Japan→JPY, Korea→KRW).
 - The **credit-spread-by-rating curve is one global table** (default risk is
   global); the only country dependence is the risk-free base. Sovereign add-on
-  ≈ 0 for US/Europe/Japan/Korea (all IG sovereigns).
+  ≈ 0 for US/Europe/Japan/Korea (all IG sovereigns); a `COUNTRY_RISK_PREMIUM` table adds a sovereign spread for EM (India, China, Brazil, Turkey…) on a USD-denominated valuation — override with `--country-crp`.
 
 ### Refresh rates live each run
 The cached `CURRENCY_BASE` (10y govt, ~early-Jun-2026) and `RATING_*` spread

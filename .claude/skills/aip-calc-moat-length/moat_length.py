@@ -60,6 +60,7 @@ def main():
                          "per-company WACC (synthetic credit rating + country risk-free)")
     ap.add_argument("--country-base", default=None,
                     help='refresh risk-free bases, e.g. "EUR=0.0303,USD=0.0405"')
+    ap.add_argument("--country-crp", default=None, help="override country risk premiums")
     ap.add_argument("--col-country", default="Country of Headquarters")
     ap.add_argument("--col-gross", default="Gross debt")
     ap.add_argument("--col-tax", default="Income Tax Rate - Instrument")
@@ -124,9 +125,11 @@ def main():
         if tax is None or tax >= 1:
             tax = 0.25
         rd, rating, cov = m.synthetic_rd(nopat0 / (1 - tax), gross, mktcap, cbase)
-        r = m.firm_wacc(args.re, rd, mktcap, netdebt)
+        crp = m.country_risk_premium(country, m.parse_kv_rates(args.country_crp))
+        r = min(max(m.firm_wacc(args.re, rd, mktcap, netdebt) + crp, 0.04), 0.25)
         cv = ">99" if cov == float("inf") else f"{cov:.1f}x"
-        rd_note = f"WACC (re {m.pct(args.re)}, {ccy} {m.pct(cbase)}, cov {cv} {rating} Rd {m.pct(rd)})"
+        rd_note = (f"WACC (re {m.pct(args.re)}, {ccy} {m.pct(cbase)}, cov {cv} {rating} "
+                   f"Rd {m.pct(rd)}" + (f", +CRP {m.pct(crp)}" if crp else "") + f") = {m.pct(r)}")
     else:
         r = args.r
     if g_term >= r:
