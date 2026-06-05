@@ -200,6 +200,96 @@ def base_rate_for(industry, override=None):
     return DEFAULT_BASE_RATE, "default"
 
 
+# ---------------------------------------------------------------------------
+# Cost of debt / WACC  (firm-specific synthetic rating + country risk-free)
+# ---------------------------------------------------------------------------
+# Cached 10y risk-free BASE by currency (govt 10y; USD already swap-adjusted
+# ~UST-40bp). REFRESH these live each run (pass --country-base "EUR=0.0303,...").
+# As of early June 2026.
+CURRENCY_BASE = {
+    "JPY": 0.0267, "SEK": 0.0273, "EUR": 0.0303, "KRW": 0.0412,
+    "GBP": 0.0485, "USD": 0.0405, "CHF": 0.0050, "NOK": 0.0441, "DKK": 0.0285,
+}
+DEFAULT_CCY_BASE = 0.04
+# Country of Headquarters -> currency.
+COUNTRY_TO_CCY = {
+    "United States": "USD", "USA": "USD", "Japan": "JPY", "South Korea": "KRW",
+    "Korea": "KRW", "Korea, Republic of": "KRW", "Sweden": "SEK",
+    "United Kingdom": "GBP", "Switzerland": "CHF", "Norway": "NOK",
+    "Denmark": "DKK",
+    # Eurozone members -> EUR
+    "Germany": "EUR", "France": "EUR", "Netherlands": "EUR", "Finland": "EUR",
+    "Italy": "EUR", "Spain": "EUR", "Ireland": "EUR", "Belgium": "EUR",
+    "Austria": "EUR", "Portugal": "EUR", "Greece": "EUR", "Luxembourg": "EUR",
+}
+# Synthetic-rating default spread by interest coverage (Damodaran, ~2024 level).
+# REFRESH the level live (ICE BofA OAS). Large-firm and small-firm breakpoints.
+RATING_LARGE = [(8.5, "AAA", .0059), (6.5, "AA", .0078), (5.5, "A+", .0098),
+                (4.25, "A", .0108), (3.0, "A-", .0122), (2.5, "BBB", .0156),
+                (2.25, "BB+", .0200), (2.0, "BB", .0240), (1.75, "B+", .0351),
+                (1.5, "B", .0421), (1.25, "B-", .0515), (0.8, "CCC", .0820),
+                (0.65, "CC", .0864), (0.2, "C", .1134), (-9e9, "D", .1512)]
+RATING_SMALL = [(12.5, "AAA", .0059), (9.5, "AA", .0078), (7.5, "A+", .0098),
+                (6.0, "A", .0108), (4.5, "A-", .0122), (4.0, "BBB", .0156),
+                (3.5, "BB+", .0200), (3.0, "BB", .0240), (2.5, "B+", .0351),
+                (2.0, "B", .0421), (1.5, "B-", .0515), (1.25, "CCC", .0820),
+                (0.8, "CC", .0864), (0.5, "C", .1134), (-9e9, "D", .1512)]
+FINANCIAL_SECTORS = {"Financials", "Banks", "Diversified Financials", "Insurance"}
+
+
+def currency_base(country, overrides=None):
+    """Risk-free base for a company's country. overrides: dict currency->rate."""
+    ccy = COUNTRY_TO_CCY.get(" ".join(str(country).split()), None) if country else None
+    if ccy is None:
+        return DEFAULT_CCY_BASE, "default"
+    rate = (overrides or {}).get(ccy, CURRENCY_BASE.get(ccy, DEFAULT_CCY_BASE))
+    return rate, ccy
+
+
+def synthetic_rd(ebit, gross_debt, mktcap, base):
+    """Iterate interest-coverage -> synthetic rating -> spread -> R_d (cost of
+    debt = base + spread). Returns (R_d, rating, coverage)."""
+    tbl = RATING_SMALL if (mktcap is not None and mktcap < 2e9) else RATING_LARGE
+    if not gross_debt or gross_debt <= 0 or ebit is None:
+        return base + tbl[0][2], tbl[0][1], float("inf")
+    rd = base + 0.015
+    rat, cov = tbl[0][1], float("inf")
+    for _ in range(8):
+        cov = ebit / (gross_debt * rd)
+        sp, rat = tbl[-1][2], tbl[-1][1]
+        for mc, r_, s_ in tbl:
+            if cov >= mc:
+                sp, rat = s_, r_
+                break
+        nrd = base + sp
+        if abs(nrd - rd) < 1e-5:
+            rd = nrd
+            break
+        rd = nrd
+    return rd, rat, cov
+
+
+def firm_wacc(re, rd, mktcap, netdebt, lo=0.04, hi=0.12):
+    """WACC from an equity hurdle re and cost of debt rd, weighted by capital
+    structure (EV = MktCap + NetDebt). Capped to [lo, hi] for sane extremes."""
+    ev = mktcap + netdebt
+    w = (mktcap / ev) * re + (netdebt / ev) * rd if ev > 0 else 1.5 * re
+    return min(max(w, lo), hi)
+
+
+def parse_kv_rates(s):
+    """Parse 'EUR=0.0303,USD=0.0405' into a dict."""
+    out = {}
+    for part in (s or "").split(","):
+        if "=" in part:
+            k, v = part.split("=", 1)
+            try:
+                out[k.strip().upper()] = float(v)
+            except ValueError:
+                pass
+    return out
+
+
 def moat_to_life(score):
     """Total competitive period (years) from the Moat Score:
        < 6.0 -> linear 0->10 ; 6.0-7.5 -> linear 10->20 ; > 7.5 -> 50."""
@@ -284,7 +374,16 @@ def main():
     ap.add_argument("file")
     ap.add_argument("company", nargs="?", default=None)
     ap.add_argument("--list", action="store_true", help="list companies and exit")
-    ap.add_argument("--r", type=float, default=0.12, help="WACC / discount rate")
+    ap.add_argument("--r", type=float, default=0.12, help="flat WACC / discount rate")
+    ap.add_argument("--re", type=float, default=None,
+                    help="required EQUITY return; if set, the discount rate becomes a "
+                         "per-company WACC = wE*re + wD*Rd, with Rd from a synthetic "
+                         "credit rating (interest coverage) + the country risk-free base")
+    ap.add_argument("--country-base", default=None,
+                    help='refresh risk-free bases, e.g. "EUR=0.0303,USD=0.0405,JPY=0.0267"')
+    ap.add_argument("--col-country", default="Country of Headquarters")
+    ap.add_argument("--col-gross", default="Gross debt")
+    ap.add_argument("--col-tax", default="Income Tax Rate - Instrument")
     ap.add_argument("--gterm", type=float, default=0.025)
     ap.add_argument("--n1", type=int, default=None,
                     help="hold years (ROICm7 flat); if omitted = 1/3 of the moat life")
@@ -322,7 +421,8 @@ def main():
     cols = find_columns(ws, {
         "name": args.col_name, "nopat": args.col_nopat,
         "roiic": args.col_roiic, "rr": args.col_rr, "moat": args.col_moat,
-        "industry": args.col_industry,
+        "industry": args.col_industry, "country": args.col_country,
+        "gross": args.col_gross, "tax": args.col_tax,
         "ev": "EV", "mktcap": "Market Cap", "netdebt": "Net debt",
         "shares": "Shares used to calculate Diluted EPS - Total",
         "price": "Close Price", "ticker": "Instrument",
@@ -355,7 +455,32 @@ def main():
         sys.exit(f"Missing driver inputs for {company}: "
                  f"NOPAT={nopat0}, ROIIC={roiic0}, RR={rr0}")
 
-    r, g_term = args.r, args.gterm
+    g_term = args.gterm
+    mktcap = num(ws, row, cols["mktcap"])
+    netdebt = num(ws, row, cols["netdebt"]) or 0.0
+
+    # Discount rate: flat --r, or a per-company WACC from an equity hurdle --re.
+    wacc_note = ""
+    if args.re is not None:
+        country = ws.cell(row=row, column=cols["country"]).value if cols["country"] else None
+        cbase, ccy = currency_base(country, parse_kv_rates(args.country_base))
+        gross = num(ws, row, cols["gross"])
+        tax = num(ws, row, cols["tax"])
+        if tax is None or tax >= 1:
+            tax = 0.25
+        ebit = nopat0 / (1 - tax)
+        rd, rating, cov = synthetic_rd(ebit, gross, mktcap, cbase)
+        industry_raw = ws.cell(row=row, column=cols["industry"]).value if cols["industry"] else ""
+        is_fin = " ".join(str(industry_raw).split()) in FINANCIAL_SECTORS
+        r = firm_wacc(args.re, rd, mktcap, netdebt) if (mktcap and mktcap > 0) else args.re
+        cv = ">99" if cov == float("inf") else f"{cov:.1f}x"
+        wacc_note = (f"  WACC (re {pct(args.re)}, {ccy} base {pct(cbase)}, cov {cv} -> "
+                     f"{rating} Rd {pct(rd)}) = {pct(r)}"
+                     + ("   [FINANCIAL: rating/coverage unreliable]" if is_fin else ""))
+    else:
+        r = args.r
+    if g_term >= r:
+        sys.exit(f"g_term ({g_term}) must be < r ({r:.4f}).")
 
     # Competitive period from the Moat Score: total life = n1 + n2. n1 is a
     # fixed 3y hold of ROICm7; n2 is the rest, fading to the base rate at the
@@ -388,6 +513,8 @@ def main():
     print(f"\nAIP VALUE — two-phase ROIIC DCF — {company} {f'({ticker})' if ticker else ''}")
     print(f"WACC r = {pct(r)}   n1(hold)={n1}y  n2(fade)={n2}y  phi={phi:.2f}   "
           f"g_term = {pct(g_term)}   ({src})")
+    if wacc_note:
+        print(wacc_note)
     print("=" * 70)
     print(f"  NOPAT_0 (New Operating Income) .... {money(nopat0)}")
     print(f"  ROIIC_0 (ROICm 7, held in phase 1)  {pct(roiic0)}")

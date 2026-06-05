@@ -54,7 +54,15 @@ def main():
     ap.add_argument("file")
     ap.add_argument("company", nargs="?", default=None)
     ap.add_argument("--list", action="store_true", help="list companies and exit")
-    ap.add_argument("--r", type=float, default=0.12, help="required return (default 0.12)")
+    ap.add_argument("--r", type=float, default=0.12, help="flat required return (firm-level)")
+    ap.add_argument("--re", type=float, default=None,
+                    help="required EQUITY return; if set, the discount rate becomes a "
+                         "per-company WACC (synthetic credit rating + country risk-free)")
+    ap.add_argument("--country-base", default=None,
+                    help='refresh risk-free bases, e.g. "EUR=0.0303,USD=0.0405"')
+    ap.add_argument("--col-country", default="Country of Headquarters")
+    ap.add_argument("--col-gross", default="Gross debt")
+    ap.add_argument("--col-tax", default="Income Tax Rate - Instrument")
     ap.add_argument("--gterm", type=float, default=0.025)
     ap.add_argument("--n1", type=int, default=3, help="fixed hold years (default 3)")
     ap.add_argument("--persistence", type=float, default=None,
@@ -71,15 +79,13 @@ def main():
     ap.add_argument("--col-industry", default="GICS Industry Group Name")
     args = ap.parse_args()
 
-    if args.gterm >= args.r:
-        sys.exit(f"g_term ({args.gterm}) must be < r ({args.r}).")
-
     import openpyxl
     wb = openpyxl.load_workbook(args.file, data_only=True)
     ws = wb[args.sheet] if args.sheet else wb.worksheets[0]
     cols = m.find_columns(ws, {
         "name": args.col_name, "nopat": args.col_nopat, "roiic": args.col_roiic,
         "rr": args.col_rr, "moat": args.col_moat, "industry": args.col_industry,
+        "country": args.col_country, "gross": args.col_gross, "tax": args.col_tax,
         "ev": "EV", "mktcap": "Market Cap", "netdebt": "Net debt", "ticker": "Instrument",
     })
     if cols["name"] is None:
@@ -109,7 +115,22 @@ def main():
         sys.exit(f"Missing inputs for {company}: NOPAT={nopat0}, ROIIC={roiic0}, "
                  f"RR={rr0}, MktCap={mktcap}")
 
-    r, g_term, n1 = args.r, args.gterm, args.n1
+    g_term, n1 = args.gterm, args.n1
+    rd_note = ""
+    if args.re is not None:
+        country = ws.cell(row=row, column=cols["country"]).value if cols["country"] else None
+        cbase, ccy = m.currency_base(country, m.parse_kv_rates(args.country_base))
+        gross = m.num(ws, row, cols["gross"]); tax = m.num(ws, row, cols["tax"])
+        if tax is None or tax >= 1:
+            tax = 0.25
+        rd, rating, cov = m.synthetic_rd(nopat0 / (1 - tax), gross, mktcap, cbase)
+        r = m.firm_wacc(args.re, rd, mktcap, netdebt)
+        cv = ">99" if cov == float("inf") else f"{cov:.1f}x"
+        rd_note = f"WACC (re {m.pct(args.re)}, {ccy} {m.pct(cbase)}, cov {cv} {rating} Rd {m.pct(rd)})"
+    else:
+        r = args.r
+    if g_term >= r:
+        sys.exit(f"g_term ({g_term}) must be < r ({r:.4f}).")
 
     moat = m.num(ws, row, cols["moat"])
     mp = m.moat_to_cap_persistence(moat)
@@ -160,8 +181,10 @@ def main():
 
     ticker = ws.cell(row=row, column=cols["ticker"]).value if cols["ticker"] else ""
     print(f"\nAIP IMPLIED MOAT LENGTH — {company} {f'({ticker})' if ticker else ''}")
-    print(f"required return r = {m.pct(r)}   phi = {phi:.2f} [{tier}]   "
+    print(f"discount r = {m.pct(r)}   phi = {phi:.2f} [{tier}]   "
           f"g_term = {m.pct(g_term)}   n1(hold) = {n1}y")
+    if rd_note:
+        print(f"  {rd_note}")
     print("=" * 66)
     print(f"  NOPAT_0 ........................ {m.money(nopat0)}")
     print(f"  ROIIC_0 (ROICm 7) .............. {m.pct(roiic0)}")

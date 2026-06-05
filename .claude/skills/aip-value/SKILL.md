@@ -113,6 +113,36 @@ only). No score → defaults to Narrow (CAP 8y, φ 0.75).
 > Notation: the source framework writes the persistence factor as `r`; here `r`
 > is the discount rate, so the persistence factor is `φ` (`--persistence`).
 
+## Cost of capital — equity hurdle → per-company WACC (`--re`)
+
+By default `--r` is a flat firm discount rate. Pass **`--re` (required *equity*
+return)** instead and the model discounts each company at its own **WACC**:
+```
+R_d  = country risk-free base + synthetic credit spread   (Damodaran method)
+       synthetic rating from interest coverage = EBIT / (gross debt × R_d),
+       EBIT = New Operating Income / (1 − tax), iterated; small-firm table < $2bn
+WACC = (MktCap/EV)·R_e + (NetDebt/EV)·R_d           (capped to [4%, 12%])
+```
+- **Country risk-free** comes from a currency table keyed on "Country of
+  Headquarters" (Europe→EUR/SEK/GBP/CHF/…, US→USD swap, Japan→JPY, Korea→KRW).
+- The **credit-spread-by-rating curve is one global table** (default risk is
+  global); the only country dependence is the risk-free base. Sovereign add-on
+  ≈ 0 for US/Europe/Japan/Korea (all IG sovereigns).
+
+### Refresh rates live each run
+The cached `CURRENCY_BASE` (10y govt, ~early-Jun-2026) and `RATING_*` spread
+tables (~2024 ICE BofA level) **go stale**. When invoking a valuation, first
+**web-search the current 10y government yields** for the countries in the file
+(USD: subtract ~40bp for the swap) and, ideally, the current ICE BofA OAS
+levels, then pass them in:
+```
+--re 0.07 --country-base "SEK=0.0273,EUR=0.0303,USD=0.0405,JPY=0.0267,KRW=0.0412"
+```
+If offline, the script falls back to the cached values (printed in the WACC line
+so the user sees what was used). **Exclude banks/financials** — interest
+coverage is meaningless when gross debt is customer funding (the output flags
+them).
+
 ## Expected return (IRR)
 
 The calculator annualizes the return over an `n`-year horizon (default 5):
