@@ -316,6 +316,55 @@ def parse_kv_rates(s):
     return out
 
 
+# ---------------------------------------------------------------------------
+# Sales-growth base rates (Mauboussin, "The Impact of Intangibles on Base
+# Rates", 2021, Exhibit 3 — 10y median CAGR and std, by SIZE x INDUSTRY,
+# 1984-2020). Used to cap the model's growth: a firm can't out-grow its size.
+# ---------------------------------------------------------------------------
+SALES_GROWTH_BASE_10Y = {   # size bucket -> industry -> (median, std)
+    "<1":    {"Healthcare": (.119, .265), "Technology": (.084, .136), "Consumer": (.074, .121), "Manufacturing": (.072, .111), "Other": (.076, .134), "All": (.078, .144)},
+    "1-5":   {"Healthcare": (.077, .070), "Technology": (.057, .120), "Consumer": (.059, .078), "Manufacturing": (.051, .081), "Other": (.056, .101), "All": (.056, .091)},
+    "5-10":  {"Healthcare": (.083, .050), "Technology": (.025, .104), "Consumer": (.052, .061), "Manufacturing": (.045, .062), "Other": (.037, .120), "All": (.045, .085)},
+    "10-25": {"Healthcare": (.063, .061), "Technology": (.044, .072), "Consumer": (.045, .066), "Manufacturing": (.027, .061), "Other": (.032, .065), "All": (.036, .065)},
+    "25-50": {"Healthcare": (.053, .046), "Technology": (.049, .085), "Consumer": (.043, .063), "Manufacturing": (.022, .071), "Other": (.035, .060), "All": (.037, .066)},
+    "50-100":{"Healthcare": (.016, .044), "Technology": (.088, .073), "Consumer": (.040, .060), "Manufacturing": (.028, .096), "Other": (.052, .052), "All": (.039, .070)},
+    ">100":  {"Healthcare": (.079, .004), "Technology": (.020, .036), "Consumer": (.034, .048), "Manufacturing": (.010, .076), "Other": (-.013, .044), "All": (.022, .059)},
+}
+GICS_TO_MAUBOUSSIN = {
+    "Capital Goods": "Manufacturing", "Materials": "Manufacturing",
+    "Commercial & Professional Services": "Other", "Transportation": "Other",
+    "Automobiles & Components": "Consumer", "Consumer Durables & Apparel": "Consumer",
+    "Consumer Discretionary Distribution & Retail": "Consumer", "Consumer Services": "Consumer",
+    "Food, Beverage & Tobacco": "Consumer",
+    "Health Care Equipment & Services": "Healthcare",
+    "Pharmaceuticals, Biotechnology & Life Sciences": "Healthcare",
+    "Software & Services": "Technology", "Technology Hardware & Equipment": "Technology",
+    "Semiconductors & Semiconductor Equipment": "Technology",
+    "Media & Entertainment": "Other", "Telecommunication Services": "Other",
+    "Utilities": "Other", "Energy": "Other", "Financials": "Other",
+}
+GROWTH_Z = {"median": 0.0, "p75": 0.6745, "p90": 1.2816}   # normal-approx percentile
+
+
+def _size_bucket(sales):
+    for hi, key in ((1e9, "<1"), (5e9, "1-5"), (10e9, "5-10"), (25e9, "10-25"),
+                    (50e9, "25-50"), (100e9, "50-100")):
+        if sales < hi:
+            return key
+    return ">100"
+
+
+def sales_growth_base(sales, gics_industry, z=0.6745):
+    """Long-run sales-growth ceiling for a firm of this size & industry
+    (Exhibit 3 10y median + z·std). z selects the percentile (0=median)."""
+    if sales is None or sales <= 0:
+        return None
+    mau = GICS_TO_MAUBOUSSIN.get(" ".join(str(gics_industry).split()), "Other")
+    cell = SALES_GROWTH_BASE_10Y[_size_bucket(sales)]
+    med, std = cell.get(mau, cell["All"])
+    return med + z * std
+
+
 def moat_to_life(score):
     """Total competitive period (years) from the Moat Score:
        < 6.0 -> linear 0->10 ; 6.0-7.5 -> linear 10->20 ; > 7.5 -> 50."""
@@ -337,14 +386,18 @@ def split_life(life):
     return n1, n2
 
 
-def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base):
+def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
+                  sales0=None, gics_industry=None, growth_z=None):
     """Two-phase DCF. Phase 1 (n1 yrs): hold ROIIC at ROICm7 and RR at RR_0.
     Phase 2 (n2 yrs): ROIIC mean-reverts to the base rate and RR mean-reverts to
     the sustainable terminal rate RR_target = g_term/base, both at persistence
-    phi. Terminal settles at the base rate. Growth is NOT capped in the moat
-    period (it is finite there); only the terminal enforces g_eff < r. Returns
-    schedule, PVs, total, FCF fn."""
+    phi. Terminal settles at the base rate. If sales0/gics_industry/growth_z are
+    given, growth each year is capped at the Mauboussin size×industry sales-growth
+    base rate (a firm can't out-grow its size); the surplus is paid out as FCF.
+    Returns schedule, PVs, total, FCF fn."""
     rr_target = (g_term / base) if base > 0 else 0.0
+    cap_growth = (sales0 is not None and growth_z is not None and sales0 > 0)
+    sales_run = [sales0 if cap_growth else None]
     nopat_path = [nopat0]          # index t -> NOPAT at end of year t (0 = today)
     fcf_path = [None]
     sched = []                     # (t, roiic_t, rr_t, g_t, phase)
@@ -353,6 +406,13 @@ def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base):
     def step(t, roiic_t, rr_t, phase):
         nonlocal pv_explicit
         g_t = roiic_t * rr_t
+        if cap_growth:
+            g_base = sales_growth_base(sales_run[t - 1], gics_industry, growth_z)
+            if g_base is not None and g_t > g_base:
+                g_t = g_base
+                if roiic_t > 1e-9:
+                    rr_t = g_t / roiic_t          # trim reinvestment; surplus -> FCF
+            sales_run.append(sales_run[t - 1] * (1 + g_t))
         nopat_t = nopat_path[t - 1] * (1 + g_t)
         fcf_t = nopat_t * (1 - rr_t)
         nopat_path.append(nopat_t)
@@ -438,6 +498,11 @@ def main():
     ap.add_argument("--col-name", default="Company Name")
     ap.add_argument("--col-moat", default="Moat Score")
     ap.add_argument("--col-industry", default="GICS Industry Group Name")
+    ap.add_argument("--col-sales", default="Sales")
+    ap.add_argument("--growth-cap", action="store_true",
+                    help="cap annual growth at the Mauboussin size x industry sales-growth base rate")
+    ap.add_argument("--growth-percentile", default="p75", choices=["median", "p75", "p90"],
+                    help="percentile of the sales-growth base rate to cap at (default p75)")
     args = ap.parse_args()
 
     if args.gterm >= args.r:
@@ -450,7 +515,7 @@ def main():
         "name": args.col_name, "nopat": args.col_nopat,
         "roiic": args.col_roiic, "rr": args.col_rr, "moat": args.col_moat,
         "industry": args.col_industry, "country": args.col_country,
-        "gross": args.col_gross, "tax": args.col_tax,
+        "gross": args.col_gross, "tax": args.col_tax, "sales": args.col_sales,
         "ev": "EV", "mktcap": "Market Cap", "netdebt": "Net debt",
         "shares": "Shares used to calculate Diluted EPS - Total",
         "price": "Close Price", "ticker": "Instrument",
@@ -537,7 +602,16 @@ def main():
         base += args.base_inflation
         base_src += f" +{pct(args.base_inflation)} infl"
 
-    res = value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base)
+    sales0 = num(ws, row, cols["sales"]) if (args.growth_cap and cols["sales"]) else None
+    gz = GROWTH_Z[args.growth_percentile] if args.growth_cap else None
+    res = value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
+                        sales0=sales0, gics_industry=industry, growth_z=gz)
+    growth_note = ""
+    if args.growth_cap and sales0:
+        growth_note = (f"  growth cap [{args.growth_percentile}]: sales {money(sales0)} "
+                       f"[{_size_bucket(sales0)}, "
+                       f"{GICS_TO_MAUBOUSSIN.get(' '.join(str(industry).split()),'Other')}]"
+                       f" -> g_base {pct(sales_growth_base(sales0, industry, gz))}")
     total = res["total"]
 
     ticker = ws.cell(row=row, column=cols["ticker"]).value if cols["ticker"] else ""
@@ -546,6 +620,8 @@ def main():
           f"g_term = {pct(g_term)}   ({src})")
     if wacc_note:
         print(wacc_note)
+    if growth_note:
+        print(growth_note)
     print("=" * 70)
     print(f"  NOPAT_0 (New Operating Income) .... {money(nopat0)}")
     print(f"  ROIIC_0 (ROICm 7, held in phase 1)  {pct(roiic0)}")

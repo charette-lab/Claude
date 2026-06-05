@@ -167,3 +167,15 @@ the fade schedule, total operating value, implied equity & per-share value, the
 expected return, and the gap to market price — plus the key sensitivities
 (usually `ROICm 7`, `RR 7`, the moat tier, `r`). Flag clearly that this is an
 analytical framework, not investment advice.
+
+
+## Sales-growth cap (Base Rate Book)
+
+`--growth-cap` caps each year's growth at the **Mauboussin size × industry
+sales-growth base rate** (Exhibit 3, "The Impact of Intangibles on Base Rates",
+2021 — 10y median CAGR + z·std, keyed on the `Sales` column and GICS industry).
+A firm can't out-grow its size; when the cap binds, the surplus is paid out as
+FCF. `--growth-percentile median|p75|p90` (default p75) credits a moat with
+above-median but bounded growth. This kills the high-ROIC extrapolation artifact
+(e.g. Howmet falls from +244% to −24%). The book covers *growth* only — long-run
+**margin** base rates are a separate, not-yet-sourced input.
