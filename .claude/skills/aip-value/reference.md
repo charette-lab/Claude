@@ -85,24 +85,26 @@ PV_explicit = Σ_{t=1..N} FCF_t / (1 + r)^t
 
 ## Step 4 — Terminal value
 
-After `N` years ROIIC has settled at the industry **base rate** and RR stays at
-its structural level `RR_0`, so the perpetuity is **reinvestment-driven**:
-`g_eff = min( base·RR_0, 0.99·base, 0.99·r )` and `RR_term = g_eff/base = RR_0`.
-The sales-growth floor is **not** applied in perpetuity — forcing industry-rate
-growth forever would need an artificially high RR reinvested at `base` (below WACC
-for many firms), destroying value with no end. The floor lives in the explicit
-competitive period only.
+**Competitive equilibrium** (standard McKinsey/Mauboussin continuing value). By
+the end of the CAP the return on **new** invested capital (RONIC) has competed
+down to the **cost of capital**, so terminal growth is **value-neutral**: it runs
+at a GDP-like rate `g_term` but adds nothing to value. With `RONIC = WACC` the
+cost of that growth is `RR_term = g_term/WACC`, and the value-driver formula
+collapses to `NOPAT_N·(1+g)/WACC`. The sales-growth floor lives in the explicit
+competitive period only — it is **not** applied in perpetuity.
 
 ```
-g_eff   = min( base · RR_0 , 0.99·base , 0.99·r )
-RR_term = g_eff / base            # = RR_0
-TV      = NOPAT_N · (1 + g_eff) · (1 − RR_term) / (r − g_eff)
+g_eff   = min( g_term , 0.99·r )      # GDP-like terminal growth
+RONIC   = r                           # return on new capital = cost of capital
+RR_term = g_eff / RONIC = g_eff / r   # the cost of that growth
+TV      = NOPAT_N · (1 + g_eff) · (1 − RR_term) / (r − g_eff)  ==  NOPAT_N · (1 + g_eff) / r
 PV_TV   = TV / (1 + r)^N
 ```
 
-Because RR stays at `RR_0`, a firm that reinvests little grows little in
-perpetuity — the honest answer when its return has settled at the base rate.
-(`base ≤ 0` falls back to `TV = NOPAT_N / r`.)
+Because `RONIC = WACC`, the growth rate cancels out of value — pick any `g_term`
+(GDP ≈ 2.5%) and the terminal is worth the same `NOPAT_N·(1+g)/r`. Growth in
+perpetuity is neither rewarded nor penalised, which is the only defensible
+long-run assumption (no firm out-earns its cost of capital forever).
 
 ## Step 5 — Total operating value
 

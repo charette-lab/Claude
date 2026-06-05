@@ -86,12 +86,14 @@ terminal, where it would force that value destruction forever (see below).
 `n1 = 3y` (fixed hold) and `n2 = moat-life − 3`, so `n1 + n2` = the moat-score
 competitive life (`< 6 → <10y`, `6–7.5 → 10–20y`, `> 7.5 → 50y`). `φ` from the
 moat tier (`--persistence`).
-**Terminal** (ROIIC has settled at the base rate; RR stays at its structural
-level `RR_0`, so the perpetuity is **reinvestment-driven** and `RR_term = RR_0` —
-no sales floor here, so it can't force value-destroying growth forever):
+**Terminal — competitive equilibrium.** By the end of the CAP the return on
+**new** invested capital (RONIC) has competed down to the **cost of capital**, so
+terminal growth is **value-neutral**: it runs at a GDP-like rate `g_term` but adds
+nothing. `RONIC = WACC` ⇒ `RR_term = g_term/WACC` and the terminal collapses to
+`NOPAT_N·(1+g)/WACC`:
 ```
-g_eff = min( base·RR_0 , 0.99·base , 0.99·r ) ;  RR_term = g_eff/base = RR_0
-TV    = NOPAT_N · (1 + g_eff) · (1 − RR_term) / (r − g_eff)
+g_eff = min( g_term , 0.99·r ) ;  RONIC = r ;  RR_term = g_eff/r
+TV    = NOPAT_N · (1 + g_eff) · (1 − RR_term) / (r − g_eff)  ==  NOPAT_N·(1+g)/r
 PV_TV = TV / (1+r)^N
 Total Operating Value = PV_explicit + PV_TV
 ```
