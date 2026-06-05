@@ -314,6 +314,87 @@ def firm_wacc(re, rd, mktcap, netdebt, lo=0.04, hi=0.12):
     return min(max(w, lo), hi)
 
 
+def firm_wacc_taxed(re, rd, mktcap, netdebt, tax, lo=0.04, hi=0.25):
+    """WACC with the debt tax shield applied: wE*re + wD*rd*(1-tax)."""
+    ev = mktcap + netdebt
+    w = (mktcap / ev) * re + (netdebt / ev) * rd * (1 - tax) if ev > 0 else re
+    return min(max(w, lo), hi)
+
+
+# ---------------------------------------------------------------------------
+# De-risking / lever-up over the fade (time-varying WACC)
+# ---------------------------------------------------------------------------
+# As returns fade the business de-risks and supports more debt. We lever to an
+# industry-standard target (net debt = L x EBIT), re-rate the credit at that debt
+# level for a mature Rd, apply the tax shield, and hold the equity hurdle fixed;
+# excess cash is distributed (so leverage stays at target rather than de-levering).
+# Target net debt / EBIT by sector (mature, investment-grade norms).
+TARGET_NETDEBT_EBIT = {
+    "Utilities": 5.0, "Telecommunication Services": 3.5, "Consumer Staples": 3.0,
+    "Industrials": 3.0, "Health Care": 2.5, "Consumer Discretionary": 2.5,
+    "Materials": 2.5, "Energy": 2.0, "Information Technology": 1.5,
+    "Financials": 3.0,
+}
+DEFAULT_TARGET_LEV = 2.5
+
+
+def target_leverage(industry, override=None):
+    """Mature net debt / EBIT target for the firm's sector."""
+    if override is not None:
+        return override
+    sec = INDUSTRY_TO_SECTOR.get(" ".join(str(industry).split())) if industry else None
+    return TARGET_NETDEBT_EBIT.get(sec, DEFAULT_TARGET_LEV)
+
+
+def mature_cost_of_debt(L, base_rf, mktcap):
+    """Rd at the mature target leverage. With net debt = L*EBIT, interest coverage
+    = EBIT/(debt*Rd) = 1/(L*Rd) — independent of size — so the mature rating is set
+    purely by L and Rd. Iterate rating -> spread -> Rd. Returns (Rd, rating, cov)."""
+    tbl = RATING_SMALL if (mktcap is not None and mktcap < 2e9) else RATING_LARGE
+    if L <= 0:
+        return base_rf + tbl[0][2], tbl[0][1], float("inf")
+    rd = base_rf + 0.015
+    rat, cov = tbl[0][1], float("inf")
+    for _ in range(12):
+        cov = 1.0 / (L * rd)
+        sp, rat = tbl[-1][2], tbl[-1][1]
+        for mc, r_, s_ in tbl:
+            if cov >= mc:
+                sp, rat = s_, r_
+                break
+        nrd = base_rf + sp
+        if abs(nrd - rd) < 1e-6:
+            rd = nrd
+            break
+        rd = nrd
+    return rd, rat, cov
+
+
+def mature_wacc(re, rd_m, L, tax, lo=0.04):
+    """Mature target-leverage WACC with the debt tax shield. From the value-neutral
+    terminal TV = NOPAT*(1+g)/WACC the terminal debt weight is wD = L*WACC/(1-tax),
+    giving the closed form WACC = re/(1-k), k = L*(rd_m - re/(1-tax)). Returns
+    (WACC, wD)."""
+    k = L * (rd_m - re / (1 - tax))
+    w = re / (1 - k) if (1 - k) > 1e-6 else re
+    w = min(max(w, lo), re)
+    wd = min(L * w / (1 - tax), 0.95)
+    return w, wd
+
+
+def wacc_glide(wacc0, wacc_m, n1, n2):
+    """Hold wacc0 through the n1 hold, then glide linearly to the mature wacc_m
+    across the n2 fade. Returns a list of length n1+n2 (1 WACC per explicit year)."""
+    path = []
+    for t in range(1, n1 + n2 + 1):
+        if t <= n1:
+            path.append(wacc0)
+        else:
+            frac = (t - n1) / n2 if n2 > 0 else 1.0
+            path.append(wacc0 + (wacc_m - wacc0) * frac)
+    return path
+
+
 def parse_kv_rates(s):
     """Parse 'EUR=0.0303,USD=0.0405' into a dict."""
     out = {}
@@ -398,7 +479,8 @@ def split_life(life):
 
 
 def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
-                  sales0=None, gics_industry=None, sales_floor=True):
+                  sales0=None, gics_industry=None, sales_floor=True,
+                  wacc_path=None, wacc_terminal=None):
     """Reinvestment-driven DCF. Phase 1 (n1 yrs) holds ROIIC at ROICm7; Phase 2
     (n2 yrs) mean-reverts ROIIC to the CFROI base at persistence phi. RR_0 is the
     structural reinvestment rate, held flat, so growth g = ROIIC * RR_0 falls as
@@ -407,10 +489,22 @@ def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
     artificially low: g_t = max(ROIIC_t*RR_0, sales_base_median); when the floor
     binds, RR_t = g_t/ROIIC_t is lifted to fund it. Where the faded ROIIC < WACC,
     that forced reinvestment is value-destroying (correct & conservative). With no
-    sales/gics, the floor falls back to g_term. Returns schedule, PVs, total, FCF
-    fn."""
+    sales/gics, the floor falls back to g_term.
+
+    Discounting: a flat WACC r, OR a time-varying wacc_path (list, 1 per explicit
+    year) when the firm de-risks and levers up to a mature target over the fade.
+    wacc_terminal is the perpetuity rate (defaults to the last path value, else r).
+    Returns schedule, PVs, total, FCF fn."""
     use_floor = bool(sales_floor)
     sales_run = [sales0 if (sales0 and sales0 > 0) else None]
+
+    def wacc_at(t):
+        if wacc_path:
+            return wacc_path[min(t, len(wacc_path)) - 1]
+        return r
+
+    r_term = wacc_terminal if wacc_terminal is not None else (
+        wacc_path[-1] if wacc_path else r)
 
     def floor_at(t):
         """Sales-growth median floor for the firm's size in year t (g_term if no sales)."""
@@ -427,6 +521,7 @@ def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
     fcf_path = [None]
     sched = []                      # (t, roiic_t, rr_t, g_t, phase)
     pv_explicit = 0.0
+    cumdf = [1.0]                   # cumulative discount factor, index t
 
     def step(t, roiic_t, phase):
         nonlocal pv_explicit
@@ -440,7 +535,8 @@ def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
         if sales_run[0] is not None:
             sales_run.append(sales_run[t - 1] * (1 + g_t))
         sched.append((t, roiic_t, rr_t, g_t, phase))
-        pv_explicit += fcf_t / (1 + r) ** t
+        cumdf.append(cumdf[t - 1] * (1 + wacc_at(t)))
+        pv_explicit += fcf_t / cumdf[t]
 
     for t in range(1, n1 + 1):                       # Phase 1 — hold ROICm7
         step(t, roiic0, "hold")
@@ -456,12 +552,13 @@ def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
     # down to the cost of capital, so terminal growth is value-NEUTRAL: it runs at a
     # GDP-like rate (g_term) but adds nothing to value. With RONIC = WACC the cost
     # of that growth is RR_term = g_eff / WACC, and TV reduces to NOPAT_N*(1+g)/r.
-    g_eff = min(g_term, 0.99 * r)                 # GDP-like terminal growth
-    roiic_term = r                                # RONIC = cost of capital
+    # r_term is the mature (post-glide) WACC when the firm has de-risked/levered up.
+    g_eff = min(g_term, 0.99 * r_term)            # GDP-like terminal growth
+    roiic_term = r_term                           # RONIC = cost of capital
     rr_term = g_eff / roiic_term if roiic_term > 0 else 0.0
     cf_term = nopat_n * (1 + g_eff) * (1 - rr_term)
-    tv = cf_term / (r - g_eff) if r > g_eff else nopat_n / r
-    pv_tv = tv / (1 + r) ** cap
+    tv = cf_term / (r_term - g_eff) if r_term > g_eff else nopat_n / r_term
+    pv_tv = tv / cumdf[cap]
     total = pv_explicit + pv_tv
 
     def cf_for_year(t):
@@ -473,7 +570,7 @@ def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
     return {"sched": sched, "pv_explicit": pv_explicit, "tv": tv, "pv_tv": pv_tv,
             "total": total, "nopat_n": nopat_n, "base": base, "n1": n1, "n2": n2,
             "rr_term": rr_term, "g_eff": g_eff, "roiic_term": roiic_term,
-            "cf_for_year": cf_for_year}
+            "r_term": r_term, "cf_for_year": cf_for_year}
 
 
 def main():
@@ -524,6 +621,12 @@ def main():
     ap.add_argument("--no-sales-floor", action="store_true",
                     help="disable the Mauboussin sales-growth MEDIAN floor on g "
                          "(by default g is floored so RR can't be artificially low)")
+    ap.add_argument("--lever-glide", action="store_true",
+                    help="de-risk over the fade: glide WACC from today's structure to a "
+                         "mature target-leverage WACC (net debt = L*EBIT, re-rated credit, "
+                         "tax shield, equity hurdle fixed). Requires --re.")
+    ap.add_argument("--target-lev", type=float, default=None,
+                    help="override the mature net debt / EBIT target (default: sector table)")
     args = ap.parse_args()
 
     if args.gterm >= args.r:
@@ -575,6 +678,7 @@ def main():
 
     # Discount rate: flat --r, or a per-company WACC from an equity hurdle --re.
     wacc_note = ""
+    cbase = tax = rd = crp = None
     if args.re is not None:
         country = ws.cell(row=row, column=cols["country"]).value if cols["country"] else None
         cbase, ccy = currency_base(country, parse_kv_rates(args.country_base))
@@ -625,8 +729,31 @@ def main():
 
     sales0 = num(ws, row, cols["sales"]) if cols["sales"] else None
     use_floor = not args.no_sales_floor
+
+    # Optional: de-risk / lever-up glide — WACC falls over the fade to a mature
+    # target-leverage WACC (net debt = L*EBIT, re-rated credit, tax shield).
+    wacc_path = wacc_terminal = None
+    glide_note = ""
+    if args.lever_glide:
+        if args.re is None:
+            sys.exit("--lever-glide requires --re (the equity hurdle).")
+        L = target_leverage(industry, args.target_lev)
+        rd_m, rat_m, cov_m = mature_cost_of_debt(L, cbase, mktcap)
+        wacc0 = min(max(firm_wacc_taxed(args.re, rd, mktcap, netdebt, tax) + crp, 0.04), args.re + crp)
+        wm, wd_m = mature_wacc(args.re, rd_m, L, tax)
+        wm = min(max(wm + crp, 0.04), 0.25)
+        wacc_path = wacc_glide(wacc0, wm, n1, n2)
+        wacc_terminal = wm
+        r = wacc0                       # report the starting WACC as headline
+        glide_note = (f"  lever-glide: WACC {pct(wacc0)} (today, tax-shielded) -> {pct(wm)} "
+                      f"mature  [L={L:.1f}x net debt/EBIT, Rd {pct(rd_m)} {rat_m}, "
+                      f"mature wD {wd_m:.0%}]")
+        if g_term >= wm:
+            sys.exit(f"g_term ({g_term}) must be < mature WACC ({wm:.4f}).")
+
     res = value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
-                        sales0=sales0, gics_industry=industry, sales_floor=use_floor)
+                        sales0=sales0, gics_industry=industry, sales_floor=use_floor,
+                        wacc_path=wacc_path, wacc_terminal=wacc_terminal)
     growth_note = ""
     if use_floor and sales0:
         growth_note = (f"  sales-growth floor [median]: sales {money(sales0)} "
@@ -641,6 +768,8 @@ def main():
           f"g_term = {pct(g_term)}   ({src})")
     if wacc_note:
         print(wacc_note)
+    if glide_note:
+        print(glide_note)
     if growth_note:
         print(growth_note)
     print("=" * 70)
@@ -657,7 +786,7 @@ def main():
         if t in marks:
             print(f"    year {t:>2} [{phase}]:  ROIIC {pct(roiic_t):>8}  RR {pct(rr_t):>7}  g {pct(g_t):>8}")
 
-    print(f"\n  Terminal (competitive equilibrium): RONIC = WACC {pct(r)}, "
+    print(f"\n  Terminal (competitive equilibrium): RONIC = WACC {pct(res['r_term'])}, "
           f"g_eff {pct(res['g_eff'])} (GDP), RR_term {pct(res['rr_term'])} "
           f"-> growth value-neutral")
     print(f"  PV(explicit FCF, yrs 1-{n1+n2}) ...... {money(res['pv_explicit'])}")

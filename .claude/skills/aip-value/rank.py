@@ -40,6 +40,9 @@ def main():
     ap.add_argument("--country-crp", default=None, help="override country risk premiums")
     ap.add_argument("--no-sales-floor", action="store_true",
                     help="disable the Mauboussin sales-growth MEDIAN floor on g")
+    ap.add_argument("--lever-glide", action="store_true",
+                    help="de-risk over the fade: glide WACC to a mature target-leverage WACC")
+    ap.add_argument("--target-lev", type=float, default=None)
     ap.add_argument("--gterm", type=float, default=0.025)
     ap.add_argument("--horizon", type=int, default=5)
     ap.add_argument("--max-n2", type=int, default=150)
@@ -56,26 +59,37 @@ def main():
         "tax": "Income Tax Rate - Instrument", "mktcap": "Market Cap",
         "netdebt": "Net debt", "ticker": "Instrument", "sales": "Sales"})
 
-    def discount_rate(re, nopat0, mktcap, netdebt, gross, tax, country):
+    def discount_rate(re, nopat0, mktcap, netdebt, gross, tax, country, ind=None):
+        """Returns (wacc0, rd, rating, glide) where glide is (wacc0, wm) or None."""
         if re is None:
-            return args.r, None, None
+            return args.r, None, None, None
         cbase, ccy = m.currency_base(country, overrides)
         t = tax if (tax is not None and tax < 1) else 0.25
         rd, rating, cov = m.synthetic_rd(nopat0 / (1 - t), gross, mktcap, cbase)
         crp = m.country_risk_premium(country, m.parse_kv_rates(args.country_crp))
-        return min(max(m.firm_wacc(re, rd, mktcap, netdebt) + crp, 0.04), 0.25), rd, rating
+        if args.lever_glide:
+            L = m.target_leverage(ind, args.target_lev)
+            rd_m = m.mature_cost_of_debt(L, cbase, mktcap)[0]
+            w0 = min(max(m.firm_wacc_taxed(re, rd, mktcap, netdebt, t) + crp, 0.04), re + crp)
+            wm = min(max(m.mature_wacc(re, rd_m, L, t)[0] + crp, 0.04), 0.25)
+            return w0, rd, rating, (w0, wm)
+        return min(max(m.firm_wacc(re, rd, mktcap, netdebt) + crp, 0.04), 0.25), rd, rating, None
 
     floor = not args.no_sales_floor
-    def exp_ret(nopat0, roiic0, rr0, r, phi, base, life, mktcap, netdebt, sales0=None, ind=None):
+    def _path(glide, n1, n2):
+        return (m.wacc_glide(glide[0], glide[1], n1, n2), glide[1]) if glide else (None, None)
+
+    def exp_ret(nopat0, roiic0, rr0, r, phi, base, life, mktcap, netdebt, sales0=None, ind=None, glide=None):
         n1 = min(3, max(1, life - 1)); n2 = max(1, life - n1)
-        res = m.value_company(nopat0, roiic0, rr0, r, args.gterm, n1, n2, phi, base, sales0=sales0, gics_industry=ind, sales_floor=floor)
+        wp, wt = _path(glide, n1, n2)
+        res = m.value_company(nopat0, roiic0, rr0, r, args.gterm, n1, n2, phi, base, sales0=sales0, gics_industry=ind, sales_floor=floor, wacc_path=wp, wacc_terminal=wt)
         cf = sum(res["cf_for_year"](t) for t in range(1, args.horizon + 1))
         eqv = res["total"] - (netdebt - cf)
         return ((eqv / mktcap) ** (1 / args.horizon) - 1) if (eqv > 0 and mktcap > 0) else None
 
-    def imp_moat(nopat0, roiic0, rr0, r, phi, base, mktcap, netdebt, sales0=None, ind=None):
+    def imp_moat(nopat0, roiic0, rr0, r, phi, base, mktcap, netdebt, sales0=None, ind=None, glide=None):
         target = mktcap + netdebt
-        tot = lambda n2: m.value_company(nopat0, roiic0, rr0, r, args.gterm, 3, n2, phi, base, sales0=sales0, gics_industry=ind, sales_floor=floor)["total"]
+        tot = lambda n2: m.value_company(nopat0, roiic0, rr0, r, args.gterm, 3, n2, phi, base, sales0=sales0, gics_industry=ind, sales_floor=floor, wacc_path=_path(glide, 3, n2)[0], wacc_terminal=_path(glide, 3, n2)[1])["total"]
         t0 = tot(0)
         if t0 >= target:
             return "<=3y"
@@ -104,14 +118,14 @@ def main():
         phi = mp[1] if mp else 0.75
         life = m.moat_to_life(moat) or 15
         base = m.base_rate_for(ind, None)[0]
-        r1, rd, rating = discount_rate(args.re, nopat0, mktcap, netdebt, gross, tax, country)
+        r1, rd, rating, glide1 = discount_rate(args.re, nopat0, mktcap, netdebt, gross, tax, country, ind)
         sales0 = m.num(ws, row, C["sales"]) if floor else None
-        er1 = exp_ret(nopat0, roiic0, rr0, r1, phi, base, life, mktcap, netdebt, sales0, ind)
-        im1 = imp_moat(nopat0, roiic0, rr0, r1, phi, base, mktcap, netdebt, sales0, ind)
+        er1 = exp_ret(nopat0, roiic0, rr0, r1, phi, base, life, mktcap, netdebt, sales0, ind, glide1)
+        im1 = imp_moat(nopat0, roiic0, rr0, r1, phi, base, mktcap, netdebt, sales0, ind, glide1)
         er2 = None
         if args.re2 is not None:
-            r2 = discount_rate(args.re2, nopat0, mktcap, netdebt, gross, tax, country)[0]
-            er2 = exp_ret(nopat0, roiic0, rr0, r2, phi, base, life, mktcap, netdebt, sales0, ind)
+            r2, _, _, glide2 = discount_rate(args.re2, nopat0, mktcap, netdebt, gross, tax, country, ind)
+            er2 = exp_ret(nopat0, roiic0, rr0, r2, phi, base, life, mktcap, netdebt, sales0, ind, glide2)
         rows.append({"name": str(name), "moat": moat, "mc": mktcap, "rat": rating or "-",
                      "rd": rd, "wacc": r1, "er1": er1, "er2": er2, "im1": im1,
                      "fin": "FIN*" if ind in m.FINANCIAL_SECTORS else ""})

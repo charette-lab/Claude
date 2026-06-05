@@ -83,6 +83,21 @@ gross-up) keeps the target on the same conservative footing as our inputs. Add
 PV_explicit = Σ_{t=1..N} FCF_t / (1 + r)^t
 ```
 
+**Optional de-risking glide (`--lever-glide`).** A static `r` assumes risk and
+capital structure never change. With `--lever-glide` the discount rate is
+time-varying: hold today's tax-shielded WACC through the `n1` hold, then glide
+linearly over the `n2` fade to a **mature target-leverage WACC**, and discount
+with cumulative factors `Π(1+WACCₛ)` instead of `(1+r)^t`:
+```
+target net debt = L · EBIT            # L = sector net-debt/EBIT (TARGET_NETDEBT_EBIT)
+mature R_d : coverage = EBIT/(debt·R_d) = 1/(L·R_d)  →  re-rated, size-independent
+mature WACC = re/(1−k),  k = L·(R_d − re/(1−tax))    # tax shield; equity hurdle re fixed
+```
+The equity hurdle stays fixed (your opportunity cost), so WACC falls only via the
+**tax shield** — the MM-clean reading of "they lever up more." Excess cash is
+assumed distributed, so leverage stays at target. Self-limiting by debt capacity:
+3×-capacity industrials get a real cut; 1.5× asset-light names get ~none.
+
 ## Step 4 — Terminal value
 
 **Competitive equilibrium** (standard McKinsey/Mauboussin continuing value). By

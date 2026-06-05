@@ -45,7 +45,8 @@ ranked by expected return, with the per-company WACC, rating, and implied moat:
 python3 .claude/skills/aip-value/rank.py "<file.xlsx>" --re 0.07 [--re2 0.12] \
         --country-base "EUR=0.0303,USD=0.0405,JPY=0.0267,KRW=0.0412,SEK=0.0273"
 ```
-`--re2` adds a second equity-hurdle ER column; banks are marked `FIN*`.
+`--re2` adds a second equity-hurdle ER column; banks are marked `FIN*`. Add
+`--lever-glide` to apply the de-risking WACC glide (below) across the whole sheet.
 
 ## Inputs and engine
 
@@ -147,6 +148,31 @@ WACC = (MktCap/EV)·R_e + (NetDebt/EV)·R_d           (capped to [4%, 12%])
 - The **credit-spread-by-rating curve is one global table** (default risk is
   global); the only country dependence is the risk-free base. Sovereign add-on
   ≈ 0 for US/Europe/Japan/Korea (all IG sovereigns); a `COUNTRY_RISK_PREMIUM` table adds a sovereign spread for EM (India, China, Brazil, Turkey…) on a USD-denominated valuation — override with `--country-crp`.
+
+### De-risking / lever-up over the fade (`--lever-glide`)
+Static WACC assumes the capital structure and business risk never change. In
+reality, as returns fade the firm de-risks and supports more debt. With
+**`--lever-glide`** (requires `--re`) the discount rate becomes **time-varying**:
+it holds today's (tax-shielded) WACC through the `n1` hold, then glides linearly
+over the `n2` fade to a **mature target-leverage WACC**:
+```
+target net debt = L × EBIT          (L = sector net-debt/EBIT, TARGET_NETDEBT_EBIT)
+mature R_d  = re-rated at that debt: coverage = EBIT/(debt·R_d) = 1/(L·R_d)
+mature WACC = re/(1−k),  k = L·(R_d − re/(1−tax))     (debt tax shield; re fixed)
+            (closed form from the value-neutral terminal wD = L·WACC/(1−tax))
+discounting uses cumulative factors Π(1+WACCₛ); the terminal uses the mature WACC
+```
+Key properties: the **equity hurdle `re` is held fixed** (it's your opportunity
+cost), so WACC falls only through the **tax shield** + cheaper-debt weight at the
+mature structure — the MM-clean reading of "they lever up more." **Excess cash is
+assumed distributed** (the firm holds target leverage rather than de-levering),
+which is what justifies the constant mature structure. The effect is **self-
+limiting by debt capacity**: capital-intensive names that carry 3× (industrials,
+staples) get a real WACC cut (Volvo 9.98%→8.72%, ~+11% value); asset-light names
+that only support 1.5× (software) get ~nothing (Vitec ≈ flat). Override the target
+with `--target-lev`. The terminal stays value-neutral (RONIC = mature WACC).
+Because the terminal is ~35% of value and scales as `1/(WACC−g)`, this is a
+powerful lever — kept bounded by the sector leverage table and the re-rated Rd.
 
 ### Refresh rates live each run
 The cached `CURRENCY_BASE` (10y govt, ~early-Jun-2026) and `RATING_*` spread
