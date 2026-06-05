@@ -26,10 +26,12 @@ life (< 6 -> <10y, 6-7.5 -> 10-20y, > 7.5 -> 50y). phi is the moat-tier fade.
 Note: where the faded ROIIC sits BELOW WACC, the floor forces value-DESTROYING
 reinvestment (RR rises to fund growth that earns < cost of capital) — this is
 correct and conservative: it prevents an artificially-low RR from inflating FCF.
-Terminal (ROIIC has settled at the base rate; value-driver perpetuity, g_eff
-floored at the sales base / g_term and capped < r so value stays finite):
-    g_eff = min( max(base*RR_0, sales_base_median, g_term), 0.99r, 0.99*base )
-    TV    = NOPAT_N*(1+g_eff)*(1 - g_eff/base) / (WACC - g_eff)
+Terminal (ROIIC has settled at the base rate; RR stays at its structural level
+RR_0, so the perpetuity is reinvestment-driven and RR_term = RR_0 — the sales
+floor is NOT applied in perpetuity, where forced growth at base < WACC would need
+an artificially high RR and destroy value forever). Capped < r so value is finite:
+    g_eff = min( base*RR_0, 0.99r, 0.99*base )  ;  RR_term = g_eff/base = RR_0
+    TV    = NOPAT_N*(1+g_eff)*(1 - RR_term) / (WACC - g_eff)
     PV_TV = TV / (1+WACC)**N
 
 Empirical CAP durations & persistence, mapped from the Moat Score:
@@ -448,11 +450,14 @@ def value_company(nopat0, roiic0, rr0, r, g_term, n1, n2, phi, base,
     cap = n1 + n2
     nopat_n = nopat_path[cap]
 
-    # Terminal: ROIIC at base; g_eff = reinvestment-driven (base*RR_0) but floored
-    # at the sales base / g_term and capped < r and <= base (rr_term <= 100%).
+    # Terminal: ROIIC has settled at the base rate and RR stays at its structural
+    # level RR_0, so the perpetuity is reinvestment-driven: g_eff = base*RR_0 and
+    # RR_term = RR_0. The sales-growth floor is deliberately NOT applied in
+    # perpetuity — forcing industry-rate growth forever would require an
+    # artificially high RR reinvested at base (< WACC for many firms), destroying
+    # value with no end. Capped < r and <= base so value stays finite.
     if base > 0:
-        g_floor_term = max(floor_at(cap + 1), g_term) if use_floor else g_term
-        g_eff = min(max(base * rr0, g_floor_term), 0.99 * base, 0.99 * r)
+        g_eff = min(max(base * rr0, 0.0), 0.99 * base, 0.99 * r)
         rr_term = g_eff / base
         cf_term = nopat_n * (1 + g_eff) * (1 - rr_term)
         tv = cf_term / (r - g_eff)
@@ -654,7 +659,9 @@ def main():
         if t in marks:
             print(f"    year {t:>2} [{phase}]:  ROIIC {pct(roiic_t):>8}  RR {pct(rr_t):>7}  g {pct(g_t):>8}")
 
-    print(f"\n  PV(explicit FCF, yrs 1-{n1+n2}) ...... {money(res['pv_explicit'])}")
+    print(f"\n  Terminal (reinvestment-driven): g_eff {pct(res['g_eff'])}  "
+          f"RR_term {pct(res['rr_term'])} (= RR_0; no sales floor in perpetuity)")
+    print(f"  PV(explicit FCF, yrs 1-{n1+n2}) ...... {money(res['pv_explicit'])}")
     print(f"  Terminal value (at yr {n1+n2}) ........ {money(res['tv'])}")
     print(f"  PV(terminal) ...................... {money(res['pv_tv'])}")
     print("  " + "-" * 50)

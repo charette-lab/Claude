@@ -85,21 +85,24 @@ PV_explicit = Σ_{t=1..N} FCF_t / (1 + r)^t
 
 ## Step 4 — Terminal value
 
-After `N` years ROIIC has settled at the industry **base rate**. The terminal is
-the value-driver perpetuity with a safe terminal growth
-`g_eff = min( max(base·RR_0, sales_base_median, g_term), 0.99·base, 0.99·r )` —
-reinvestment-driven, floored at the sales base / `g_term`, capped `< r` and
-`≤ base` (so terminal RR `≤ 100%`):
+After `N` years ROIIC has settled at the industry **base rate** and RR stays at
+its structural level `RR_0`, so the perpetuity is **reinvestment-driven**:
+`g_eff = min( base·RR_0, 0.99·base, 0.99·r )` and `RR_term = g_eff/base = RR_0`.
+The sales-growth floor is **not** applied in perpetuity — forcing industry-rate
+growth forever would need an artificially high RR reinvested at `base` (below WACC
+for many firms), destroying value with no end. The floor lives in the explicit
+competitive period only.
 
 ```
-RR_term = g_eff / base
+g_eff   = min( base · RR_0 , 0.99·base , 0.99·r )
+RR_term = g_eff / base            # = RR_0
 TV      = NOPAT_N · (1 + g_eff) · (1 − RR_term) / (r − g_eff)
 PV_TV   = TV / (1 + r)^N
 ```
 
-If `base = r` this reduces to the value-neutral `NOPAT/r` form; `base > r` is
-perpetual value creation, `base < r` mild value destruction. (`base ≤ 0` falls
-back to `TV = NOPAT_N / r`.)
+Because RR stays at `RR_0`, a firm that reinvests little grows little in
+perpetuity — the honest answer when its return has settled at the base rate.
+(`base ≤ 0` falls back to `TV = NOPAT_N / r`.)
 
 ## Step 5 — Total operating value
 

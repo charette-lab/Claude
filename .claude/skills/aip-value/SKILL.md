@@ -77,19 +77,21 @@ FCF_t = NOPAT_t · (1 − RR_t) ;  PV_explicit = Σ FCF_t / (1+r)^t
 Growth is **not** capped in the moat period — a moat legitimately compounds above
 `r`, and the explicit period is finite so it can't be infinite. Only the
 **terminal** enforces `g_eff < r` (that is what prevents infinite value in
-perpetuity). **Note:** where the faded ROIIC sits *below* WACC, the floor forces
-*value-destroying* reinvestment (RR rises to fund growth earning < cost of
-capital). That is intentional and conservative — it stops an artificially-low RR
-inflating FCF — and it means a longer moat does **not** keep adding value once
-the return has dropped below the cost of capital.
+perpetuity). **Note:** within the explicit period, where the faded ROIIC sits
+*below* WACC the floor forces *value-destroying* reinvestment (RR rises to fund
+growth earning < cost of capital). That is intentional and conservative — it
+stops an artificially-low RR inflating FCF. The floor is **not** applied in the
+terminal, where it would force that value destruction forever (see below).
 
 `n1 = 3y` (fixed hold) and `n2 = moat-life − 3`, so `n1 + n2` = the moat-score
 competitive life (`< 6 → <10y`, `6–7.5 → 10–20y`, `> 7.5 → 50y`). `φ` from the
 moat tier (`--persistence`).
-**Terminal** (ROIIC has settled at the base rate; value-driver perpetuity with a
-safe terminal growth g_eff = min(g_term, ~base, ~r)):
+**Terminal** (ROIIC has settled at the base rate; RR stays at its structural
+level `RR_0`, so the perpetuity is **reinvestment-driven** and `RR_term = RR_0` —
+no sales floor here, so it can't force value-destroying growth forever):
 ```
-TV    = NOPAT_N · (1 + g_eff) · (1 − g_eff/base) / (r − g_eff)
+g_eff = min( base·RR_0 , 0.99·base , 0.99·r ) ;  RR_term = g_eff/base = RR_0
+TV    = NOPAT_N · (1 + g_eff) · (1 − RR_term) / (r − g_eff)
 PV_TV = TV / (1+r)^N
 Total Operating Value = PV_explicit + PV_TV
 ```
