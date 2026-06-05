@@ -600,22 +600,34 @@ def solve_irr(outlay, flows, lo=-0.95, hi=5.0):
 
 def equity_return(res, mktcap, netdebt, horizon, tax=None, lever_L=None):
     """Equity IRR that credits the cash distributed to shareholders. Each year's
-    distribution = operating FCF (+ net new debt raised to hold target leverage,
-    when lever_L is given — the lever-up proceeds are paid out). Terminal equity at
-    the horizon = total operating value − net debt (the target L*EBIT when levering,
-    else net debt held constant). Solves the multi-period IRR against today's market
-    cap. Returns (irr, distributions_list, eqv_n, nd_n)."""
+    distribution = operating FCF + the change in net debt (net new borrowing is
+    paid out; debt repayment is funded from cash, reducing the distribution).
+
+    Net debt is ANCHORED ON THE ACTUAL ND_0 and glides to the target L*EBIT_t over
+    the horizon: nd_t = L*EBIT_t + (ND_0 - L*EBIT_0)*(1 - t/horizon). So an
+    over-levered firm (ND_0 > L*EBIT_0) spends cash de-levering — distributions
+    shrink or go negative (a cash call) rather than being fabricated — while an
+    under-levered firm releases debt capacity as extra distributions. Without
+    lever_L, net debt is held flat at ND_0 (all FCF distributed). Terminal equity =
+    total - nd_n. Returns (irr, distributions_list, eqv_n, nd_n)."""
     if not mktcap or mktcap <= 0:
         return None, [], None, None
     total = res["total"]
     nfy = res["nopat_for_year"]
     levering = (lever_L is not None and tax is not None and tax < 1)
+    gap0 = (netdebt - lever_L * nfy(0) / (1 - tax)) if levering else 0.0  # ND_0 vs target_0
     flows = []
+    nd_prev = netdebt                                # anchor on actual current net debt
     for t in range(1, horizon + 1):
         fcf_t = res["cf_for_year"](t)
-        d_debt = lever_L * (nfy(t) - nfy(t - 1)) / (1 - tax) if levering else 0.0
+        if levering:
+            nd_t = lever_L * nfy(t) / (1 - tax) + gap0 * (1 - t / horizon)
+            d_debt = nd_t - nd_prev                  # >0 borrow & distribute; <0 repay from cash
+            nd_prev = nd_t
+        else:
+            d_debt = 0.0
         flows.append(fcf_t + d_debt)
-    nd_n = lever_L * nfy(horizon) / (1 - tax) if levering else netdebt
+    nd_n = nd_prev
     eqv_n = total - nd_n
     flows[-1] += eqv_n
     return solve_irr(mktcap, flows), flows, eqv_n, nd_n

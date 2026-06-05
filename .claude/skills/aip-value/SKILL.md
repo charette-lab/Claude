@@ -194,9 +194,13 @@ A proper **multi-period IRR** over an `n`-year horizon (default 5), crediting th
 cash distributed to shareholders **as it is received** (not lumped into a single
 terminal CAGR). Each year's distribution = operating **FCF** plus, under
 `--lever-glide`, the **net new debt raised** to hold target leverage (the
-lever-up proceeds are paid out). The terminal equity at year `n` is
-`EqV_n = EV_target − ND_n`, where `ND_n` is the target `L·EBIT_n` when levering up,
-else net debt held constant (excess cash distributed rather than de-levering).
+lever-up proceeds are paid out). Net debt is **anchored on the actual ND₀** and glides to the target `L·EBIT_t`
+over the horizon, so an **over-levered firm spends cash de-levering** —
+distributions shrink or go negative (a cash call) rather than being fabricated
+(e.g. Electrolux, which de-levers, correctly turns deeply negative) — while an
+under-levered firm releases debt capacity as extra distributions. The terminal
+equity at year `n` is `EqV_n = EV_target − ND_n` (`ND_n` the glided/target net
+debt, else ND₀ held constant when not levering).
 The IRR solves `MktCap = Σ_{t=1..n} Dist_t/(1+x)^t + EqV_n/(1+x)^n`. Crediting
 cash when received raises the return vs. the old lump-CAGR (e.g. Volvo 7.1%→8.2%
 static, →10.9% with `--lever-glide`). Also reports the **unlevered return**
