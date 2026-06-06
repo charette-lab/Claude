@@ -44,7 +44,7 @@ from `../aip-value/` or `~/.claude/skills/aip-value/`).
 
 | Framework phase | What the script does |
 |---|---|
-| **P1 Universe** | Excludes financials; `--mcap-floor` (default $500M); `--moat-min` (default 7.0 on `Moat Score`). |
+| **P1 Universe** | Excludes financials; `--mcap-floor` (default $500M); `--moat-min` (default 7.0 on `Moat Score`); optional **moat-trend** filter `--moat-trend-min` (favours strengthening moats via `Moat Score` vs `Moat Score - 7`). |
 | **P1 TAM exhaustion** | Runs the **reinvestment-deceleration** leg only: excludes if `RR 3 < (1 − --tam-reinv-drop)·RR 7` (default 25% drop). The **give-up ratio** and **top-line-gravity** legs need FCF/payout/revenue-history columns the sheet lacks — *not applied* (flagged). |
 | **P2 11 risk tags** | Read from the sheet's tag columns. They're scored **1–4, not binary** (1 = safe, higher = more exposure); **material exposure = score ≥ `--tag-material` (default 4)**. |
 | **P3 Construction** | Rank by ER at `--rank-re` (default **12%**), greedily take `--n` (30) names s.t. no tag is held by more than `--tag-cap` (6) stocks — the **20% rule** (6 × 3.33% ≈ 20%). Equal-weighted at `1/n`. |
@@ -65,6 +65,7 @@ CAGR-fallback flag (`c`) are all inherited from `aip-value` — see that skill's
 | `--rank-re` / `--alt-re` | 0.12 / 0.07 | equity hurdle to rank by / to also display |
 | `--mcap-floor` | 5e8 | minimum market cap (data-thin guard) |
 | `--moat-min` | 7.0 | minimum Moat Score |
+| `--moat-trend-min` | none | exclude names whose **7y moat change** (`Moat Score` − `Moat Score - 7`) is below this. `-0.3` drops material decliners; `0` keeps only flat/improving moats. No-history names are kept. Off by default. |
 | `--n` | 30 | portfolio size |
 | `--tag-cap` | 6 | max stocks sharing a material tag (the 20% rule) |
 | `--tag-material` | 4 | tag score ≥ this = material exposure |

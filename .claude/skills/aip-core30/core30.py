@@ -102,6 +102,10 @@ def main():
     ap.add_argument("--alt-re", type=float, default=0.07, help="second equity hurdle to display (default 0.07)")
     ap.add_argument("--mcap-floor", type=float, default=5e8, help="minimum market cap (default 500M)")
     ap.add_argument("--moat-min", type=float, default=7.0, help="minimum Moat Score (default 7.0)")
+    ap.add_argument("--moat-trend-min", type=float, default=None,
+                    help="exclude names whose 7y moat change (Moat Score - 'Moat Score - 7') is below "
+                         "this, e.g. -0.3 drops material decliners, 0 keeps only flat/improving. "
+                         "Names with no 7y history are kept. Off by default.")
     ap.add_argument("--n", type=int, default=30, help="portfolio size (default 30)")
     ap.add_argument("--tag-cap", type=int, default=6, help="max stocks sharing a material tag (default 6 = 20%%)")
     ap.add_argument("--tag-material", type=int, default=4, help="tag score >= this counts as material exposure (default 4)")
@@ -124,18 +128,21 @@ def main():
             "country": "Country of Headquarters", "gross": "Gross debt",
             "tax": "Income Tax Rate - Instrument", "mktcap": "Market Cap",
             "netdebt": "Net debt", "sales": "Sales", "ev": "EV",
-            "ticker": "Instrument", "rr3": "RR 3"}
+            "ticker": "Instrument", "rr3": "RR 3", "moat7": "Moat Score - 7"}
     for t in TAGS:
         want[t] = t
     C = m.find_columns(ws, want)
     if C["name"] is None:
         sys.exit('Could not find a "Company Name" column.')
+    if args.moat_trend_min is not None and C.get("moat7") is None:
+        print("WARNING: --moat-trend-min set but no 'Moat Score - 7' column — trend filter skipped.",
+              file=sys.stderr)
     missing_tags = [t for t in TAGS if C[t] is None]
     if missing_tags:
         print(f"WARNING: {len(missing_tags)} tag column(s) missing — the 20% rule "
               f"can't be enforced for them: {missing_tags}", file=sys.stderr)
 
-    exc = {"data": 0, "mcap": 0, "moat": 0, "tags": 0, "tam": 0, "noval": 0, "gate": 0}
+    exc = {"data": 0, "mcap": 0, "moat": 0, "moat_trend": 0, "tags": 0, "tam": 0, "noval": 0, "gate": 0}
     cand = []
     for row in range(2, ws.max_row + 1):
         name = ws.cell(row=row, column=C["name"]).value
@@ -154,6 +161,10 @@ def main():
         moat = g("moat")
         if moat is None or moat < args.moat_min:
             exc["moat"] += 1; continue
+        moat7 = g("moat7") if C.get("moat7") else None
+        moat_chg = (moat - moat7) if (moat7 is not None) else None
+        if args.moat_trend_min is not None and moat_chg is not None and moat_chg < args.moat_trend_min:
+            exc["moat_trend"] += 1; continue            # drop materially-declining moats
         tagv = {t: (m.num(ws, row, C[t]) if C[t] else None) for t in TAGS}
         if any(C[t] is not None and tagv[t] is None for t in TAGS):
             exc["tags"] += 1; continue
@@ -172,7 +183,7 @@ def main():
                            gross, tax, country, ind, moat, g("sales"), overrides, crp_over, glide)[0]
         mat = set(t for t in TAGS if C[t] is not None and tagv[t] is not None and tagv[t] >= args.tag_material)
         cand.append({"name": str(name), "tick": ws.cell(row=row, column=C["ticker"]).value,
-                     "co": str(country), "ind": ind, "moat": moat, "mc": mktcap,
+                     "co": str(country), "ind": ind, "moat": moat, "moat_chg": moat_chg, "mc": mktcap,
                      "er_rank": er_rank, "er_alt": er_alt, "meth": meth, "mat": mat})
 
     cand.sort(key=lambda d: d["er_rank"], reverse=True)
@@ -201,16 +212,18 @@ def _report(args, cand, port, bumped, cnt, exc, glide):
           + (f" (gate >{args.er_gate*100:.0f}%)" if args.er_gate is not None else "")
           + f"  | mcap>=${args.mcap_floor/1e6:.0f}M, moat>={args.moat_min:g}, "
           + f"material tag>={args.tag_material}, cap {args.tag_cap}/tag"
+          + (f", moat-trend>={args.moat_trend_min:+g}" if args.moat_trend_min is not None else "")
           + ("" if glide else ", no-lever-glide"))
     print(f"candidates {len(cand)}   selected {len(port)}   "
           f"excluded {exc}")
-    hdr = (f"{'#':>2} {'Company':30}{'Ctry':5}{'Moat':>5}{'MCap':>8}"
+    fd = lambda x: (f"{x:+5.2f}" if x is not None else "  n/a")
+    hdr = (f"{'#':>2} {'Company':30}{'Ctry':5}{'Moat':>5}{'Δ7y':>6}{'MCap':>8}"
            f"{'ER@'+str(int(args.rank_re*100)):>7}{'ER@'+str(int(args.alt_re*100)):>7}  Material tags")
     print(hdr); print("-" * len(hdr))
     for i, d in enumerate(port, 1):
         mt = ",".join(SHORT[TAGS.index(t)] for t in TAGS if t in d["mat"])
         flag = "c" if d["meth"] == "CAGR" else " "
-        print(f"{i:>2} {d['name'][:29]:30}{_cc(d['co']):5}{d['moat']:5.1f}{fmc(d['mc'])}"
+        print(f"{i:>2} {d['name'][:29]:30}{_cc(d['co']):5}{d['moat']:5.1f}{fd(d.get('moat_chg')):>6}{fmc(d['mc'])}"
               f"{fr(d['er_rank'])}{flag}{fr(d['er_alt'])}  {mt}")
     pos = sum(1 for d in port if d["er_rank"] is not None and d["er_rank"] > 0)
     import statistics as st
@@ -220,6 +233,11 @@ def _report(args, cand, port, bumped, cnt, exc, glide):
               f"{st.median([d['er_rank'] for d in port])*100:.1f}%  (positive {pos}/{len(port)})")
         from collections import Counter
         print("country mix:", dict(Counter(_cc(d['co']) for d in port).most_common()))
+        chg = [d["moat_chg"] for d in port if d.get("moat_chg") is not None]
+        if chg:
+            up = sum(1 for x in chg if x > 0.1); dn = sum(1 for x in chg if x < -0.1)
+            print(f"moat trend (7y): improving {up}, declining {dn}, flat {len(chg)-up-dn}, "
+                  f"n/a {len(port)-len(chg)}  (mean Δ {st.mean(chg):+.2f})")
     capw = args.tag_cap / args.n * 100
     print(f"\nTAG EXPOSURE (material>= {args.tag_material}; cap {args.tag_cap} = {capw:.0f}%):")
     print("  " + "  ".join(f"{SHORT[i]}:{cnt[t]}{'*' if cnt[t] >= args.tag_cap else ''}"
@@ -249,11 +267,12 @@ def _cc(c):
 def _write_csv(args, port):
     with open(args.csv, "w", newline="") as fh:
         w = csv.writer(fh)
-        w.writerow(["Rank", "Company", "Ticker", "Country", "Industry", "Moat",
+        w.writerow(["Rank", "Company", "Ticker", "Country", "Industry", "Moat", "Moat7yChg",
                     "MktCap_bn", "Weight", f"ER@{int(args.rank_re*100)}%",
                     f"ER@{int(args.alt_re*100)}%", "Method"] + SHORT)
         for i, d in enumerate(port, 1):
             w.writerow([i, d["name"], d["tick"], d["co"], d["ind"], f"{d['moat']:.2f}",
+                        f"{d['moat_chg']:+.2f}" if d.get("moat_chg") is not None else "n/a",
                         f"{d['mc']/1e9:.2f}", f"{1.0/args.n*100:.2f}%",
                         f"{d['er_rank']*100:.1f}%" if d['er_rank'] is not None else "n/a",
                         f"{d['er_alt']*100:.1f}%" if d['er_alt'] is not None else "n/a",
