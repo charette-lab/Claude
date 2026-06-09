@@ -3586,6 +3586,54 @@ para(tbox(s, Inches(0.6), Inches(7.16), Inches(12.6), Inches(0.4)),
      "Past performance is not indicative of future results.",
      7.5, FOOT, first=True, after=0, track=0, lead=1.1)
 
+# ---- Down-market performance (Swiss-deck statistics) ----------------------
+s, top = content("Risk-Adjusted Outcomes",
+                 "Built for down markets — where the record is made",
+                 "The edge shows most when the market falls: a small positive "
+                 "return in the average down month, and outperformance in four of "
+                 "the last five stress years.", number=False)
+rect(s, Inches(0.6), top, Inches(4.3), Inches(3.4), fill=HEADERBG)
+rect(s, Inches(0.6), top, Inches(0.07), Inches(3.4), fill=NAVY)
+para(tbox(s, Inches(0.85), Emu(int(top) + int(Inches(0.24))), Inches(3.9), Inches(0.4)),
+     "IN THE AVERAGE DOWN MONTH", 11.5, SLATE, first=True, bold=True, after=0)
+para(tbox(s, Inches(0.85), Emu(int(top) + int(Inches(0.78))), Inches(3.9), Inches(0.7)),
+     "+0.2%", 40, NAVY_TX, first=True, font=SERIF, after=0)
+para(tbox(s, Inches(0.85), Emu(int(top) + int(Inches(1.5))), Inches(3.7), Inches(0.45)),
+     "Athanase — a small gain when the market is down.", 11, BODY, first=True,
+     after=0, lead=1.15)
+para(tbox(s, Inches(0.85), Emu(int(top) + int(Inches(2.1))), Inches(3.9), Inches(0.7)),
+     "−1.7%", 40, SLATE_LT, first=True, font=SERIF, after=0)
+para(tbox(s, Inches(0.85), Emu(int(top) + int(Inches(2.82))), Inches(3.7), Inches(0.45)),
+     "MSCI World IMI — the market itself.", 11, BODY, first=True, after=0, lead=1.15)
+para(tbox(s, Inches(5.3), top, Inches(7.4), Inches(0.4)),
+     "OUTPERFORMANCE IN STRESS YEARS", 11.5, SLATE, first=True, bold=True, after=0)
+stress = [("2008", 2.2), ("2011", 7.9), ("2015", 11.8), ("2018", -1.7), ("2022", 20.1)]
+bx = Inches(6.4); bmaxw = Inches(4.8); vmax = 20.1
+by = Emu(int(top) + int(Inches(0.6))); rowh = Inches(0.55); bh = Inches(0.3)
+for yr, val in stress:
+    para(tbox(s, Inches(5.3), by, Inches(1.0), rowh, anchor=MSO_ANCHOR.MIDDLE),
+         yr, 13, NAVY_TX, first=True, bold=True, after=0)
+    w = Emu(int(int(bmaxw) * abs(val) / vmax))
+    bary = Emu(int(by) + (int(rowh) - int(bh)) // 2)
+    rect(s, bx, bary, w, bh, fill=(NAVY if val >= 0 else SLATE_LT))
+    para(tbox(s, Emu(int(bx) + int(w) + int(Inches(0.12))), by, Inches(1.3), rowh,
+              anchor=MSO_ANCHOR.MIDDLE), f"{val:+.1f}%", 12,
+         (NAVY_TX if val >= 0 else SLATE_LT), first=True, bold=True, after=0)
+    by = Emu(int(by) + int(rowh))
+para(tbox(s, Inches(5.3), Emu(int(by) + int(Inches(0.06))), Inches(7.4), Inches(0.5)),
+     "The risk system forces diversification of business exposures and screens "
+     "out weak competitive positions and untrustworthy management — which pays "
+     "in demanding markets.", 10.5, FOOT, first=True, italic=True, after=0, lead=1.18)
+rect(s, Inches(0.6), Inches(6.4), Inches(12.13), Inches(0.5), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.4), Inches(11.7), Inches(0.5), anchor=MSO_ANCHOR.MIDDLE),
+     "When the market falls, the discipline pays — outperformance in four of the "
+     "last five stress years, and a gain in the average down month.", 12.5, WHITE,
+     first=True, italic=True, after=0, track=0)
+para(tbox(s, Inches(0.6), Inches(7.02), Inches(12.6), Inches(0.35)),
+     "Down-month figure: average monthly return in months the MSCI World IMI was "
+     "negative. Annual figures: AIP net return − MSCI IMI. Source: Athanase, "
+     "April 2026.", 7.5, FOOT, first=True, italic=True, after=0, lead=1.1)
+
 
 # ---- II.6i2  A drawdown you can actually defend ----------------------------
 s, top = content("Portfolio Impact",
