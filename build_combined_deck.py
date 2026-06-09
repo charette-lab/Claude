@@ -2691,6 +2691,54 @@ para(tbox(s, Inches(0.8), Inches(6.46), Inches(11.8), Inches(0.6),
      "sure it is constructive and reversible.", 12, WHITE, first=True,
      italic=True, after=0, track=0)
 
+# ---- II.5b1c How the value is created: 14.5% EBITA growth (Swiss deck) ------
+s, top = content("Strategic Case",
+                 "How the value is created: 14.5% EBITA growth a year",
+                 "Across ~40 investments, the companies we own have grown "
+                 "operating profit (EBITA) about 14.5% a year while we owned them "
+                 "— the operating engine behind the return.", number=False)
+rect(s, Inches(0.6), top, Inches(4.0), Inches(3.5), fill=HEADERBG)
+rect(s, Inches(0.6), top, Inches(0.07), Inches(3.5), fill=NAVY)
+para(tbox(s, Inches(0.6), Emu(int(top) + int(Inches(0.5))), Inches(4.0), Inches(1.2),
+          anchor=MSO_ANCHOR.MIDDLE), "14.5%", 64, NAVY_TX, first=True, after=0,
+     font=SERIF, align=PP_ALIGN.CENTER)
+para(tbox(s, Inches(0.85), Emu(int(top) + int(Inches(1.85))), Inches(3.5), Inches(0.85)),
+     "average annual EBITA growth in the companies we own — during our ownership.",
+     13, SLATE, first=True, bold=True, after=0, align=PP_ALIGN.CENTER, lead=1.2)
+para(tbox(s, Inches(0.85), Emu(int(top) + int(Inches(2.7))), Inches(3.5), Inches(0.7)),
+     "EBITA is operating profit. The return tracks earnings growth — not "
+     "multiple expansion.", 10.5, SLATE_LT, first=True, italic=True, after=0,
+     align=PP_ALIGN.CENTER, lead=1.2)
+para(tbox(s, Inches(4.95), top, Inches(7.8), Inches(0.4)),
+     "THE LEVERS THAT DRIVE THE EBITA GROWTH", 12.5, SLATE, first=True, bold=True,
+     after=8)
+lt = tbox(s, Inches(4.95), Emu(int(top) + int(Inches(0.5))), Inches(7.8), Inches(3.2))
+for i, (lead, b) in enumerate([
+    ("Organic growth.", "focus on the profitable core — up-sell, cross-sell and "
+     "sell current products to new customers and markets."),
+    ("Bolt-on M&A.", "value-accretive acquisitions that add complementary "
+     "products and scale to the core."),
+    ("Cost & margin.", "reduce complexity, right-size the footprint, and "
+     "mechanise and digitise operations."),
+    ("Capital allocation.", "exit loss-making “growth-trap” ventures and "
+     "redeploy the freed capital into the profitable core.")]):
+    p = lt.paragraphs[0] if i == 0 else lt.add_paragraph()
+    p.space_after = Pt(13); p.line_spacing = 1.18
+    r0 = p.add_run(); r0.text = lead + "  "
+    r0.font.size = Pt(13.5); r0.font.bold = True
+    r0.font.color.rgb = NAVY_TX; r0.font.name = SANS
+    r1 = p.add_run(); r1.text = b
+    r1.font.size = Pt(13.5); r1.font.color.rgb = BODY; r1.font.name = SANS
+para(tbox(s, Inches(0.6), Inches(6.04), Inches(12.1), Inches(0.3)),
+     "Average annual EBITA growth in portfolio companies during the ownership "
+     "period, across ~40 investments.", 8.5, FOOT, first=True, italic=True, after=0)
+rect(s, Inches(0.6), Inches(6.42), Inches(12.13), Inches(0.62), fill=NAVY)
+para(tbox(s, Inches(0.8), Inches(6.42), Inches(11.7), Inches(0.62),
+          anchor=MSO_ANCHOR.MIDDLE),
+     "We compound earnings, not multiples — the value tracks ~14.5% a year of "
+     "EBITA growth, whatever the market pays for it.", 13, WHITE, first=True,
+     italic=True, after=0, track=0)
+
 # ---- II.5b2 Returns come from earnings, not re-rating ----
 s, top = content("Strategic Case",
                  "Earnings compound the value — re-rating is upside we don’t need",
