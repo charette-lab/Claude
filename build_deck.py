@@ -168,9 +168,10 @@ toc_col(7.0, [
     (25, "Moat framework ranking", False),
     (26, "TBK's moat profile: strengths & weaknesses", False),
     (27, "Moat criteria: TBK vs competitors", False),
+    (28, "Raising the moat: the score-per-yen plan", False),
     (0, "Method", True),
-    (28, "Research quality & methodology notes", False),
-    (29, "Sources", False),
+    (29, "Research quality & methodology notes", False),
+    (30, "Sources", False),
 ])
 
 # ---------- 2 Brakes market ----------
@@ -1023,6 +1024,51 @@ crit_chart(6.75, ["Substitution", "Demand", "Capital alloc.", "Runway", "Rev-Lin
            (4.0, 7.0, 4.5, 6.0, 4.5), (2.5, 4.0, 4.0, 4.0, 3.5), (7.0, 8.0, 2.0, 5.0, 5.0),
            "Phases 2-3 — Endurance & compounding engine (Ch6-10)")
 txt(s, 0.5, 6.45, 12.3, 0.85, "Read: in Phase 1 (left) TBK leads or matches on Criticality and Hegemony and collapses on Ecosystem/Lifecycle cost. In Phases 2-3 (right) TBK is last or near-last on every engine criterion — while Concentric (green) leads precisely there. Closing the gap to Concentric is execution (allocation, substitution positioning), not moat-building: the moat already exists.", size=10.5, color=GREY)
+
+# ---------- Raising the moat ----------
+s = slide()
+header(s, "Raising the moat: to Watchlist in 3 years — mostly for free",
+       "Levers ranked by weighted score gain per yen. ~80% of the uplift needs no money beyond the committed program — the rest costs ~¥2-5bn over 3 years")
+cd = CategoryChartData()
+cd.categories = ["Today", "18 months", "3 years", "5 years", "Concentric\n(the frontier)"]
+cd.add_series("Moat score", (5.38, 5.9, 6.6, 7.0, 6.98))
+gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(6.4), Inches(4.6), cd)
+ch = gf.chart
+ch.has_legend = False
+ch.has_title = True
+ch.chart_title.text_frame.text = "Trajectory: crosses the 6.5 Watchlist threshold at year 3"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
+plot = ch.plots[0]
+plot.has_data_labels = True
+plot.data_labels.number_format = '0.00'
+plot.data_labels.number_format_is_linked = False
+plot.data_labels.font.size = Pt(11)
+plot.data_labels.font.name = BODY_FONT
+ser = plot.series[0]
+ser.format.fill.solid()
+ser.format.fill.fore_color.rgb = DARK
+try:
+    for i, col in ((0, RED), (1, GREEN), (2, GREEN), (3, BLUE3), (4, BLUE5)):
+        pt = ser.points[i]
+        pt.format.fill.solid()
+        pt.format.fill.fore_color.rgb = col
+except Exception:
+    pass
+ch.value_axis.maximum_scale = 8
+ch.category_axis.tick_labels.font.size = Pt(10)
+ch.category_axis.tick_labels.font.name = BODY_FONT
+panel(s, 7.1, 1.6, 5.75, 2.45, "The three best levers — nearly free",
+      "1. CAPITAL ALLOCATION (+0.35): gated reinvestment, pruning, and buybacks instead of 100% reinvestment at negative ROIIC. At 1.5-2.2x phase-1 earnings, each ¥1bn buyback retires ~10% of the market cap — the market is selling TBK's own moat points\n"
+      "2. FOOTPRINT (+0.25): the ¥2-3bn restructuring the P&L repays anyway — moat points as a byproduct\n"
+      "3. LEGIBILITY (+0.15 for ~¥0.15bn/yr): patent the work already done (20-30/yr), publish at JSAE, disclose PPM/warranty data — makes quality sellable outside the keiretsu", body_size=10.5)
+panel(s, 7.1, 4.2, 5.75, 2.45, "Rides free on the committed program — and the one defense",
+      "Substitution + runway (+0.50 combined): the ¥2.7bn/yr R&D program and ADB capex are already committed for P&L reasons — their moat contribution (socket wins, riding the disc/e-pump shift) comes free on top\n"
+      "Ecosystem (+0.20): aftermarket annuity + TCU software layer, ~¥1-2bn over 3 yrs — the achievable version of Knorr's installed base\n"
+      "DEFEND Hegemony (8.0): the ADB program is insurance against repeating UD — where TBK holds zero cells. Total incremental: ~¥2-5bn / 3 yrs", body_size=10.5, title_color=GREEN)
+txt(s, 0.5, 6.45, 12.3, 0.85, "The compounding logic: allocation discipline (Ch8) makes every other chapter's evidence credible — capital that stops being destroyed validates the runway, the sockets, and the legibility story. Ceiling honesty: 7.8 (Compounder) is unreachable in this industry — nobody is there; Concentric's 6.98 is the practical frontier and the 5-year path reaches it.", size=10.5, bold=True, color=DARK)
 
 # ---------- 19 Research quality notes ----------
 s = slide()
