@@ -395,7 +395,167 @@ panel(s, 8.4, 1.6, 4.45, 4.4, "The numbers",
       "PHASE 1 — Catch-up (5 yrs):\n~$27M/yr ≈ 7.5% of sales\n= parity run-rate ($16-18M)\n+ deficit repayment (~$10M/yr,\n~$50M split between ADB\nindustrialization and e-pump/TCU\nprograms)\nTotal: ~$135M over 5 years\n\nPHASE 2 — Steady state:\n$16-18M/yr ≈ 4.5-5% of sales\n= 2.2x today's spend, forever\n\nPlus one-off ADB line capex\n(~$30-50M, outside R&D line)", body_size=12, title_color=GREEN)
 txt(s, 0.5, 6.25, 12.3, 1.1, "Allocation discipline, per domain: (1) brakes — ADB industrialization for the Japanese disc flip, systems/ADAS access via Brakes India, timed to regulation and platform renewals; (2) pumps — e-pump/TCU sockets on Isuzu/Fuso/Hino electrified programs, timed to program kick-offs happening NOW. Funding: the ~$22-24M/yr peer-margin prize covers the ~$27M/yr program almost fully. The Concentric lesson: focused niche engineering at 2.3% intensity earns 25% gross margins — spend must buy sockets, not just scale.", size=11.5, color=GREY)
 
-# ---------- 14 Research quality notes ----------
+# ---------- 14 Product evaluation I: quality & service ----------
+s = slide()
+header(s, "Product evaluation I: external quality & service evidence",
+       "Evidence hierarchy: NHTSA recalls (supplier named by law) > OEM-granted awards > independent surveys > patents > self-claims. Japan's MLIT does not name suppliers")
+panel(s, 0.5, 1.55, 6.1, 2.5, "The validated leaders",
+      "Knorr-Bremse/Bendix: PACCAR supplier-performance award 6 consecutive yrs; 3 plants on PACCAR's <=10 defects-per-million list; ETM 'Best Brand - Brakes' (German fleet/driver vote) 19 YEARS RUNNING; ~85% of NA air-disc wheel ends\n"
+      "Meritor/Cummins: Daimler 'Masters of Quality' + 2020 global quality award ('1.3M axles/brakes at low defect rate'); DTNA EXTENDED its ADB contract — revealed preference\n"
+      "Brembo: all 10 F1 teams; AMS brake-brand vote 11 of 13 years", body_size=11)
+panel(s, 6.8, 1.55, 6.05, 2.5, "The adverse records",
+      "Bendix: 2019 ADB22X caliper recall (fire risk); 2024-25 EC-80 ECU recall, 442k units (software fix) — scale produces both install base and recalls\n"
+      "Haldex: lost a WILLFUL patent-infringement verdict to Bendix (copied its ADB); two modest component recalls\n"
+      "Akebono: the only Japanese supplier with documented adverse events — 2015 GM recall of its brake products + 2019-21 inspection-data falsification (no recall, governance black mark)", body_size=11, title_color=RED)
+panel(s, 0.5, 4.2, 6.1, 2.45, "TBK: externally invisible — in BOTH directions",
+      "No OEM award findable, no survey presence, no service network beyond Japan/Thailand\n"
+      "BUT also: no recall, no scandal, no misconduct report in Japanese-language search — a meaningful null in a scandal-rich industry (cf. Akebono)\n"
+      "75 years inside Isuzu/Fuso/Hino = quality is probably fine; 'probably fine, unproven' is the ceiling the evidence supports\n"
+      "Dataset moat scores align: Knorr 7.55 top, Akebono 4.95 bottom — TBK was unscored: literally unmeasurable from outside", body_size=11)
+panel(s, 6.8, 4.2, 6.05, 2.45, "TCO & service: only proxies exist",
+      "Brand-level TCO data is NOT public (fleets don't publish; IMR studies paywalled) — standing must be inferred:\n"
+      "Install base: Bendix 20M+ ADBs in field | Contract renewals: Meritor-DTNA extension | Networks: Knorr's pan-EMEA certified workshop network vs TBK's Japan+Thailand footprint\n"
+      "On every proxy the systems players lead — and TBK does not appear", body_size=11, title_color=GREEN)
+txt(s, 0.5, 6.75, 12.3, 0.6, "Strategic point: TBK's quality reputation is held entirely inside the keiretsu — like its market share, it cannot be sold to new customers. Making quality externally legible (awards, certifications, published data) is a cheap, necessary complement to the R&D program.", size=12, bold=True, color=DARK)
+
+# ---------- 15 Product evaluation II: innovation output ----------
+s = slide()
+header(s, "Product evaluation II: innovation output",
+       "Patents, documented product firsts, and technical-society awards — the externally visible output of R&D")
+panel(s, 0.5, 1.55, 6.1, 2.5, "The patent gap (independent registries)",
+      "Knorr-Bremse: ~2,900 patent families / 10,900+ patents (~7,500 in the truck division)\n"
+      "Aisin: ~680 JP applications/yr; Clarivate Top-100 Global Innovator 7 consecutive years\n"
+      "Akebono: ~321 US-registered patents\n"
+      "Mikuni: e-oil-pump fault-detection patents — its BEV-truck win is engineering-backed\n"
+      "TBK: 2-3 patent GRANTS PER YEAR — two to three orders of magnitude below the leaders.\nIndependently confirms the capitalized-R&D finding ($43M vs $2.6-5.6bn) from a different data source", body_size=11)
+panel(s, 6.8, 1.55, 6.05, 2.5, "Documented product firsts",
+      "Knorr: EBS 1989; series air disc brake 1992; Actros/Scania volume 1996\n"
+      "Bendix ADB22X: 2005, now ~85% of NA air-disc wheel ends\n"
+      "UD Quon 2017: first all-disc Japanese heavy truck\n"
+      "Mikuni 2022: e-oil pump in production for a domestic small BEV truck\n"
+      "Akebono FY2023: JSME Technology Award — world-first electric parking brake unit for medium/light trucks (innovating through distress)\n"
+      "TBK: retarders since the 1960s; 19.5\" ADB exhibited (year unconfirmed: 2019 vs 2022 sources conflict); e-pumps/TCU in development", body_size=11, title_color=GREEN)
+panel(s, 0.5, 4.2, 12.35, 1.9, "The pattern — and TBK's fix",
+      "Innovation output tracks the moat and margin rankings almost perfectly: the companies with validated quality (Knorr, Cummins) also hold the patent fortresses and the product firsts; the distressed (Akebono) still out-publish TBK; even the similarly-sized peer (Mikuni) protects its e-pump work with patents.\n"
+      "TBK's innovation is real but INVISIBLE: 75 years of retarder/brake/pump engineering, an ADB prototype, e-pumps and a thermal control unit in development — none of it patented at scale, published at JSAE, or externally awarded. Invisible innovation cannot win sockets outside the keiretsu.\n"
+      "Fix costs little: patent the e-pump/TCU and ADB work (Mikuni shows the value), publish, pursue external validation — a required complement to the R&D spend itself.", body_size=11.5)
+
+# ---------- 16 Moat ranking overview ----------
+s = slide()
+header(s, "Moat framework ranking: TBK scores 5.38 — 9th of 13",
+       "Unified Niche Compounder Methodology v3.2: 10 weighted criteria, domain-blended internal/external evidence. Thresholds: >7.8 Compounder, 6.5-7.8 Watchlist, <6.5 Pass")
+cd = CategoryChartData()
+cd.categories = ["Akebono", "Mikuni", "ZF", "Mahle", "TBK", "TPR", "Hanon", "Aisin", "SAF-Holland", "Cummins", "Brembo", "Concentric", "Knorr-Bremse"]
+cd.add_series("Moat score", (4.95, 5.00, 5.25, 5.35, 5.38, 5.45, 5.88, 6.25, 6.59, 6.73, 6.73, 6.98, 7.55))
+gf = s.shapes.add_chart(XL_CHART_TYPE.BAR_CLUSTERED, Inches(0.5), Inches(1.6), Inches(7.3), Inches(5.0), cd)
+ch = gf.chart
+ch.has_legend = False
+ch.has_title = True
+ch.chart_title.text_frame.text = "Final weighted moat scores (TBK in red)"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
+plot = ch.plots[0]
+plot.has_data_labels = True
+plot.data_labels.number_format = '0.00'
+plot.data_labels.number_format_is_linked = False
+plot.data_labels.font.size = Pt(10)
+ser = plot.series[0]
+ser.format.fill.solid()
+ser.format.fill.fore_color.rgb = DARK
+try:
+    pt = ser.points[4]
+    pt.format.fill.solid()
+    pt.format.fill.fore_color.rgb = RED
+except Exception:
+    pass
+ch.category_axis.tick_labels.font.size = Pt(10)
+panel(s, 8.1, 1.6, 4.75, 2.4, "Bands",
+      "Compounder Target (>7.8): NONE —\nno company in this industry qualifies\nWatchlist (6.5-7.8): Knorr 7.55,\nConcentric 6.98, Brembo/Cummins 6.73,\nSAF-Holland 6.59\nPass (<6.5): everyone else —\nincl. TBK 5.38, Mikuni 5.00", body_size=12)
+panel(s, 8.1, 4.15, 4.75, 2.45, "TBK's decomposition is unique",
+      "The strongest STATIC moat of the\nunscored set (Criticality 7.5 +\nHegemony 8.0 = 2.33 of its 5.38)\n…drained by the worst COMPOUNDING\nengine in the whole group (Capital\nallocation 2.0 + Runway 3.0 = just\n0.50 of a possible 2.00)\nDurable problem, fragile solution", body_size=12, title_color=RED)
+
+# ---------- 17 TBK moat profile: radar ----------
+s = slide()
+header(s, "TBK's moat profile: where it is strong, where it bleeds",
+       "Chapter scores (1-10) — TBK vs Concentric (best newly-scored) vs Mikuni vs average of the 6 newly-scored peers")
+CH_LABELS = ["Criticality", "Standard\npremium", "Market\nhegemony", "Ecosystem", "Lifecycle\ncost adv.", "Substitution\nresistance", "Demand\nhorizon", "Capital\nallocation", "Reinvestment\nrunway", "Reverse-\nLindy"]
+TBK_CH = (7.5, 6.0, 8.0, 2.0, 3.0, 3.5, 7.0, 2.0, 3.0, 4.0)
+CONC_CH = (7.0, 6.0, 7.5, 2.5, 7.0, 5.0, 7.5, 7.5, 7.0, 5.5)
+MIK_CH = (7.0, 5.0, 4.0, 2.0, 4.0, 3.0, 7.0, 2.5, 5.5, 4.5)
+AVG_CH = tuple(round(sum(x)/6, 2) for x in zip(
+    (7.0, 5.0, 4.0, 2.0, 4.0, 3.0, 7.0, 2.5, 5.5, 4.5),   # Mikuni
+    (7.0, 6.0, 7.5, 2.5, 7.0, 5.0, 7.5, 7.5, 7.0, 5.5),   # Concentric
+    (7.0, 7.0, 6.0, 5.0, 5.0, 4.0, 7.0, 4.5, 6.0, 4.5),   # Aisin
+    (7.5, 6.0, 7.5, 2.0, 6.0, 2.5, 4.0, 4.0, 4.0, 3.5),   # TPR
+    (7.0, 5.5, 6.5, 2.5, 3.5, 7.0, 8.0, 2.0, 5.0, 5.0),   # Hanon
+    (7.5, 6.0, 8.0, 2.0, 3.0, 3.5, 7.0, 2.0, 3.0, 4.0),   # TBK
+))
+cd = CategoryChartData()
+cd.categories = [c.replace("\n", " ") for c in CH_LABELS]
+cd.add_series("TBK", TBK_CH)
+cd.add_series("Concentric", CONC_CH)
+cd.add_series("Peer avg (6 scored)", AVG_CH)
+gf = s.shapes.add_chart(XL_CHART_TYPE.RADAR_MARKERS, Inches(0.4), Inches(1.5), Inches(7.0), Inches(5.3), cd)
+ch = gf.chart
+ch.has_legend = True
+ch.legend.position = XL_LEGEND_POSITION.BOTTOM
+ch.legend.include_in_layout = False
+ch.legend.font.size = Pt(11)
+ch.has_title = False
+ser_colors = [RED, GREEN, GREY]
+for i, sr in enumerate(ch.plots[0].series):
+    sr.format.line.color.rgb = ser_colors[i]
+    sr.format.line.width = Pt(2.25)
+panel(s, 7.7, 1.55, 5.15, 2.5, "TBK's STRONG points",
+      "Market hegemony 8.0 — top domestic share in entry-proof niches (best score in the set on this criterion)\n"
+      "Criticality 7.5 — life-support product: <1% of truck cost protecting 100% of value\n"
+      "Demand horizon 7.0 — stopping & cooling heavy trucks is permanent; content GROWS with electrification", body_size=11.5, title_color=GREEN)
+panel(s, 7.7, 4.2, 5.15, 2.5, "TBK's WEAK points",
+      "Capital allocation 2.0 — ROIIC negative at every horizon with 100% reinvestment (worst in the group)\n"
+      "Ecosystem 2.0 — standalone hardware, no installed-base annuity (vs Knorr's EBS/TruckServices)\n"
+      "Lifecycle cost 3.0 — no cost edge: underloaded plants in COGS\n"
+      "Reinvestment runway 3.0 — runway exists but unproven; $43M knowledge stock\n"
+      "Substitution 3.5 — both products in active displacement", body_size=11.5, title_color=RED)
+
+# ---------- 18 Moat per-criterion charts ----------
+s = slide()
+header(s, "Moat criteria: TBK vs competitors, criterion by criterion",
+       "Newly-scored companies (chapter detail unavailable for the 5 pre-scored names). TBK in red")
+def crit_chart(left, cats, tbk, mik, conc, ais, tpr, han, title):
+    cd = CategoryChartData()
+    cd.categories = cats
+    cd.add_series("TBK", tbk)
+    cd.add_series("Mikuni", mik)
+    cd.add_series("Concentric", conc)
+    cd.add_series("Aisin", ais)
+    cd.add_series("TPR", tpr)
+    cd.add_series("Hanon", han)
+    gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(left), Inches(1.55), Inches(6.2), Inches(4.7), cd)
+    ch = gf.chart
+    ch.has_legend = True
+    ch.legend.position = XL_LEGEND_POSITION.BOTTOM
+    ch.legend.include_in_layout = False
+    ch.legend.font.size = Pt(9)
+    ch.has_title = True
+    ch.chart_title.text_frame.text = title
+    ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(12)
+    colors = [RED, RGBColor(0xBF, 0x9000 >> 8, 0x00), GREEN, DARK, RGBColor(0x80, 0x80, 0x80), RGBColor(0x4F, 0xB3, 0xBF)]
+    colors[1] = RGBColor(0xBF, 0x90, 0x00)
+    for i, sr in enumerate(ch.plots[0].series):
+        sr.format.fill.solid()
+        sr.format.fill.fore_color.rgb = colors[i]
+    ch.category_axis.tick_labels.font.size = Pt(9)
+    ch.value_axis.maximum_scale = 10
+crit_chart(0.4, ["Criticality", "Standard", "Hegemony", "Ecosystem", "Lifecycle"],
+           (7.5, 6.0, 8.0, 2.0, 3.0), (7.0, 5.0, 4.0, 2.0, 4.0), (7.0, 6.0, 7.5, 2.5, 7.0),
+           (7.0, 7.0, 6.0, 5.0, 5.0), (7.5, 6.0, 7.5, 2.0, 6.0), (7.0, 5.5, 6.5, 2.5, 3.5),
+           "Phase 1 — Structural durability (Ch1-5)")
+crit_chart(6.75, ["Substitution", "Demand", "Capital alloc.", "Runway", "Rev-Lindy"],
+           (3.5, 7.0, 2.0, 3.0, 4.0), (3.0, 7.0, 2.5, 5.5, 4.5), (5.0, 7.5, 7.5, 7.0, 5.5),
+           (4.0, 7.0, 4.5, 6.0, 4.5), (2.5, 4.0, 4.0, 4.0, 3.5), (7.0, 8.0, 2.0, 5.0, 5.0),
+           "Phases 2-3 — Endurance & compounding engine (Ch6-10)")
+txt(s, 0.5, 6.35, 12.3, 0.9, "Read: in Phase 1 (left) TBK leads or matches on Criticality and Hegemony and collapses on Ecosystem/Lifecycle cost. In Phases 2-3 (right) TBK is last or near-last on every engine criterion — while Concentric (green) leads precisely there. Closing the gap to Concentric is execution (allocation, substitution positioning), not moat-building: the moat already exists.", size=11.5, color=GREY)
+
+# ---------- 19 Research quality notes ----------
 s = slide()
 header(s, "Research quality & methodology notes",
        "How this material was produced, verified, and where its limits are")
@@ -422,7 +582,7 @@ panel(s, 6.8, 4.3, 6.05, 2.6, "Data hierarchy & framework constructs",
       "ROIIC (ROICm) = return on incremental invested capital over the stated horizon; RR = reinvestment rate; R&D Capital Base = cumulative R&D capitalized/amortized per the dataset framework — a modeling construct, not a balance-sheet line\n"
       "Scenario pages state assumptions on-slide; peer-margin scenarios use comparable reporters only", body_size=11, title_color=GREEN)
 
-# ---------- 15 Sources ----------
+# ---------- 20 Sources ----------
 s = slide()
 header(s, "Sources")
 panel(s, 0.5, 1.3, 6.1, 2.85, "Primary & audited",
