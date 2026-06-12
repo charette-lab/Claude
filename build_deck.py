@@ -395,6 +395,60 @@ panel(s, 8.4, 1.6, 4.45, 4.4, "The numbers",
       "PHASE 1 — Catch-up (5 yrs):\n~$27M/yr ≈ 7.5% of sales\n= parity run-rate ($16-18M)\n+ deficit repayment (~$10M/yr,\n~$50M split between ADB\nindustrialization and e-pump/TCU\nprograms)\nTotal: ~$135M over 5 years\n\nPHASE 2 — Steady state:\n$16-18M/yr ≈ 4.5-5% of sales\n= 2.2x today's spend, forever\n\nPlus one-off ADB line capex\n(~$30-50M, outside R&D line)", body_size=12, title_color=GREEN)
 txt(s, 0.5, 6.25, 12.3, 1.1, "Allocation discipline, per domain: (1) brakes — ADB industrialization for the Japanese disc flip, systems/ADAS access via Brakes India, timed to regulation and platform renewals; (2) pumps — e-pump/TCU sockets on Isuzu/Fuso/Hino electrified programs, timed to program kick-offs happening NOW. Funding: the ~$22-24M/yr peer-margin prize covers the ~$27M/yr program almost fully. The Concentric lesson: focused niche engineering at 2.3% intensity earns 25% gross margins — spend must buy sockets, not just scale.", size=11.5, color=GREY)
 
+# ---------- 14 Research quality notes ----------
+s = slide()
+header(s, "Research quality & methodology notes",
+       "How this material was produced, verified, and where its limits are")
+panel(s, 0.5, 1.55, 6.1, 2.6, "Method & confidence tiers",
+      "Two deep-research studies (brake market; pump market): 5 parallel search angles each, claims extracted as falsifiable statements, then ADVERSARIAL VERIFICATION — 3 independent voters per claim set, actively attempting refutation\n"
+      "Tier 1: peer-reviewed papers, primary regulation, audited filings (TBK tanshin, Concentric AR2023, SEC)\n"
+      "Tier 2: government data and multi-source-verified company/industry figures\n"
+      "Tier 3: single-source estimates and market research — always labeled in the underlying documents", body_size=11)
+panel(s, 6.8, 1.55, 6.05, 2.6, "Corrections made by verification (transparency)",
+      "TBK's famous '~70% share' belongs to its WATER PUMPS, not brakes (brakes: 'top share', unaudited)\n"
+      "Euro 7 heavy-duty brake-dust limits apply ~2030, not 2028/29 (those are exhaust dates)\n"
+      "Concentric R&D = 2.3% of sales per AR2023 — the circulating '~5%' was wrong\n"
+      "'85-90% of Asia on drums' could not be corroborated — stated as 'majority' only\n"
+      "A claimed TBK-Mikuni alliance is erroneous (conflation with Mikuni-Suzuki)\n"
+      "Aggregator's 'TBK FY26 ¥138M profit' contradicted by the audited tanshin (-¥131M)", body_size=11, title_color=RED)
+panel(s, 0.5, 4.3, 6.1, 2.6, "Known limitations",
+      "Full-text retrieval was blocked in the research environment: paywalled SAE/journal numbers rest on abstracts; flagged where unverified\n"
+      "No peer discloses brake-only or pump-only R&D, gross profit, or segment margins — group figures used; ratios are the valid comparison\n"
+      "Accounting bases differ: German/Italian nature-of-expense 'gross margins' (Knorr ~50%, Brembo ~50%) are materials-only and EXCLUDED from margin comparisons; JGAAP fully expenses R&D while IFRS peers capitalize part\n"
+      "TBK FY3/26 division split estimated from FY3/25 (yuho due June 2026); USD at ¥150/USD", body_size=11)
+panel(s, 6.8, 4.3, 6.05, 2.6, "Data hierarchy & framework constructs",
+      "Where sources conflict, the audited primary document wins (e.g., TBK tanshin over aggregators)\n"
+      "Consistent-basis peer metrics (margins, R&D, ROIC) come from the user-provided 10-year/LTM peer dataset — same methodology across all 7 companies\n"
+      "ROIIC (ROICm) = return on incremental invested capital over the stated horizon; RR = reinvestment rate; R&D Capital Base = cumulative R&D capitalized/amortized per the dataset framework — a modeling construct, not a balance-sheet line\n"
+      "Scenario pages state assumptions on-slide; peer-margin scenarios use comparable reporters only", body_size=11, title_color=GREEN)
+
+# ---------- 15 Sources ----------
+s = slide()
+header(s, "Sources")
+panel(s, 0.5, 1.3, 6.1, 2.85, "Primary & audited",
+      "TBK Co., Ltd. — Consolidated Financial Results FY ended 31 Mar 2026 (tanshin, 14 May 2026); securities-report risk factors (有価証券報告書 via kitaishihon/irbank)\n"
+      "Concentric AB — Annual Report 2023 (income statement, balance sheet, 5-year key figures)\n"
+      "User-provided datasets: TBK 10-year financials; Peers 10-year; Peers LTM (7 companies, consistent methodology)\n"
+      "SEC filings: Cummins 10-K/10-Q/8-K (FY2024-25); WABCO & Meritor merger 8-Ks\n"
+      "Company releases: Knorr-Bremse FY2023-25; ZF AR2024-25; SAF-Holland AR2024; Mahle AR2024-25; Haldex year-end 2021; Rheinmetall FY2025 + AEQUITA divestment (3 Jun 2026); Circle BidCo/A.P. Møller offer documents (2024); Brakes India-TBK alliance (Dec 2025)", body_size=10)
+panel(s, 6.8, 1.3, 6.05, 2.85, "Peer-reviewed & academic",
+      "Göhring & von Glasner, SAE 902206 (1990); Kajiyama et al. (Isuzu/TBK), SAE 902200 (1990); Day, Harding & Newcomb, Proc IMechE (1984); Hoover et al., SAE 2005-01-3614; Subel & Kienhöfer, Proc IMechE D (2020)\n"
+      "Ampadu, Alrejjal & Ksaibati, JSDTL 8(1) 2023 — disc vs drum cost-effectiveness\n"
+      "Granitz et al., SN Applied Sciences (2021) — e-coolant pump, 13L HD diesel; Bitsis & Miwa, SAE 2018-01-0980; Cummins SuperTruck 2, SAE 2019-01-0247; MIT S.M. thesis (2012) — HD parasitic losses\n"
+      "Zhang et al., J. Hazardous Materials 465 (2024); Hagino, Atmosphere 15:75 (2024, JARI); Environmental Pollution (2023) — regen braking & brake wear\n"
+      "Energies 16:4024 (2023), 19:1748 (2026); Sustainability 15:3132 (2023); Energies 16:168 (2023) — BEV/FCEV truck & bus thermal management", body_size=10)
+panel(s, 0.5, 4.35, 6.1, 2.85, "Regulatory & legal",
+      "NHTSA: FMVSS 121 final rule 74 FR 37122 (2009) + Regulatory Impact Analysis; DOT HS 811 367 (2010, NADS simulator); ESV 07-0242 (2007); heavy-vehicle AEB NPRM (2023)\n"
+      "UNECE Regulation No. 13 (braking, Type-II fade tests)\n"
+      "EU: Reg 2019/1242 & 2024/1610 (HDV CO2); Reg 2024/1257 (Euro 7); Reg 2017/2400 Annex IX (VECTO auxiliaries) + JRC112015; EPA Phase 2 (40 CFR 1037.520 accessory credits) & Phase 3 (2024)\n"
+      "EC merger decisions: M.8102 Valeo/FTE (2017, 90-100% concentration, Raicam remedy); Knorr-Bremse/Haldex Phase II (IP-17-2126, 2017)\n"
+      "Japan: MY2025 HDV fuel-economy standards (via ICCT/TransportPolicy); METI supplier-transition studies (2023, 2025); FMCSA Crash Cost Methodology (2025); AAA Foundation (2017)", body_size=10)
+panel(s, 6.8, 4.35, 6.05, 2.85, "Industry & financial data (verified, labeled where single-source)",
+      "Adoption data: Haldex ADB history; Bendix/Knorr production milestones; FleetOwner, TruckingInfo, Fleet Maintenance, Transport Topics, Fleet Equipment; NACFE confidence reports; NAS 25542; DOE SuperTruck (OSTI)\n"
+      "Deal records: Knorr-Bremse-Bendix (2002); ZF-Wabco $7bn (2020); Cummins-Meritor $3.7bn (2022); SAF-Holland-Haldex (2022); Concentric take-private SEK 230 (2024); Pierburg-AEQUITA €350M (2026)\n"
+      "Japanese filings via irbank, kitaishihon, buffett-code, kabutan, MarkLines (incl. TBK JSAE 2022 exhibit; Mikuni 2022 BEV-truck e-oil pump disclosure; Yamada e-water pump adoptions)\n"
+      "Aggregators for computed ratios: macrotrends, stockanalysis, Simply Wall St — cross-checked against filings; market research (MarketsandMarkets, GVR, IDTechEx) used directionally only", body_size=10)
+
 import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("error")
