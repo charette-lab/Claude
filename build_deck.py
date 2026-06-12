@@ -258,8 +258,8 @@ txt(s, 0.5, 6.35, 12.3, 0.9, "Method: brakes ~$127M sales x peer avg 21.0% / med
 
 # ---------- 9 OPEX comparison (USD) ----------
 s = slide()
-header(s, "OPEX: TBK's problem is not cost discipline — it under-spends",
-       "OPEX = gross margin − operating margin (captures SG&A + R&D + other operating items), comparable peer set  |  USD at ¥150/USD")
+header(s, "Why TBK looks lean on OPEX: its factory costs hide in COGS",
+       "OPEX here = gross margin − operating margin (SG&A + R&D). Under JGAAP, factory overhead, depreciation and idle capacity sit in COST OF SALES  |  USD at ¥150/USD")
 cd = CategoryChartData()
 cd.categories = ["BRAKES panel", "PUMPS panel"]
 cd.add_series("TBK (blended)", (9.7, 9.7))
@@ -286,11 +286,11 @@ plot.series[1].format.fill.fore_color.rgb = DARK
 plot.series[2].format.fill.solid()
 plot.series[2].format.fill.fore_color.rgb = GREEN
 ch.category_axis.tick_labels.font.size = Pt(11)
-panel(s, 8.1, 1.6, 4.75, 2.3, "Peers spend MORE below the line…",
-      "Brakes: Haldex 19.9%, Cummins 13.7%\n(SG&A 9.6% + R&D 4.3%), SAF-H 13.4%,\nAkebono 8.1%\nPumps: TPR 16.3%, Concentric 11.0%,\nAisin 7.6%, Hanon 6.6%\nTBK SG&A (incl. its ~2.2% R&D): 9.7%", body_size=11.5)
-panel(s, 8.1, 4.05, 4.75, 2.3, "…and still earn 2.5x the margin",
-      "Operating margin: TBK 2.7% vs\nbrake peers avg 7.2% | pump peers avg 6.7%\nAt peer GM AND peer opex, TBK would\nspend ~$7M MORE opex ($42M vs $35M)\nyet earn ~$25M operating profit vs\n$10M actual → +$15M/yr", body_size=11.5, title_color=GREEN)
-txt(s, 0.5, 6.35, 12.3, 1.0, "Concentric's history makes the point: opex rose 10.3% (2022) → 11.7% (2023) as it funded the e-pump transition, yet 5-yr operating margin averaged 18.4% (23.5% pre-EMP in 2019) — high gross margins pay for development. Implication for TBK: cutting opex is the wrong lever; the gap is in COGS/gross margin, and peer-level opex means spending MORE below the line — exactly the R&D catch-up program.", size=11.5, color=GREY)
+panel(s, 8.1, 1.6, 4.75, 2.3, "The lean look is an artifact",
+      "TBK's 9.7% covers only SG&A + its\nthin ~2.2% R&D — the future-building costs\nit has starved. The factory burden is in COGS:\nPP&E 39% of sales vs Concentric ~12% (3x)\nDepreciation 5.3% of sales; China: 12.8% of\nsegment sales + losses both years", body_size=11.5)
+panel(s, 8.1, 4.05, 4.75, 2.3, "Restructuring bypasses BOTH metrics",
+      "Impairments ¥459M + ¥712M and\nrestructuring losses ¥775M + ¥297M\n(>¥2.2bn in 2 years) booked as JGAAP\nextraordinary items — below operating\nprofit, invisible to GM and OPEX alike.\nThat IS the underutilized-footprint cost", body_size=11.5, title_color=RED)
+txt(s, 0.5, 6.35, 12.3, 1.0, "Two-front program, mapped to the P&L: (1) footprint/utilization repair attacks COGS — the $22-24M/yr gross-margin prize (North America exit and the ¥712M Japan impairment show it has started); (2) R&D catch-up deliberately GROWS opex toward peer levels (peers spend 10-14% incl. 4%+ R&D and earn 2.5x TBK's operating margin — Concentric grew opex 10.3%→11.7% funding its e-pump transition at 18.4% avg OPM). Cut above the line, invest below it.", size=11.5, color=GREY)
 
 # ---------- 10 Deficit ----------
 s = slide()
