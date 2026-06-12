@@ -55,6 +55,27 @@ winning specific e-pump sockets, not on matching a 5% ratio for its own sake.
 
 ---
 
+## Consistent-basis update (user peer dataset, latest FY 2025, USD)
+
+The user-provided 10-year peer dataset (same methodology as the TBK file: R&D = expensed +
+capitalized, supplemental) confirms and extends the benchmark:
+
+| Company | R&D 2025 | R&D % of sales | 10-yr R&D % | **R&D Capital Base** (capitalized knowledge stock) | RDCB % of sales |
+|---|---|---|---|---|---|
+| Cummins | $1,389M | 4.1% | 3.7% | **$5,594M** | 17% |
+| Knorr-Bremse | $604M | 6.8% | 6.4% | **$2,569M** | 29% |
+| Akebono | $45.7M | **4.3%** (fills earlier gap) | 1.3% (recent ramp — EMB/copper-free) | $123M | 12% |
+| Mikuni | $39M | 5.9% | 4.8% | $194M | 29% |
+| SAF-Holland | $32M | 1.7% | 1.5% | $131M | 7% |
+| **TBK** | **$7.8M** | **2.2%** | 2.2% | **$43M** | 12% |
+| Brembo | n/a in dataset | (6.1% company-stated) | — | n/a | — |
+
+**The capitalized-R&D view is the starkest framing of the gap**: competitors have accumulated
+knowledge capital of $2.6–5.6bn (Knorr, Cummins) vs TBK's $43M — a 60–130x stock gap. Even
+Mikuni's knowledge base is 4.5x TBK's, and at 29% of sales (vs TBK's 12%) Mikuni and Knorr run
+structurally knowledge-intensive business models. Catching up is not one budget year — it is
+rebuilding a depleted asset.
+
 ## Comparability caveats
 
 1. **Nobody discloses brake-only or pump-only R&D** — conglomerate figures are group-level;

@@ -164,8 +164,8 @@ s = slide()
 header(s, "What competitors spend on R&D",
        "Latest fiscal year, group level (no peer discloses brake-only or pump-only R&D); USD indicative")
 cd = CategoryChartData()
-cd.categories = ["SAF-Holland", "TBK", "Concentric*", "Cummins", "Aisin", "Hanon*", "Mahle", "Mikuni", "Brembo", "Knorr-Bremse", "ZF"]
-cd.add_series("R&D % of sales", (2.1, 2.2, 2.3, 4.3, 4.8, 5.0, 5.4, 5.4, 6.1, 6.9, 8.6))
+cd.categories = ["SAF-Holland", "TBK", "Concentric*", "Cummins", "Akebono", "Aisin", "Hanon*", "Mahle", "Mikuni", "Brembo", "Knorr-Bremse", "ZF"]
+cd.add_series("R&D % of sales", (1.7, 2.2, 2.3, 4.1, 4.3, 4.8, 5.0, 5.4, 5.9, 6.1, 6.8, 8.6))
 gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(7.6), Inches(4.4), cd)
 ch = gf.chart
 ch.has_legend = False
@@ -182,9 +182,36 @@ plot.series[0].format.fill.fore_color.rgb = DARK
 ch.category_axis.tick_labels.font.size = Pt(10)
 panel(s, 8.4, 1.6, 4.45, 4.4, "Absolute spend (≈USD)",
       "ZF €3.6bn (~$3.9bn)\nAisin ¥237bn (~$1.6bn)\nCummins $1.46bn\nMahle €607M (~$655M)\nKnorr-Bremse €544M (~$590M)\nHanon ~$360-440M\nBrembo ~$250M\nSAF-Holland €39M (~$42M)\nMikuni ¥5.5bn (~$37M)\nConcentric MSEK 95 (~$9M)*\nTBK ¥1.2bn (~$8M)", body_size=12)
-txt(s, 0.5, 6.25, 12.3, 1.1, "Brake systems players spend 6-9% of sales; large pump/thermal players cluster at 4-5.5%. TBK sits at 2.2%. *Concentric (AR2023, verified): expensed product development only 2.3% — yet 25% gross margin: niche dominance, not raw R&D scale, drives pump profitability. The catch-up case rests on the larger peers and on winning specific e-pump sockets. *Hanon mid-range of conflicting filings.", size=11.5, color=GREY)
+txt(s, 0.5, 6.25, 12.3, 1.1, "Brake systems players spend 6-9% of sales; large pump/thermal players cluster at 4-5.5%; Akebono now at 4.3% (EMB + copper-free friction ramp, per consistent peer dataset). TBK sits at 2.2%. *Concentric (AR2023, verified): expensed product development only 2.3% — yet 25% gross margin: niche dominance, not raw R&D scale, drives pump profitability. *Hanon mid-range of conflicting filings.", size=11.5, color=GREY)
 
-# ---------- 7 The argument: gross margin is too low ----------
+# ---------- 7 Capitalized R&D: the knowledge-capital stock ----------
+s = slide()
+header(s, "The stock, not the flow: competitors' capitalized R&D",
+       "R&D Capital Base = cumulative R&D capitalized and amortized on a consistent basis (peer dataset, 2025, USD) — the knowledge asset each company has built")
+cd = CategoryChartData()
+cd.categories = ["TBK", "Akebono", "SAF-Holland", "Mikuni", "Knorr-Bremse", "Cummins"]
+cd.add_series("R&D Capital Base ($M)", (43, 123, 131, 194, 2569, 5594))
+gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(7.3), Inches(4.6), cd)
+ch = gf.chart
+ch.has_legend = False
+ch.has_title = True
+ch.chart_title.text_frame.text = "Capitalized R&D stock, US$M (2025)"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(14)
+plot = ch.plots[0]
+plot.has_data_labels = True
+plot.data_labels.number_format = '#,##0'
+plot.data_labels.number_format_is_linked = False
+plot.data_labels.font.size = Pt(11)
+plot.series[0].format.fill.solid()
+plot.series[0].format.fill.fore_color.rgb = DARK
+ch.category_axis.tick_labels.font.size = Pt(11)
+panel(s, 8.1, 1.6, 4.75, 2.3, "The stock gap",
+      "Cummins $5.6bn — 130x TBK\nKnorr-Bremse $2.6bn — 60x TBK\nMikuni $194M — 4.5x TBK\nSAF-Holland $131M | Akebono $123M\nTBK: $43M — the smallest knowledge\nbase in the peer set", body_size=12.5)
+panel(s, 8.1, 4.05, 4.75, 2.3, "Knowledge intensity (RDCB / sales)",
+      "Knorr-Bremse 29% | Mikuni 29%\nCummins 17%\nTBK 12% | Akebono 12%\nSAF-Holland 7%\nThe systems winners run structurally\nknowledge-intensive business models", body_size=12.5, title_color=GREEN)
+txt(s, 0.5, 6.35, 12.3, 1.0, "Why it matters: the R&D gap is cumulative, not annual. A decade of under-spending leaves TBK rebuilding a depleted asset while competitors amortize billions of accumulated know-how into every bid (brake control software, ADB iterations, e-pump motor/inverter design). This is why the catch-up phase must run YEARS at elevated spend — one good budget year cannot rebuild a stock — and why partnering (Brakes India) to borrow an existing knowledge base is rational.", size=11.5, color=GREY)
+
+# ---------- 8 The argument: gross margin is too low ----------
 s = slide()
 header(s, "The case that TBK's gross margin is structurally too low",
        "TBK FY3/2026: 12.5% gross margin, 2.7% operating margin — four independent lines of evidence say this is a fixable defect, not the nature of the business")

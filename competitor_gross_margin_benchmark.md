@@ -73,6 +73,24 @@ Gross margin is far less comparable across this peer set than R&D was:
    aspiration for TBK is **15–22%** — the SAF-Holland/TPR zone — which itself would roughly
    double TBK's gross profit at constant sales.
 
+## EBIT and EBITA margins — consistent dataset basis (added 2026-06-12)
+
+From the user-provided 10-year peer dataset (USD; same methodology across all 7 companies):
+
+| Company | GM 2025 (dataset) | EBIT margin 2025 | EBITA margin 2025 | 10-yr avg EBITA margin |
+|---|---|---|---|---|
+| Cummins | 25.4% | 12.0% | 13.3% | 10.6% |
+| Knorr-Bremse | (50.0% — materials-only) | 11.7% | 12.4% | 13.4% |
+| SAF-Holland | 22.6% | 8.4% | 8.8% | 8.3% |
+| Brembo | (49.6% — materials-only) | 8.8% | 7.9% | 10.0% |
+| Mikuni | 15.5% | 3.0% | 4.7% | 3.5% |
+| Akebono | 10.0% | 1.9% | 0.9% | 3.5% |
+| **TBK** | **10.6%** | **1.7%** | **3.1%** | **3.0%** |
+
+Pattern unchanged but now decade-deep: the Western brake/systems peers have averaged 8–13%
+EBITA margins for ten years while the Japanese cohort (TBK, Akebono, Mikuni) averaged 3-3.5% —
+a persistent ~3x profitability gap on a consistent measurement basis.
+
 ## OPEX comparison (added 2026-06-12)
 
 OPEX defined as gross margin − operating margin on the comparable set (captures SG&A + R&D +
