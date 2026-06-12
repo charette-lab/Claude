@@ -504,35 +504,36 @@ s = slide()
 header(s, "The normalized TBK: right prices, right factories, real R&D",
        "Pro-forma on audited FY3/2026 — pricing corrected (SAW only), factory structure fixed, competitive R&D loaded. Deficit repayment kept separate, per scope")
 cd = CategoryChartData()
-cd.categories = ["Actual\nFY3/26 OP", "+ SAW repriced\nto market", "+ Factory\nstructure", "- Competitive\nR&D (4.7%)", "Pro-forma\nOP"]
-cd.add_series("Operating profit bridge (¥M)", (1496, 2585, 1500, -1525, 4056))
+cd.categories = ["Actual\nFY3/26", "FLOOR\nSAW-only reprice", "BASE\n+15% all, 500 heads", "FULL premises\n+30% all, 1,000 heads"]
+cd.add_series("Operating profit ¥bn", (1.5, 4.1, 9.4, 18.7))
 gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(6.9), Inches(4.6), cd)
 ch = gf.chart
 ch.has_legend = False
 ch.has_title = True
-ch.chart_title.text_frame.text = "Operating profit bridge: ¥1.5bn (2.7%) -> ¥4.1bn (7.1%)"
+ch.chart_title.text_frame.text = "Operating profit: 2.7% -> 7.1% -> 15.0% -> 26.6% margin"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
 plot = ch.plots[0]
 plot.has_data_labels = True
-plot.data_labels.number_format = '#,##0'
+plot.data_labels.number_format = '0.0"bn"'
 plot.data_labels.number_format_is_linked = False
-plot.data_labels.font.size = Pt(10)
+plot.data_labels.font.size = Pt(11)
 ser = plot.series[0]
 ser.format.fill.solid()
 ser.format.fill.fore_color.rgb = DARK
 try:
-    for i, col in ((1, GREEN), (2, GREEN), (3, RED), (4, RGBColor(0x2E, 0x59, 0x2E))):
+    pts = [(0, RED), (1, GREY), (2, GREEN), (3, RGBColor(0x2E, 0x59, 0x2E))]
+    for i, col in pts:
         pt = ser.points[i]
         pt.format.fill.solid()
         pt.format.fill.fore_color.rgb = col
 except Exception:
     pass
 ch.category_axis.tick_labels.font.size = Pt(9)
-panel(s, 7.7, 1.6, 5.15, 2.45, "The normalized P&L (¥M)",
-      "Sales 57,341 (+SAW reprice)\nGross profit 10,910 = 19.0% (vs 12.5%)\nR&D 2,695 = 4.7% of sales (peer level, vs ~2.2%)\nOperating profit 4,056 = 7.1% (vs 2.7%)\nNet attributable ~2,853 = ¥90 EPS (vs -¥4.4)\n~3.4x earnings at current market cap (~¥9.6bn)", body_size=11.5)
-panel(s, 7.7, 4.2, 5.15, 2.45, "Deliberately conservative — and coherent",
-      "Only SAW repriced; broader keiretsu book, aftermarket growth, e-pump/ADB revenue all EXCLUDED\nFactory gain ¥1.5bn vs FY3/26's proven ¥0.7bn cut + >¥1bn/yr extraordinary charges normalizing\nCoherence: pro-forma OPM 7.1% = brake-peer average 7.2%; GM 19.0% inside the 15-22% peer band\nMEMO (separate financing item): R&D deficit repayment ~¥1.5bn/yr x 5 yrs; ADB capex ¥4.5-7.5bn one-off", body_size=11, title_color=GREEN)
-txt(s, 0.5, 6.45, 12.3, 0.9, "Read: nothing in this statement requires new products or new customers — it is TBK's existing book at honest prices, loaded factories, and peer-level R&D. The competitive R&D (¥2.7bn/yr) is fully absorbed and the company still earns peer-average margins. The deficit repayment and ADB line are financing/balance-sheet items — they determine how fast TBK gets here, not whether the destination exists.", size=11.5, bold=True, color=DARK)
+panel(s, 7.7, 1.6, 5.15, 2.45, "BASE case (the investable one): ¥M",
+      "Sales 62,399 (+15% avg reprice on ¥51bn OEM book)\nGross profit 16,468 = 26.4% (peer top quartile)\nR&D 2,933 = 4.7% of sales — peer level, fully absorbed\nOperating profit 9,377 = 15.0% — Knorr-Bremse-class\nNet ~6,577 = ¥207 EPS -> ~1.5x current market cap\nAssumes OEM resistance/competition erodes HALF the stated gap", body_size=11)
+panel(s, 7.7, 4.2, 5.15, 2.45, "FULL premises = the leakage meter",
+      "All products +30% (management: Japanese customers pay ~30% below market) + 1,000 excess heads (company's own claim) @ ¥4M/head blended\nOP 18,661 = 26.6% — ABOVE every Western peer: read as the ANNUAL VALUE LEAKAGE (~¥17bn to customers + idle capacity), not a forecast\nMEMO (separate financing): R&D deficit ~¥1.5bn/yr x5; ADB capex ¥4.5-7.5bn; restructuring cash ~¥4-6bn one-off", body_size=11, title_color=GREEN)
+txt(s, 0.5, 6.45, 12.3, 0.9, "Nothing here requires new products or customers — existing book, honest prices, loaded factories, peer-level R&D. Even the BASE case self-funds the entire R&D catch-up within ~18 months. Premises (30% discount, 1,000 heads) are management/first-hand information; the tiering makes the statement robust to how much of each is captured.", size=11.5, bold=True, color=DARK)
 
 # ---------- Pump segment: TBK vs Concentric ----------
 s = slide()
