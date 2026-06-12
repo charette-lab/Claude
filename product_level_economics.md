@@ -117,6 +117,42 @@ box, e-W/Pump (ECWP 100W-24V) for Denso AC via Meiko Kiki, Cummins GZ04 water pu
 gear machining/oil pumps and aftermarket. Real momentum, but ~2.5% of parent sales — the ramp
 must steepen by an order of magnitude to matter.
 
+## The Haldex lesson (added: internal analysis file, Dec 2019 — segment data Sep YTD 2013/14 + 2009-2019 history, MSEK)
+
+**Where the profit pool sits in a Western CV brake company:**
+
+| Haldex segment (Sep YTD 2014) | Sales | Contribution II % | EBIT % |
+|---|---|---|---|
+| Truck OE | 958 | 22.4% | **−3.9%** |
+| Trailer OE | 966 | 22.2% | **−9.9%** |
+| **Aftermarket** | **1,393** | **48.6%** | **+31.6%** |
+| Total | 3,318 | 33.9% | +9.3% |
+
+Regional extreme: Europe truck OE EBIT **−32.4%**; North America aftermarket EBIT +28.3%.
+The 2009-2019 history confirms it structurally: truck CII 23-29%, trailer 26-32%, aftermarket
+**42-50%** every single year — the company's own scenario model attributes ALL of Haldex's EBIT
+to aftermarket (modeled at +20-30% EBIT) with OE truck/trailer at −4 to −12%.
+
+**Lesson 1 — OE contribution of ~22-30% is the universal CV-component condition, not a TBK
+defect.** Haldex's OE book earned almost exactly what TBK's whole book earns (TBKK 22.7%, Japan
+19.6%). What separated Haldex's 25.5-28.5% gross margin (and Concentric's 44.5% contribution)
+is the **aftermarket/value-added overlay**. TBK's aftermarket (TBK Sales: ¥1.19bn at 30.2% CM)
+is only ~10% of parent sales versus Haldex's 42% — *the fastest proven route to group margin is
+building the aftermarket annuity, not repricing OE*.
+
+**Lesson 2 — the subscale OE disc-brake warning.** Haldex's disc brake line ran CII of just
+12.6% → 15.3% with EBIT of −10.4% → −3.9% (2013-14): the #3 player fighting Knorr/Meritor for
+OE disc sockets *lost money on every unit* for years. Two implications for TBK: (a) read TBK's
+68.7% D/BRAKE contribution carefully — it is small-batch/replacement volume, not series-OE
+pricing; (b) the ADB strategy should target niche/aftermarket positions and the Brakes India
+partnership rather than a frontal OE assault on Knorr — Haldex's P&L is what the frontal
+assault looks like.
+
+Other Haldex product detail (2014 CII): Air treatment 53.5%, suspension 46.0%, ABS 42.7%,
+valves 42.4%, automatic brake adjusters 41.2% (EBIT +19.7% — the niche-monopoly product),
+reman 35.3% vs EBS 31.7% (EBIT +1.6%) and friction 22.8% — electronics-adjacent and
+niche-dominant products price well; contested systems and commodity friction do not.
+
 ## Caveats
 
 - TBKK is TBK's Thai subsidiary only (~¥14.3bn of ¥54.8bn group sales) — Japan parent economics

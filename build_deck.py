@@ -382,6 +382,43 @@ panel(s, 7.4, 4.2, 5.45, 2.45, "Share map & pipeline",
       "New-business pipeline: ¥8M (FY21) → ¥700M/yr (FY25) incl. ELF EV precharge box, e-W/Pump for Denso AC, Cummins/Komatsu wins — real momentum, but ~2.5% of parent sales: must steepen 10x", body_size=11, title_color=GREEN)
 txt(s, 0.5, 6.45, 12.3, 0.9, "Read with the previous page: Japan series contribution is 19.6% (vs TBKK 22.7%, Concentric 44.5%) — the gap is group-wide. The two cheapest margin levers need no R&D: mix toward non-keiretsu/aftermarket/export customers who already pay ~2x, and price the differentiated products (disc, retarder) for what the data says they are worth.", size=11.5, color=GREY)
 
+# ---------- The Haldex lesson: profit pools & the disc warning ----------
+s = slide()
+header(s, "The Haldex lesson: aftermarket is the profit pool — and subscale OE discs lose money",
+       "Haldex internal analysis (Dec 2019 file): segment P&L Sep YTD 2014 + 2009-2019 history, MSEK — the only Western peer with internal segment economics in this study")
+cd = CategoryChartData()
+cd.categories = ["Truck OE", "Trailer OE", "Aftermarket"]
+cd.add_series("Contribution II %", (22.4, 22.2, 48.6))
+cd.add_series("EBIT %", (-3.9, -9.9, 31.6))
+gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(6.4), Inches(4.6), cd)
+ch = gf.chart
+ch.has_legend = True
+ch.legend.position = XL_LEGEND_POSITION.BOTTOM
+ch.legend.include_in_layout = False
+ch.legend.font.size = Pt(11)
+ch.has_title = True
+ch.chart_title.text_frame.text = "Haldex segment economics (Sep YTD 2014): OE loses, aftermarket earns it all"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(12)
+plot = ch.plots[0]
+plot.has_data_labels = True
+plot.data_labels.number_format = '0.0"%"'
+plot.data_labels.number_format_is_linked = False
+plot.data_labels.font.size = Pt(10)
+plot.series[0].format.fill.solid()
+plot.series[0].format.fill.fore_color.rgb = DARK
+plot.series[1].format.fill.solid()
+plot.series[1].format.fill.fore_color.rgb = GREEN
+ch.category_axis.tick_labels.font.size = Pt(11)
+panel(s, 7.2, 1.6, 5.65, 2.45, "Lesson 1: TBK's ~20-23% OE contribution is the industry condition — aftermarket is the cure",
+      "Haldex OE truck/trailer: CII 22-32% every year 2009-19, EBIT NEGATIVE (-4 to -12%); Europe truck EBIT hit -32%\n"
+      "Aftermarket: CII 42-50% every year, EBIT +20-32% — it generated ALL of Haldex's profit\n"
+      "TBK's aftermarket (TBK Sales, 30.2% CM) is only ~10% of parent sales vs Haldex's 42% — the proven fastest route to group margin", body_size=11)
+panel(s, 7.2, 4.2, 5.65, 2.45, "Lesson 2: the subscale OE disc warning",
+      "Haldex disc brakes 2013-14: CII just 12.6% -> 15.3%, EBIT -10.4% -> -3.9% — the #3 player fighting Knorr/Meritor for OE disc sockets LOST MONEY on every unit\n"
+      "Caution: TBK's 68.7% D/BRAKE contribution is small-batch/replacement pricing, not series-OE economics\n"
+      "ADB strategy must be niche/aftermarket-priced and partnered (Brakes India) — Haldex's P&L is what a frontal OE assault looks like", body_size=11, title_color=RED)
+txt(s, 0.5, 6.45, 12.3, 0.9, "Haldex product detail confirms the pattern: niche-dominant and electronics-adjacent products priced well (air treatment 53.5%, suspension 46.0%, ABS 42.7%, brake adjusters 41.2% CII) while contested systems (EBS 31.7%, EBIT +1.6%) and commodity friction (22.8%) did not. Haldex's 25.5-28.5% gross margin = ~22-30% OE + aftermarket overlay — the same arithmetic TBK needs.", size=11.5, color=GREY)
+
 # ---------- OPEX comparison (USD) ----------
 s = slide()
 header(s, "Why TBK looks lean on OPEX: its factory costs hide in COGS",
