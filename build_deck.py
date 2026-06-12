@@ -425,9 +425,9 @@ s = slide()
 header(s, "Brake segment: TBK vs Haldex — product-level contribution",
        "TBK Japan H1 FY2025 (CM after direct material) vs Haldex May-2014 YTD (CII). Concentric makes no brakes. Periods differ — structure, not cycle, is the message")
 cd = CategoryChartData()
-cd.categories = ["Foundation\ndrum (2L)", "Friction /\nlinings", "Brake\ndrum", "Disc\nbrake", "Brake adjusters\n(ABA)", "ABS / EBS\nelectronics", "Aftermarket"]
-cd.add_series("TBK", (15.8, 25.1, 22.9, 68.7, None, None, 30.2))
-cd.add_series("Haldex", (None, 23.2, None, 14.0, 41.4, 43.4, 48.2))
+cd.categories = ["SAW drum\n(flagship)", "Foundation\ndrum (2L)", "Friction /\nlinings", "Brake\ndrum", "Disc\nbrake", "Brake adjusters\n(ABA)", "ABS / EBS\nelectronics", "Aftermarket"]
+cd.add_series("TBK", (19.5, 15.8, 25.1, 22.9, 68.7, None, None, 30.2))
+cd.add_series("Haldex", (None, None, 23.2, None, 14.0, 41.4, 43.4, 48.2))
 gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(7.4), Inches(4.6), cd)
 ch = gf.chart
 ch.has_legend = True
@@ -456,6 +456,48 @@ panel(s, 8.2, 4.2, 4.65, 2.45, "The disc paradox, resolved",
       "Haldex disc 14.0% (EBIT -6.3%) = series-OE pricing fighting Knorr at scale\n"
       "Both are true: discs pay in niches and aftermarket, bleed in frontal OE — TBK's ADB entry must choose the first route", body_size=11, title_color=GREEN)
 txt(s, 0.5, 6.45, 12.3, 0.9, "Gross-profit read: TBK's brake book (2L/brake 15.8%, A/brake 7.6%, O/brake -4.9%, drum 22.9%, lining 25.1%) clusters at 16-25% contribution; Haldex's brake-adjacent book ran 23-56% because every point of extra margin came from mechatronics and aftermarket, not from better drum pricing. The brake gap is a PRODUCT-CONTENT gap, not a cost gap.", size=11.5, color=GREY)
+
+# ---------- The SAW case: best product, below-market price ----------
+s = slide()
+header(s, "The SAW case: TBK's best product, sold ~30% below market",
+       "SAW = TBK's flagship drum brake — class-leading stopping time, energy efficiency and weight (per management). ¥4.31bn = 36% of parent H1 series sales, at just 19.5% contribution")
+cd = CategoryChartData()
+cd.categories = ["SAW today\n(keiretsu price)", "SAW at market\n(+30% price)", "SAW at market\n(price / 0.7)", "Haldex core products\n(ABA/ABS/air, ref.)", "Concentric conv.\npumps (ref.)"]
+cd.add_series("Contribution margin %", (19.5, 38.1, 43.6, 43.0, 40.5))
+gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(7.0), Inches(4.6), cd)
+ch = gf.chart
+ch.has_legend = False
+ch.has_title = True
+ch.chart_title.text_frame.text = "SAW contribution: actual vs at-market-price scenarios (vs peer core products)"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(12)
+plot = ch.plots[0]
+plot.has_data_labels = True
+plot.data_labels.number_format = '0.0"%"'
+plot.data_labels.number_format_is_linked = False
+plot.data_labels.font.size = Pt(11)
+ser = plot.series[0]
+ser.format.fill.solid()
+ser.format.fill.fore_color.rgb = DARK
+try:
+    pt = ser.points[0]
+    pt.format.fill.solid()
+    pt.format.fill.fore_color.rgb = RED
+    for i in (1, 2):
+        pt = ser.points[i]
+        pt.format.fill.solid()
+        pt.format.fill.fore_color.rgb = GREEN
+except Exception:
+    pass
+ch.category_axis.tick_labels.font.size = Pt(9)
+panel(s, 7.8, 1.6, 5.05, 2.45, "The triangulation",
+      "At market price, SAW earns 38-44% contribution — EXACTLY the level of Haldex's core products (41-44%) and Concentric's conventional pumps (38-43%)\n"
+      "The keiretsu discount fully explains the flagship's gap: a world-leading product, peer-level economics, captured by the customer\n"
+      "Price flows straight to contribution: no cost change needed", body_size=11.5)
+panel(s, 7.8, 4.2, 5.05, 2.45, "What it is worth — and how to get it",
+      "SAW repriced to market: +¥2.6-3.7bn contribution PER YEAR; parent series CM 19.6% -> 27-30% from this one product\n"
+      "Realistically gradual at home (keiretsu contracts) — so arbitrage it: SELL SAW AT MARKET PRICE where market prices rule: exports, aftermarket, and India via Brakes India, where drum demand persists at scale\n"
+      "Class-leading tech + below-market price = the export business case writes itself", body_size=11.5, title_color=GREEN)
+txt(s, 0.5, 6.45, 12.3, 0.9, "Note: 'leading drum brake in stopping time, energy save and weight' and the ~30% below-market pricing are management/first-hand information, not externally verified — consistent, however, with the customer-gradient data (non-keiretsu customers pay ~2x) and with TBK's zero-recall record. If the ~30% discount applies beyond SAW (management indicates Japanese customers broadly), the parent-wide repricing prize is correspondingly larger.", size=11, color=GREY)
 
 # ---------- Pump segment: TBK vs Concentric ----------
 s = slide()

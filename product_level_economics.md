@@ -176,6 +176,39 @@ products, May-2014 YTD EBIT margin is **11.2% vs the 8.8% reported**.
   ECFP 7.3%) are pre-scale future products, not legacy — they are what the investment program
   is for. The legacy laggards are not.
 
+## The SAW case (added: management/first-hand information)
+
+**SAW is TBK's flagship drum brake** — per management, the leading drum brake in stopping time,
+energy efficiency, and weight. It is also the largest line in the parent book: ¥4,307.6M of H1
+FY2025 sales (36% of series sales) at just **19.5% contribution** — and per management, Japanese
+customers buy TBK products at roughly **30% below market price**.
+
+The repricing math (volumes constant; price flows straight to contribution):
+
+| Scenario | SAW contribution % | Annualized uplift | Parent series CM |
+|---|---|---|---|
+| Today (keiretsu price) | 19.5% | — | 19.6% |
+| Market = TBK price × 1.3 | **38.1%** | +¥2.6bn/yr | **27.4%** |
+| TBK price = 0.7 × market (literal) | **43.6%** | +¥3.7bn/yr | **30.3%** |
+
+**The triangulation is exact**: at market price, SAW lands at 38–44% — precisely the level of
+Haldex's core products (ABA 41.4%, ABS 43.4%) and Concentric's conventional pumps (38.2–42.9%).
+The keiretsu discount fully explains the flagship's margin gap. A world-leading product with
+peer-level underlying economics, captured by the customer. And the SAW-only repricing prize
+(¥2.6–3.7bn/yr) independently matches the group peer-margin prize computed top-down from the
+benchmark (~¥2-3.7bn/yr) — two unrelated methods, same answer.
+
+**Route to capture**: repricing keiretsu contracts is slow at home. The arbitrage is to sell
+SAW-class products *where market prices rule* — exports, aftermarket, and India via the Brakes
+India alliance, where drum-brake demand persists at scale. Class-leading technology priced 30%
+below market is, externally, a ready-made business case.
+
+**Verification status**: the performance claim and the ~30% discount are management/first-hand
+information, not externally verified — but they are consistent with the customer-gradient data
+(non-keiretsu customers pay ~2x) and with the moat-framework finding that TBK's problem is
+monetization, not product. If the ~30% discount applies broadly to Japanese-customer sales (as
+indicated), the parent-wide prize exceeds the SAW-only figures above.
+
 ## Caveats
 
 - TBKK is TBK's Thai subsidiary only (~¥14.3bn of ¥54.8bn group sales) — Japan parent economics
