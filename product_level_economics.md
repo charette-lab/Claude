@@ -71,6 +71,52 @@ the same shape as Concentric's book, just ~20 points lower across the curve.
 4. **The unallocated drag is similar** (Concentric −2.5pts group; TBKK's "Others" dilute too) —
    the difference is gross product economics, not overhead allocation.
 
+## Japan parent data (added: FY2025 H1 profitability by product/customer, series delivery, K JPY)
+
+**Confirms the gap is group-wide**: Japan series contribution **19.6%** (total ¥11,970M sales,
+CM ¥2,343M) — W/PUMP 18.5%, O/PUMP 26.0% — versus Concentric's 38-45% on the same products.
+TBKK's 22.7% was not a Thai artifact; if anything Japan is slightly worse.
+
+**The customer gradient quantifies the keiretsu price-down:**
+
+| Customer group | Contribution % | Sales (¥M) |
+|---|---|---|
+| Cummins | **79.8%** | 76 |
+| Hitachi / Toho | 44.8% / 43.5% | 15 / 176 |
+| Komatsu-Oyama | 32.6% | 639 |
+| Caterpillar | 30.5% | 19 |
+| TBK Sales (aftermarket) | 30.2% | 1,189 |
+| Kubota | 22.3% | 569 |
+| Hino | 21.0% | 954 |
+| **Isuzu** | **16.8%** | **4,774** |
+| MFTBC | 15.6% | 1,575 |
+| UD Trucks | 8.1% | 48 |
+
+Blended: keiretsu truck OEMs **17.0%** on ¥7.4bn vs non-keiretsu + aftermarket **30.5%** on
+¥2.5bn — *non-keiretsu customers pay roughly double*. The volume sits where the margin isn't.
+
+**Product highlights (Japan):**
+- **D/BRAKE (disc brake): 68.7% contribution** — TBK's highest-margin product, on tiny volume
+  (¥8.3M). Internal proof the disc transition is margin-accretive for TBK, not just defensive.
+- S/CAMSHAFT 52.7%, KIT 55.5%, CYL/HEAD 32.5% — machining/precision niches price well
+- Negative lines: O/BRAKE −4.9%, B/HOUSING −8.7% (material cost exceeds sales on both)
+- **ECWP (electric water pump): −245.7%** (¥2.6M sales vs ¥9.2M material) — TBK is on the first
+  rung of Concentric's ladder at pre-scale volume; ECFP (electric fuel pump) 7.3%. The ladder is
+  real but TBK is paying the entry toll Concentric paid years ago.
+- SAW machining = 36% of parent series sales at 19.5% — heavy concentration in one line
+- Retarder only 10.4% — the "electrification-winner" product is currently underpriced
+
+**Market share map (brake & pumps by JOEM)**: TBK holds the Isuzu and Fuso cells across most
+brake sizes (22.5/19.5/17.5 full-air) and pump segments, is mixed at Hino, and holds **zero UD
+cells** — every UD position is competitor-held, consistent with UD being the all-disc,
+Knorr-supplied early adopter. The map also confirms export cells held via Fuso/Isuzu programs.
+
+**New-business pipeline (acquired projects, Japan domestic, planned sales)**: ¥8M (FY2021) →
+¥156M → ¥361M → ¥719M → **¥700M (FY2025)** — including EV-adjacent wins: Isuzu ELF EV precharge
+box, e-W/Pump (ECWP 100W-24V) for Denso AC via Meiko Kiki, Cummins GZ04 water pump, Komatsu
+gear machining/oil pumps and aftermarket. Real momentum, but ~2.5% of parent sales — the ramp
+must steepen by an order of magnitude to matter.
+
 ## Caveats
 
 - TBKK is TBK's Thai subsidiary only (~¥14.3bn of ¥54.8bn group sales) — Japan parent economics

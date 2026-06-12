@@ -342,6 +342,46 @@ panel(s, 7.8, 4.2, 5.05, 2.45, "Concentric's ladder = TBK's roadmap",
       "TBK's e-pump/TCU program targets exactly this ladder — the data proves the rungs exist", body_size=11.5, title_color=GREEN)
 txt(s, 0.5, 6.45, 12.3, 0.9, "This is the micro-mechanism behind every macro gap in this deck: gross margin, EBITA, and ROIC differences all begin at contribution per part number. Caveats: TBKK = Thai subsidiary (~26% of group sales); periods/currencies differ — ratios comparable, absolutes not; Concentric 2021 was a strong year. First actions are free: prune negative-contribution lines (GKN case-set), reprice near-zero lines.", size=11.5, color=GREY)
 
+# ---------- Inside TBK Japan: customer gradient & product truths ----------
+s = slide()
+header(s, "Inside TBK Japan: the keiretsu discount, quantified",
+       "TBK parent FY2025 H1 profitability by customer and product (series delivery, K JPY) — contribution margin after direct material")
+cd = CategoryChartData()
+cd.categories = ["UD Trucks", "MFTBC", "Isuzu", "Hino", "Kubota", "Aftermarket\n(TBK Sales)", "Caterpillar", "Komatsu-\nOyama", "Toho", "Hitachi", "Cummins"]
+cd.add_series("Contribution margin %", (8.1, 15.6, 16.8, 21.0, 22.3, 30.2, 30.5, 32.6, 43.5, 44.8, 79.8))
+gf = s.shapes.add_chart(XL_CHART_TYPE.BAR_CLUSTERED, Inches(0.5), Inches(1.6), Inches(6.6), Inches(4.7), cd)
+ch = gf.chart
+ch.has_legend = False
+ch.has_title = True
+ch.chart_title.text_frame.text = "Contribution by customer: keiretsu OEMs 17% blended vs non-keiretsu/aftermarket 30.5%"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(12)
+plot = ch.plots[0]
+plot.has_data_labels = True
+plot.data_labels.number_format = '0.0"%"'
+plot.data_labels.number_format_is_linked = False
+plot.data_labels.font.size = Pt(10)
+ser = plot.series[0]
+ser.format.fill.solid()
+ser.format.fill.fore_color.rgb = GREEN
+for i in (0, 1, 2, 3):
+    try:
+        pt = ser.points[i]
+        pt.format.fill.solid()
+        pt.format.fill.fore_color.rgb = RED
+    except Exception:
+        pass
+ch.category_axis.tick_labels.font.size = Pt(9)
+panel(s, 7.4, 1.6, 5.45, 2.45, "Product truths (Japan H1 FY2025)",
+      "DISC BRAKE: 68.7% contribution — TBK's HIGHEST-margin product (tiny ¥8.3M volume): the disc transition is margin-accretive, not just defensive\n"
+      "Precision niches price well: S/camshaft 52.7%, kits 55.5%\n"
+      "Negative lines: O/brake -4.9%, B/housing -8.7% (material > sales)\n"
+      "Retarder only 10.4% — the electrification-winner product is underpriced\n"
+      "ECWP (electric W/P): -245.7% at pre-scale volume — the first rung of Concentric's ladder has an entry toll", body_size=11)
+panel(s, 7.4, 4.2, 5.45, 2.45, "Share map & pipeline",
+      "Share map: TBK holds Isuzu + Fuso cells across brake sizes and pump segments; mixed at Hino; ZERO UD cells (the all-disc, Knorr-supplied OEM) — the disc flip's cost, mapped\n"
+      "New-business pipeline: ¥8M (FY21) → ¥700M/yr (FY25) incl. ELF EV precharge box, e-W/Pump for Denso AC, Cummins/Komatsu wins — real momentum, but ~2.5% of parent sales: must steepen 10x", body_size=11, title_color=GREEN)
+txt(s, 0.5, 6.45, 12.3, 0.9, "Read with the previous page: Japan series contribution is 19.6% (vs TBKK 22.7%, Concentric 44.5%) — the gap is group-wide. The two cheapest margin levers need no R&D: mix toward non-keiretsu/aftermarket/export customers who already pay ~2x, and price the differentiated products (disc, retarder) for what the data says they are worth.", size=11.5, color=GREY)
+
 # ---------- OPEX comparison (USD) ----------
 s = slide()
 header(s, "Why TBK looks lean on OPEX: its factory costs hide in COGS",
