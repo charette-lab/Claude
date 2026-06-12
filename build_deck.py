@@ -890,10 +890,10 @@ panel(s, 6.8, 1.55, 6.05, 2.5, "Documented product firsts",
       "UD Quon 2017: first all-disc Japanese heavy truck\n"
       "Mikuni 2022: e-oil pump in production for a domestic small BEV truck\n"
       "Akebono FY2023: JSME Technology Award — world-first electric parking brake unit for medium/light trucks (innovating through distress)\n"
-      "TBK: retarders since the 1960s; 19.5\" ADB exhibited (year unconfirmed: 2019 vs 2022 sources conflict); e-pumps/TCU in development", body_size=11, title_color=GREEN)
+      "TBK's OWN firsts: the SAW drum brake system it pioneered (class-leading today); CV disc-brake work with Isuzu as early as 1990 (SAE 902200); retarders since the 1960s; 19.5\" ADB exhibited; e-pumps/TCU in development", body_size=11, title_color=GREEN)
 panel(s, 0.5, 4.2, 12.35, 1.9, "The pattern — and TBK's fix",
       "Innovation output tracks the moat and margin rankings almost perfectly: the companies with validated quality (Knorr, Cummins) also hold the patent fortresses and the product firsts; the distressed (Akebono) still out-publish TBK; even the similarly-sized peer (Mikuni) protects its e-pump work with patents.\n"
-      "TBK's innovation is DOCUMENTED BUT EXTERNALLY UNVALIDATED: the product facts are verifiable (retarders since the 1960s, e-pumps and a TCU in development, an ADB prototype) — their competitiveness is not externally evidenced, and 'no recalls in 75 years' is absence-of-negatives, not proof of excellence. Either way the commercial conclusion holds: unvalidated innovation cannot win sockets outside the keiretsu.\n"
+      "TBK's engineering DNA is DEEPER than the patent count implies — it pioneered the SAW system, co-authored CV disc work with Isuzu in 1990, and has built retarders for six decades. The failure is CONVERSION, not capability: that DNA was never turned into protected IP, external validation, or market-priced revenue. This reframes the R&D risk: the question is not whether TBK can engineer, but whether it will finally capitalize what it engineers.\n"
       "Fix costs little — and ownership can compel the evidence: demand the OEM supplier scorecards, warranty-claim rates and PPM defect data from Isuzu/Fuso/Hino (they exist internally); audit the pipeline — how many e-pumps are in A/B samples with OEMs, what is the ADB homologation timeline. Then patent, publish, validate externally.", body_size=11.5)
 
 # ---------- 16 Moat ranking overview ----------

@@ -60,7 +60,12 @@ phased pro-forma scales almost linearly with S3 and S4.
 - **A7 — R&D converts to sockets.** Spending 4.7% of sales wins ADB and e-pump positions despite
   the 60–130x knowledge-stock gap — i.e., the Brakes India alliance effectively substitutes for
   the missing stock, and Japanese OEMs will qualify TBK's ADB rather than defaulting to Knorr.
-  The UD precedent (all cells competitor-held) shows they sometimes don't.
+  The UD precedent (all cells competitor-held) shows they sometimes don't. *Odds improved by a
+  reviewer's correction (2026-06-12): TBK's foundational engineering DNA is deeper than its
+  patent count implies — it pioneered the SAW system, co-authored CV disc-brake work with Isuzu
+  in 1990 (SAE 902200), and has six decades of retarder engineering. The risk is conversion
+  discipline, not engineering capability — a managerial risk, which engaged ownership can
+  address, rather than a technical one, which it cannot.*
 
 ### On execution
 
