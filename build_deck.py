@@ -184,7 +184,29 @@ panel(s, 8.4, 1.6, 4.45, 4.4, "Absolute spend (≈USD)",
       "ZF €3.6bn (~$3.9bn)\nAisin ¥237bn (~$1.6bn)\nCummins $1.46bn\nMahle €607M (~$655M)\nKnorr-Bremse €544M (~$590M)\nHanon ~$360-440M\nBrembo ~$250M\nSAF-Holland €39M (~$42M)\nMikuni ¥5.5bn (~$37M)\nConcentric MSEK 95 (~$9M)*\nTBK ¥1.2bn (~$8M)", body_size=12)
 txt(s, 0.5, 6.25, 12.3, 1.1, "Brake systems players spend 6-9% of sales; large pump/thermal players cluster at 4-5.5%. TBK sits at 2.2%. *Concentric (AR2023, verified): expensed product development only 2.3% — yet 25% gross margin: niche dominance, not raw R&D scale, drives pump profitability. The catch-up case rests on the larger peers and on winning specific e-pump sockets. *Hanon mid-range of conflicting filings.", size=11.5, color=GREY)
 
-# ---------- 7 Margin gap per business (USD) ----------
+# ---------- 7 The argument: gross margin is too low ----------
+s = slide()
+header(s, "The case that TBK's gross margin is structurally too low",
+       "TBK FY3/2026: 12.5% gross margin, 2.7% operating margin — four independent lines of evidence say this is a fixable defect, not the nature of the business")
+panel(s, 0.5, 1.55, 6.1, 2.35, "1. Peers prove the products can carry more",
+      "Every comparable brake peer except Akebono earns 22-27% (Haldex 27.3%, Cummins 24.7%, SAF-Holland ~22%)\n"
+      "Pump peers: Concentric 25.2% (verified AR2023), TPR 21.7% — the high-share niche players, i.e. exactly TBK's structural position in Japanese truck pumps\n"
+      "Same product categories, same customers' industry — 5-15 points more margin", body_size=11.5)
+panel(s, 6.8, 1.55, 6.05, 2.35, "2. TBK earns LESS than its own customers",
+      "Isuzu gross margin ~19%, Hino ~17% vs TBK 12.5%\n"
+      "Healthy specialist suppliers out-margin their OEMs (Knorr-Bremse 13% EBIT vs truck OEMs' mid-single digits)\n"
+      "Inverted economics = pricing power sits with the customer: keiretsu concentration (Isuzu alone ¥12bn = 22% of sales) and annual price-downs, against commodity drum/mechanical products with no systems, electronics or branded-aftermarket content to defend price", body_size=11.5, title_color=RED)
+panel(s, 0.5, 4.05, 6.1, 2.35, "3. The COGS line carries an underloaded footprint",
+      "PP&E at 39% of sales — 3x Concentric's ~12%; depreciation 5.3% of sales\n"
+      "China: depreciation 12.8% of segment sales, losses both years; Japan segment margin just 1.6%\n"
+      ">¥2.2bn impairments + restructuring losses in 2 years = the cost of underutilized plants crystallizing (booked below the operating line, so the true factory burden is even larger than the margin gap shows)", body_size=11.5)
+panel(s, 6.8, 4.05, 6.05, 2.35, "4. The repair has already started — and works",
+      "FY3/2026: gross margin 10.6% → 12.5% in one year (cost of sales cut ¥0.7bn on flat sales); North America exited; ¥712M Japan impairment = footprint action\n"
+      "Concentric's playbook validates the destination: focused niches, 25% gross margin, opex GROWING into the e-transition at 18.4% average operating margin\n"
+      "Nothing about brakes or pumps caps TBK at 12.5% — peers with the same products price and load their factories better", body_size=11.5, title_color=GREEN)
+txt(s, 0.5, 6.5, 12.3, 0.9, "Conclusion: at peer margins TBK's existing sales generate $22-24M more gross profit per year (next pages) — enough to fund the entire R&D catch-up. The margin is the constraint, and it is self-inflicted: underloaded factories in COGS, commodity mix, and customer-held pricing power — all addressable.", size=13, bold=True, color=DARK)
+
+# ---------- 8 Margin gap per business (USD) ----------
 s = slide()
 header(s, "TBK underperforms peer gross margins in BOTH businesses",
        "TBK audited FY3/2026 (blended 12.5%) vs comparable peers per panel  |  all figures USD at ¥150/USD")
