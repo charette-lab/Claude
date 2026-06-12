@@ -765,6 +765,11 @@ ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 p0 = ch.plots[0]
+p0.has_data_labels = True
+p0.data_labels.number_format = '0.0'
+p0.data_labels.number_format_is_linked = False
+p0.data_labels.font.size = Pt(8)
+p0.data_labels.font.name = BODY_FONT
 p0.series[0].format.fill.solid()
 p0.series[0].format.fill.fore_color.rgb = RED
 p0.series[1].format.fill.solid()
@@ -796,6 +801,12 @@ ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 p0 = ch.plots[0]
+p0.has_data_labels = True
+p0.data_labels.number_format = '0'
+p0.data_labels.number_format_is_linked = False
+p0.data_labels.font.size = Pt(9)
+p0.data_labels.font.name = BODY_FONT
+p0.data_labels.font.color.rgb = WHITE
 p0.series[0].format.fill.solid()
 p0.series[0].format.fill.fore_color.rgb = DARK
 p0.series[1].format.fill.solid()
