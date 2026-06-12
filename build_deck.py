@@ -1061,13 +1061,14 @@ ch.value_axis.maximum_scale = 8
 ch.category_axis.tick_labels.font.size = Pt(10)
 ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 7.1, 1.6, 5.75, 2.45, "The three best levers — nearly free",
-      "1. CAPITAL ALLOCATION (+0.35): gated reinvestment, pruning, and buybacks instead of 100% reinvestment at negative ROIIC. At 1.5-2.2x phase-1 earnings, each ¥1bn buyback retires ~10% of the market cap — the market is selling TBK's own moat points\n"
-      "2. FOOTPRINT (+0.25): the ¥2-3bn restructuring the P&L repays anyway — moat points as a byproduct\n"
-      "3. LEGIBILITY (+0.15 for ~¥0.15bn/yr): patent the work already done (20-30/yr), publish at JSAE, disclose PPM/warranty data — makes quality sellable outside the keiretsu", body_size=10.5)
-panel(s, 7.1, 4.2, 5.75, 2.45, "Rides free on the committed program — and the one defense",
-      "Substitution + runway (+0.50 combined): the ¥2.7bn/yr R&D program and ADB capex are already committed for P&L reasons — their moat contribution (socket wins, riding the disc/e-pump shift) comes free on top\n"
-      "Ecosystem (+0.20): aftermarket annuity + TCU software layer, ~¥1-2bn over 3 yrs — the achievable version of Knorr's installed base\n"
-      "DEFEND Hegemony (8.0): the ADB program is insurance against repeating UD — where TBK holds zero cells. Total incremental: ~¥2-5bn / 3 yrs", body_size=10.5, title_color=GREEN)
+      "1. CAPITAL ALLOCATION (+0.35): gated reinvestment, pruning, buybacks instead of RR=1.00 at negative ROIIC. At 1.5-2.2x earnings, each ¥1bn buyback retires ~10% of market cap\n"
+      "2. FOOTPRINT (+0.25): the ¥2-3bn restructuring the P&L repays anyway\n"
+      "3. LEGIBILITY (+0.15, ~¥0.15bn/yr): patent existing work, publish at JSAE, disclose PPM data — quality sellable outside the keiretsu", body_size=10)
+panel(s, 7.1, 4.2, 5.75, 2.45, "Rides free — plus the one defense",
+      "Substitution + runway (+0.50): the committed ¥2.7bn/yr R&D + ADB capex deliver these moat points free on top of their P&L case\n"
+      "Ecosystem (+0.20): aftermarket annuity + TCU software, ~¥1-2bn / 3 yrs\n"
+      "DEFEND Hegemony (8.0): ADB is insurance against repeating UD, where TBK holds zero cells\n"
+      "Total incremental: ~¥2-5bn over 3 years", body_size=10, title_color=GREEN)
 txt(s, 0.5, 6.45, 12.3, 0.85, "The compounding logic: allocation discipline (Ch8) makes every other chapter's evidence credible — capital that stops being destroyed validates the runway, the sockets, and the legibility story. Ceiling honesty: 7.8 (Compounder) is unreachable in this industry — nobody is there; Concentric's 6.98 is the practical frontier and the 5-year path reaches it.", size=10.5, bold=True, color=DARK)
 
 # ---------- 19 Research quality notes ----------
