@@ -47,13 +47,14 @@ def txt(s, l, t, w, h, text, size=14, bold=False, color=RGBColor(0, 0, 0), align
 
 
 def header(s, title, sub=None):
-    box = s.shapes.add_textbox(Inches(0.5), Inches(0.18), Inches(10.6), Inches(0.78))
+    box = s.shapes.add_textbox(Inches(0.5), Inches(0.18), Inches(10.7), Inches(0.72))
     tf = box.text_frame
-    tf.word_wrap = True
+    tf.word_wrap = False
     p = tf.paragraphs[0]
     p.text = title
+    size = 27 if len(title) <= 58 else (22 if len(title) <= 72 else 19)
     for r in p.runs:
-        r.font.size = Pt(27)
+        r.font.size = Pt(size)
         r.font.bold = False
         r.font.color.rgb = DARK
         r.font.name = HEAD_FONT
@@ -63,7 +64,7 @@ def header(s, title, sub=None):
     rule.fill.fore_color.rgb = BLUE5
     rule.line.fill.background()
     if sub:
-        txt(s, 0.5, 1.0, 12.3, 0.4, sub, size=11.5, color=GREY)
+        txt(s, 0.5, 1.01, 12.3, 0.5, sub, size=10.5, color=GREY)
 
 
 def panel(s, l, t, w, h, title, body, title_color=DARK, body_size=12):
@@ -113,6 +114,63 @@ for r in pp.runs:
     r.font.name = HEAD_FONT
 txt(s, 1.0, 3.9, 11.3, 0.9, "TBK Co., Ltd. (7277.T) — brakes and pumps: market evolution, competitor innovation, and the reinvestment requirement", size=20, color=BLUE5)
 txt(s, 1.0, 6.5, 11.3, 0.5, "Based on peer-reviewed and adversarially verified research, competitor filings, TBK's audited FY3/2026 results, and company-internal product economics (TBK, Concentric AR2023 + MR pack, Haldex)  |  June 2026", size=12, color=RGBColor(0x55, 0x6A, 0x83))
+
+
+# ---------- Contents ----------
+s = slide()
+header(s, "Contents")
+def toc_col(x, entries):
+    box = s.shapes.add_textbox(Inches(x), Inches(1.35), Inches(6.0), Inches(5.9))
+    tf = box.text_frame
+    tf.word_wrap = True
+    first = True
+    for num, label, is_sec in entries:
+        p = tf.paragraphs[0] if first else tf.add_paragraph()
+        first = False
+        p.text = (label if is_sec else f"{num:>2}   {label}")
+        p.space_before = Pt(10 if is_sec else 3)
+        for r in p.runs:
+            r.font.name = BODY_FONT
+            r.font.size = Pt(13 if is_sec else 11.5)
+            r.font.bold = is_sec
+            r.font.color.rgb = DARK if is_sec else GREY
+toc_col(0.5, [
+    (0, "The market has moved", True),
+    (3, "Brakes: drum brakes are a shrinking island", False),
+    (4, "Pumps: electrification grows the category", False),
+    (5, "Same customers — two different purchase decisions", False),
+    (0, "Competitor innovation & R&D", True),
+    (6, "Competitors kept innovating — brakes and pumps", False),
+    (7, "What competitors spend on R&D", False),
+    (8, "Capitalized R&D: the knowledge stock", False),
+    (0, "The margin case", True),
+    (9, "Why TBK's gross margin is structurally too low", False),
+    (10, "The margin gap by business", False),
+    (11, "The prize: ~$22-24M more gross profit per year", False),
+    (0, "Inside the products", True),
+    (12, "Product-level proof: TBKK vs Concentric", False),
+    (13, "Inside TBK Japan: the keiretsu discount", False),
+    (14, "The Haldex lesson", False),
+    (15, "Brake segment: TBK vs Haldex", False),
+])
+toc_col(7.0, [
+    (16, "The SAW case: flagship priced below market", False),
+    (17, "Pump segment: TBK vs Concentric", False),
+    (18, "The normalized TBK (pro-forma, phased)", False),
+    (0, "Costs, capital & the plan", True),
+    (19, "OPEX: factory costs hide in COGS", False),
+    (20, "The accumulated R&D deficit (~$100M)", False),
+    (21, "The reinvestment requirement: two phases", False),
+    (0, "Product & moat evaluation", True),
+    (22, "Product evaluation I: quality & service", False),
+    (23, "Product evaluation II: innovation output", False),
+    (24, "Moat framework ranking", False),
+    (25, "TBK's moat profile: strengths & weaknesses", False),
+    (26, "Moat criteria: TBK vs competitors", False),
+    (0, "Method", True),
+    (27, "Research quality & methodology notes", False),
+    (28, "Sources", False),
+])
 
 # ---------- 2 Brakes market ----------
 s = slide()
@@ -240,7 +298,7 @@ panel(s, 8.1, 1.6, 4.75, 2.3, "The stock gap",
       "Cummins $5.6bn — 130x TBK\nKnorr-Bremse $2.6bn — 60x TBK\nMikuni $194M — 4.5x TBK\nSAF-Holland $131M | Akebono $123M\nTBK: $43M — the smallest knowledge\nbase in the peer set", body_size=12.5)
 panel(s, 8.1, 4.05, 4.75, 2.3, "Knowledge intensity (RDCB / sales)",
       "Knorr-Bremse 29% | Mikuni 29%\nCummins 17%\nTBK 12% | Akebono 12%\nSAF-Holland 7%\nThe systems winners run structurally\nknowledge-intensive business models", body_size=12.5, title_color=GREEN)
-txt(s, 0.5, 6.35, 12.3, 1.0, "Why it matters: the R&D gap is cumulative, not annual. A decade of under-spending leaves TBK rebuilding a depleted asset while competitors amortize billions of accumulated know-how into every bid (brake control software, ADB iterations, e-pump motor/inverter design). This is why the catch-up phase must run YEARS at elevated spend — one good budget year cannot rebuild a stock — and why partnering (Brakes India) to borrow an existing knowledge base is rational.", size=11.5, color=GREY)
+txt(s, 0.5, 6.45, 12.3, 0.85, "Why it matters: the R&D gap is cumulative, not annual. A decade of under-spending leaves TBK rebuilding a depleted asset while competitors amortize billions of accumulated know-how into every bid (brake control software, ADB iterations, e-pump motor/inverter design). This is why the catch-up phase must run YEARS at elevated spend — one good budget year cannot rebuild a stock — and why partnering (Brakes India) to borrow an existing knowledge base is rational.", size=10.5, color=GREY)
 
 # ---------- 8 The argument: gross margin is too low ----------
 s = slide()
@@ -262,7 +320,7 @@ panel(s, 6.8, 4.05, 6.05, 2.35, "4. The repair has already started — and works
       "FY3/2026: gross margin 10.6% → 12.5% in one year (cost of sales cut ¥0.7bn on flat sales); North America exited; ¥712M Japan impairment = footprint action\n"
       "Concentric's playbook validates the destination: focused niches, 25% gross margin, opex GROWING into the e-transition at 18.4% average operating margin\n"
       "Nothing about brakes or pumps caps TBK at 12.5% — peers with the same products price and load their factories better", body_size=11.5, title_color=GREEN)
-txt(s, 0.5, 6.5, 12.3, 0.9, "Conclusion: at peer margins TBK's existing sales generate $22-24M more gross profit per year (next pages) — enough to fund the entire R&D catch-up. The margin is the constraint, and it is self-inflicted: underloaded factories in COGS, commodity mix, and customer-held pricing power — all addressable.", size=13, bold=True, color=DARK)
+txt(s, 0.5, 6.72, 12.3, 0.7, "Conclusion: at peer margins TBK's existing sales generate $22-24M more gross profit per year (next pages) — enough to fund the entire R&D catch-up. The margin is the constraint, and it is self-inflicted: underloaded factories in COGS, commodity mix, and customer-held pricing power — all addressable.", size=13, bold=True, color=DARK)
 
 # ---------- 8 Margin gap per business (USD) ----------
 s = slide()
@@ -302,11 +360,11 @@ panel(s, 8.1, 1.6, 4.75, 2.3, "Brake peers (comparable basis)",
       "Haldex 27.3% | Cummins 24.7%\nSAF-Holland ~22% | Akebono 10.0%\nTBK trails every brake peer except\nAkebono — by 9-11 points", body_size=12.5)
 panel(s, 8.1, 4.05, 4.75, 2.3, "Pump peers (comparable basis)",
       "Concentric 25.2% (verified AR2023)\nTPR 21.7% | Aisin 12.1% | Hanon 9.1%\nTBK trails the panel average by\n~4.5 points — and the pure-play\nCV pump comp by ~13 points", body_size=12.5, title_color=GREEN)
-txt(s, 0.5, 6.35, 12.3, 0.9, "TBK does not disclose gross profit per division, so its blended 12.5% is shown against both panels. Even on the most charitable reading — assuming all underperformance sits in one business — TBK is below peer average in the other. Peer set: IFRS cost-of-sales / JGAAP reporters only.", size=11.5, color=GREY)
+txt(s, 0.5, 6.45, 12.3, 0.85, "TBK does not disclose gross profit per division, so its blended 12.5% is shown against both panels. Even on the most charitable reading — assuming all underperformance sits in one business — TBK is below peer average in the other. Peer set: IFRS cost-of-sales / JGAAP reporters only.", size=10.5, color=GREY)
 
 # ---------- 8 Value of closing the gap (USD) ----------
 s = slide()
-header(s, "Closing the margin gap is worth ~$22-24M more gross profit per year",
+header(s, "The margin gap is worth ~$22-24M more gross profit per year",
        "TBK FY3/2026 sales ($365M) at peer margins  |  USD at ¥150/USD  |  division split estimated from FY3/2025 (35% / 65%)")
 cd = CategoryChartData()
 cd.categories = ["Actual\nFY3/2026", "At peer\naverage", "At peer\nmedian"]
@@ -342,7 +400,7 @@ panel(s, 7.6, 1.6, 5.25, 2.0, "The annual prize",
       "+$21.6M/yr at peer AVERAGE margins\n+$24.4M/yr at peer MEDIAN margins\n≈ +50% on today's $45.5M gross profit\nSplit roughly half brakes, half pumps (~$11-14M each)", body_size=13)
 panel(s, 7.6, 3.75, 5.25, 2.6, "What it funds",
       "The entire R&D catch-up program costs ~$27M/yr\n(parity run-rate $17M + deficit repayment $10M)\n→ closing ~90% of the margin gap pays for ALL of it\n\nFY3/2026 already delivered the first ~$7M/yr\n(margin 10.6% → 12.5%) — and the phased pro-forma\n(later page) shows the full management-premise view", body_size=13, title_color=GREEN)
-txt(s, 0.5, 6.35, 12.3, 0.9, "Method: brakes ~$127M sales x peer avg 21.0% / median 23.4%; pumps & engine components ~$238M x 17.0% / 16.9%; vs actual blended 12.5%. Margin levers per the benchmark: aftermarket/branded content, niche pricing power (Concentric/TPR model), price-down discipline, and mix shift to disc brakes and e-pumps.", size=11.5, color=GREY)
+txt(s, 0.5, 6.45, 12.3, 0.85, "Method: brakes ~$127M sales x peer avg 21.0% / median 23.4%; pumps & engine components ~$238M x 17.0% / 16.9%; vs actual blended 12.5%. Margin levers per the benchmark: aftermarket/branded content, niche pricing power (Concentric/TPR model), price-down discipline, and mix shift to disc brakes and e-pumps.", size=10.5, color=GREY)
 
 # ---------- Product-level proof: TBKK vs Concentric ----------
 s = slide()
@@ -383,7 +441,7 @@ panel(s, 7.8, 4.2, 5.05, 2.45, "Concentric's ladder = TBK's roadmap",
       "Conventional pump 38-43% -> semi-variable 54% -> electric 55% -> system (ALFDEX) 56%\n"
       "Each evolution step = roughly +15 points of contribution on the SAME base product\n"
       "TBK's e-pump/TCU program targets exactly this ladder — the data proves the rungs exist", body_size=11.5, title_color=GREEN)
-txt(s, 0.5, 6.45, 12.3, 0.9, "This is the micro-mechanism behind every macro gap in this deck: gross margin, EBITA, and ROIC differences all begin at contribution per part number. Caveats: TBKK = Thai subsidiary (~26% of group sales); periods/currencies differ — ratios comparable, absolutes not; Concentric 2021 was a strong year. First actions are free: prune negative-contribution lines (GKN case-set), reprice near-zero lines.", size=11.5, color=GREY)
+txt(s, 0.5, 6.72, 12.3, 0.7, "This is the micro-mechanism behind every macro gap in this deck: gross margin, EBITA, and ROIC differences all begin at contribution per part number. Caveats: TBKK = Thai subsidiary (~26% of group sales); periods/currencies differ — ratios comparable, absolutes not; Concentric 2021 was a strong year. First actions are free: prune negative-contribution lines (GKN case-set), reprice near-zero lines.", size=10.5, color=GREY)
 
 # ---------- Inside TBK Japan: customer gradient & product truths ----------
 s = slide()
@@ -427,11 +485,11 @@ panel(s, 7.4, 1.6, 5.45, 2.45, "Product truths (Japan H1 FY2025)",
 panel(s, 7.4, 4.2, 5.45, 2.45, "Share map & pipeline",
       "Share map: TBK holds Isuzu + Fuso cells across brake sizes and pump segments; mixed at Hino; ZERO UD cells (the all-disc, Knorr-supplied OEM) — the disc flip's cost, mapped\n"
       "New-business pipeline: ¥8M (FY21) → ¥700M/yr (FY25) incl. ELF EV precharge box, e-W/Pump for Denso AC, Cummins/Komatsu wins — real momentum, but ~2.5% of parent sales: must steepen 10x", body_size=11, title_color=GREEN)
-txt(s, 0.5, 6.45, 12.3, 0.9, "Read with the previous page: Japan series contribution is 19.6% (vs TBKK 22.7%, Concentric 44.5%) — the gap is group-wide. The two cheapest margin levers need no R&D: mix toward non-keiretsu/aftermarket/export customers who already pay ~2x, and price the differentiated products (disc, retarder) for what the data says they are worth.", size=11.5, color=GREY)
+txt(s, 0.5, 6.72, 12.3, 0.7, "Read with the previous page: Japan series contribution is 19.6% (vs TBKK 22.7%, Concentric 44.5%) — the gap is group-wide. The two cheapest margin levers need no R&D: mix toward non-keiretsu/aftermarket/export customers who already pay ~2x, and price the differentiated products (disc, retarder) for what the data says they are worth.", size=10.5, color=GREY)
 
 # ---------- The Haldex lesson: profit pools & the disc warning ----------
 s = slide()
-header(s, "The Haldex lesson: aftermarket is the profit pool — and subscale OE discs lose money",
+header(s, "The Haldex lesson: the profit pool is the aftermarket",
        "Haldex internal analysis (Dec 2019 file): segment P&L Sep YTD 2014 + 2009-2019 history, MSEK — the only Western peer with internal segment economics in this study")
 cd = CategoryChartData()
 cd.categories = ["Truck OE", "Trailer OE", "Aftermarket"]
@@ -469,7 +527,7 @@ panel(s, 7.2, 3.27, 5.65, 1.62, "2. The pruning playbook (executed at Haldex)",
 panel(s, 7.2, 4.99, 5.65, 1.62, "3. The subscale OE disc warning",
       "Haldex disc brakes: CII 12-15%, EBIT -13.6% -> -6.3% — the #3 player fighting Knorr/Meritor LOST money per unit (supplier price rises, stalled plant transfer)\n"
       "TBK's 68.7% D/BRAKE is small-batch pricing, not series-OE economics — go niche/aftermarket/partnered (Brakes India), never frontal", body_size=10.5, title_color=RED)
-txt(s, 0.5, 6.45, 12.3, 0.95, "Applied to TBK (Japan H1 FY2025 data): pruning the sub-10% non-strategic lines (O/brake, A/brake, B/housing, G/case, gear & processed components = 6.5% of sales) lifts series contribution 19.6% -> 20.9% immediately — and the EBIT gain is larger once attached capacity costs go. TBK's high-margin cohort (¥3.0bn of lines at >=20% CM) already runs at 27.3%: a portfolio focused at the level of its better products + a grown aftermarket is the Haldex >10% playbook, re-run.", size=11.5, bold=True, color=DARK)
+txt(s, 0.5, 6.72, 12.3, 0.7, "Applied to TBK (Japan H1 FY2025 data): pruning the sub-10% non-strategic lines (O/brake, A/brake, B/housing, G/case, gear & processed components = 6.5% of sales) lifts series contribution 19.6% -> 20.9% immediately — and the EBIT gain is larger once attached capacity costs go. TBK's high-margin cohort (¥3.0bn of lines at >=20% CM) already runs at 27.3%: a portfolio focused at the level of its better products + a grown aftermarket is the Haldex >10% playbook, re-run.", size=10.5, bold=True, color=DARK)
 
 # ---------- Brake segment: TBK vs Haldex ----------
 s = slide()
@@ -510,7 +568,7 @@ panel(s, 8.2, 4.2, 4.65, 2.45, "The disc paradox, resolved",
       "TBK disc 68.7% = small-batch/replacement pricing on ¥8.3M\n"
       "Haldex disc 14.0% (EBIT -6.3%) = series-OE pricing fighting Knorr at scale\n"
       "Both are true: discs pay in niches and aftermarket, bleed in frontal OE — TBK's ADB entry must choose the first route", body_size=11, title_color=GREEN)
-txt(s, 0.5, 6.45, 12.3, 0.9, "Gross-profit read: TBK's brake book (2L/brake 15.8%, A/brake 7.6%, O/brake -4.9%, drum 22.9%, lining 25.1%) clusters at 16-25% contribution; Haldex's brake-adjacent book ran 23-56% because every point of extra margin came from mechatronics and aftermarket, not from better drum pricing. The brake gap is a PRODUCT-CONTENT gap, not a cost gap.", size=11.5, color=GREY)
+txt(s, 0.5, 6.72, 12.3, 0.7, "Gross-profit read: TBK's brake book (2L/brake 15.8%, A/brake 7.6%, O/brake -4.9%, drum 22.9%, lining 25.1%) clusters at 16-25% contribution; Haldex's brake-adjacent book ran 23-56% because every point of extra margin came from mechatronics and aftermarket, not from better drum pricing. The brake gap is a PRODUCT-CONTENT gap, not a cost gap.", size=10.5, color=GREY)
 
 # ---------- The SAW case: best product, below-market price ----------
 s = slide()
@@ -556,7 +614,7 @@ panel(s, 7.8, 4.2, 5.05, 2.45, "What it is worth — and how to get it",
       "SAW repriced to market: +¥2.6-3.7bn contribution PER YEAR; parent series CM 19.6% -> 27-30% from this one product\n"
       "Realistically gradual at home (keiretsu contracts) — so arbitrage it: SELL SAW AT MARKET PRICE where market prices rule: exports, aftermarket, and India via Brakes India, where drum demand persists at scale\n"
       "Class-leading tech + below-market price = the export business case writes itself", body_size=11.5, title_color=GREEN)
-txt(s, 0.5, 6.45, 12.3, 0.9, "Note: 'leading drum brake in stopping time, energy save and weight' and the ~30% below-market pricing are management/first-hand information, not externally verified — consistent, however, with the customer-gradient data (non-keiretsu customers pay ~2x) and with TBK's zero-recall record. If the ~30% discount applies beyond SAW (management indicates Japanese customers broadly), the parent-wide repricing prize is correspondingly larger.", size=11, color=GREY)
+txt(s, 0.5, 6.72, 12.3, 0.7, "Note: 'leading drum brake in stopping time, energy save and weight' and the ~30% below-market pricing are management/first-hand information, not externally verified — consistent, however, with the customer-gradient data (non-keiretsu customers pay ~2x) and with TBK's zero-recall record. If the ~30% discount applies beyond SAW (management indicates Japanese customers broadly), the parent-wide repricing prize is correspondingly larger.", size=10.5, color=GREY)
 
 # ---------- Pump segment: TBK vs Concentric ----------
 s = slide()
@@ -600,7 +658,7 @@ panel(s, 8.2, 4.2, 4.65, 2.45, "The ladder TBK hasn't climbed",
       "Concentric's evolved variants: semi-variable 54.1%, electric W/P 54.8%, fuel/transmission 55.6% — each rung ≈ +15pts on the same base product\n"
       "TBK's first rung is bought but not yet scaled: ECWP at -245.7% contribution on ¥2.6M pre-scale volume (off-chart)\n"
       "NB: Concentric = the former Haldex hydraulics division — proof the climb is doable from CV-supplier DNA", body_size=11, title_color=GREEN)
-txt(s, 0.5, 6.45, 12.3, 0.9, "Gross-profit read: if TBK's pump book (W/P + O/P = ¥4.9bn of H1 parent sales) earned Concentric's conventional-pump margins, contribution would rise ~¥0.9-1.0bn per HALF-YEAR on those two lines alone — before any ladder-climbing. The pump gap is a PRICING-POWER gap on identical hardware; the brake gap (previous page) is a content gap. Different cures: pricing/mix vs product development.", size=11.5, color=GREY)
+txt(s, 0.5, 6.72, 12.3, 0.7, "Gross-profit read: if TBK's pump book (W/P + O/P = ¥4.9bn of H1 parent sales) earned Concentric's conventional-pump margins, contribution would rise ~¥0.9-1.0bn per HALF-YEAR on those two lines alone — before any ladder-climbing. The pump gap is a PRICING-POWER gap on identical hardware; the brake gap (previous page) is a content gap. Different cures: pricing/mix vs product development.", size=10.5, color=GREY)
 
 # ---------- Pro-forma normalized income statement ----------
 s = slide()
@@ -643,7 +701,7 @@ panel(s, 7.7, 4.2, 5.15, 2.45, "Why not more, at first — operator calibration"
       "Concentric peaked at ~22% OPM — on best-in-class FULL price realization, a discipline built over years\n"
       "Haldex could have reached ~30% by shedding Europe for the US — portfolio focus is the second lever\n"
       "Above ~10% in phase 1 is difficult: keiretsu contracts reprice at renewal, factories close on multi-year clocks. Phase 2 (15%) = Concentric-grade realization + grown aftermarket. FULL premises (26.6%) = leakage meter, not a plan", body_size=11, title_color=GREEN)
-txt(s, 0.5, 6.45, 12.3, 0.9, "Nothing here requires new products or customers — existing book, honest prices, loaded factories, peer-level R&D (4.7%) absorbed in every phase. MEMO (separate financing): R&D deficit ~¥1.5bn/yr x5, ADB capex ¥4.5-7.5bn, restructuring cash ~¥2-3bn. Premises are management/first-hand information; phasing reflects operator experience at Concentric and Haldex.", size=11.5, bold=True, color=DARK)
+txt(s, 0.5, 6.72, 12.3, 0.7, "Nothing here requires new products or customers — existing book, honest prices, loaded factories, peer-level R&D (4.7%) absorbed in every phase. MEMO (separate financing): R&D deficit ~¥1.5bn/yr x5, ADB capex ¥4.5-7.5bn, restructuring cash ~¥2-3bn. Premises are management/first-hand information; phasing reflects operator experience at Concentric and Haldex.", size=10.5, bold=True, color=DARK)
 
 # ---------- OPEX comparison (USD) ----------
 s = slide()
@@ -683,7 +741,7 @@ panel(s, 8.1, 1.6, 4.75, 2.3, "The lean look is an artifact",
       "TBK's 9.7% covers only SG&A + its\nthin ~2.2% R&D — the future-building costs\nit has starved. The factory burden is in COGS:\nPP&E 39% of sales vs Concentric ~12% (3x)\nDepreciation 5.3% of sales; China: 12.8% of\nsegment sales + losses both years", body_size=11.5)
 panel(s, 8.1, 4.05, 4.75, 2.3, "Restructuring bypasses BOTH metrics",
       "Impairments ¥459M + ¥712M and\nrestructuring losses ¥775M + ¥297M\n(>¥2.2bn in 2 years) booked as JGAAP\nextraordinary items — below operating\nprofit, invisible to GM and OPEX alike.\nThat IS the underutilized-footprint cost", body_size=11.5, title_color=RED)
-txt(s, 0.5, 6.35, 12.3, 1.0, "Two-front program, mapped to the P&L: (1) footprint/utilization repair attacks COGS — the $22-24M/yr gross-margin prize (North America exit and the ¥712M Japan impairment show it has started); (2) R&D catch-up deliberately GROWS opex toward peer levels (peers spend 10-14% incl. 4%+ R&D and earn 2.5x TBK's operating margin — Concentric grew opex 10.3%→11.7% funding its e-pump transition at 18.4% avg OPM). Cut above the line, invest below it.", size=11.5, color=GREY)
+txt(s, 0.5, 6.45, 12.3, 0.85, "Two-front program, mapped to the P&L: (1) footprint/utilization repair attacks COGS — the $22-24M/yr gross-margin prize (North America exit and the ¥712M Japan impairment show it has started); (2) R&D catch-up deliberately GROWS opex toward peer levels (peers spend 10-14% incl. 4%+ R&D and earn 2.5x TBK's operating margin — Concentric grew opex 10.3%→11.7% funding its e-pump transition at 18.4% avg OPM). Cut above the line, invest below it.", size=10.5, color=GREY)
 
 # ---------- 10 Deficit ----------
 s = slide()
@@ -912,7 +970,7 @@ crit_chart(6.75, ["Substitution", "Demand", "Capital alloc.", "Runway", "Rev-Lin
            (3.5, 7.0, 2.0, 3.0, 4.0), (3.0, 7.0, 2.5, 5.5, 4.5), (5.0, 7.5, 7.5, 7.0, 5.5),
            (4.0, 7.0, 4.5, 6.0, 4.5), (2.5, 4.0, 4.0, 4.0, 3.5), (7.0, 8.0, 2.0, 5.0, 5.0),
            "Phases 2-3 — Endurance & compounding engine (Ch6-10)")
-txt(s, 0.5, 6.35, 12.3, 0.9, "Read: in Phase 1 (left) TBK leads or matches on Criticality and Hegemony and collapses on Ecosystem/Lifecycle cost. In Phases 2-3 (right) TBK is last or near-last on every engine criterion — while Concentric (green) leads precisely there. Closing the gap to Concentric is execution (allocation, substitution positioning), not moat-building: the moat already exists.", size=11.5, color=GREY)
+txt(s, 0.5, 6.45, 12.3, 0.85, "Read: in Phase 1 (left) TBK leads or matches on Criticality and Hegemony and collapses on Ecosystem/Lifecycle cost. In Phases 2-3 (right) TBK is last or near-last on every engine criterion — while Concentric (green) leads precisely there. Closing the gap to Concentric is execution (allocation, substitution positioning), not moat-building: the moat already exists.", size=10.5, color=GREY)
 
 # ---------- 19 Research quality notes ----------
 s = slide()
@@ -970,6 +1028,19 @@ panel(s, 6.8, 4.35, 6.05, 2.85, "Industry & financial data (verified, labeled wh
       "Deal records: Knorr-Bremse-Bendix (2002); ZF-Wabco $7bn (2020); Cummins-Meritor $3.7bn (2022); SAF-Holland-Haldex (2022); Concentric take-private SEK 230 (2024); Pierburg-AEQUITA €350M (2026)\n"
       "Japanese filings via irbank, kitaishihon, buffett-code, kabutan, MarkLines (incl. TBK JSAE 2022 exhibit; Mikuni 2022 BEV-truck e-oil pump disclosure; Yamada e-water pump adoptions)\n"
       "Aggregators for computed ratios: macrotrends, stockanalysis, Simply Wall St — cross-checked against filings; market research (MarketsandMarkets, GVR, IDTechEx) used directionally only", body_size=10)
+
+# Page numbers (skip title slide)
+for _i, _s in enumerate(prs.slides, 1):
+    if _i == 1:
+        continue
+    _pn = _s.shapes.add_textbox(Inches(12.75), Inches(7.12), Inches(0.45), Inches(0.3))
+    _p = _pn.text_frame.paragraphs[0]
+    _p.text = str(_i)
+    _p.alignment = PP_ALIGN.RIGHT
+    for _r in _p.runs:
+        _r.font.size = Pt(9)
+        _r.font.name = BODY_FONT
+        _r.font.color.rgb = GREY
 
 import warnings
 with warnings.catch_warnings():
