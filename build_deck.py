@@ -499,6 +499,41 @@ panel(s, 7.8, 4.2, 5.05, 2.45, "What it is worth — and how to get it",
       "Class-leading tech + below-market price = the export business case writes itself", body_size=11.5, title_color=GREEN)
 txt(s, 0.5, 6.45, 12.3, 0.9, "Note: 'leading drum brake in stopping time, energy save and weight' and the ~30% below-market pricing are management/first-hand information, not externally verified — consistent, however, with the customer-gradient data (non-keiretsu customers pay ~2x) and with TBK's zero-recall record. If the ~30% discount applies beyond SAW (management indicates Japanese customers broadly), the parent-wide repricing prize is correspondingly larger.", size=11, color=GREY)
 
+# ---------- Pro-forma normalized income statement ----------
+s = slide()
+header(s, "The normalized TBK: right prices, right factories, real R&D",
+       "Pro-forma on audited FY3/2026 — pricing corrected (SAW only), factory structure fixed, competitive R&D loaded. Deficit repayment kept separate, per scope")
+cd = CategoryChartData()
+cd.categories = ["Actual\nFY3/26 OP", "+ SAW repriced\nto market", "+ Factory\nstructure", "- Competitive\nR&D (4.7%)", "Pro-forma\nOP"]
+cd.add_series("Operating profit bridge (¥M)", (1496, 2585, 1500, -1525, 4056))
+gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(6.9), Inches(4.6), cd)
+ch = gf.chart
+ch.has_legend = False
+ch.has_title = True
+ch.chart_title.text_frame.text = "Operating profit bridge: ¥1.5bn (2.7%) -> ¥4.1bn (7.1%)"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
+plot = ch.plots[0]
+plot.has_data_labels = True
+plot.data_labels.number_format = '#,##0'
+plot.data_labels.number_format_is_linked = False
+plot.data_labels.font.size = Pt(10)
+ser = plot.series[0]
+ser.format.fill.solid()
+ser.format.fill.fore_color.rgb = DARK
+try:
+    for i, col in ((1, GREEN), (2, GREEN), (3, RED), (4, RGBColor(0x2E, 0x59, 0x2E))):
+        pt = ser.points[i]
+        pt.format.fill.solid()
+        pt.format.fill.fore_color.rgb = col
+except Exception:
+    pass
+ch.category_axis.tick_labels.font.size = Pt(9)
+panel(s, 7.7, 1.6, 5.15, 2.45, "The normalized P&L (¥M)",
+      "Sales 57,341 (+SAW reprice)\nGross profit 10,910 = 19.0% (vs 12.5%)\nR&D 2,695 = 4.7% of sales (peer level, vs ~2.2%)\nOperating profit 4,056 = 7.1% (vs 2.7%)\nNet attributable ~2,853 = ¥90 EPS (vs -¥4.4)\n~3.4x earnings at current market cap (~¥9.6bn)", body_size=11.5)
+panel(s, 7.7, 4.2, 5.15, 2.45, "Deliberately conservative — and coherent",
+      "Only SAW repriced; broader keiretsu book, aftermarket growth, e-pump/ADB revenue all EXCLUDED\nFactory gain ¥1.5bn vs FY3/26's proven ¥0.7bn cut + >¥1bn/yr extraordinary charges normalizing\nCoherence: pro-forma OPM 7.1% = brake-peer average 7.2%; GM 19.0% inside the 15-22% peer band\nMEMO (separate financing item): R&D deficit repayment ~¥1.5bn/yr x 5 yrs; ADB capex ¥4.5-7.5bn one-off", body_size=11, title_color=GREEN)
+txt(s, 0.5, 6.45, 12.3, 0.9, "Read: nothing in this statement requires new products or new customers — it is TBK's existing book at honest prices, loaded factories, and peer-level R&D. The competitive R&D (¥2.7bn/yr) is fully absorbed and the company still earns peer-average margins. The deficit repayment and ADB line are financing/balance-sheet items — they determine how fast TBK gets here, not whether the destination exists.", size=11.5, bold=True, color=DARK)
+
 # ---------- Pump segment: TBK vs Concentric ----------
 s = slide()
 header(s, "Pump segment: TBK vs Concentric — product-level contribution",
