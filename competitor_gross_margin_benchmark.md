@@ -2,8 +2,10 @@
 
 Compiled 2026-06-12 from filings and verified aggregator data. Latest available fiscal year.
 
-**TBK baseline (from uploaded dataset):** gross margin **10.6%** FY3/2025 (gross profit ≈ US$38M),
-down from the 12.8% peak (FY2017), trough 8.2% (FY2023). EBIT margin 1.7%.
+**TBK baseline (UPDATED from audited FY3/2026 tanshin, May 2026):** gross margin **12.5%**
+(gross profit ¥6,825M on sales ¥54,756M), recovered from 10.6% in FY3/2025 (¥5,790M / ¥54,415M —
+matching the USD dataset exactly). Historical peak 12.8% (FY2017), trough 8.2% (FY2023).
+Operating margin 2.7% (FY3/2026) vs 1.7% (FY3/2025). FY3/2027 guidance: sales ¥53,000M, OP ¥1,100M.
 
 ## The comparability trap (read first)
 
@@ -47,7 +49,7 @@ Gross margin is far less comparable across this peer set than R&D was:
 
 ## What the comparable numbers say
 
-1. **TBK (10.6%) and Akebono (10.0%) sit together at the bottom** of the comparable set — the two
+1. **TBK (12.5% in FY3/2026, up from 10.6%) and Akebono (10.0%) sit at the bottom** of the comparable set — the two
    Japanese brake/friction suppliers earn roughly **half** the gross margin of Western brake peers
    (SAF-Holland ~22%, Cummins 24.7%, Haldex 27.3% in its last standalone year). The gap is the
    structural price of keiretsu-supplier economics: customer concentration, annual price-downs,
