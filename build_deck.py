@@ -169,9 +169,10 @@ toc_col(7.0, [
     (26, "TBK's moat profile: strengths & weaknesses", False),
     (27, "Moat criteria: TBK vs competitors", False),
     (28, "Raising the moat: the score-per-yen plan", False),
+    (29, "Conclusion: proven engineering, broken monetization", False),
     (0, "Method", True),
-    (29, "Research quality & methodology notes", False),
-    (30, "Sources", False),
+    (30, "Research quality & methodology notes", False),
+    (31, "Sources", False),
 ])
 
 # ---------- 2 Brakes market ----------
@@ -1070,6 +1071,29 @@ panel(s, 7.1, 4.2, 5.75, 2.45, "Rides free — plus the one defense",
       "DEFEND Hegemony (8.0): ADB is insurance against repeating UD, where TBK holds zero cells\n"
       "Total incremental: ~¥2-5bn over 3 years", body_size=10, title_color=GREEN)
 txt(s, 0.5, 6.45, 12.3, 0.85, "The compounding logic: allocation discipline (Ch8) makes every other chapter's evidence credible — capital that stops being destroyed validates the runway, the sockets, and the legibility story. Ceiling honesty: 7.8 (Compounder) is unreachable in this industry — nobody is there; Concentric's 6.98 is the practical frontier and the 5-year path reaches it.", size=10.5, bold=True, color=DARK)
+
+# ---------- Conclusion: engineering proven, monetization broken ----------
+s = slide()
+header(s, "Conclusion: TBK can build it — it just doesn't sell it",
+       "The engineering is proven. What needs fixing is go-to-market, pricing, and the customer relationship — managerial problems, which ownership can address")
+panel(s, 0.5, 1.55, 4.0, 4.55, "PROVEN: the engineering",
+      "Pioneered the SAW system — class-leading drum brake in stopping, energy and weight, TODAY\n"
+      "Co-authored CV disc-brake work with Isuzu in 1990 (SAE 902200) — before discs were mainstream\n"
+      "Retarders engineered for six decades; e-pumps and a thermal control unit in development\n"
+      "Zero findable recalls or scandals in 75 years supplying Japan's toughest customers\n"
+      "Owns its product designs (confirmed)\n"
+      "Small-batch disc brakes earn 68.7% contribution — when TBK prices, the product carries it", body_size=10.5)
+panel(s, 4.62, 1.55, 4.0, 4.55, "BROKEN: the monetization",
+      "PRICING: ~30% below market across the book; SAW — the best product — earns just 19.5% contribution; keiretsu customers pay 17% blended vs 30.5% from everyone else\n"
+      "GO-TO-MARKET: ~90% of sales through channels that set TBK's prices; aftermarket only ~10% of sales (Haldex: 42%); exports marginal; zero external proof points — 2-3 patents/yr, no awards, no published quality data\n"
+      "RELATIONSHIPS: Isuzu alone = 22% of sales; 75 years of price-downs accepted; the customer captures the value the engineering creates", body_size=10.5, title_color=RED)
+panel(s, 8.74, 1.55, 4.1, 4.55, "THE FIX — managerial, not technical",
+      "Reprice what is already excellent: SAW to market over renewal cycles, aftermarket +10% now\n"
+      "Open channels TBK controls: aftermarket expansion, India/export via Brakes India at market prices\n"
+      "Make the engineering legible: patent it, publish it, certify it — sellable outside the keiretsu\n"
+      "Reset the relationship: price paired with the ADB/e-pump roadmap — supply security and future tech in exchange for honest prices\n"
+      "None of this requires inventing anything new — only capitalizing what 75 years of engineering already built", body_size=10.5, title_color=GREEN)
+txt(s, 0.5, 6.3, 12.3, 1.0, "The investment logic in one line: technical risk is what ownership cannot fix — and TBK has little of it. Managerial risk is what engaged ownership exists to fix — and that is nearly all of TBK's problem. A company that can engineer market-leading products but cannot price, channel, or protect them is not a value trap; it is an unmanaged asset.", size=11.5, bold=True, color=DARK)
 
 # ---------- 19 Research quality notes ----------
 s = slide()
