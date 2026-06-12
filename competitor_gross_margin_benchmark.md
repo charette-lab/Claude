@@ -73,6 +73,39 @@ Gross margin is far less comparable across this peer set than R&D was:
    aspiration for TBK is **15–22%** — the SAF-Holland/TPR zone — which itself would roughly
    double TBK's gross profit at constant sales.
 
+## OPEX comparison (added 2026-06-12)
+
+OPEX defined as gross margin − operating margin on the comparable set (captures SG&A + R&D +
+other operating items); cross-checked against direct income-statement lines where available.
+
+| | OPEX % of sales | Operating margin |
+|---|---|---|
+| **Brakes panel** | avg **13.8%**, median 13.6% | avg 7.2% |
+| Haldex (2021) | 19.9% (GM 27.3% − OPM 7.4% reported; sales SEK 4,612M) | 7.4% (adj. 7.7%) |
+| Cummins (2024) | 13.7% — direct: SG&A $3,275M (9.6%) + R&D $1,463M (4.3%) | 11.0% (GAAP, $3,750M EBIT) |
+| SAF-Holland (2024) | ~13.4% (GM ~22% − reported EBIT 8.6%) | 8.6% reported / 10.1% adj. |
+| Akebono (FY3/25) | 8.1% (SG&A ¥13,088M) | 1.9% |
+| **Pumps panel** | avg **10.4%**, median 9.3% | avg 6.7% |
+| TPR (FY3/26) | 16.3% | 5.4% |
+| Concentric (2023) | 11.0% implied (direct S+A+PD 11.7%; 2022: 10.3%) | 14.2% (5-yr avg 18.4%; 23.5% in 2019 pre-EMP) |
+| Aisin (FY3/26) | 7.6% | 4.5% |
+| Hanon (2025) | 6.6% | 2.5% |
+| **TBK (FY3/26)** | **9.7%** (SG&A ¥5,329M, incl. its ~2.2%-of-sales R&D) | **2.7%** |
+
+**Findings:**
+1. **TBK does not have an opex problem — it under-spends.** Its 9.7% sits below the brake-peer
+   average (13.8%) and at the pump-peer median (9.3%). Peers spend more below the gross-profit
+   line — much of it R&D (Cummins alone: 4.3% of sales) and selling/branding muscle — and still
+   earn ~2.5x TBK's operating margin, because 17–25% gross margins carry it.
+2. **At peer gross margins AND peer opex ratios**, TBK would spend ~$7M/yr MORE opex
+   ($42M vs $35M at ¥150/USD) yet earn ~$25M operating profit vs ~$10M actual (+$15M/yr).
+3. **Concentric's history is the model**: opex rose 10.3% (2022) → 11.7% (2023) funding the
+   e-pump transition, while 5-yr operating margin averaged 18.4% — high gross margins pay for
+   development, not the other way round.
+4. **Implication**: cutting opex (cf. the earlier 12M-opex-cut scenario) is the wrong lever; the
+   repair work is in COGS/gross margin, and peer-level opex means spending MORE below the line —
+   which is exactly the R&D catch-up program.
+
 ## Caveats
 
 - Computed margins (Aisin, TPR, SAF-Holland, Cummins, Hanon, Isuzu, Hino) derive from reported

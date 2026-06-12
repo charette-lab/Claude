@@ -256,7 +256,43 @@ panel(s, 7.6, 3.75, 5.25, 2.6, "What it funds",
       "The entire R&D catch-up program costs ~$27M/yr\n(parity run-rate $17M + deficit repayment $10M)\n→ closing ~90% of the margin gap pays for ALL of it\n\nFY3/2026 already delivered the first ~$7M/yr\n(margin 10.6% → 12.5%) — the path is proven, not theoretical", body_size=13, title_color=GREEN)
 txt(s, 0.5, 6.35, 12.3, 0.9, "Method: brakes ~$127M sales x peer avg 21.0% / median 23.4%; pumps & engine components ~$238M x 17.0% / 16.9%; vs actual blended 12.5%. Margin levers per the benchmark: aftermarket/branded content, niche pricing power (Concentric/TPR model), price-down discipline, and mix shift to disc brakes and e-pumps.", size=11.5, color=GREY)
 
-# ---------- 9 Deficit ----------
+# ---------- 9 OPEX comparison (USD) ----------
+s = slide()
+header(s, "OPEX: TBK's problem is not cost discipline — it under-spends",
+       "OPEX = gross margin − operating margin (captures SG&A + R&D + other operating items), comparable peer set  |  USD at ¥150/USD")
+cd = CategoryChartData()
+cd.categories = ["BRAKES panel", "PUMPS panel"]
+cd.add_series("TBK (blended)", (9.7, 9.7))
+cd.add_series("Peer average", (13.8, 10.4))
+cd.add_series("Peer median", (13.6, 9.3))
+gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(7.3), Inches(4.6), cd)
+ch = gf.chart
+ch.has_legend = True
+ch.legend.position = XL_LEGEND_POSITION.BOTTOM
+ch.legend.include_in_layout = False
+ch.legend.font.size = Pt(12)
+ch.has_title = True
+ch.chart_title.text_frame.text = "OPEX as % of sales: TBK vs peers, by business"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(14)
+plot = ch.plots[0]
+plot.has_data_labels = True
+plot.data_labels.number_format = '0.0"%"'
+plot.data_labels.number_format_is_linked = False
+plot.data_labels.font.size = Pt(11)
+plot.series[0].format.fill.solid()
+plot.series[0].format.fill.fore_color.rgb = RED
+plot.series[1].format.fill.solid()
+plot.series[1].format.fill.fore_color.rgb = DARK
+plot.series[2].format.fill.solid()
+plot.series[2].format.fill.fore_color.rgb = GREEN
+ch.category_axis.tick_labels.font.size = Pt(11)
+panel(s, 8.1, 1.6, 4.75, 2.3, "Peers spend MORE below the line…",
+      "Brakes: Haldex 19.9%, Cummins 13.7%\n(SG&A 9.6% + R&D 4.3%), SAF-H 13.4%,\nAkebono 8.1%\nPumps: TPR 16.3%, Concentric 11.0%,\nAisin 7.6%, Hanon 6.6%\nTBK SG&A (incl. its ~2.2% R&D): 9.7%", body_size=11.5)
+panel(s, 8.1, 4.05, 4.75, 2.3, "…and still earn 2.5x the margin",
+      "Operating margin: TBK 2.7% vs\nbrake peers avg 7.2% | pump peers avg 6.7%\nAt peer GM AND peer opex, TBK would\nspend ~$7M MORE opex ($42M vs $35M)\nyet earn ~$25M operating profit vs\n$10M actual → +$15M/yr", body_size=11.5, title_color=GREEN)
+txt(s, 0.5, 6.35, 12.3, 1.0, "Concentric's history makes the point: opex rose 10.3% (2022) → 11.7% (2023) as it funded the e-pump transition, yet 5-yr operating margin averaged 18.4% (23.5% pre-EMP in 2019) — high gross margins pay for development. Implication for TBK: cutting opex is the wrong lever; the gap is in COGS/gross margin, and peer-level opex means spending MORE below the line — exactly the R&D catch-up program.", size=11.5, color=GREY)
+
+# ---------- 10 Deficit ----------
 s = slide()
 header(s, "TBK's accumulated R&D deficit: ~US$100M over a decade",
        "TBK dataset FY2016-2025; benchmark = blended peer floor for a brake + pump supplier")
@@ -283,7 +319,7 @@ panel(s, 8.4, 1.6, 4.45, 4.4, "The deficit, quantified",
       "Cumulative sales FY16-25: $4.26bn\nCumulative R&D: $93.5M (2.2%)\n\nGap vs 4.0% benchmark: ~$77M\nGap vs 4.5% benchmark: ~$98M\nGap vs 5.0% benchmark: ~$120M\n\nCentral estimate: ~US$100M\n\nAnd intensity is FALLING:\n2.6% (FY22) → 2.2% (FY25)", body_size=12.5, title_color=RED)
 txt(s, 0.5, 6.25, 12.3, 1.0, "Compounding the problem: TBK's marginal return on invested capital has been negative on every horizon (-2% to -10%) — the deficit is in direction as well as amount. Capex fell to $16M by FY25, though FY3/26 shows a turn: capex back up to ¥3.3bn and ¥1.1bn equity raised from Brakes India.", size=12, color=GREY)
 
-# ---------- 10 Plan ----------
+# ---------- 11 Plan ----------
 s = slide()
 header(s, "The reinvestment requirement: two phases",
        "Catch-up to repay the technological deficit, then a permanently higher run-rate to match peers")
