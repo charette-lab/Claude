@@ -6,12 +6,19 @@ from pptx.enum.text import PP_ALIGN
 from pptx.chart.data import CategoryChartData
 from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
 
-DARK = RGBColor(0x1F, 0x4E, 0x78)
-RED = RGBColor(0x7F, 0x1D, 0x1D)
-GREEN = RGBColor(0x54, 0x82, 0x35)
-GREY = RGBColor(0x59, 0x59, 0x59)
-LGREY = RGBColor(0xF2, 0xF2, 0xF2)
+# Athanase Industrial Partner brand palette (brand guidelines v1.0)
+DARK = RGBColor(0x15, 0x21, 0x30)    # Blue 2 - primary
+RED = RGBColor(0x3C, 0x39, 0x37)     # Beige 2 - emphasis/warning accent
+GREEN = RGBColor(0x6F, 0x89, 0x90)   # Green 4 - secondary accent
+GREY = RGBColor(0x55, 0x6A, 0x83)    # Blue 4 - secondary text
+LGREY = RGBColor(0xF6, 0xF7, 0xF9)   # Blue 6 - panel background
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+BLUE3 = RGBColor(0x31, 0x43, 0x59)   # Blue 3
+BLUE5 = RGBColor(0xE2, 0xE5, 0xE9)   # Blue 5
+LOGO_DARK = "/home/user/Claude/athanase_logo_dark.png"
+LOGO_WHITE = "/home/user/Claude/athanase_logo_white.png"
+HEAD_FONT = "Times New Roman"
+BODY_FONT = "Arial"
 
 prs = Presentation()
 prs.slide_width = Inches(13.333)
@@ -35,25 +42,28 @@ def txt(s, l, t, w, h, text, size=14, bold=False, color=RGBColor(0, 0, 0), align
             r.font.size = Pt(size)
             r.font.bold = bold
             r.font.color.rgb = color
+            r.font.name = BODY_FONT
     return box
 
 
 def header(s, title, sub=None):
-    bar = s.shapes.add_textbox(Inches(0), Inches(0), prs.slide_width, Inches(0.95))
-    bar.fill.solid()
-    bar.fill.fore_color.rgb = DARK
-    tf = bar.text_frame
+    box = s.shapes.add_textbox(Inches(0.5), Inches(0.18), Inches(10.6), Inches(0.78))
+    tf = box.text_frame
     tf.word_wrap = True
-    tf.margin_left = Inches(0.5)
-    tf.margin_top = Inches(0.18)
     p = tf.paragraphs[0]
     p.text = title
     for r in p.runs:
-        r.font.size = Pt(26)
-        r.font.bold = True
-        r.font.color.rgb = WHITE
+        r.font.size = Pt(27)
+        r.font.bold = False
+        r.font.color.rgb = DARK
+        r.font.name = HEAD_FONT
+    s.shapes.add_picture(LOGO_DARK, Inches(11.45), Inches(0.32), width=Inches(1.45))
+    rule = s.shapes.add_textbox(Inches(0.5), Inches(0.93), Inches(12.33), Inches(0.02))
+    rule.fill.solid()
+    rule.fill.fore_color.rgb = BLUE5
+    rule.line.fill.background()
     if sub:
-        txt(s, 0.5, 1.0, 12.3, 0.4, sub, size=12, color=GREY)
+        txt(s, 0.5, 1.0, 12.3, 0.4, sub, size=11.5, color=GREY)
 
 
 def panel(s, l, t, w, h, title, body, title_color=DARK, body_size=12):
@@ -70,16 +80,18 @@ def panel(s, l, t, w, h, title, body, title_color=DARK, body_size=12):
     p = tf.paragraphs[0]
     p.text = title
     for r in p.runs:
-        r.font.size = Pt(15)
+        r.font.size = Pt(14.5)
         r.font.bold = True
         r.font.color.rgb = title_color
+        r.font.name = BODY_FONT
     for line in body.split("\n"):
         p = tf.add_paragraph()
         p.text = line
         p.space_before = Pt(4)
         for r in p.runs:
             r.font.size = Pt(body_size)
-            r.font.color.rgb = RGBColor(0x20, 0x20, 0x20)
+            r.font.color.rgb = RGBColor(0x15, 0x21, 0x30)
+            r.font.name = BODY_FONT
 
 
 # ---------- 1 Title ----------
@@ -87,9 +99,20 @@ s = slide()
 bg = s.shapes.add_textbox(Inches(0), Inches(0), prs.slide_width, prs.slide_height)
 bg.fill.solid()
 bg.fill.fore_color.rgb = DARK
-txt(s, 1.0, 2.3, 11.3, 1.2, "Closing the R&D Gap", size=44, bold=True, color=WHITE)
-txt(s, 1.0, 3.4, 11.3, 0.9, "TBK Co., Ltd. (7277.T) — brakes and pumps: market evolution, competitor innovation, and the reinvestment requirement", size=20, color=RGBColor(0xD0, 0xDC, 0xE8))
-txt(s, 1.0, 6.5, 11.3, 0.5, "Based on peer-reviewed and adversarially verified research, competitor filings, TBK's audited FY3/2026 results, and company-internal product economics (TBK, Concentric AR2023 + MR pack, Haldex)  |  June 2026", size=12, color=RGBColor(0xA8, 0xB8, 0xC8))
+bg.line.fill.background()
+s.shapes.add_picture(LOGO_WHITE, Inches(1.0), Inches(0.7), width=Inches(2.6))
+tb = s.shapes.add_textbox(Inches(1.0), Inches(2.5), Inches(11.3), Inches(1.4))
+ptf = tb.text_frame
+ptf.word_wrap = True
+pp = ptf.paragraphs[0]
+pp.text = "Closing the R&D Gap"
+for r in pp.runs:
+    r.font.size = Pt(54)
+    r.font.bold = False
+    r.font.color.rgb = WHITE
+    r.font.name = HEAD_FONT
+txt(s, 1.0, 3.9, 11.3, 0.9, "TBK Co., Ltd. (7277.T) — brakes and pumps: market evolution, competitor innovation, and the reinvestment requirement", size=20, color=BLUE5)
+txt(s, 1.0, 6.5, 11.3, 0.5, "Based on peer-reviewed and adversarially verified research, competitor filings, TBK's audited FY3/2026 results, and company-internal product economics (TBK, Concentric AR2023 + MR pack, Haldex)  |  June 2026", size=12, color=RGBColor(0x55, 0x6A, 0x83))
 
 # ---------- 2 Brakes market ----------
 s = slide()
@@ -172,6 +195,9 @@ ch.has_legend = False
 ch.has_title = True
 ch.chart_title.text_frame.text = "R&D intensity (% of sales)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(14)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 plot = ch.plots[0]
 plot.has_data_labels = True
 plot.data_labels.number_format = '0.0"%"'
@@ -180,6 +206,7 @@ plot.data_labels.font.size = Pt(10)
 plot.series[0].format.fill.solid()
 plot.series[0].format.fill.fore_color.rgb = DARK
 ch.category_axis.tick_labels.font.size = Pt(10)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 8.4, 1.6, 4.45, 4.4, "Absolute spend (≈USD)",
       "ZF €3.6bn (~$3.9bn)\nAisin ¥237bn (~$1.6bn)\nCummins $1.46bn\nMahle €607M (~$655M)\nKnorr-Bremse €544M (~$590M)\nHanon ~$360-440M\nBrembo ~$250M\nSAF-Holland €39M (~$42M)\nMikuni ¥5.5bn (~$37M)\nConcentric MSEK 95 (~$9M)*\nTBK ¥1.2bn (~$8M)", body_size=12)
 txt(s, 0.5, 6.25, 12.3, 1.1, "Brake systems players spend 6-9% of sales; large pump/thermal players cluster at 4-5.5%; Akebono now at 4.3% (EMB + copper-free friction ramp, per consistent peer dataset). TBK sits at 2.2%. *Concentric (AR2023, verified): expensed product development only 2.3% — yet 25% gross margin: niche dominance, not raw R&D scale, drives pump profitability. *Hanon mid-range of conflicting filings.", size=11.5, color=GREY)
@@ -197,6 +224,9 @@ ch.has_legend = False
 ch.has_title = True
 ch.chart_title.text_frame.text = "Capitalized R&D stock, US$M (2025)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(14)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 plot = ch.plots[0]
 plot.has_data_labels = True
 plot.data_labels.number_format = '#,##0'
@@ -205,6 +235,7 @@ plot.data_labels.font.size = Pt(11)
 plot.series[0].format.fill.solid()
 plot.series[0].format.fill.fore_color.rgb = DARK
 ch.category_axis.tick_labels.font.size = Pt(11)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 8.1, 1.6, 4.75, 2.3, "The stock gap",
       "Cummins $5.6bn — 130x TBK\nKnorr-Bremse $2.6bn — 60x TBK\nMikuni $194M — 4.5x TBK\nSAF-Holland $131M | Akebono $123M\nTBK: $43M — the smallest knowledge\nbase in the peer set", body_size=12.5)
 panel(s, 8.1, 4.05, 4.75, 2.3, "Knowledge intensity (RDCB / sales)",
@@ -251,6 +282,9 @@ ch.legend.font.size = Pt(12)
 ch.has_title = True
 ch.chart_title.text_frame.text = "Gross margin: TBK vs peers, by business (%)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(14)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 plot = ch.plots[0]
 plot.has_data_labels = True
 plot.data_labels.number_format = '0.0"%"'
@@ -263,6 +297,7 @@ plot.series[1].format.fill.fore_color.rgb = DARK
 plot.series[2].format.fill.solid()
 plot.series[2].format.fill.fore_color.rgb = GREEN
 ch.category_axis.tick_labels.font.size = Pt(11)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 8.1, 1.6, 4.75, 2.3, "Brake peers (comparable basis)",
       "Haldex 27.3% | Cummins 24.7%\nSAF-Holland ~22% | Akebono 10.0%\nTBK trails every brake peer except\nAkebono — by 9-11 points", body_size=12.5)
 panel(s, 8.1, 4.05, 4.75, 2.3, "Pump peers (comparable basis)",
@@ -287,6 +322,9 @@ ch.legend.font.size = Pt(11)
 ch.has_title = True
 ch.chart_title.text_frame.text = "TBK annual gross profit (US$M)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(14)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 p0 = ch.plots[0]
 p0.has_data_labels = True
 p0.data_labels.number_format = '$0.0"M"'
@@ -299,6 +337,7 @@ p0.series[1].format.fill.fore_color.rgb = GREEN
 p0.series[2].format.fill.solid()
 p0.series[2].format.fill.fore_color.rgb = RED
 ch.category_axis.tick_labels.font.size = Pt(11)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 7.6, 1.6, 5.25, 2.0, "The annual prize",
       "+$21.6M/yr at peer AVERAGE margins\n+$24.4M/yr at peer MEDIAN margins\n≈ +50% on today's $45.5M gross profit\nSplit roughly half brakes, half pumps (~$11-14M each)", body_size=13)
 panel(s, 7.6, 3.75, 5.25, 2.6, "What it funds",
@@ -322,6 +361,9 @@ ch.legend.font.size = Pt(11)
 ch.has_title = True
 ch.chart_title.text_frame.text = "Contribution margin by product (%)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 plot = ch.plots[0]
 plot.has_data_labels = True
 plot.data_labels.number_format = '0.0"%"'
@@ -332,6 +374,7 @@ plot.series[0].format.fill.fore_color.rgb = RED
 plot.series[1].format.fill.solid()
 plot.series[1].format.fill.fore_color.rgb = GREEN
 ch.category_axis.tick_labels.font.size = Pt(10)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 7.8, 1.6, 5.05, 2.45, "Inside TBKK's own book",
       "Pockets of real pricing power: Isuzu brake VD00 (HR) 64.1%, brake 700P 41.7%, gears 30.6%\n"
       "Bleeding lines: GKN case-set/diff -30.2% (negative contribution), Suzuki -1.2%, ISZ W/P ES 1.7%\n"
@@ -355,6 +398,9 @@ ch.has_legend = False
 ch.has_title = True
 ch.chart_title.text_frame.text = "Contribution by customer: keiretsu OEMs 17% blended vs non-keiretsu/aftermarket 30.5%"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(12)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 plot = ch.plots[0]
 plot.has_data_labels = True
 plot.data_labels.number_format = '0.0"%"'
@@ -371,6 +417,7 @@ for i in (0, 1, 2, 3):
     except Exception:
         pass
 ch.category_axis.tick_labels.font.size = Pt(9)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 7.4, 1.6, 5.45, 2.45, "Product truths (Japan H1 FY2025)",
       "DISC BRAKE: 68.7% contribution — TBK's HIGHEST-margin product (tiny ¥8.3M volume): the disc transition is margin-accretive, not just defensive\n"
       "Precision niches price well: S/camshaft 52.7%, kits 55.5%\n"
@@ -399,6 +446,9 @@ ch.legend.font.size = Pt(11)
 ch.has_title = True
 ch.chart_title.text_frame.text = "Haldex segment economics (Sep YTD 2014): OE loses, aftermarket earns it all"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(12)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 plot = ch.plots[0]
 plot.has_data_labels = True
 plot.data_labels.number_format = '0.0"%"'
@@ -409,6 +459,7 @@ plot.series[0].format.fill.fore_color.rgb = DARK
 plot.series[1].format.fill.solid()
 plot.series[1].format.fill.fore_color.rgb = GREEN
 ch.category_axis.tick_labels.font.size = Pt(11)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 7.2, 1.55, 5.65, 1.62, "1. Aftermarket is the profit pool",
       "OE truck/trailer: CII 22-32% every year 2009-19, EBIT NEGATIVE (Europe truck -27%); aftermarket CII 42-50%, EBIT +27-37% — ALL of Haldex's profit\n"
       "TBK's aftermarket (30.2% CM) is ~10% of parent sales vs Haldex's 42% — the proven fastest route to group margin", body_size=10.5)
@@ -437,6 +488,9 @@ ch.legend.font.size = Pt(11)
 ch.has_title = True
 ch.chart_title.text_frame.text = "Contribution margin by brake product (%)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 plot = ch.plots[0]
 plot.has_data_labels = True
 plot.data_labels.number_format = '0.0"%"'
@@ -447,6 +501,7 @@ plot.series[0].format.fill.fore_color.rgb = RED
 plot.series[1].format.fill.solid()
 plot.series[1].format.fill.fore_color.rgb = DARK
 ch.category_axis.tick_labels.font.size = Pt(9)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 8.2, 1.6, 4.65, 2.45, "Where the gap lives",
       "On overlapping products, near-parity: friction/linings 25.1% vs 23.2%\n"
       "Haldex's premium came from CONTENT TBK doesn't make: brake adjusters 41.4%, ABS 43.4%, air treatment 55.8% — mechatronic niches\n"
@@ -470,6 +525,9 @@ ch.has_legend = False
 ch.has_title = True
 ch.chart_title.text_frame.text = "SAW contribution: actual vs at-market-price scenarios (vs peer core products)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(12)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 plot = ch.plots[0]
 plot.has_data_labels = True
 plot.data_labels.number_format = '0.0"%"'
@@ -489,6 +547,7 @@ try:
 except Exception:
     pass
 ch.category_axis.tick_labels.font.size = Pt(9)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 7.8, 1.6, 5.05, 2.45, "The triangulation",
       "At market price, SAW earns 38-44% contribution — exactly the level of Haldex's core products (ABA 41.4%, ABS 43.4%) and Concentric's conventional pumps (38-43%)\n"
       "The keiretsu discount fully explains the flagship's gap: a world-leading product, peer-level economics, captured by the customer\n"
@@ -517,6 +576,9 @@ ch.legend.font.size = Pt(11)
 ch.has_title = True
 ch.chart_title.text_frame.text = "Contribution margin by pump product (%)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 plot = ch.plots[0]
 plot.has_data_labels = True
 plot.data_labels.number_format = '0.0"%"'
@@ -525,10 +587,11 @@ plot.data_labels.font.size = Pt(10)
 plot.series[0].format.fill.solid()
 plot.series[0].format.fill.fore_color.rgb = RED
 plot.series[1].format.fill.solid()
-plot.series[1].format.fill.fore_color.rgb = RGBColor(0xC0, 0x6C, 0x2C)
+plot.series[1].format.fill.fore_color.rgb = RGBColor(0x9A, 0x95, 0x8E)
 plot.series[2].format.fill.solid()
 plot.series[2].format.fill.fore_color.rgb = GREEN
 ch.category_axis.tick_labels.font.size = Pt(9)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 8.2, 1.6, 4.65, 2.45, "The 2x gap on identical products",
       "Same conventional water pump: TBK 18.5-19.5% vs Concentric 38.2% — DOUBLE\n"
       "Same oil pump: 22.6-26.0% vs 42.9%\n"
@@ -552,6 +615,9 @@ ch.has_legend = False
 ch.has_title = True
 ch.chart_title.text_frame.text = "Operating margin by phase: 2.7% -> ~10% (phase 1) -> 15% -> 26.6% ceiling"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 plot = ch.plots[0]
 plot.has_data_labels = True
 plot.data_labels.number_format = '0.0"%"'
@@ -561,13 +627,14 @@ ser = plot.series[0]
 ser.format.fill.solid()
 ser.format.fill.fore_color.rgb = DARK
 try:
-    for i, col in ((0, RED), (1, GREEN), (2, RGBColor(0x2E, 0x59, 0x2E)), (3, GREY)):
+    for i, col in ((0, RED), (1, GREEN), (2, RGBColor(0x31, 0x43, 0x59)), (3, GREY)):
         pt = ser.points[i]
         pt.format.fill.solid()
         pt.format.fill.fore_color.rgb = col
 except Exception:
     pass
 ch.category_axis.tick_labels.font.size = Pt(8)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 7.7, 1.6, 5.15, 2.45, "PHASE 1 — the realistic target: ~10% OPM",
       "Sales 59,342 | GP 13,211 (22.3%) | R&D 2,789 at 4.7% | OP 6,263 (10.6%) | Net 4,398 = ¥138 EPS (~2.2x mkt cap)\n"
       "Captures only ~1/3 of the stated pricing gap + ~45% of excess heads — via pruning, renewal-cycle repricing, aftermarket/non-keiretsu mix, first consolidations\n"
@@ -596,6 +663,9 @@ ch.legend.font.size = Pt(12)
 ch.has_title = True
 ch.chart_title.text_frame.text = "OPEX as % of sales: TBK vs peers, by business"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(14)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 plot = ch.plots[0]
 plot.has_data_labels = True
 plot.data_labels.number_format = '0.0"%"'
@@ -608,6 +678,7 @@ plot.series[1].format.fill.fore_color.rgb = DARK
 plot.series[2].format.fill.solid()
 plot.series[2].format.fill.fore_color.rgb = GREEN
 ch.category_axis.tick_labels.font.size = Pt(11)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 8.1, 1.6, 4.75, 2.3, "The lean look is an artifact",
       "TBK's 9.7% covers only SG&A + its\nthin ~2.2% R&D — the future-building costs\nit has starved. The factory burden is in COGS:\nPP&E 39% of sales vs Concentric ~12% (3x)\nDepreciation 5.3% of sales; China: 12.8% of\nsegment sales + losses both years", body_size=11.5)
 panel(s, 8.1, 4.05, 4.75, 2.3, "Restructuring bypasses BOTH metrics",
@@ -631,12 +702,16 @@ ch.legend.font.size = Pt(11)
 ch.has_title = True
 ch.chart_title.text_frame.text = "Actual R&D vs peer-floor benchmark (US$M)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(14)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 p0 = ch.plots[0]
 p0.series[0].format.fill.solid()
 p0.series[0].format.fill.fore_color.rgb = RED
 p0.series[1].format.fill.solid()
 p0.series[1].format.fill.fore_color.rgb = DARK
 ch.category_axis.tick_labels.font.size = Pt(10)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 8.4, 1.6, 4.45, 4.4, "The deficit, quantified",
       "Cumulative sales FY16-25: $4.26bn\nCumulative R&D: $93.5M (2.2%)\n\nGap vs 4.0% benchmark: ~$77M\nGap vs 4.5% benchmark: ~$98M\nGap vs 5.0% benchmark: ~$120M\n\nCentral estimate: ~US$100M\n\nAnd intensity is FALLING:\n2.6% (FY22) → 2.2% (FY25)", body_size=12.5, title_color=RED)
 txt(s, 0.5, 6.25, 12.3, 1.0, "Compounding the problem: TBK's marginal return on invested capital has been negative on every horizon (-2% to -10%) — the deficit is in direction as well as amount. Capex fell to $16M by FY25, though FY3/26 shows a turn: capex back up to ¥3.3bn and ¥1.1bn equity raised from Brakes India.", size=12, color=GREY)
@@ -658,12 +733,16 @@ ch.legend.font.size = Pt(11)
 ch.has_title = True
 ch.chart_title.text_frame.text = "R&D spend plan (US$M per year)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(14)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 p0 = ch.plots[0]
 p0.series[0].format.fill.solid()
 p0.series[0].format.fill.fore_color.rgb = DARK
 p0.series[1].format.fill.solid()
 p0.series[1].format.fill.fore_color.rgb = GREEN
 ch.category_axis.tick_labels.font.size = Pt(9)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 8.4, 1.6, 4.45, 4.4, "The numbers",
       "PHASE 1 — Catch-up (5 yrs):\n~$27M/yr ≈ 7.5% of sales\n= parity run-rate ($16-18M)\n+ deficit repayment (~$10M/yr,\n~$50M split between ADB\nindustrialization and e-pump/TCU\nprograms)\nTotal: ~$135M over 5 years\n\nPHASE 2 — Steady state:\n$16-18M/yr ≈ 4.5-5% of sales\n= 2.2x today's spend, forever\n\nPlus one-off ADB line capex\n(~$30-50M, outside R&D line)", body_size=12, title_color=GREEN)
 txt(s, 0.5, 6.25, 12.3, 1.1, "Allocation discipline, per domain: (1) brakes — ADB industrialization for the Japanese disc flip, systems/ADAS access via Brakes India, timed to regulation and platform renewals; (2) pumps — e-pump/TCU sockets on Isuzu/Fuso/Hino electrified programs, timed to program kick-offs happening NOW. Funding: the phase-1 pro-forma uplift (+¥4.8bn / ~$32M operating profit vs actual) more than covers the ~$27M/yr program. The Concentric lesson: focused niche engineering at 2.3% intensity earns 25% gross margins — spend must buy sockets, not just scale.", size=11.5, color=GREY)
@@ -726,6 +805,9 @@ ch.has_legend = False
 ch.has_title = True
 ch.chart_title.text_frame.text = "Final weighted moat scores (TBK in red)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
 plot = ch.plots[0]
 plot.has_data_labels = True
 plot.data_labels.number_format = '0.00'
@@ -741,6 +823,7 @@ try:
 except Exception:
     pass
 ch.category_axis.tick_labels.font.size = Pt(10)
+ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 8.1, 1.6, 4.75, 2.4, "Bands",
       "Compounder Target (>7.8): NONE —\nno company in this industry qualifies\nWatchlist (6.5-7.8): Knorr 7.55,\nConcentric 6.98, Brembo/Cummins 6.73,\nSAF-Holland 6.59\nPass (<6.5): everyone else —\nincl. TBK 5.38, Mikuni 5.00", body_size=12)
 panel(s, 8.1, 4.15, 4.75, 2.45, "TBK's decomposition is unique",
@@ -810,12 +893,16 @@ def crit_chart(left, cats, tbk, mik, conc, ais, tpr, han, title):
     ch.has_title = True
     ch.chart_title.text_frame.text = title
     ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(12)
-    colors = [RED, RGBColor(0xBF, 0x9000 >> 8, 0x00), GREEN, DARK, RGBColor(0x80, 0x80, 0x80), RGBColor(0x4F, 0xB3, 0xBF)]
-    colors[1] = RGBColor(0xBF, 0x90, 0x00)
+    ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
+    ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
+    ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
+    colors = [RED, RGBColor(0x9A, 0x95, 0x8E), GREEN, DARK, RGBColor(0xE2, 0xE5, 0xE9), RGBColor(0x33, 0x4E, 0x57)]
+    colors[1] = RGBColor(0x64, 0x61, 0x5E)
     for i, sr in enumerate(ch.plots[0].series):
         sr.format.fill.solid()
         sr.format.fill.fore_color.rgb = colors[i]
     ch.category_axis.tick_labels.font.size = Pt(9)
+    ch.category_axis.tick_labels.font.name = BODY_FONT
     ch.value_axis.maximum_scale = 10
 crit_chart(0.4, ["Criticality", "Standard", "Hegemony", "Ecosystem", "Lifecycle"],
            (7.5, 6.0, 8.0, 2.0, 3.0), (7.0, 5.0, 4.0, 2.0, 4.0), (7.0, 6.0, 7.5, 2.5, 7.0),
