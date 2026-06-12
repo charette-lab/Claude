@@ -997,6 +997,13 @@ def crit_chart(left, cats, tbk, mik, conc, ais, tpr, han, title):
     ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
     ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
     ch.chart_title.text_frame.paragraphs[0].runs[0].font.color.rgb = DARK
+    plot = ch.plots[0]
+    plot.has_data_labels = True
+    plot.data_labels.number_format = '0.0'
+    plot.data_labels.number_format_is_linked = False
+    plot.data_labels.font.size = Pt(6.5)
+    plot.data_labels.font.name = BODY_FONT
+    plot.data_labels.font.color.rgb = GREY
     colors = [RED, RGBColor(0x9A, 0x95, 0x8E), GREEN, DARK, RGBColor(0xE2, 0xE5, 0xE9), RGBColor(0x33, 0x4E, 0x57)]
     colors[1] = RGBColor(0x64, 0x61, 0x5E)
     for i, sr in enumerate(ch.plots[0].series):
@@ -1023,7 +1030,7 @@ panel(s, 0.5, 1.55, 6.1, 2.6, "Method & confidence tiers",
       "Two deep-research studies (brake market; pump market): 5 parallel search angles each, claims extracted as falsifiable statements, then ADVERSARIAL VERIFICATION — 3 independent voters per claim set, actively attempting refutation\n"
       "Tier 1: peer-reviewed papers, primary regulation, audited filings (TBK tanshin, Concentric AR2023, SEC)\n"
       "Tier 2: government data and multi-source-verified company/industry figures\n"
-      "Tier 3: single-source estimates and market research — always labeled in the underlying documents", body_size=11)
+      "Tier 3: single-source estimates and market research — always labeled in the underlying documents", body_size=9.5)
 panel(s, 6.8, 1.55, 6.05, 2.6, "Corrections made by verification (transparency)",
       "TBK's famous '~70% share' belongs to its WATER PUMPS, not brakes (brakes: 'top share', unaudited)\n"
       "Euro 7 heavy-duty brake-dust limits apply ~2030, not 2028/29 (those are exhaust dates)\n"
@@ -1031,18 +1038,18 @@ panel(s, 6.8, 1.55, 6.05, 2.6, "Corrections made by verification (transparency)"
       "'85-90% of Asia on drums' could not be corroborated — stated as 'majority' only\n"
       "A claimed TBK-Mikuni alliance is erroneous (conflation with Mikuni-Suzuki)\n"
       "Aggregator's 'TBK FY26 ¥138M profit' contradicted by the audited tanshin (-¥131M)\n"
-      "TBK ADB exhibit year unresolved (2019 vs 2022 sources conflict); Concentric MR pack period 2112 = Dec 2021", body_size=11, title_color=RED)
+      "TBK ADB exhibit year unresolved (2019 vs 2022 sources conflict); Concentric MR pack period 2112 = Dec 2021", body_size=9.5, title_color=RED)
 panel(s, 0.5, 4.3, 6.1, 2.6, "Known limitations",
       "Full-text retrieval was blocked in the research environment: paywalled SAE/journal numbers rest on abstracts; flagged where unverified\n"
       "No peer discloses brake-only or pump-only R&D, gross profit, or segment margins — group figures used; ratios are the valid comparison\n"
       "Accounting bases differ: German/Italian nature-of-expense 'gross margins' (Knorr ~50%, Brembo ~50%) are materials-only and EXCLUDED from margin comparisons; JGAAP fully expenses R&D while IFRS peers capitalize part\n"
-      "TBK FY3/26 division split estimated from FY3/25 (yuho due June 2026); USD at ¥150/USD", body_size=11)
+      "TBK FY3/26 division split estimated from FY3/25 (yuho due June 2026); USD at ¥150/USD", body_size=9.5)
 panel(s, 6.8, 4.3, 6.05, 2.6, "Data hierarchy & framework constructs",
       "Where sources conflict, the audited primary document wins (e.g., TBK tanshin over aggregators)\n"
       "Company-internal documents (TBK/TBKK product P&Ls, Concentric MR pack, Haldex packs) and management statements (~30% below-market pricing, ~1,000 excess heads) are first-hand but NOT externally verified — labeled wherever used\n"
       "Consistent-basis peer metrics (margins, R&D, ROIC) come from the user-provided 10-year/LTM peer dataset — same methodology across all 7 companies\n"
       "ROIIC (ROICm) = return on incremental invested capital over the stated horizon; RR = reinvestment rate; R&D Capital Base = cumulative R&D capitalized/amortized per the dataset framework — a modeling construct, not a balance-sheet line\n"
-      "Scenario pages state assumptions on-slide; peer-margin scenarios use comparable reporters only", body_size=11, title_color=GREEN)
+      "Scenario pages state assumptions on-slide; peer-margin scenarios use comparable reporters only", body_size=9.5, title_color=GREEN)
 
 # ---------- 20 Sources ----------
 s = slide()
