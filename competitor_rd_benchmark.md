@@ -40,15 +40,18 @@ the bottom of the range — at SAF-Holland-like intensity but without SAF-Hollan
 | Mikuni | FY3/2025 | ¥5.49bn group / ¥4.40bn mobility seg. (≈$37M) | ~5.4% | Electric oil pump already in production for a domestic small BEV truck |
 | Yamada Mfg (private, EDINET filer) | FY3/2022 (latest retrievable) | ¥2.86bn (≈$19M) | ~3% | E-water pumps in Honda CR-V e:FCEV, N-VAN e: (2024) |
 | TPR | FY3/2025 | not retrievable (mid-single-digit ¥bn implied) | n/a | Sales ¥192.4bn; "frontier"/EV products to be 2/3 of sales by 2030 |
-| Concentric (A.P. Møller, delisted 2024) | 2023 | not extractable; ~5% of sales (secondary, low confidence) | ~5% | Sales MSEK 4,205; most direct CV e-pump comparable; e-products 24% of sales Q1-24 |
+| Concentric (A.P. Møller, delisted 2024) | 2023 | **MSEK 95 expensed product development (≈$9M)** — company AR2023; earlier "~5%" secondary estimate was wrong | **2.3%** (expensed; excl. capitalized development) | Sales MSEK 4,205; most direct CV e-pump comparable; e-products 20% of 2023 sales |
 | SHW (Pierer, de-facto private) | 2024 | in AR PDF, not retrievable | n/a | Rev €519M; e-pumps and integrated cooling modules for all drive types |
 | Rheinmetall/Pierburg | 2024–25 | no segment split; being sold to AEQUITA (Q4 2026) | n/a | Power Systems rev ~€2.0bn; 400V/800V e-coolant pumps |
 
-**Pattern:** pump/thermal players cluster at **~4–5.5% of sales**, and every single one
-(Aisin, Mahle, Hanon, Mikuni, Yamada, Concentric, Pierburg) has redirected pump R&D to the
-same target: electric water/oil pumps and BEV thermal management. Mikuni — a company ~3x
-TBK's size — outspends TBK ~4.5x in absolute terms and already ships an e-oil pump for a
-BEV truck.
+**Pattern:** large pump/thermal players cluster at **~4–5.5% of sales** (Aisin, Mahle, Mikuni,
+Hanon), and every peer has redirected pump R&D to the same target: electric water/oil pumps and
+BEV thermal management. Mikuni — a company ~3x TBK's size — outspends TBK ~4.5x in absolute terms
+and already ships an e-oil pump for a BEV truck. **Correction from Concentric's AR2023:** its
+expensed product development is only 2.3% of sales (MSEK 95) — TBK-like intensity — yet it earns
+25% gross margins. The Concentric lesson is that niche dominance + focused engineering, not raw
+R&D scale, drives pump profitability; the catch-up case for TBK rests on the larger peers and on
+winning specific e-pump sockets, not on matching a 5% ratio for its own sake.
 
 ---
 

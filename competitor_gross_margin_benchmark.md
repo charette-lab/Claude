@@ -39,7 +39,7 @@ Gross margin is far less comparable across this peer set than R&D was:
 | TPR | FY3/2026 | **~21.7%** (TTM) | ≈ ¥41bn | Yes (computed) | OP margin 5.4% (declining) |
 | Aisin | FY3/2026 | **~12.1%** | ≈ ¥619bn | Yes (IFRS, computed) | OP margin 4.5% (improving) |
 | Hanon Systems | 2025 | **~9.1%** | ≈ KRW 991bn | Yes (K-IFRS, computed) | OP margin 2.5% (improving, from 8.1%/1.0%) |
-| Concentric (last public) | 2023 | n/d (historical "30%+" unverified) | n/d | — | **Op. margin 14.2%** (16.7% in 2022) |
+| Concentric (last public) | 2023 | **25.2%** (2022: 26.3%) | MSEK 1,061 | Yes (IFRS CoS, company-reported AR2023) | Op. margin 14.2% (16.7% in 2022; 23.5% in 2019 pre-EMP) |
 | Mahle | 2025 | n/a (HGB) | n/a | — | Adj. EBIT 3.9% (improving) |
 | SHW | 2024 | n/a (HGB) | n/a | — | EBITDA 7.3% (declining) |
 | Mikuni | FY3/2026 | n/d retrievable | n/d | — | OP margin 4.0% (sharply improving) |
@@ -57,11 +57,13 @@ Gross margin is far less comparable across this peer set than R&D was:
 2. **The aftermarket/systems premium is visible in the data**: Haldex (disc/EBS player) at 27.3%
    and SAF-Holland holding ~22% explicitly via aftermarket mix show where the extra 10–15 points
    come from — exactly the content TBK lacks.
-3. **Pump peers bracket TBK**: Hanon 9.1% (below, but recovering on restructuring), Aisin ~12%
-   (just above), TPR ~22% (well above — high-share niche products, the structural analogue of
-   what TBK's pump franchise *should* earn given its claimed share). Concentric's 14.2% operating
-   margin vs TBK's 1.7% EBIT margin is the most damning single comparison: a focused CV pump
-   pure-play earns 8x TBK's operating margin.
+3. **Pump peers bracket TBK** (now with Concentric verified at 25.2% from its AR2023): Hanon 9.1%
+   (below, recovering), Aisin ~12% (around TBK), TPR ~22% and Concentric 25.2% (well above —
+   high-share niche products, the structural analogue of what TBK's pump franchise *should* earn
+   given its claimed share). Comparable pump-panel statistics including Concentric: **average
+   17.0%, median 16.9%**. Concentric's 5-year history adds a lesson: operating margin fell from
+   23.5% (2019) to 14.2% (2023) as it absorbed EMP and pushed e-products to 20% of sales — even
+   the best pump pure-play traded margin for the electrification transition.
 4. **TBK earns less gross margin than its own customers** — Isuzu ~19%, Hino ~17% vs TBK 10.6%.
    In a healthy supplier relationship with differentiated product, the component specialist
    typically out-margins the OEM (cf. Knorr's 13% EBIT vs truck OEMs' mid-single digits).
