@@ -305,7 +305,44 @@ panel(s, 7.6, 3.75, 5.25, 2.6, "What it funds",
       "The entire R&D catch-up program costs ~$27M/yr\n(parity run-rate $17M + deficit repayment $10M)\n→ closing ~90% of the margin gap pays for ALL of it\n\nFY3/2026 already delivered the first ~$7M/yr\n(margin 10.6% → 12.5%) — the path is proven, not theoretical", body_size=13, title_color=GREEN)
 txt(s, 0.5, 6.35, 12.3, 0.9, "Method: brakes ~$127M sales x peer avg 21.0% / median 23.4%; pumps & engine components ~$238M x 17.0% / 16.9%; vs actual blended 12.5%. Margin levers per the benchmark: aftermarket/branded content, niche pricing power (Concentric/TPR model), price-down discipline, and mix shift to disc brakes and e-pumps.", size=11.5, color=GREY)
 
-# ---------- 9 OPEX comparison (USD) ----------
+# ---------- Product-level proof: TBKK vs Concentric ----------
+s = slide()
+header(s, "Product-level proof: same pumps, half the contribution",
+       "Internal data both sides: TBKK (Thailand) profit by items Apr-Sep 2025 vs Concentric Group MR Pack Dec-2021 YTD. Contribution = sales minus variable costs")
+cd = CategoryChartData()
+cd.categories = ["Water pumps", "Oil pumps", "GROUP TOTAL", "Concentric value-added\n(semi-var./electric/ALFDEX)"]
+cd.add_series("TBKK marginal profit %", (19.5, 22.6, 22.7, None))
+cd.add_series("Concentric Contribution I %", (38.2, 42.9, 44.5, 56.0))
+gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(7.0), Inches(4.6), cd)
+ch = gf.chart
+ch.has_legend = True
+ch.legend.position = XL_LEGEND_POSITION.BOTTOM
+ch.legend.include_in_layout = False
+ch.legend.font.size = Pt(11)
+ch.has_title = True
+ch.chart_title.text_frame.text = "Contribution margin by product (%)"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
+plot = ch.plots[0]
+plot.has_data_labels = True
+plot.data_labels.number_format = '0.0"%"'
+plot.data_labels.number_format_is_linked = False
+plot.data_labels.font.size = Pt(10)
+plot.series[0].format.fill.solid()
+plot.series[0].format.fill.fore_color.rgb = RED
+plot.series[1].format.fill.solid()
+plot.series[1].format.fill.fore_color.rgb = GREEN
+ch.category_axis.tick_labels.font.size = Pt(10)
+panel(s, 7.8, 1.6, 5.05, 2.45, "Inside TBKK's own book",
+      "Pockets of real pricing power: Isuzu brake VD00 (HR) 64.1%, brake 700P 41.7%, gears 30.6%\n"
+      "Bleeding lines: GKN case-set/diff -30.2% (negative contribution), Suzuki -1.2%, ISZ W/P ES 1.7%\n"
+      "Customer curve: Isuzu 25.8% > MMTH 23.0% > ITT 22.6% > Kubota 17.0%", body_size=11.5)
+panel(s, 7.8, 4.2, 5.05, 2.45, "Concentric's ladder = TBK's roadmap",
+      "Conventional pump 38-43% -> semi-variable 54% -> electric 55% -> system (ALFDEX) 56%\n"
+      "Each evolution step = roughly +15 points of contribution on the SAME base product\n"
+      "TBK's e-pump/TCU program targets exactly this ladder — the data proves the rungs exist", body_size=11.5, title_color=GREEN)
+txt(s, 0.5, 6.45, 12.3, 0.9, "This is the micro-mechanism behind every macro gap in this deck: gross margin, EBITA, and ROIC differences all begin at contribution per part number. Caveats: TBKK = Thai subsidiary (~26% of group sales); periods/currencies differ — ratios comparable, absolutes not; Concentric 2021 was a strong year. First actions are free: prune negative-contribution lines (GKN case-set), reprice near-zero lines.", size=11.5, color=GREY)
+
+# ---------- OPEX comparison (USD) ----------
 s = slide()
 header(s, "Why TBK looks lean on OPEX: its factory costs hide in COGS",
        "OPEX here = gross margin − operating margin (SG&A + R&D). Under JGAAP, factory overhead, depreciation and idle capacity sit in COST OF SALES  |  USD at ¥150/USD")
