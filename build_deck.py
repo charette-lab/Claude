@@ -1,4 +1,4 @@
-"""Builds TBK_rd_gap_slides.pptx (10 slides)."""
+"""Builds TBK_rd_gap_slides.pptx (27 slides, 16:9)."""
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -89,7 +89,7 @@ bg.fill.solid()
 bg.fill.fore_color.rgb = DARK
 txt(s, 1.0, 2.3, 11.3, 1.2, "Closing the R&D Gap", size=44, bold=True, color=WHITE)
 txt(s, 1.0, 3.4, 11.3, 0.9, "TBK Co., Ltd. (7277.T) — brakes and pumps: market evolution, competitor innovation, and the reinvestment requirement", size=20, color=RGBColor(0xD0, 0xDC, 0xE8))
-txt(s, 1.0, 6.5, 11.3, 0.5, "Based on peer-reviewed and adversarially verified research, competitor filings (incl. Concentric AR2023), and TBK's audited FY3/2026 results  |  June 2026", size=12, color=RGBColor(0xA8, 0xB8, 0xC8))
+txt(s, 1.0, 6.5, 11.3, 0.5, "Based on peer-reviewed and adversarially verified research, competitor filings, TBK's audited FY3/2026 results, and company-internal product economics (TBK, Concentric AR2023 + MR pack, Haldex)  |  June 2026", size=12, color=RGBColor(0xA8, 0xB8, 0xC8))
 
 # ---------- 2 Brakes market ----------
 s = slide()
@@ -302,7 +302,7 @@ ch.category_axis.tick_labels.font.size = Pt(11)
 panel(s, 7.6, 1.6, 5.25, 2.0, "The annual prize",
       "+$21.6M/yr at peer AVERAGE margins\n+$24.4M/yr at peer MEDIAN margins\n≈ +50% on today's $45.5M gross profit\nSplit roughly half brakes, half pumps (~$11-14M each)", body_size=13)
 panel(s, 7.6, 3.75, 5.25, 2.6, "What it funds",
-      "The entire R&D catch-up program costs ~$27M/yr\n(parity run-rate $17M + deficit repayment $10M)\n→ closing ~90% of the margin gap pays for ALL of it\n\nFY3/2026 already delivered the first ~$7M/yr\n(margin 10.6% → 12.5%) — the path is proven, not theoretical", body_size=13, title_color=GREEN)
+      "The entire R&D catch-up program costs ~$27M/yr\n(parity run-rate $17M + deficit repayment $10M)\n→ closing ~90% of the margin gap pays for ALL of it\n\nFY3/2026 already delivered the first ~$7M/yr\n(margin 10.6% → 12.5%) — and the phased pro-forma\n(later page) shows the full management-premise view", body_size=13, title_color=GREEN)
 txt(s, 0.5, 6.35, 12.3, 0.9, "Method: brakes ~$127M sales x peer avg 21.0% / median 23.4%; pumps & engine components ~$238M x 17.0% / 16.9%; vs actual blended 12.5%. Margin levers per the benchmark: aftermarket/branded content, niche pricing power (Concentric/TPR model), price-down discipline, and mix shift to disc brakes and e-pumps.", size=11.5, color=GREY)
 
 # ---------- Product-level proof: TBKK vs Concentric ----------
@@ -462,8 +462,8 @@ s = slide()
 header(s, "The SAW case: TBK's best product, sold ~30% below market",
        "SAW = TBK's flagship drum brake — class-leading stopping time, energy efficiency and weight (per management). ¥4.31bn = 36% of parent H1 series sales, at just 19.5% contribution")
 cd = CategoryChartData()
-cd.categories = ["SAW today\n(keiretsu price)", "SAW at market\n(+30% price)", "SAW at market\n(price / 0.7)", "Haldex core products\n(ABA/ABS/air, ref.)", "Concentric conv.\npumps (ref.)"]
-cd.add_series("Contribution margin %", (19.5, 38.1, 43.6, 43.0, 40.5))
+cd.categories = ["SAW today\n(keiretsu price)", "SAW at market\n(+30% price)", "SAW at market\n(price / 0.7)", "Haldex ABA/ABS\navg (ref.)", "Concentric conv.\npumps avg (ref.)"]
+cd.add_series("Contribution margin %", (19.5, 38.1, 43.6, 42.4, 40.5))
 gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(7.0), Inches(4.6), cd)
 ch = gf.chart
 ch.has_legend = False
@@ -490,7 +490,7 @@ except Exception:
     pass
 ch.category_axis.tick_labels.font.size = Pt(9)
 panel(s, 7.8, 1.6, 5.05, 2.45, "The triangulation",
-      "At market price, SAW earns 38-44% contribution — EXACTLY the level of Haldex's core products (41-44%) and Concentric's conventional pumps (38-43%)\n"
+      "At market price, SAW earns 38-44% contribution — exactly the level of Haldex's core products (ABA 41.4%, ABS 43.4%) and Concentric's conventional pumps (38-43%)\n"
       "The keiretsu discount fully explains the flagship's gap: a world-leading product, peer-level economics, captured by the customer\n"
       "Price flows straight to contribution: no cost change needed", body_size=11.5)
 panel(s, 7.8, 4.2, 5.05, 2.45, "What it is worth — and how to get it",
@@ -498,45 +498,6 @@ panel(s, 7.8, 4.2, 5.05, 2.45, "What it is worth — and how to get it",
       "Realistically gradual at home (keiretsu contracts) — so arbitrage it: SELL SAW AT MARKET PRICE where market prices rule: exports, aftermarket, and India via Brakes India, where drum demand persists at scale\n"
       "Class-leading tech + below-market price = the export business case writes itself", body_size=11.5, title_color=GREEN)
 txt(s, 0.5, 6.45, 12.3, 0.9, "Note: 'leading drum brake in stopping time, energy save and weight' and the ~30% below-market pricing are management/first-hand information, not externally verified — consistent, however, with the customer-gradient data (non-keiretsu customers pay ~2x) and with TBK's zero-recall record. If the ~30% discount applies beyond SAW (management indicates Japanese customers broadly), the parent-wide repricing prize is correspondingly larger.", size=11, color=GREY)
-
-# ---------- Pro-forma normalized income statement ----------
-s = slide()
-header(s, "The normalized TBK: right prices, right factories, real R&D",
-       "Pro-forma on audited FY3/2026 — pricing corrected (SAW only), factory structure fixed, competitive R&D loaded. Deficit repayment kept separate, per scope")
-cd = CategoryChartData()
-cd.categories = ["Actual\nFY3/26", "PHASE 1 (realistic)\n+9% reprice, ~450 heads", "PHASE 2 (full realization)\n+15%, 500 heads", "FULL premises\n(leakage meter)", "Refs: Concentric peak 22%\nHaldex US-only ~30%"]
-cd.add_series("Operating margin %", (2.7, 10.6, 15.0, 26.6, None))
-gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(6.9), Inches(4.6), cd)
-ch = gf.chart
-ch.has_legend = False
-ch.has_title = True
-ch.chart_title.text_frame.text = "Operating margin by phase: 2.7% -> ~10% (phase 1) -> 15% -> 26.6% ceiling"
-ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
-plot = ch.plots[0]
-plot.has_data_labels = True
-plot.data_labels.number_format = '0.0"%"'
-plot.data_labels.number_format_is_linked = False
-plot.data_labels.font.size = Pt(11)
-ser = plot.series[0]
-ser.format.fill.solid()
-ser.format.fill.fore_color.rgb = DARK
-try:
-    for i, col in ((0, RED), (1, GREEN), (2, RGBColor(0x2E, 0x59, 0x2E)), (3, GREY)):
-        pt = ser.points[i]
-        pt.format.fill.solid()
-        pt.format.fill.fore_color.rgb = col
-except Exception:
-    pass
-ch.category_axis.tick_labels.font.size = Pt(8)
-panel(s, 7.7, 1.6, 5.15, 2.45, "PHASE 1 — the realistic target: ~10% OPM",
-      "Sales 59,342 | GP 13,211 (22.3%) | R&D 2,789 at 4.7% | OP 6,263 (10.6%) | Net 4,398 = ¥138 EPS (~2.2x mkt cap)\n"
-      "Captures only ~1/3 of the stated pricing gap + ~45% of excess heads — via pruning, renewal-cycle repricing, aftermarket/non-keiretsu mix, first consolidations\n"
-      "Funds the entire R&D program (incl. deficit memo) in ~18-24 months", body_size=11)
-panel(s, 7.7, 4.2, 5.15, 2.45, "Why not more, at first — operator calibration",
-      "Concentric peaked at ~22% OPM — on best-in-class FULL price realization, a discipline built over years\n"
-      "Haldex could have reached ~30% by shedding Europe for the US — portfolio focus is the second lever\n"
-      "Above ~10% in phase 1 is difficult: keiretsu contracts reprice at renewal, factories close on multi-year clocks. Phase 2 (15%) = Concentric-grade realization + grown aftermarket. FULL premises (26.6%) = leakage meter, not a plan", body_size=11, title_color=GREEN)
-txt(s, 0.5, 6.45, 12.3, 0.9, "Nothing here requires new products or customers — existing book, honest prices, loaded factories, peer-level R&D (4.7%) absorbed in every phase. MEMO (separate financing): R&D deficit ~¥1.5bn/yr x5, ADB capex ¥4.5-7.5bn, restructuring cash ~¥2-3bn. Premises are management/first-hand information; phasing reflects operator experience at Concentric and Haldex.", size=11.5, bold=True, color=DARK)
 
 # ---------- Pump segment: TBK vs Concentric ----------
 s = slide()
@@ -577,6 +538,45 @@ panel(s, 8.2, 4.2, 4.65, 2.45, "The ladder TBK hasn't climbed",
       "TBK's first rung is bought but not yet scaled: ECWP at -245.7% contribution on ¥2.6M pre-scale volume (off-chart)\n"
       "NB: Concentric = the former Haldex hydraulics division — proof the climb is doable from CV-supplier DNA", body_size=11, title_color=GREEN)
 txt(s, 0.5, 6.45, 12.3, 0.9, "Gross-profit read: if TBK's pump book (W/P + O/P = ¥4.9bn of H1 parent sales) earned Concentric's conventional-pump margins, contribution would rise ~¥0.9-1.0bn per HALF-YEAR on those two lines alone — before any ladder-climbing. The pump gap is a PRICING-POWER gap on identical hardware; the brake gap (previous page) is a content gap. Different cures: pricing/mix vs product development.", size=11.5, color=GREY)
+
+# ---------- Pro-forma normalized income statement ----------
+s = slide()
+header(s, "The normalized TBK: right prices, right factories, real R&D",
+       "Pro-forma on audited FY3/2026 — pricing corrected (SAW only), factory structure fixed, competitive R&D loaded. Deficit repayment kept separate, per scope")
+cd = CategoryChartData()
+cd.categories = ["Actual\nFY3/26", "PHASE 1 (realistic)\n+9% reprice, ~450 heads", "PHASE 2 (full realization)\n+15%, 500 heads", "FULL premises\n(leakage meter)"]
+cd.add_series("Operating margin %", (2.7, 10.6, 15.0, 26.6))
+gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(6.9), Inches(4.6), cd)
+ch = gf.chart
+ch.has_legend = False
+ch.has_title = True
+ch.chart_title.text_frame.text = "Operating margin by phase: 2.7% -> ~10% (phase 1) -> 15% -> 26.6% ceiling"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
+plot = ch.plots[0]
+plot.has_data_labels = True
+plot.data_labels.number_format = '0.0"%"'
+plot.data_labels.number_format_is_linked = False
+plot.data_labels.font.size = Pt(11)
+ser = plot.series[0]
+ser.format.fill.solid()
+ser.format.fill.fore_color.rgb = DARK
+try:
+    for i, col in ((0, RED), (1, GREEN), (2, RGBColor(0x2E, 0x59, 0x2E)), (3, GREY)):
+        pt = ser.points[i]
+        pt.format.fill.solid()
+        pt.format.fill.fore_color.rgb = col
+except Exception:
+    pass
+ch.category_axis.tick_labels.font.size = Pt(8)
+panel(s, 7.7, 1.6, 5.15, 2.45, "PHASE 1 — the realistic target: ~10% OPM",
+      "Sales 59,342 | GP 13,211 (22.3%) | R&D 2,789 at 4.7% | OP 6,263 (10.6%) | Net 4,398 = ¥138 EPS (~2.2x mkt cap)\n"
+      "Captures only ~1/3 of the stated pricing gap + ~45% of excess heads — via pruning, renewal-cycle repricing, aftermarket/non-keiretsu mix, first consolidations\n"
+      "Funds the entire R&D program (incl. deficit memo) in ~18-24 months", body_size=11)
+panel(s, 7.7, 4.2, 5.15, 2.45, "Why not more, at first — operator calibration",
+      "Concentric peaked at ~22% OPM — on best-in-class FULL price realization, a discipline built over years\n"
+      "Haldex could have reached ~30% by shedding Europe for the US — portfolio focus is the second lever\n"
+      "Above ~10% in phase 1 is difficult: keiretsu contracts reprice at renewal, factories close on multi-year clocks. Phase 2 (15%) = Concentric-grade realization + grown aftermarket. FULL premises (26.6%) = leakage meter, not a plan", body_size=11, title_color=GREEN)
+txt(s, 0.5, 6.45, 12.3, 0.9, "Nothing here requires new products or customers — existing book, honest prices, loaded factories, peer-level R&D (4.7%) absorbed in every phase. MEMO (separate financing): R&D deficit ~¥1.5bn/yr x5, ADB capex ¥4.5-7.5bn, restructuring cash ~¥2-3bn. Premises are management/first-hand information; phasing reflects operator experience at Concentric and Haldex.", size=11.5, bold=True, color=DARK)
 
 # ---------- OPEX comparison (USD) ----------
 s = slide()
@@ -666,7 +666,7 @@ p0.series[1].format.fill.fore_color.rgb = GREEN
 ch.category_axis.tick_labels.font.size = Pt(9)
 panel(s, 8.4, 1.6, 4.45, 4.4, "The numbers",
       "PHASE 1 — Catch-up (5 yrs):\n~$27M/yr ≈ 7.5% of sales\n= parity run-rate ($16-18M)\n+ deficit repayment (~$10M/yr,\n~$50M split between ADB\nindustrialization and e-pump/TCU\nprograms)\nTotal: ~$135M over 5 years\n\nPHASE 2 — Steady state:\n$16-18M/yr ≈ 4.5-5% of sales\n= 2.2x today's spend, forever\n\nPlus one-off ADB line capex\n(~$30-50M, outside R&D line)", body_size=12, title_color=GREEN)
-txt(s, 0.5, 6.25, 12.3, 1.1, "Allocation discipline, per domain: (1) brakes — ADB industrialization for the Japanese disc flip, systems/ADAS access via Brakes India, timed to regulation and platform renewals; (2) pumps — e-pump/TCU sockets on Isuzu/Fuso/Hino electrified programs, timed to program kick-offs happening NOW. Funding: the ~$22-24M/yr peer-margin prize covers the ~$27M/yr program almost fully. The Concentric lesson: focused niche engineering at 2.3% intensity earns 25% gross margins — spend must buy sockets, not just scale.", size=11.5, color=GREY)
+txt(s, 0.5, 6.25, 12.3, 1.1, "Allocation discipline, per domain: (1) brakes — ADB industrialization for the Japanese disc flip, systems/ADAS access via Brakes India, timed to regulation and platform renewals; (2) pumps — e-pump/TCU sockets on Isuzu/Fuso/Hino electrified programs, timed to program kick-offs happening NOW. Funding: the phase-1 pro-forma uplift (+¥4.8bn / ~$32M operating profit vs actual) more than covers the ~$27M/yr program. The Concentric lesson: focused niche engineering at 2.3% intensity earns 25% gross margins — spend must buy sockets, not just scale.", size=11.5, color=GREY)
 
 # ---------- 14 Product evaluation I: quality & service ----------
 s = slide()
@@ -749,24 +749,23 @@ panel(s, 8.1, 4.15, 4.75, 2.45, "TBK's decomposition is unique",
 # ---------- 17 TBK moat profile: radar ----------
 s = slide()
 header(s, "TBK's moat profile: where it is strong, where it bleeds",
-       "Chapter scores (1-10) — TBK vs Concentric (best newly-scored) vs Mikuni vs average of the 6 newly-scored peers")
+       "Chapter scores (1-10) — TBK vs Concentric (best newly scored) vs the average of the five newly scored peers (TBK excluded from the average)")
 CH_LABELS = ["Criticality", "Standard\npremium", "Market\nhegemony", "Ecosystem", "Lifecycle\ncost adv.", "Substitution\nresistance", "Demand\nhorizon", "Capital\nallocation", "Reinvestment\nrunway", "Reverse-\nLindy"]
 TBK_CH = (7.5, 6.0, 8.0, 2.0, 3.0, 3.5, 7.0, 2.0, 3.0, 4.0)
 CONC_CH = (7.0, 6.0, 7.5, 2.5, 7.0, 5.0, 7.5, 7.5, 7.0, 5.5)
 MIK_CH = (7.0, 5.0, 4.0, 2.0, 4.0, 3.0, 7.0, 2.5, 5.5, 4.5)
-AVG_CH = tuple(round(sum(x)/6, 2) for x in zip(
+AVG_CH = tuple(round(sum(x)/5, 2) for x in zip(
     (7.0, 5.0, 4.0, 2.0, 4.0, 3.0, 7.0, 2.5, 5.5, 4.5),   # Mikuni
     (7.0, 6.0, 7.5, 2.5, 7.0, 5.0, 7.5, 7.5, 7.0, 5.5),   # Concentric
     (7.0, 7.0, 6.0, 5.0, 5.0, 4.0, 7.0, 4.5, 6.0, 4.5),   # Aisin
     (7.5, 6.0, 7.5, 2.0, 6.0, 2.5, 4.0, 4.0, 4.0, 3.5),   # TPR
     (7.0, 5.5, 6.5, 2.5, 3.5, 7.0, 8.0, 2.0, 5.0, 5.0),   # Hanon
-    (7.5, 6.0, 8.0, 2.0, 3.0, 3.5, 7.0, 2.0, 3.0, 4.0),   # TBK
 ))
 cd = CategoryChartData()
 cd.categories = [c.replace("\n", " ") for c in CH_LABELS]
 cd.add_series("TBK", TBK_CH)
 cd.add_series("Concentric", CONC_CH)
-cd.add_series("Peer avg (6 scored)", AVG_CH)
+cd.add_series("Peer average (5 peers)", AVG_CH)
 gf = s.shapes.add_chart(XL_CHART_TYPE.RADAR_MARKERS, Inches(0.4), Inches(1.5), Inches(7.0), Inches(5.3), cd)
 ch = gf.chart
 ch.has_legend = True
@@ -843,7 +842,8 @@ panel(s, 6.8, 1.55, 6.05, 2.6, "Corrections made by verification (transparency)"
       "Concentric R&D = 2.3% of sales per AR2023 — the circulating '~5%' was wrong\n"
       "'85-90% of Asia on drums' could not be corroborated — stated as 'majority' only\n"
       "A claimed TBK-Mikuni alliance is erroneous (conflation with Mikuni-Suzuki)\n"
-      "Aggregator's 'TBK FY26 ¥138M profit' contradicted by the audited tanshin (-¥131M)", body_size=11, title_color=RED)
+      "Aggregator's 'TBK FY26 ¥138M profit' contradicted by the audited tanshin (-¥131M)\n"
+      "TBK ADB exhibit year unresolved (2019 vs 2022 sources conflict); Concentric MR pack period 2112 = Dec 2021", body_size=11, title_color=RED)
 panel(s, 0.5, 4.3, 6.1, 2.6, "Known limitations",
       "Full-text retrieval was blocked in the research environment: paywalled SAE/journal numbers rest on abstracts; flagged where unverified\n"
       "No peer discloses brake-only or pump-only R&D, gross profit, or segment margins — group figures used; ratios are the valid comparison\n"
@@ -851,6 +851,7 @@ panel(s, 0.5, 4.3, 6.1, 2.6, "Known limitations",
       "TBK FY3/26 division split estimated from FY3/25 (yuho due June 2026); USD at ¥150/USD", body_size=11)
 panel(s, 6.8, 4.3, 6.05, 2.6, "Data hierarchy & framework constructs",
       "Where sources conflict, the audited primary document wins (e.g., TBK tanshin over aggregators)\n"
+      "Company-internal documents (TBK/TBKK product P&Ls, Concentric MR pack, Haldex packs) and management statements (~30% below-market pricing, ~1,000 excess heads) are first-hand but NOT externally verified — labeled wherever used\n"
       "Consistent-basis peer metrics (margins, R&D, ROIC) come from the user-provided 10-year/LTM peer dataset — same methodology across all 7 companies\n"
       "ROIIC (ROICm) = return on incremental invested capital over the stated horizon; RR = reinvestment rate; R&D Capital Base = cumulative R&D capitalized/amortized per the dataset framework — a modeling construct, not a balance-sheet line\n"
       "Scenario pages state assumptions on-slide; peer-margin scenarios use comparable reporters only", body_size=11, title_color=GREEN)
@@ -861,7 +862,8 @@ header(s, "Sources")
 panel(s, 0.5, 1.3, 6.1, 2.85, "Primary & audited",
       "TBK Co., Ltd. — Consolidated Financial Results FY ended 31 Mar 2026 (tanshin, 14 May 2026); securities-report risk factors (有価証券報告書 via kitaishihon/irbank)\n"
       "Concentric AB — Annual Report 2023 (income statement, balance sheet, 5-year key figures)\n"
-      "User-provided datasets: TBK 10-year financials; Peers 10-year; Peers LTM (7 companies, consistent methodology)\n"
+      "User-provided datasets: TBK 10-year financials; Peers 10-year; Peers LTM (7 companies, consistent methodology); moat methodology v3.2\n"
+      "Internal management documents: TBK Japan profitability by product/customer + share map + acquired projects (H1 FY2025); TBKK Thailand profit by items (Apr-Sep 2025); Concentric Group MR Pack (Dec 2021); Haldex analysis file (2019) and May-2014 MR pack\n"
       "SEC filings: Cummins 10-K/10-Q/8-K (FY2024-25); WABCO & Meritor merger 8-Ks\n"
       "Company releases: Knorr-Bremse FY2023-25; ZF AR2024-25; SAF-Holland AR2024; Mahle AR2024-25; Haldex year-end 2021; Rheinmetall FY2025 + AEQUITA divestment (3 Jun 2026); Circle BidCo/A.P. Møller offer documents (2024); Brakes India-TBK alliance (Dec 2025)", body_size=10)
 panel(s, 6.8, 1.3, 6.05, 2.85, "Peer-reviewed & academic",
