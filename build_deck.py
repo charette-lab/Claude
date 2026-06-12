@@ -268,7 +268,7 @@ ch.category_axis.tick_labels.font.size = Pt(10)
 ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 8.4, 1.6, 4.45, 4.4, "Absolute spend (≈USD)",
       "ZF €3.6bn (~$3.9bn)\nAisin ¥237bn (~$1.6bn)\nCummins $1.46bn\nMahle €607M (~$655M)\nKnorr-Bremse €544M (~$590M)\nHanon ~$360-440M\nBrembo ~$250M\nSAF-Holland €39M (~$42M)\nMikuni ¥5.5bn (~$37M)\nConcentric MSEK 95 (~$9M)*\nTBK ¥1.2bn (~$8M)", body_size=12)
-txt(s, 0.5, 6.25, 12.3, 1.1, "Brake systems players spend 6-9% of sales; large pump/thermal players cluster at 4-5.5%; Akebono now at 4.3% (EMB + copper-free friction ramp, per consistent peer dataset). TBK sits at 2.2%. *Concentric (AR2023, verified): expensed product development only 2.3% — yet 25% gross margin: niche dominance, not raw R&D scale, drives pump profitability. *Hanon mid-range of conflicting filings.", size=11.5, color=GREY)
+txt(s, 0.5, 6.25, 12.3, 1.1, "Brake systems players spend 6-9%; pump/thermal players 4-5.5%; Akebono 4.3% (EMB ramp); TBK 2.2%. *Concentric's 2.3% is NOT a counter-example: it is the lean steady state of a firm whose knowledge stock is already BUILT — decades of niche IP, IFRS-capitalized development, plus the $147M EMP acquisition (purchased R&D stock), with e-products already 20% of sales. TBK's 4.7% is transition spend to cross the disc/e-pump discontinuity Concentric crossed years ago. Different phases, not a contradiction. *Hanon mid-range of conflicting filings.", size=11.5, color=GREY)
 
 # ---------- 7 Capitalized R&D: the knowledge-capital stock ----------
 s = slide()
@@ -295,11 +295,11 @@ plot.series[0].format.fill.solid()
 plot.series[0].format.fill.fore_color.rgb = DARK
 ch.category_axis.tick_labels.font.size = Pt(11)
 ch.category_axis.tick_labels.font.name = BODY_FONT
-panel(s, 8.1, 1.6, 4.75, 2.3, "The stock gap",
-      "Cummins $5.6bn — 130x TBK\nKnorr-Bremse $2.6bn — 60x TBK\nMikuni $194M — 4.5x TBK\nSAF-Holland $131M | Akebono $123M\nTBK: $43M — the smallest knowledge\nbase in the peer set", body_size=12.5)
+panel(s, 8.1, 1.6, 4.75, 2.3, "The like-for-like signals",
+      "Same-size comparator: Mikuni $194M\n— 4.5x TBK at ~2x the revenue\nIntensity: TBK 12% of sales vs\nMikuni/Knorr 29%, Cummins 17%\nGiants ($2.6-5.6bn) shown for context\nonly — absolute stock scales with\ncompany size; ratios are the test", body_size=12)
 panel(s, 8.1, 4.05, 4.75, 2.3, "Knowledge intensity (RDCB / sales)",
       "Knorr-Bremse 29% | Mikuni 29%\nCummins 17%\nTBK 12% | Akebono 12%\nSAF-Holland 7%\nThe systems winners run structurally\nknowledge-intensive business models", body_size=12.5, title_color=GREEN)
-txt(s, 0.5, 6.45, 12.3, 0.85, "Why it matters: the R&D gap is cumulative, not annual. A decade of under-spending leaves TBK rebuilding a depleted asset while competitors amortize billions of accumulated know-how into every bid (brake control software, ADB iterations, e-pump motor/inverter design). This is why the catch-up phase must run YEARS at elevated spend — one good budget year cannot rebuild a stock — and why partnering (Brakes India) to borrow an existing knowledge base is rational.", size=10.5, color=GREY)
+txt(s, 0.5, 6.45, 12.3, 0.85, "Why it matters: the R&D gap is cumulative, not annual — and it holds on the size-adjusted measures (intensity, same-size peers), not just the headline billions. A decade of under-spending leaves TBK rebuilding a depleted asset while competitors amortize accumulated know-how into every bid (brake control software, ADB iterations, e-pump motor/inverter design). This is why the catch-up phase must run YEARS at elevated spend — one good budget year cannot rebuild a stock — and why partnering (Brakes India) to borrow an existing knowledge base is rational.", size=10.5, color=GREY)
 
 # ---------- 8 The argument: gross margin is too low ----------
 s = slide()
@@ -312,7 +312,7 @@ panel(s, 0.5, 1.55, 6.1, 2.35, "1. Peers prove the products can carry more",
 panel(s, 6.8, 1.55, 6.05, 2.35, "2. TBK earns LESS than its own customers",
       "Isuzu gross margin ~19%, Hino ~17% vs TBK 12.5%\n"
       "Healthy specialist suppliers out-margin their OEMs (Knorr-Bremse 13% EBIT vs truck OEMs' mid-single digits)\n"
-      "Inverted economics = pricing power sits with the customer: keiretsu concentration (Isuzu alone ¥12bn = 22% of sales) and annual price-downs, against commodity drum/mechanical products with no systems, electronics or branded-aftermarket content to defend price", body_size=11.5, title_color=RED)
+      "Inverted economics = pricing power sits with the customer: keiretsu concentration (Isuzu alone ¥12bn = 22% of sales) and annual price-downs\nCritically: the SAME commodity products fetch ~2x from non-keiretsu buyers and 30%+ more at market — the pricing gap exists BEFORE any content upgrade; systems/aftermarket content is the second, later lever", body_size=11.5, title_color=RED)
 panel(s, 0.5, 4.05, 6.1, 2.35, "3. The COGS line carries an underloaded footprint",
       "PP&E at 39% of sales — 3x Concentric's ~12%; depreciation 5.3% of sales\n"
       "China: depreciation 12.8% of segment sales, losses both years; Japan segment margin just 1.6%\n"
@@ -361,7 +361,7 @@ panel(s, 8.1, 1.6, 4.75, 2.3, "Brake peers (comparable basis)",
       "Haldex 27.3% | Cummins 24.7%\nSAF-Holland ~22% | Akebono 10.0%\nTBK trails every brake peer except\nAkebono — by 9-11 points", body_size=12.5)
 panel(s, 8.1, 4.05, 4.75, 2.3, "Pump peers (comparable basis)",
       "Concentric 25.2% (verified AR2023)\nTPR 21.7% | Aisin 12.1% | Hanon 9.1%\nTBK trails the panel average by\n~4.5 points — and the pure-play\nCV pump comp by ~13 points", body_size=12.5, title_color=GREEN)
-txt(s, 0.5, 6.45, 12.3, 0.85, "TBK does not disclose gross profit per division, so its blended 12.5% is shown against both panels. Even on the most charitable reading — assuming all underperformance sits in one business — TBK is below peer average in the other. Peer set: IFRS cost-of-sales / JGAAP reporters only.", size=10.5, color=GREY)
+txt(s, 0.5, 6.45, 12.3, 0.85, "TBK does not disclose gross profit per division, so its blended 12.5% is shown against both panels. Even on the most charitable reading, TBK is below peer average in the other business. Robustness: on the accounting-HARMONIZED peer dataset the same gap shows at EBITA level — Western peers 8-13% vs TBK ~3% averaged over a decade — so the conclusion does not depend on gross-margin treatment.", size=10.5, color=GREY)
 
 # ---------- 8 Value of closing the gap (USD) ----------
 s = slide()
@@ -399,8 +399,8 @@ ch.category_axis.tick_labels.font.size = Pt(11)
 ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 7.6, 1.6, 5.25, 2.0, "The annual prize",
       "+$21.6M/yr at peer AVERAGE margins\n+$24.4M/yr at peer MEDIAN margins\n≈ +50% on today's $45.5M gross profit\nSplit roughly half brakes, half pumps (~$11-14M each)", body_size=13)
-panel(s, 7.6, 3.75, 5.25, 2.6, "What it funds",
-      "The entire R&D catch-up program costs ~$27M/yr\n(parity run-rate $17M + deficit repayment $10M)\n→ closing ~90% of the margin gap pays for ALL of it\n\nFY3/2026 already delivered the first ~$7M/yr\n(margin 10.6% → 12.5%) — and the phased pro-forma\n(later page) shows the full management-premise view", body_size=13, title_color=GREEN)
+panel(s, 7.6, 3.75, 5.25, 2.6, "What it funds — sequencing, not circularity",
+      "The margin levers need NO new products: reprice the EXISTING book (non-keiretsu buyers already pay ~2x for identical parts), prune, fix the footprint, shift mix\n→ those fund the ~$27M/yr R&D program, which closes the CONTENT gap later\nFY3/2026 already delivered the first ~$7M/yr (10.6% → 12.5%) before any new product", body_size=13, title_color=GREEN)
 txt(s, 0.5, 6.45, 12.3, 0.85, "Method: brakes ~$127M sales x peer avg 21.0% / median 23.4%; pumps & engine components ~$238M x 17.0% / 16.9%; vs actual blended 12.5%. Margin levers per the benchmark: aftermarket/branded content, niche pricing power (Concentric/TPR model), price-down discipline, and mix shift to disc brakes and e-pumps.", size=10.5, color=GREY)
 
 # ---------- Product-level proof: TBKK vs Concentric ----------
@@ -890,7 +890,7 @@ panel(s, 6.8, 1.55, 6.05, 2.5, "Documented product firsts",
       "TBK: retarders since the 1960s; 19.5\" ADB exhibited (year unconfirmed: 2019 vs 2022 sources conflict); e-pumps/TCU in development", body_size=11, title_color=GREEN)
 panel(s, 0.5, 4.2, 12.35, 1.9, "The pattern — and TBK's fix",
       "Innovation output tracks the moat and margin rankings almost perfectly: the companies with validated quality (Knorr, Cummins) also hold the patent fortresses and the product firsts; the distressed (Akebono) still out-publish TBK; even the similarly-sized peer (Mikuni) protects its e-pump work with patents.\n"
-      "TBK's innovation is real but INVISIBLE: 75 years of retarder/brake/pump engineering, an ADB prototype, e-pumps and a thermal control unit in development — none of it patented at scale, published at JSAE, or externally awarded. Invisible innovation cannot win sockets outside the keiretsu.\n"
+      "TBK's innovation is DOCUMENTED BUT EXTERNALLY UNVALIDATED: the product facts are verifiable (retarders since the 1960s, e-pumps and a TCU in development, an ADB prototype) — their competitiveness is not externally evidenced, and 'no recalls in 75 years' is absence-of-negatives, not proof of excellence. Either way the commercial conclusion holds: unvalidated innovation cannot win sockets outside the keiretsu.\n"
       "Fix costs little: patent the e-pump/TCU and ADB work (Mikuni shows the value), publish, pursue external validation — a required complement to the R&D spend itself.", body_size=11.5)
 
 # ---------- 16 Moat ranking overview ----------
@@ -1042,7 +1042,7 @@ panel(s, 6.8, 1.55, 6.05, 2.6, "Corrections made by verification (transparency)"
 panel(s, 0.5, 4.3, 6.1, 2.6, "Known limitations",
       "Full-text retrieval was blocked in the research environment: paywalled SAE/journal numbers rest on abstracts; flagged where unverified\n"
       "No peer discloses brake-only or pump-only R&D, gross profit, or segment margins — group figures used; ratios are the valid comparison\n"
-      "Accounting bases differ: German/Italian nature-of-expense 'gross margins' (Knorr ~50%, Brembo ~50%) are materials-only and EXCLUDED from margin comparisons; JGAAP fully expenses R&D while IFRS peers capitalize part\n"
+      "Accounting: the consistent-basis peer dataset (margins, EBITA, R&D, ROIC for the 7 companies) is HARMONIZED to the same treatment — cross-GAAP caveats apply only to raw-filing figures for non-dataset peers; nature-of-expense 'gross margins' (Knorr/Brembo ~50%) remain excluded. The margin gap also shows at EBITA level (peers 8-13% vs Japanese cohort ~3-3.5% for a decade) — treatment-independent\n"
       "TBK FY3/26 division split estimated from FY3/25 (yuho due June 2026); USD at ¥150/USD", body_size=9.5)
 panel(s, 6.8, 4.3, 6.05, 2.6, "Data hierarchy & framework constructs",
       "Where sources conflict, the audited primary document wins (e.g., TBK tanshin over aggregators)\n"

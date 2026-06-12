@@ -49,9 +49,15 @@ Hanon), and every peer has redirected pump R&D to the same target: electric wate
 BEV thermal management. Mikuni — a company ~3x TBK's size — outspends TBK ~4.5x in absolute terms
 and already ships an e-oil pump for a BEV truck. **Correction from Concentric's AR2023:** its
 expensed product development is only 2.3% of sales (MSEK 95) — TBK-like intensity — yet it earns
-25% gross margins. The Concentric lesson is that niche dominance + focused engineering, not raw
-R&D scale, drives pump profitability; the catch-up case for TBK rests on the larger peers and on
-winning specific e-pump sockets, not on matching a 5% ratio for its own sake.
+25% gross margins. The Concentric comparison must be read carefully (a reviewer rightly pressed on this): its 2.3%
+expensed intensity is the lean steady state of a company whose knowledge stock is already BUILT —
+decades of accumulated niche IP, IFRS-capitalized development on top of the expensed line, and
+the $147M EMP acquisition, which was effectively a purchased R&D stock (e-products reached 20%+
+of sales as a result). TBK's required 4.5-5% is TRANSITION spend to cross the disc/e-pump
+discontinuity that Concentric crossed years ago. Steady-state niche players can run lean;
+players mid-discontinuity cannot — the two intensities answer different questions and do not
+contradict each other. Once TBK's stock is rebuilt and its sockets won, a Concentric-style
+lean run-rate becomes the right long-term model.
 
 ---
 

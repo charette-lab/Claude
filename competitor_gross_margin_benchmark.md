@@ -7,7 +7,16 @@ Compiled 2026-06-12 from filings and verified aggregator data. Latest available 
 matching the USD dataset exactly). Historical peak 12.8% (FY2017), trough 8.2% (FY2023).
 Operating margin 2.7% (FY3/2026) vs 1.7% (FY3/2025). FY3/2027 guidance: sales ¥53,000M, OP ¥1,100M.
 
-## The comparability trap (read first)
+## Accounting harmonization note (added after review)
+
+The consistent-basis peer dataset (user-provided: margins, EBITA, R&D, ROIC for the 7 dataset
+companies) is **harmonized to the same accounting treatment** — those figures are directly
+comparable. The cross-GAAP caveats below apply only to raw-filing figures for peers outside
+the dataset (Concentric, Hanon, Aisin, TPR, Mahle, SHW). Robustness check: the margin gap also
+appears at **EBITA level on the harmonized basis** (Western peers 8-13% vs the Japanese cohort
+~3-3.5% averaged over a decade) — i.e., the conclusion is treatment-independent.
+
+## The comparability trap (for raw-filing figures)
 
 Gross margin is far less comparable across this peer set than R&D was:
 
