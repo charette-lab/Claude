@@ -420,6 +420,83 @@ panel(s, 7.2, 4.99, 5.65, 1.62, "3. The subscale OE disc warning",
       "TBK's 68.7% D/BRAKE is small-batch pricing, not series-OE economics — go niche/aftermarket/partnered (Brakes India), never frontal", body_size=10.5, title_color=RED)
 txt(s, 0.5, 6.45, 12.3, 0.95, "Applied to TBK (Japan H1 FY2025 data): pruning the sub-10% non-strategic lines (O/brake, A/brake, B/housing, G/case, gear & processed components = 6.5% of sales) lifts series contribution 19.6% -> 20.9% immediately — and the EBIT gain is larger once attached capacity costs go. TBK's high-margin cohort (¥3.0bn of lines at >=20% CM) already runs at 27.3%: a portfolio focused at the level of its better products + a grown aftermarket is the Haldex >10% playbook, re-run.", size=11.5, bold=True, color=DARK)
 
+# ---------- Brake segment: TBK vs Haldex ----------
+s = slide()
+header(s, "Brake segment: TBK vs Haldex — product-level contribution",
+       "TBK Japan H1 FY2025 (CM after direct material) vs Haldex May-2014 YTD (CII). Concentric makes no brakes. Periods differ — structure, not cycle, is the message")
+cd = CategoryChartData()
+cd.categories = ["Foundation\ndrum (2L)", "Friction /\nlinings", "Brake\ndrum", "Disc\nbrake", "Brake adjusters\n(ABA)", "ABS / EBS\nelectronics", "Aftermarket"]
+cd.add_series("TBK", (15.8, 25.1, 22.9, 68.7, None, None, 30.2))
+cd.add_series("Haldex", (None, 23.2, None, 14.0, 41.4, 43.4, 48.2))
+gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(7.4), Inches(4.6), cd)
+ch = gf.chart
+ch.has_legend = True
+ch.legend.position = XL_LEGEND_POSITION.BOTTOM
+ch.legend.include_in_layout = False
+ch.legend.font.size = Pt(11)
+ch.has_title = True
+ch.chart_title.text_frame.text = "Contribution margin by brake product (%)"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
+plot = ch.plots[0]
+plot.has_data_labels = True
+plot.data_labels.number_format = '0.0"%"'
+plot.data_labels.number_format_is_linked = False
+plot.data_labels.font.size = Pt(10)
+plot.series[0].format.fill.solid()
+plot.series[0].format.fill.fore_color.rgb = RED
+plot.series[1].format.fill.solid()
+plot.series[1].format.fill.fore_color.rgb = DARK
+ch.category_axis.tick_labels.font.size = Pt(9)
+panel(s, 8.2, 1.6, 4.65, 2.45, "Where the gap lives",
+      "On overlapping products, near-parity: friction/linings 25.1% vs 23.2%\n"
+      "Haldex's premium came from CONTENT TBK doesn't make: brake adjusters 41.4%, ABS 43.4%, air treatment 55.8% — mechatronic niches\n"
+      "…and the AFTERMARKET annuity: 48.2% CII vs TBK Sales 30.2%, on 4x the sales weight", body_size=11)
+panel(s, 8.2, 4.2, 4.65, 2.45, "The disc paradox, resolved",
+      "TBK disc 68.7% = small-batch/replacement pricing on ¥8.3M\n"
+      "Haldex disc 14.0% (EBIT -6.3%) = series-OE pricing fighting Knorr at scale\n"
+      "Both are true: discs pay in niches and aftermarket, bleed in frontal OE — TBK's ADB entry must choose the first route", body_size=11, title_color=GREEN)
+txt(s, 0.5, 6.45, 12.3, 0.9, "Gross-profit read: TBK's brake book (2L/brake 15.8%, A/brake 7.6%, O/brake -4.9%, drum 22.9%, lining 25.1%) clusters at 16-25% contribution; Haldex's brake-adjacent book ran 23-56% because every point of extra margin came from mechatronics and aftermarket, not from better drum pricing. The brake gap is a PRODUCT-CONTENT gap, not a cost gap.", size=11.5, color=GREY)
+
+# ---------- Pump segment: TBK vs Concentric ----------
+s = slide()
+header(s, "Pump segment: TBK vs Concentric — product-level contribution",
+       "TBK Japan H1 FY2025 + TBKK Thailand vs Concentric Dec-2021 YTD CB I. Haldex has no pumps — its hydraulics division IS Concentric (spun off 2011)")
+cd = CategoryChartData()
+cd.categories = ["Water pumps", "Oil pumps", "Semi-variable\nwater pump", "Electric\nwater pump", "Electric\noil pump", "Fuel / transm.\npumps"]
+cd.add_series("TBK (Japan)", (18.5, 26.0, None, None, None, None))
+cd.add_series("TBKK (Thailand)", (19.5, 22.6, None, None, None, None))
+cd.add_series("Concentric", (38.2, 42.9, 54.1, 54.8, 40.5, 55.6))
+gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(7.4), Inches(4.6), cd)
+ch = gf.chart
+ch.has_legend = True
+ch.legend.position = XL_LEGEND_POSITION.BOTTOM
+ch.legend.include_in_layout = False
+ch.legend.font.size = Pt(11)
+ch.has_title = True
+ch.chart_title.text_frame.text = "Contribution margin by pump product (%)"
+ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
+plot = ch.plots[0]
+plot.has_data_labels = True
+plot.data_labels.number_format = '0.0"%"'
+plot.data_labels.number_format_is_linked = False
+plot.data_labels.font.size = Pt(10)
+plot.series[0].format.fill.solid()
+plot.series[0].format.fill.fore_color.rgb = RED
+plot.series[1].format.fill.solid()
+plot.series[1].format.fill.fore_color.rgb = RGBColor(0xC0, 0x6C, 0x2C)
+plot.series[2].format.fill.solid()
+plot.series[2].format.fill.fore_color.rgb = GREEN
+ch.category_axis.tick_labels.font.size = Pt(9)
+panel(s, 8.2, 1.6, 4.65, 2.45, "The 2x gap on identical products",
+      "Same conventional water pump: TBK 18.5-19.5% vs Concentric 38.2% — DOUBLE\n"
+      "Same oil pump: 22.6-26.0% vs 42.9%\n"
+      "Consistent in two TBK countries → not a factory or FX artifact: it is price and customer mix (keiretsu price-downs vs Concentric's Cummins/CAT niche pricing)", body_size=11)
+panel(s, 8.2, 4.2, 4.65, 2.45, "The ladder TBK hasn't climbed",
+      "Concentric's evolved variants: semi-variable 54.1%, electric W/P 54.8%, fuel/transmission 55.6% — each rung ≈ +15pts on the same base product\n"
+      "TBK's first rung is bought but not yet scaled: ECWP at -245.7% contribution on ¥2.6M pre-scale volume (off-chart)\n"
+      "NB: Concentric = the former Haldex hydraulics division — proof the climb is doable from CV-supplier DNA", body_size=11, title_color=GREEN)
+txt(s, 0.5, 6.45, 12.3, 0.9, "Gross-profit read: if TBK's pump book (W/P + O/P = ¥4.9bn of H1 parent sales) earned Concentric's conventional-pump margins, contribution would rise ~¥0.9-1.0bn per HALF-YEAR on those two lines alone — before any ladder-climbing. The pump gap is a PRICING-POWER gap on identical hardware; the brake gap (previous page) is a content gap. Different cures: pricing/mix vs product development.", size=11.5, color=GREY)
+
 # ---------- OPEX comparison (USD) ----------
 s = slide()
 header(s, "Why TBK looks lean on OPEX: its factory costs hide in COGS",
