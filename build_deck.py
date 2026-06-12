@@ -268,20 +268,20 @@ ch.category_axis.tick_labels.font.size = Pt(10)
 ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 8.4, 1.6, 4.45, 4.4, "Absolute spend (≈USD)",
       "ZF €3.6bn (~$3.9bn)\nAisin ¥237bn (~$1.6bn)\nCummins $1.46bn\nMahle €607M (~$655M)\nKnorr-Bremse €544M (~$590M)\nHanon ~$360-440M\nBrembo ~$250M\nSAF-Holland €39M (~$42M)\nMikuni ¥5.5bn (~$37M)\nConcentric MSEK 95 (~$9M)*\nTBK ¥1.2bn (~$8M)", body_size=12)
-txt(s, 0.5, 6.25, 12.3, 1.1, "Brake systems players spend 6-9%; pump/thermal players 4-5.5%; Akebono 4.3% (EMB ramp); TBK 2.2%. *Concentric's 2.3% is NOT a counter-example: it is the lean steady state of a firm whose knowledge stock is already BUILT — decades of niche IP, IFRS-capitalized development, plus the $147M EMP acquisition (purchased R&D stock), with e-products already 20% of sales. TBK's 4.7% is transition spend to cross the disc/e-pump discontinuity Concentric crossed years ago. Different phases, not a contradiction. *Hanon mid-range of conflicting filings.", size=11.5, color=GREY)
+txt(s, 0.5, 6.25, 12.3, 1.1, "Brake systems players spend 6-9%; pump/thermal players 4-5.5%; Akebono 4.3% (EMB ramp); TBK 2.2%. *Concentric's 2.3% is NOT a counter-example: it is the lean steady state of a firm whose knowledge stock is already BUILT — decades of niche IP, IFRS-capitalized development, plus the $147M EMP acquisition (purchased R&D stock), with e-products already 20% of sales. TBK's 4.7% is transition spend to cross the discontinuity Concentric crossed years ago. The real variable is not the %, it is ROIIC: Concentric deploys into protected electrified niches at high incremental returns; TBK spreads 2.2% defending dying drum/mechanical platforms at NEGATIVE ROIIC — starving its future to defend a shrinking past. *Hanon mid-range of conflicting filings.", size=11.5, color=GREY)
 
 # ---------- 7 Capitalized R&D: the knowledge-capital stock ----------
 s = slide()
 header(s, "The stock, not the flow: competitors' capitalized R&D",
        "R&D Capital Base = cumulative R&D capitalized and amortized on a consistent basis (peer dataset, 2025, USD) — the knowledge asset each company has built")
 cd = CategoryChartData()
-cd.categories = ["TBK", "Akebono", "SAF-Holland", "Mikuni", "Knorr-Bremse", "Cummins"]
-cd.add_series("R&D Capital Base ($M)", (43, 123, 131, 194, 2569, 5594))
+cd.categories = ["TBK\n(12% of sales)", "Akebono\n(12%)", "SAF-Holland\n(7%)", "Mikuni\n(29%)"]
+cd.add_series("R&D Capital Base ($M)", (43, 123, 131, 194))
 gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(7.3), Inches(4.6), cd)
 ch = gf.chart
 ch.has_legend = False
 ch.has_title = True
-ch.chart_title.text_frame.text = "Capitalized R&D stock, US$M (2025)"
+ch.chart_title.text_frame.text = "Capitalized R&D stock, size-class peers only, US$M (2025)"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(14)
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.name = BODY_FONT
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.bold = True
@@ -295,8 +295,8 @@ plot.series[0].format.fill.solid()
 plot.series[0].format.fill.fore_color.rgb = DARK
 ch.category_axis.tick_labels.font.size = Pt(11)
 ch.category_axis.tick_labels.font.name = BODY_FONT
-panel(s, 8.1, 1.6, 4.75, 2.3, "The like-for-like signals",
-      "Same-size comparator: Mikuni $194M\n— 4.5x TBK at ~2x the revenue\nIntensity: TBK 12% of sales vs\nMikuni/Knorr 29%, Cummins 17%\nGiants ($2.6-5.6bn) shown for context\nonly — absolute stock scales with\ncompany size; ratios are the test", body_size=12)
+panel(s, 8.1, 1.6, 4.75, 2.3, "The damning comparison is the direct one",
+      "Mikuni — a domestic peer in similar\nadjacencies — holds $194M of knowledge\nstock: 4.5x TBK at only ~2x the revenue\nEven distressed Akebono holds 3x TBK\nThe deficit is real against SIMILARLY\nSCALED competitors, not just giants\n(Knorr $2.6bn / Cummins $5.6bn = context)", body_size=11.5)
 panel(s, 8.1, 4.05, 4.75, 2.3, "Knowledge intensity (RDCB / sales)",
       "Knorr-Bremse 29% | Mikuni 29%\nCummins 17%\nTBK 12% | Akebono 12%\nSAF-Holland 7%\nThe systems winners run structurally\nknowledge-intensive business models", body_size=12.5, title_color=GREEN)
 txt(s, 0.5, 6.45, 12.3, 0.85, "Why it matters: the R&D gap is cumulative, not annual — and it holds on the size-adjusted measures (intensity, same-size peers), not just the headline billions. A decade of under-spending leaves TBK rebuilding a depleted asset while competitors amortize accumulated know-how into every bid (brake control software, ADB iterations, e-pump motor/inverter design). This is why the catch-up phase must run YEARS at elevated spend — one good budget year cannot rebuild a stock — and why partnering (Brakes India) to borrow an existing knowledge base is rational.", size=10.5, color=GREY)
@@ -400,7 +400,7 @@ ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 7.6, 1.6, 5.25, 2.0, "The annual prize",
       "+$21.6M/yr at peer AVERAGE margins\n+$24.4M/yr at peer MEDIAN margins\n≈ +50% on today's $45.5M gross profit\nSplit roughly half brakes, half pumps (~$11-14M each)", body_size=13)
 panel(s, 7.6, 3.75, 5.25, 2.6, "What it funds — sequencing, not circularity",
-      "The margin levers need NO new products: reprice the EXISTING book (non-keiretsu buyers already pay ~2x for identical parts), prune, fix the footprint, shift mix\n→ those fund the ~$27M/yr R&D program, which closes the CONTENT gap later\nFY3/2026 already delivered the first ~$7M/yr (10.6% → 12.5%) before any new product", body_size=13, title_color=GREEN)
+      "The IMMEDIATE funding lever is the asset base, not theoretical pricing: >¥2.2bn of impairments/restructuring in 2 yrs, a loss-making China segment, PP&E at 39% of sales — footprint consolidation and utilization free cash NOW\nRepricing the existing book (non-keiretsu already pay ~2x) adds the second leg — still no new products needed\n→ together they fund the ~$27M/yr R&D, which closes the CONTENT gap later. FY3/26 proved it: +~$7M/yr before any new product", body_size=13, title_color=GREEN)
 txt(s, 0.5, 6.45, 12.3, 0.85, "Method: brakes ~$127M sales x peer avg 21.0% / median 23.4%; pumps & engine components ~$238M x 17.0% / 16.9%; vs actual blended 12.5%. Margin levers per the benchmark: aftermarket/branded content, niche pricing power (Concentric/TPR model), price-down discipline, and mix shift to disc brakes and e-pumps.", size=10.5, color=GREY)
 
 # ---------- Product-level proof: TBKK vs Concentric ----------
@@ -827,6 +827,8 @@ panel(s, 0.5, 1.55, 3.0, 4.55, "Days 0-30: mandate & truth",
       "Quote freeze below 20% CM floor\n"
       "Keiretsu contract map + SAW evidence pack (performance + 30% gap)\n"
       "Stop-loss list drafted (~¥2bn sales: GKN, Suzuki, O/brake, B/housing...)\n"
+      "Compel internal quality evidence: OEM scorecards, warranty rates, PPM data from Isuzu/Fuso/Hino\n"
+      "Pipeline audit: e-pumps in A/B sample testing; ADB homologation timeline\n"
       "R&D program leads named; Brakes India roadmap workshop", body_size=10)
 panel(s, 3.62, 1.55, 3.0, 4.55, "Days 31-60: decisions",
       "Exit / >=15% reprice notices for the stop-loss list\n"
@@ -891,7 +893,7 @@ panel(s, 6.8, 1.55, 6.05, 2.5, "Documented product firsts",
 panel(s, 0.5, 4.2, 12.35, 1.9, "The pattern — and TBK's fix",
       "Innovation output tracks the moat and margin rankings almost perfectly: the companies with validated quality (Knorr, Cummins) also hold the patent fortresses and the product firsts; the distressed (Akebono) still out-publish TBK; even the similarly-sized peer (Mikuni) protects its e-pump work with patents.\n"
       "TBK's innovation is DOCUMENTED BUT EXTERNALLY UNVALIDATED: the product facts are verifiable (retarders since the 1960s, e-pumps and a TCU in development, an ADB prototype) — their competitiveness is not externally evidenced, and 'no recalls in 75 years' is absence-of-negatives, not proof of excellence. Either way the commercial conclusion holds: unvalidated innovation cannot win sockets outside the keiretsu.\n"
-      "Fix costs little: patent the e-pump/TCU and ADB work (Mikuni shows the value), publish, pursue external validation — a required complement to the R&D spend itself.", body_size=11.5)
+      "Fix costs little — and ownership can compel the evidence: demand the OEM supplier scorecards, warranty-claim rates and PPM defect data from Isuzu/Fuso/Hino (they exist internally); audit the pipeline — how many e-pumps are in A/B samples with OEMs, what is the ADB homologation timeline. Then patent, publish, validate externally.", body_size=11.5)
 
 # ---------- 16 Moat ranking overview ----------
 s = slide()

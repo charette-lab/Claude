@@ -118,6 +118,7 @@ phased pro-forma scales almost linearly with S3 and S4.
 | A4 (restructuring) | Voluntary-program take-up rate by day 180 |
 | A6 (management) | Whether the quote freeze and stop-loss exits actually execute by day 90 |
 | A7 (sockets) | Conversion of the two e-pump development sockets to committed programs by day 90 |
+| S5/quality ("probably fine") | Day-0–30: compel OEM supplier scorecards, warranty rates, PPM data from Isuzu/Fuso/Hino — converts an assumption into internal evidence |
 | A5/A8 (environment) | Monitored, not testable — sizing buffers carry them |
 
 **Bottom line (updated):** the descriptive conclusion (C1) holds on verified evidence alone.

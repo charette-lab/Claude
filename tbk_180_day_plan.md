@@ -29,6 +29,11 @@ and proving the run-rate bridge is real.
   gap quantification) — the negotiation ammunition.
 - **Stop-loss list drafted**: GKN case-set (−30.2%), Suzuki (−1.2%), Ebara (−0.5%), MMTH brake
   parts, O/brake (−4.9%), B/housing (−8.7%), W/P ES (1.7%) — ~¥2bn of sales to exit or reprice.
+- **Compel the internal quality evidence** (ownership prerogative): OEM supplier scorecards,
+  warranty-claim rates, and PPM defect data from Isuzu, Fuso, and Hino — replacing "probably
+  fine, unproven" with hard numbers inside 30 days.
+- **Engineering pipeline audit**: how many electric coolant/oil pumps are in A/B sample testing
+  with OEMs today; what is the hard homologation timeline for the 19.5" ADB prototype.
 - **R&D program leads appointed** for the two gated programs; joint roadmap workshop with
   Brakes India scheduled inside the first 30 days.
 
@@ -83,10 +88,14 @@ and proving the run-rate bridge is real.
 | Month 12 | ~¥5bn | ~8% | Heads tranche complete, China resolved, first keiretsu renewals |
 | Month 18 | **¥6.3bn** | **10.6%** | Second renewal wave, consolidation savings, R&D at full cost absorbed |
 
-Funding: self-funding plus bridge — the early wins (aftermarket pricing, stopped bleeders)
-cover the R&D ramp from roughly month 6; restructuring cash (¥2–3bn) and ADB capex bridge via
-the Brakes India proceeds (¥1.1bn already raised), the net-cash balance sheet (0.45x EBITA),
-and disposals from pruned lines.
+Funding — the asset base first, pricing second: the immediate cash lever is the underutilized
+footprint (>¥2.2bn of impairments/restructuring already absorbed, China losses ending, dormant
+PP&E at 39% of sales monetized via consolidation and disposals), reinforced by the early pricing
+wins (aftermarket +10%, stopped bleeders). Together they cover the R&D ramp from roughly month
+6; restructuring cash (¥2–3bn) and ADB capex bridge via the Brakes India proceeds (¥1.1bn
+already raised), the net-cash balance sheet (0.45x EBITA), and pruned-asset disposals. This
+sequencing breaks the funding circularity: no step depends on margins that only future products
+can earn.
 
 ## Risks and the honest counters
 
