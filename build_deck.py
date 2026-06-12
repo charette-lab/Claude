@@ -504,36 +504,39 @@ s = slide()
 header(s, "The normalized TBK: right prices, right factories, real R&D",
        "Pro-forma on audited FY3/2026 — pricing corrected (SAW only), factory structure fixed, competitive R&D loaded. Deficit repayment kept separate, per scope")
 cd = CategoryChartData()
-cd.categories = ["Actual\nFY3/26", "FLOOR\nSAW-only reprice", "BASE\n+15% all, 500 heads", "FULL premises\n+30% all, 1,000 heads"]
-cd.add_series("Operating profit ¥bn", (1.5, 4.1, 9.4, 18.7))
+cd.categories = ["Actual\nFY3/26", "PHASE 1 (realistic)\n+9% reprice, ~450 heads", "PHASE 2 (full realization)\n+15%, 500 heads", "FULL premises\n(leakage meter)", "Refs: Concentric peak 22%\nHaldex US-only ~30%"]
+cd.add_series("Operating margin %", (2.7, 10.6, 15.0, 26.6, None))
 gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.6), Inches(6.9), Inches(4.6), cd)
 ch = gf.chart
 ch.has_legend = False
 ch.has_title = True
-ch.chart_title.text_frame.text = "Operating profit: 2.7% -> 7.1% -> 15.0% -> 26.6% margin"
+ch.chart_title.text_frame.text = "Operating margin by phase: 2.7% -> ~10% (phase 1) -> 15% -> 26.6% ceiling"
 ch.chart_title.text_frame.paragraphs[0].runs[0].font.size = Pt(13)
 plot = ch.plots[0]
 plot.has_data_labels = True
-plot.data_labels.number_format = '0.0"bn"'
+plot.data_labels.number_format = '0.0"%"'
 plot.data_labels.number_format_is_linked = False
 plot.data_labels.font.size = Pt(11)
 ser = plot.series[0]
 ser.format.fill.solid()
 ser.format.fill.fore_color.rgb = DARK
 try:
-    pts = [(0, RED), (1, GREY), (2, GREEN), (3, RGBColor(0x2E, 0x59, 0x2E))]
-    for i, col in pts:
+    for i, col in ((0, RED), (1, GREEN), (2, RGBColor(0x2E, 0x59, 0x2E)), (3, GREY)):
         pt = ser.points[i]
         pt.format.fill.solid()
         pt.format.fill.fore_color.rgb = col
 except Exception:
     pass
-ch.category_axis.tick_labels.font.size = Pt(9)
-panel(s, 7.7, 1.6, 5.15, 2.45, "BASE case (the investable one): ¥M",
-      "Sales 62,399 (+15% avg reprice on ¥51bn OEM book)\nGross profit 16,468 = 26.4% (peer top quartile)\nR&D 2,933 = 4.7% of sales — peer level, fully absorbed\nOperating profit 9,377 = 15.0% — Knorr-Bremse-class\nNet ~6,577 = ¥207 EPS -> ~1.5x current market cap\nAssumes OEM resistance/competition erodes HALF the stated gap", body_size=11)
-panel(s, 7.7, 4.2, 5.15, 2.45, "FULL premises = the leakage meter",
-      "All products +30% (management: Japanese customers pay ~30% below market) + 1,000 excess heads (company's own claim) @ ¥4M/head blended\nOP 18,661 = 26.6% — ABOVE every Western peer: read as the ANNUAL VALUE LEAKAGE (~¥17bn to customers + idle capacity), not a forecast\nMEMO (separate financing): R&D deficit ~¥1.5bn/yr x5; ADB capex ¥4.5-7.5bn; restructuring cash ~¥4-6bn one-off", body_size=11, title_color=GREEN)
-txt(s, 0.5, 6.45, 12.3, 0.9, "Nothing here requires new products or customers — existing book, honest prices, loaded factories, peer-level R&D. Even the BASE case self-funds the entire R&D catch-up within ~18 months. Premises (30% discount, 1,000 heads) are management/first-hand information; the tiering makes the statement robust to how much of each is captured.", size=11.5, bold=True, color=DARK)
+ch.category_axis.tick_labels.font.size = Pt(8)
+panel(s, 7.7, 1.6, 5.15, 2.45, "PHASE 1 — the realistic target: ~10% OPM",
+      "Sales 59,342 | GP 13,211 (22.3%) | R&D 2,789 at 4.7% | OP 6,263 (10.6%) | Net 4,398 = ¥138 EPS (~2.2x mkt cap)\n"
+      "Captures only ~1/3 of the stated pricing gap + ~45% of excess heads — via pruning, renewal-cycle repricing, aftermarket/non-keiretsu mix, first consolidations\n"
+      "Funds the entire R&D program (incl. deficit memo) in ~18-24 months", body_size=11)
+panel(s, 7.7, 4.2, 5.15, 2.45, "Why not more, at first — operator calibration",
+      "Concentric peaked at ~22% OPM — on best-in-class FULL price realization, a discipline built over years\n"
+      "Haldex could have reached ~30% by shedding Europe for the US — portfolio focus is the second lever\n"
+      "Above ~10% in phase 1 is difficult: keiretsu contracts reprice at renewal, factories close on multi-year clocks. Phase 2 (15%) = Concentric-grade realization + grown aftermarket. FULL premises (26.6%) = leakage meter, not a plan", body_size=11, title_color=GREEN)
+txt(s, 0.5, 6.45, 12.3, 0.9, "Nothing here requires new products or customers — existing book, honest prices, loaded factories, peer-level R&D (4.7%) absorbed in every phase. MEMO (separate financing): R&D deficit ~¥1.5bn/yr x5, ADB capex ¥4.5-7.5bn, restructuring cash ~¥2-3bn. Premises are management/first-hand information; phasing reflects operator experience at Concentric and Haldex.", size=11.5, bold=True, color=DARK)
 
 # ---------- Pump segment: TBK vs Concentric ----------
 s = slide()
