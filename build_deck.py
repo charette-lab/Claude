@@ -161,15 +161,16 @@ toc_col(7.0, [
     (19, "OPEX: factory costs hide in COGS", False),
     (20, "The accumulated R&D deficit (~$100M)", False),
     (21, "The reinvestment requirement: two phases", False),
+    (22, "The first 180 days", False),
     (0, "Product & moat evaluation", True),
-    (22, "Product evaluation I: quality & service", False),
-    (23, "Product evaluation II: innovation output", False),
-    (24, "Moat framework ranking", False),
-    (25, "TBK's moat profile: strengths & weaknesses", False),
-    (26, "Moat criteria: TBK vs competitors", False),
+    (23, "Product evaluation I: quality & service", False),
+    (24, "Product evaluation II: innovation output", False),
+    (25, "Moat framework ranking", False),
+    (26, "TBK's moat profile: strengths & weaknesses", False),
+    (27, "Moat criteria: TBK vs competitors", False),
     (0, "Method", True),
-    (27, "Research quality & methodology notes", False),
-    (28, "Sources", False),
+    (28, "Research quality & methodology notes", False),
+    (29, "Sources", False),
 ])
 
 # ---------- 2 Brakes market ----------
@@ -804,6 +805,37 @@ ch.category_axis.tick_labels.font.name = BODY_FONT
 panel(s, 8.4, 1.6, 4.45, 4.4, "The numbers",
       "PHASE 1 — Catch-up (5 yrs):\n~$27M/yr ≈ 7.5% of sales\n= parity run-rate ($16-18M)\n+ deficit repayment (~$10M/yr,\n~$50M split between ADB\nindustrialization and e-pump/TCU\nprograms)\nTotal: ~$135M over 5 years\n\nPHASE 2 — Steady state:\n$16-18M/yr ≈ 4.5-5% of sales\n= 2.2x today's spend, forever\n\nPlus one-off ADB line capex\n(~$30-50M, outside R&D line)", body_size=12, title_color=GREEN)
 txt(s, 0.5, 6.25, 12.3, 1.1, "Allocation discipline, per domain: (1) brakes — ADB industrialization for the Japanese disc flip, systems/ADAS access via Brakes India, timed to regulation and platform renewals; (2) pumps — e-pump/TCU sockets on Isuzu/Fuso/Hino electrified programs, timed to program kick-offs happening NOW. Funding: the phase-1 pro-forma uplift (+¥4.8bn / ~$32M operating profit vs actual) more than covers the ~$27M/yr program. The Concentric lesson: focused niche engineering at 2.3% intensity earns 25% gross margins — spend must buy sockets, not just scale.", size=11.5, color=GREY)
+
+# ---------- The first 180 days ----------
+s = slide()
+header(s, "The first 180 days: making the 10% path irreversible",
+       "Four workstreams, one owner each, weekly CEO steering — scoreboard is the OP run-rate bridge ¥1.5bn -> ¥6.3bn (10.6%) by month 18")
+panel(s, 0.5, 1.55, 3.0, 4.55, "Days 0-30: mandate & truth",
+      "Board locks 10% OPM @ month 18; 4 owners named\n"
+      "Product/customer P&L packs monthly, group-wide — single source of truth\n"
+      "Quote freeze below 20% CM floor\n"
+      "Keiretsu contract map + SAW evidence pack (performance + 30% gap)\n"
+      "Stop-loss list drafted (~¥2bn sales: GKN, Suzuki, O/brake, B/housing...)\n"
+      "R&D program leads named; Brakes India roadmap workshop", body_size=10)
+panel(s, 3.62, 1.55, 3.0, 4.55, "Days 31-60: decisions",
+      "Exit / >=15% reprice notices for the stop-loss list\n"
+      "Footprint blueprint: China fix-or-exit; Japan consolidation study; voluntary program designed (450 heads tranche 1, ¥2-3bn cash)\n"
+      "Aftermarket prices +10% NOW (~¥240M/yr; 30.2% CM proves headroom)\n"
+      "SAW renegotiation opened with Isuzu/Fuso — price paired with ADB/e-pump roadmap giveback\n"
+      "R&D rebased to ¥2.7-2.8bn gated; 30-40 engineers hiring plan", body_size=10)
+panel(s, 6.74, 1.55, 3.0, 4.55, "Days 61-90: execution",
+      "First reprice letters out; first exits done\n"
+      "Voluntary retirement launched; China decision announced\n"
+      "ADB pilot-line case to board (¥4.5-7.5bn phased, Brakes India co-invest)\n"
+      "E-pump: 2 development sockets converted to committed programs (ELF EV precharge; Denso AC ECWP)\n"
+      "KPI cockpit live: CM by product/customer, price capture, heads, OP bridge", body_size=10)
+panel(s, 9.86, 1.55, 2.97, 4.55, "Days 91-180: lock-in",
+      ">=2 of top-5 keiretsu contracts repriced (+6-9% realized); ONE demonstrated walk-away — the credibility event; sole-source cells first\n"
+      "200-250 heads out by day 180 (450 by month 12); first consolidation announced\n"
+      "R&D full run-rate; first e-pump/TCU + SAW patents filed; JSAE paper\n"
+      "India pilot: SAW-class drums at MARKET price via Brakes India\n"
+      "Day-180 gate: OP run-rate >= ¥3.5bn", body_size=10, title_color=GREEN)
+txt(s, 0.5, 6.3, 12.3, 1.0, "Trajectory: ¥1.5bn (day 0) -> >=¥3.5bn/~6% (day 180: aftermarket pricing, pruning, first heads) -> ~¥5bn/~8% (month 12: heads complete, China resolved, first renewals) -> ¥6.3bn/10.6% (month 18: second renewal wave + consolidation, full R&D absorbed). Self-funding from ~month 6; bridge via Brakes India proceeds, net-cash balance sheet, pruned-asset disposals. The discipline: four workstreams only — TBK's negative-ROIIC history shows the failure mode is spreading effort.", size=10.5, bold=True, color=DARK)
 
 # ---------- 14 Product evaluation I: quality & service ----------
 s = slide()
