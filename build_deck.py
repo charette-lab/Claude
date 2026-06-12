@@ -409,15 +409,16 @@ plot.series[0].format.fill.fore_color.rgb = DARK
 plot.series[1].format.fill.solid()
 plot.series[1].format.fill.fore_color.rgb = GREEN
 ch.category_axis.tick_labels.font.size = Pt(11)
-panel(s, 7.2, 1.6, 5.65, 2.45, "Lesson 1: TBK's ~20-23% OE contribution is the industry condition — aftermarket is the cure",
-      "Haldex OE truck/trailer: CII 22-32% every year 2009-19, EBIT NEGATIVE (-4 to -12%); Europe truck EBIT hit -32%\n"
-      "Aftermarket: CII 42-50% every year, EBIT +20-32% — it generated ALL of Haldex's profit\n"
-      "TBK's aftermarket (TBK Sales, 30.2% CM) is only ~10% of parent sales vs Haldex's 42% — the proven fastest route to group margin", body_size=11)
-panel(s, 7.2, 4.2, 5.65, 2.45, "Lesson 2: the subscale OE disc warning",
-      "Haldex disc brakes 2013-14: CII just 12.6% -> 15.3%, EBIT -10.4% -> -3.9% — the #3 player fighting Knorr/Meritor for OE disc sockets LOST MONEY on every unit\n"
-      "Caution: TBK's 68.7% D/BRAKE contribution is small-batch/replacement pricing, not series-OE economics\n"
-      "ADB strategy must be niche/aftermarket-priced and partnered (Brakes India) — Haldex's P&L is what a frontal OE assault looks like", body_size=11, title_color=RED)
-txt(s, 0.5, 6.45, 12.3, 0.9, "Haldex product detail confirms the pattern: niche-dominant and electronics-adjacent products priced well (air treatment 53.5%, suspension 46.0%, ABS 42.7%, brake adjusters 41.2% CII) while contested systems (EBS 31.7%, EBIT +1.6%) and commodity friction (22.8%) did not. Haldex's 25.5-28.5% gross margin = ~22-30% OE + aftermarket overlay — the same arithmetic TBK needs.", size=11.5, color=GREY)
+panel(s, 7.2, 1.55, 5.65, 1.62, "1. Aftermarket is the profit pool",
+      "OE truck/trailer: CII 22-32% every year 2009-19, EBIT NEGATIVE (Europe truck -27%); aftermarket CII 42-50%, EBIT +27-37% — ALL of Haldex's profit\n"
+      "TBK's aftermarket (30.2% CM) is ~10% of parent sales vs Haldex's 42% — the proven fastest route to group margin", body_size=10.5)
+panel(s, 7.2, 3.27, 5.65, 1.62, "2. The pruning playbook (executed at Haldex)",
+      "Core products earned 40-56% CII / 15-32% EBIT (air treatment 55.8%/31.6%, suspension 47.1%/20.9%, ABA 41.4%/19.7%) while two bleeders dragged: ModulAir -70.4% EBIT, disc brake -6.3%\n"
+      "Verified: excluding the two bleeders, May-2014 EBIT margin = 11.2% vs 8.8% reported — pruning took Haldex over 10%", body_size=10.5, title_color=GREEN)
+panel(s, 7.2, 4.99, 5.65, 1.62, "3. The subscale OE disc warning",
+      "Haldex disc brakes: CII 12-15%, EBIT -13.6% -> -6.3% — the #3 player fighting Knorr/Meritor LOST money per unit (supplier price rises, stalled plant transfer)\n"
+      "TBK's 68.7% D/BRAKE is small-batch pricing, not series-OE economics — go niche/aftermarket/partnered (Brakes India), never frontal", body_size=10.5, title_color=RED)
+txt(s, 0.5, 6.45, 12.3, 0.95, "Applied to TBK (Japan H1 FY2025 data): pruning the sub-10% non-strategic lines (O/brake, A/brake, B/housing, G/case, gear & processed components = 6.5% of sales) lifts series contribution 19.6% -> 20.9% immediately — and the EBIT gain is larger once attached capacity costs go. TBK's high-margin cohort (¥3.0bn of lines at >=20% CM) already runs at 27.3%: a portfolio focused at the level of its better products + a grown aftermarket is the Haldex >10% playbook, re-run.", size=11.5, bold=True, color=DARK)
 
 # ---------- OPEX comparison (USD) ----------
 s = slide()

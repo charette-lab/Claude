@@ -153,6 +153,29 @@ valves 42.4%, automatic brake adjusters 41.2% (EBIT +19.7% — the niche-monopol
 reman 35.3% vs EBS 31.7% (EBIT +1.6%) and friction 22.8% — electronics-adjacent and
 niche-dominant products price well; contested systems and commodity friction do not.
 
+**Lesson 3 — the pruning playbook (May 2014 product-line EBIT, first-hand account).** The
+May-2014 internal pack shows the full product EBIT curve: core products at 40-56% CII and
+15-32% EBIT (air treatment 55.8% CII / 31.6% EBIT; suspension 47.1%/20.9%; reman 34.9%/22.9%;
+ABA 41.4%/19.7%; valves 42.1%/17.5%) against two bleeders: ModulAir (−10.9% CII, **−70.4%
+EBIT**) and disc brake (14.0% CII, −6.3% EBIT, hurt by supplier price increases and a stalled
+plant transfer). Per the account of the team involved, eliminating the unprofitable lines took
+Haldex's operating margin above 10% — and the arithmetic verifies it: excluding just those two
+products, May-2014 YTD EBIT margin is **11.2% vs the 8.8% reported**.
+
+**Applied to TBK (Japan H1 FY2025):**
+- Pruning the sub-10%-CM non-strategic lines (O/brake −4.9%, A/brake 7.6%, B/housing −8.7%,
+  G/case 4.5%, gear components 8.5%, processed components 9.3% — together 6.5% of sales) lifts
+  series contribution **19.6% → 20.9%** immediately; the EBIT-level gain is larger once the
+  capacity costs attached to those lines are removed (the Haldex effect).
+- TBK's high-margin cohort — ¥3.0bn of product lines at ≥20% CM (O/pump 26.0%, lining 25.1%,
+  brake drum 22.9%, camshafts 28-53%, kits 55.5%, D/brake 68.7%, others 35.1%) — already runs
+  at **27.3% blended**. A portfolio focused "at the level of the higher-margin products," plus
+  a grown aftermarket, is the Haldex >10% playbook re-run — and squares with the 15-22%
+  gross-margin repair band from the peer benchmark.
+- Strategic exceptions to pruning: retarder (10.4%) and the electric pumps (ECWP −245.7%,
+  ECFP 7.3%) are pre-scale future products, not legacy — they are what the investment program
+  is for. The legacy laggards are not.
+
 ## Caveats
 
 - TBKK is TBK's Thai subsidiary only (~¥14.3bn of ¥54.8bn group sales) — Japan parent economics
