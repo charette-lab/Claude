@@ -50,12 +50,13 @@ phased pro-forma scales almost linearly with S3 and S4.
 
 ### On the product and its ownership
 
-- **A9 — TBK owns what it would reprice and export.** *The least examined premise in the deck.*
-  In keiretsu practice, parts are made either to supplier-owned approved drawings (承認図) or
-  OEM-owned lent drawings (貸与図). If SAW and the pump designs are built to OEM-owned drawings,
-  then (a) the "class-leading product" is legally the customer's design, (b) repricing leverage
-  shrinks, and (c) the India/export arbitrage may be contractually blocked. **Single highest-value
-  diligence item: confirm drawing/IP ownership per product line.**
+- **A9 — TBK owns what it would reprice and export.** **RESOLVED — CONFIRMED TRUE**
+  (owner statement, 2026-06-12): TBK owns its products/designs (承認図 supplier-owned-drawing
+  position). Consequences: the repricing leverage is TBK's own, the SAW performance claim
+  attaches to TBK's IP, and the India/export arbitrage is not contractually blocked by drawing
+  ownership. Residual diligence is light: document the ownership per product line in the
+  day-0-30 contract map (export-license or supply-agreement clauses could still constrain
+  specific programs).
 - **A7 — R&D converts to sockets.** Spending 4.7% of sales wins ADB and e-pump positions despite
   the 60–130x knowledge-stock gap — i.e., the Brakes India alliance effectively substitutes for
   the missing stock, and Japanese OEMs will qualify TBK's ADB rather than defaulting to Knorr.
@@ -113,14 +114,15 @@ phased pro-forma scales almost linearly with S3 and S4.
 | Premise at risk | Day-X test |
 |---|---|
 | A1/A2/A3 (pricing reality) | The first two keiretsu renegotiations + the aftermarket +10% move — real price-capture data by day ~120 |
-| A9 (drawing/IP ownership) | Contract/drawing audit in the day-0–30 contract map — **add explicitly** |
+| A9 (drawing/IP ownership) | **RESOLVED — confirmed: TBK owns its products.** Day-0–30 task downgraded to documentation |
 | A4 (restructuring) | Voluntary-program take-up rate by day 180 |
 | A6 (management) | Whether the quote freeze and stop-loss exits actually execute by day 90 |
 | A7 (sockets) | Conversion of the two e-pump development sockets to committed programs by day 90 |
 | A5/A8 (environment) | Monitored, not testable — sizing buffers carry them |
 
-**Bottom line:** the descriptive conclusion (C1 — the margins are abnormally low and the value
-leakage is real) holds on verified evidence alone. The prescriptive conclusion (C2–C4) leans on
-three management statements and five assumed premises, of which **A9 (who owns the drawings)
-and A1 (volume retention) are the two that can kill the thesis and are not yet evidenced** —
-both are testable cheaply and early, and A9 should be added to the day-0–30 checklist.
+**Bottom line (updated):** the descriptive conclusion (C1) holds on verified evidence alone.
+With **A9 now confirmed (TBK owns its products)**, the single remaining premise that can kill
+the prescriptive thesis is **A1 — volume retention under repricing** — testable by the first
+two keiretsu renegotiations (~day 120 of the plan). A9's confirmation also strengthens three
+levers directly: SAW repricing (it is TBK's design being underpriced), the India/export
+arbitrage (no drawing-ownership block), and the aftermarket expansion.
