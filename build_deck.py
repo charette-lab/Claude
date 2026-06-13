@@ -1,6 +1,6 @@
-"""Builds TBK_rd_gap_slides.pptx (27 slides, 16:9)."""
+"""Builds TBK_rd_gap_slides.pptx (32 slides, 16:9)."""
 from pptx import Presentation
-from pptx.util import Inches, Pt
+from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from pptx.chart.data import CategoryChartData
@@ -173,6 +173,8 @@ toc_col(7.0, [
     (0, "Method", True),
     (30, "Research quality & methodology notes", False),
     (31, "Sources", False),
+    (0, "Appendix", True),
+    (32, "TBK 10-year income statement", False),
 ])
 
 # ---------- 2 Brakes market ----------
@@ -1151,6 +1153,55 @@ panel(s, 6.8, 4.35, 6.05, 2.85, "Industry & financial data (verified, labeled wh
       "Deal records: Knorr-Bremse-Bendix (2002); ZF-Wabco $7bn (2020); Cummins-Meritor $3.7bn (2022); SAF-Holland-Haldex (2022); Concentric take-private SEK 230 (2024); Pierburg-AEQUITA €350M (2026)\n"
       "Japanese filings via irbank, kitaishihon, buffett-code, kabutan, MarkLines (incl. TBK JSAE 2022 exhibit; Mikuni 2022 BEV-truck e-oil pump disclosure; Yamada e-water pump adoptions)\n"
       "Aggregators for computed ratios: macrotrends, stockanalysis, Simply Wall St — cross-checked against filings; market research (MarketsandMarkets, GVR, IDTechEx) used directionally only", body_size=10)
+
+# ---------- Appendix: TBK 10-year income statement ----------
+s = slide()
+header(s, "Appendix — TBK 10-year income statement",
+       "Fiscal years ending 31 March. Figures in millions (source currency, USD-converted dataset). Margins and EV multiples derived")
+_matrix = [['Sales', '392.5', '431.5', '463.7', '483.9', '472.3', '414.7', '456.1', '396.1', '392.5', '357.3'], ['Gross profit', '44.7', '55.4', '54.7', '57.3', '54.5', '47.2', '47.9', '32.4', '41.4', '38.0'], ['Gross margin %', '11.4%', '12.8%', '11.8%', '11.8%', '11.5%', '11.4%', '10.5%', '8.2%', '10.6%', '10.6%'], ['Reported EBIT', '11.2', '16.8', '17.1', '13.6', '11.6', '6.1', '5.4', '-4.6', '6.3', '6.2'], ['EBIT margin %', '2.9%', '3.9%', '3.7%', '2.8%', '2.5%', '1.5%', '1.2%', '-1.2%', '1.6%', '1.7%'], ['EBITA', '8.1', '13.4', '27.4', '11.2', '41.6', '17.0', '2.0', '-8.1', '2.8', '10.9'], ['EBITA margin %', '2.1%', '3.1%', '5.9%', '2.3%', '8.8%', '4.1%', '0.4%', '-2.0%', '0.7%', '3.0%'], ['New Operating Income', '16.1', '25.6', '24.8', '21.7', '19.9', '15.4', '12.9', '5.8', '3.8', '2.3'], ['New Op. Income margin %', '4.1%', '5.9%', '5.3%', '4.5%', '4.2%', '3.7%', '2.8%', '1.5%', '1.0%', '0.6%'], ['Enterprise Value (EV)', '221.1', '206.6', '221.7', '172.4', '203.4', '167.5', '122.2', '105.2', '109.0', '87.2'], ['Market capitalisation', '104.8', '132.6', '140.9', '108.6', '127.8', '119.9', '90.0', '61.8', '73.3', '58.3'], ['EV / Sales', '0.56x', '0.48x', '0.48x', '0.36x', '0.43x', '0.40x', '0.27x', '0.27x', '0.28x', '0.24x'], ['EV / EBITA', '27.2x', '15.4x', '8.1x', '15.4x', '4.9x', '9.9x', '61.7x', 'n/m', '38.9x', '8.0x']]
+_bold = [True, False, False, True, False, True, False, True, False, True, True, False, False]
+_years = ['FY2016', 'FY2017', 'FY2018', 'FY2019', 'FY2020', 'FY2021', 'FY2022', 'FY2023', 'FY2024', 'FY2025']
+_nrows = len(_matrix) + 1
+_ncols = 11
+_gt = s.shapes.add_table(_nrows, _ncols, Inches(0.4), Inches(1.5), Inches(12.5), Inches(5.0)).table
+_gt.first_row = False
+_gt.horz_banding = False
+# column widths
+_gt.columns[0].width = Inches(2.6)
+for _c in range(1, 11):
+    _gt.columns[_c].width = Inches(int((12.5-2.6)/10*914400)//1) if False else Emu(int((12.5-2.6)/10*914400))
+# header row
+_hdr = ["Line item"] + _years
+for _c, _txt in enumerate(_hdr):
+    _cl = _gt.cell(0, _c)
+    _cl.fill.solid(); _cl.fill.fore_color.rgb = DARK
+    _tf = _cl.text_frame; _tf.word_wrap = False
+    _tf.margin_left = Emu(36000); _tf.margin_right = Emu(36000)
+    _tf.margin_top = Emu(18000); _tf.margin_bottom = Emu(18000)
+    _p = _tf.paragraphs[0]; _p.text = _txt
+    _p.alignment = PP_ALIGN.LEFT if _c == 0 else PP_ALIGN.RIGHT
+    for _r in _p.runs:
+        _r.font.size = Pt(9); _r.font.bold = True; _r.font.color.rgb = WHITE; _r.font.name = BODY_FONT
+# data rows
+for _ri, _row in enumerate(_matrix, start=1):
+    _isbold = _bold[_ri-1]
+    for _c, _txt in enumerate(_row):
+        _cl = _gt.cell(_ri, _c)
+        _cl.fill.solid()
+        _cl.fill.fore_color.rgb = LGREY if _ri % 2 == 0 else WHITE
+        _tf = _cl.text_frame; _tf.word_wrap = False
+        _tf.margin_left = Emu(36000); _tf.margin_right = Emu(36000)
+        _tf.margin_top = Emu(9000); _tf.margin_bottom = Emu(9000)
+        _p = _tf.paragraphs[0]; _p.text = _txt
+        _p.alignment = PP_ALIGN.LEFT if _c == 0 else PP_ALIGN.RIGHT
+        for _r in _p.runs:
+            _r.font.size = Pt(8.5)
+            _r.font.bold = _isbold
+            _r.font.color.rgb = DARK if (_c == 0 or _isbold) else GREY
+            _r.font.name = BODY_FONT
+for _ri in range(_nrows):
+    _gt.rows[_ri].height = Emu(int(0.34*914400))
+txt(s, 0.4, 6.62, 12.5, 0.7, "Source: TBK consolidated dataset (FY2016-FY2025). Sales declined ~9% over the decade; gross margin compressed from 12.8% peak (FY2017) to a 8.2% trough (FY2023), recovering to ~10.6%. EV de-rated from ~221 to ~87 and market cap roughly halved — the market pricing the value leakage as permanent. EV/EBITA shown n/m in FY2023 (negative EBITA).", size=9.5, color=GREY)
 
 # Page numbers (skip title slide)
 for _i, _s in enumerate(prs.slides, 1):
