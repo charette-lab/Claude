@@ -1,4 +1,4 @@
-"""Builds TBK_rd_gap_slides.pptx (32 slides, 16:9)."""
+"""Builds TBK_rd_gap_slides.pptx (33 slides, 16:9)."""
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
@@ -175,6 +175,7 @@ toc_col(7.0, [
     (31, "Sources", False),
     (0, "Appendix", True),
     (32, "TBK 10-year income statement", False),
+    (33, "Capital returns & value-creation rate", False),
 ])
 
 # ---------- 2 Brakes market ----------
@@ -1202,6 +1203,54 @@ for _ri, _row in enumerate(_matrix, start=1):
 for _ri in range(_nrows):
     _gt.rows[_ri].height = Emu(int(0.34*914400))
 txt(s, 0.4, 6.62, 12.5, 0.7, "Source: TBK consolidated dataset (FY2016-FY2025). Sales declined ~9% over the decade; gross margin compressed from 12.8% peak (FY2017) to a 8.2% trough (FY2023), recovering to ~10.6%. EV de-rated from ~221 to ~87 and market cap roughly halved — the market pricing the value leakage as permanent. EV/EBITA shown n/m in FY2023 (negative EBITA).", size=9.5, color=GREY)
+
+# ---------- Appendix: capital returns & value-creation rate ----------
+s = slide()
+header(s, "Appendix — capital returns and the value-creation rate",
+       "ROIIC (=ROICm) and RR from the consistent peer dataset, four horizons. Return = ROIIC x RR = the intrinsic-value compounding rate from reinvestment")
+_H = ['Company', 'ROIIC 3y', 'ROIIC 7y', 'ROIIC 14y', 'ROIIC 21y', 'ROIC 7y', 'RR 3y', 'RR 7y', 'RR 14y', 'RR 21y', 'Return 3y', 'Return 7y', 'Return 14y', 'Return 21y']
+_M = [['Knorr-Bremse', '5.5%', '0.3%', '13.2%', '0.0%', '15.9%', '0.54', '0.50', '0.39', '0.00', '2.9%', '0.2%', '5.2%', '0.0%'], ['Cummins', '9.1%', '16.1%', '10.8%', '15.8%', '12.8%', '0.62', '0.46', '0.50', '0.52', '5.6%', '7.5%', '5.5%', '8.2%'], ['Brembo', '-6.6%', '5.5%', '13.5%', '12.3%', '9.7%', '0.20', '0.54', '0.47', '0.52', '-1.3%', '3.0%', '6.4%', '6.4%'], ['SAF-Holland', '16.8%', '13.4%', '17.3%', '0.0%', '11.1%', '0.53', '0.39', '0.43', '0.00', '8.8%', '5.3%', '7.4%', '0.0%'], ['Akebono', '7.2%', '-2.9%', '-4.4%', '0.8%', '2.6%', '1.00', '1.00', '1.00', '1.00', '7.2%', '-2.9%', '-4.4%', '0.8%'], ['Mikuni', '-2.9%', '-5.8%', '-0.7%', '-0.2%', '3.8%', '1.00', '1.00', '1.00', '1.00', '-2.9%', '-5.8%', '-0.7%', '-0.2%'], ['TBK', '-26.2%', '-10.0%', '-4.3%', '-0.8%', '3.2%', '1.00', '1.00', '1.00', '1.00', '-26.2%', '-10.0%', '-4.3%', '-0.8%']]
+_S = [[None, 'pos', 'pos', 'pos', None, None, None, None, None, None, 'pos', 'pos', 'pos', None], [None, 'pos', 'pos', 'pos', 'pos', None, None, None, None, None, 'pos', 'pos', 'pos', 'pos'], [None, 'neg', 'pos', 'pos', 'pos', None, None, None, None, None, 'neg', 'pos', 'pos', 'pos'], [None, 'pos', 'pos', 'pos', None, None, None, None, None, None, 'pos', 'pos', 'pos', None], [None, 'pos', 'neg', 'neg', 'pos', None, None, None, None, None, 'pos', 'neg', 'neg', 'pos'], [None, 'neg', 'neg', 'neg', 'neg', None, None, None, None, None, 'neg', 'neg', 'neg', 'neg'], [None, 'neg', 'neg', 'neg', 'neg', None, None, None, None, None, 'neg', 'neg', 'neg', 'neg']]
+_POS = RGBColor(0x31, 0x43, 0x59)
+_NEG = RGBColor(0x83, 0x3C, 0x00)
+_TBKROW = 6
+_nr = len(_M) + 1
+_nc = len(_H)
+_t = s.shapes.add_table(_nr, _nc, Inches(0.3), Inches(1.55), Inches(12.73), Inches(3.7)).table
+_t.first_row = False
+_t.horz_banding = False
+_t.columns[0].width = Inches(1.55)
+for _c in range(1, _nc):
+    _t.columns[_c].width = Emu(int((12.73-1.55)/(_nc-1)*914400))
+for _c, _tx in enumerate(_H):
+    _cl = _t.cell(0, _c)
+    _cl.fill.solid(); _cl.fill.fore_color.rgb = DARK
+    _tf = _cl.text_frame; _tf.word_wrap = True
+    _tf.margin_left = Emu(18000); _tf.margin_right = Emu(18000); _tf.margin_top = Emu(12000); _tf.margin_bottom = Emu(12000)
+    _p = _tf.paragraphs[0]; _p.text = _tx
+    _p.alignment = PP_ALIGN.LEFT if _c == 0 else PP_ALIGN.RIGHT
+    for _r in _p.runs:
+        _r.font.size = Pt(7.5); _r.font.bold = True; _r.font.color.rgb = WHITE; _r.font.name = BODY_FONT
+for _ri, _row in enumerate(_M, start=1):
+    _istbk = (_ri-1 == _TBKROW)
+    for _c, _tx in enumerate(_row):
+        _cl = _t.cell(_ri, _c)
+        _cl.fill.solid()
+        if _istbk:
+            _cl.fill.fore_color.rgb = RGBColor(0xE7, 0xEB, 0xEC)
+        else:
+            _cl.fill.fore_color.rgb = LGREY if _ri % 2 == 0 else WHITE
+        _tf = _cl.text_frame; _tf.word_wrap = False
+        _tf.margin_left = Emu(18000); _tf.margin_right = Emu(18000); _tf.margin_top = Emu(9000); _tf.margin_bottom = Emu(9000)
+        _p = _tf.paragraphs[0]; _p.text = _tx
+        _p.alignment = PP_ALIGN.LEFT if _c == 0 else PP_ALIGN.RIGHT
+        _sgn = _S[_ri-1][_c]
+        _col = _POS if _sgn == 'pos' else (_NEG if _sgn == 'neg' else (DARK if (_c == 0 or _istbk) else GREY))
+        for _r in _p.runs:
+            _r.font.size = Pt(8); _r.font.bold = (_c == 0) or _istbk; _r.font.color.rgb = _col; _r.font.name = BODY_FONT
+for _ri in range(_nr):
+    _t.rows[_ri].height = Emu(int(0.40*914400))
+panel(s, 0.3, 5.5, 12.73, 1.55, "Reading the value-creation rate (Return = ROIIC x RR)", 'Return is what reinvestment does to intrinsic value: positive ROIIC x the share of profit reinvested = organic compounding; negative ROIIC means reinvestment SHRINKS value. The disciplined compounders (Cummins, SAF-Holland) earn +5 to +8% by reinvesting only ~40-55% of profit at POSITIVE incremental returns. TBK reinvests 100% (RR=1.00) at sharply NEGATIVE ROIIC — value destruction at every horizon, worst in the set short-term (-26% 3y, -10% 7y). The single clearest number behind the capital-allocation thesis: stop reinvesting at negative returns (prune, return cash, gate) and the destruction reverses before any operational gain.', body_size=10)
 
 # Page numbers (skip title slide)
 for _i, _s in enumerate(prs.slides, 1):
