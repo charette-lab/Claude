@@ -11,3 +11,7 @@ case_src/hi/
 case_src/*.pdf
 case_src/*.ppt
 case_src/*.pptx
+
+# scratch renders of uploaded source files
+pub_out/
+pub-*.png
