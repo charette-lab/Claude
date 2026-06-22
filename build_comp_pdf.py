@@ -76,10 +76,13 @@ story+=[Paragraph("2.2&nbsp; The investment team",SH),
  R("<b>Junior PM.</b> Supports and co-leads investments alongside a Portfolio Manager, taking ownership of defined "
    "workstreams within the engagement and value-creation agenda. The role bridges deep analytical work and full "
    "investment ownership, building the judgment and company-engagement experience needed to progress to PM."),
- R("<b>Senior Analyst (Head of Research).</b> Leads the firm's analytical effort and upholds the rigour and quality "
-   "of our due diligence across the portfolio. As Head of Research, partners with the CIO on portfolio construction "
-   "&mdash; helping shape conviction, sizing and risk assessment &mdash; and leads and develops the analyst team and "
-   "the research process, while carrying deep sector or thematic coverage as the firm's most senior analyst."),
+ R("<b>Head of Research.</b> A distinct senior role that leads the firm's research function and partners closely with "
+   "the CIO on portfolio construction &mdash; helping shape conviction, position sizing and risk assessment across "
+   "the portfolio &mdash; while overseeing the rigour and quality of our due diligence. This role is currently held "
+   "on a voluntary basis and does not participate in the performance pool."),
+ R("<b>Senior Analyst.</b> A lead analyst with deep sector or thematic coverage who generates original investment "
+   "ideas, leads the due-diligence effort on assigned investments and mentors junior analysts. The senior analyst is "
+   "the most experienced member of the research bench and a primary feeder to the Junior PM and PM roles."),
  R("<b>Analyst.</b> Responsible for the <b>confirmatory due diligence</b> that underpins each investment decision and "
    "for helping to <b>source new ideas</b>. Working within a deal team, the analyst builds the financial models, "
    "gathers and verifies evidence, tests the key premises of the thesis and monitors investments once owned. Strong "
@@ -135,7 +138,8 @@ rows=[
  ("Investment","Chief Investment Officer (CIO)","Selection, chairs investment meetings, owns portfolio construction.","16"),
  ("Investment","Portfolio Manager (PM)","Leads investments; drives value creation in portfolio companies.","8"),
  ("Investment","Junior PM","Co-leads investments; owns workstreams of the engagement agenda.","6"),
- ("Investment","Senior Analyst (Head of Research)","Leads research; partners with CIO on portfolio construction.","4"),
+ ("Investment","Head of Research","Leads research function; partners with CIO on portfolio construction.","—"),
+ ("Investment","Senior Analyst","Original idea generation, leads due diligence, mentors analysts.","4"),
  ("Investment","Analyst","Confirmatory due diligence and idea sourcing within deal teams.","2.5"),
  ("Leadership","Chief Executive Officer (CEO)","Firm leadership and overall business management.","8"),
  ("Leadership","Chief Financial Officer (CFO)","Finance, fund accounting and treasury.","3"),
@@ -157,7 +161,10 @@ tstyle=[("BACKGROUND",(0,0),(-1,0),NAVY),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
 for i,(tr,*_ ) in enumerate(rows,start=1):
     tstyle.append(("BACKGROUND",(0,i),(0,i),colors.HexColor(track_fill[tr])))
 tbl.setStyle(TableStyle(tstyle))
-story+=[tbl,Spacer(1,7)]
+story+=[tbl,Spacer(1,2),
+ Paragraph("&ldquo;&mdash;&rdquo;&nbsp; The Head of Research is currently held on a voluntary basis and does not "
+           "participate in the performance pool.",FOOT),
+ Spacer(1,6)]
 
 # 6. growth
 story+=[Paragraph("6.&nbsp; How awards behave as the firm grows",HD),

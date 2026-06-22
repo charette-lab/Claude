@@ -83,7 +83,8 @@ roles_long=[
 ("Chief Investment Officer (CIO). ","Holds ultimate responsibility for the firm's investment performance. The CIO chairs the investment meetings and makes the final decision on which investments enter and leave the portfolio. The CIO owns portfolio construction — determining position sizes and the pace of accumulation and divestment — in close collaboration with the responsible Portfolio Manager and the Head of Research. The CIO sets the investment strategy and safeguards the discipline and consistency of our process."),
 ("Portfolio Manager (PM). ","Leads assigned investments. Unlike a traditional hedge fund, a PM at Athanase is not allocated a discrete pool of capital to trade. As an engaged owner, the PM acts much like a private equity deal partner: they take ownership of each assigned investment and are responsible for driving the improvement of the underlying portfolio company. This includes building and maintaining the thesis and value-creation plan, engaging with the company's board and management, pursuing operational, strategic, capital-allocation and governance change, and representing the firm in its ownership role. The PM leads the deal team and presents and defends the thesis to the investment group."),
 ("Junior PM. ","Supports and co-leads investments alongside a Portfolio Manager, taking ownership of defined workstreams within the engagement and value-creation agenda. The role bridges deep analytical work and full investment ownership, building the judgment and company-engagement experience needed to progress to PM."),
-("Senior Analyst (Head of Research). ","Leads the firm's analytical effort and upholds the rigour and quality of our due diligence across the portfolio. As Head of Research, partners with the CIO on portfolio construction — helping shape conviction, sizing and risk assessment — and leads and develops the analyst team and the research process, while carrying deep sector or thematic coverage as the firm's most senior analyst."),
+("Head of Research. ","A distinct senior role that leads the firm's research function and partners closely with the CIO on portfolio construction — helping shape conviction, position sizing and risk assessment across the portfolio — while overseeing the rigour and quality of our due diligence. This role is currently held on a voluntary basis and does not participate in the performance pool."),
+("Senior Analyst. ","A lead analyst with deep sector or thematic coverage who generates original investment ideas, leads the due-diligence effort on assigned investments and mentors junior analysts. The senior analyst is the most experienced member of the research bench and a primary feeder to the Junior PM and PM roles."),
 ("Analyst. ","Responsible for the confirmatory due diligence that underpins each investment decision and for helping to source new ideas. Working within a deal team, the analyst builds the financial models, gathers and verifies evidence, tests the key premises of the thesis and monitors investments once owned. Strong analysts are active idea generators and form the bench from which Senior Analysts and PMs are developed."),
 ]
 for lead,rest in roles_long:
@@ -140,7 +141,8 @@ rows=[
  ("Investment","Chief Investment Officer (CIO)","Selection, chairs investment meetings, owns portfolio construction.","16"),
  ("Investment","Portfolio Manager (PM)","Leads investments; drives value creation in portfolio companies.","8"),
  ("Investment","Junior PM","Co-leads investments; owns workstreams of the engagement agenda.","6"),
- ("Investment","Senior Analyst (Head of Research)","Leads research; partners with CIO on portfolio construction.","4"),
+ ("Investment","Head of Research","Leads research function; partners with CIO on portfolio construction.","—"),
+ ("Investment","Senior Analyst","Original idea generation, leads due diligence, mentors analysts.","4"),
  ("Investment","Analyst","Confirmatory due diligence and idea sourcing within deal teams.","2.5"),
  ("Leadership","Chief Executive Officer (CEO)","Firm leadership and overall business management.","8"),
  ("Leadership","Chief Financial Officer (CFO)","Finance, fund accounting and treasury.","3"),
@@ -168,6 +170,9 @@ for tr,role,desc,wt in rows:
     setcellfont(c[3],size=10,bold=True,color=BLUE,align=WD_ALIGN_PARAGRAPH.CENTER)
 for row in tbl.rows:
     row.cells[0].width=Inches(1.1); row.cells[1].width=Inches(2.0); row.cells[2].width=Inches(2.9); row.cells[3].width=Inches(0.7)
+fn=doc.add_paragraph(); fn.paragraph_format.space_before=Pt(2)
+r=fn.add_run("“—”  The Head of Research is currently held on a voluntary basis and does not participate in the performance pool.")
+r.italic=True; r.font.size=Pt(8); r.font.color.rgb=GREY
 
 # ---------- 6. growth ----------
 heading("6.  How awards behave as the firm grows")
