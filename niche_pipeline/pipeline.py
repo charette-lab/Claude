@@ -74,8 +74,21 @@ def _present_tags(row, idx):
     return [1 if v >= 0.5 else 0 for v in vals]
 
 
-def process_row(row, idx, *, re, re2, do_research, country_base):
-    """Build one company's full record. Returns a dict or None to skip."""
+def _coerce_vec(v, n):
+    """Sanitize a researched score vector to exactly n ints, else None.
+    Guards against an analyst returning 9/11 chapters or non-numeric values —
+    a malformed vector is dropped (NEEDS_RESEARCH) rather than silently scored."""
+    if not isinstance(v, (list, tuple)):
+        return None
+    out = [_num(x) for x in v]
+    out = [x for x in out if x is not None]
+    if len(out) < n:
+        return None
+    return [int(round(x)) for x in out[:n]]
+
+
+def deterministic_part(row, idx, *, re, re2, country_base):
+    """Cheap, no-network: AIP valuation, implied moat, both gates. Always runs."""
     name = _get(row, idx, "Company Name")
     ticker = _get(row, idx, "Instrument")
     if not name:
@@ -84,12 +97,10 @@ def process_row(row, idx, *, re, re2, do_research, country_base):
            ("Company Name", "Instrument", "GICS Industry Group Name",
             "Country of Headquarters") else _get(row, idx, fld)
            for fld in aip.FIELDS.values()}
-
     rec = {"ticker": ticker, "company": name,
            "industry": _get(row, idx, "GICS Industry Group Name"),
-           "country": _get(row, idx, "Country of Headquarters")}
-
-    # ---- AIP valuation + implied moat (always deterministic) ----
+           "country": _get(row, idx, "Country of Headquarters"),
+           "_row": row}
     val = aip.value_and_return(fin, re=re, re2=re2, country_base=country_base)
     if val:
         rec.update({"wacc": val["wacc"], "aip_rating": val["rating"],
@@ -97,28 +108,34 @@ def process_row(row, idx, *, re, re2, do_research, country_base):
                     "er_lo": val.get("er1"), "er_hi": val.get("er2"),
                     "op_over_ev": (val["op_value"] / val["ev"]) if val.get("op_value") and val.get("ev") else None})
         rec["implied_moat"] = aip.implied_moat(fin, r=re2 or 0.12, country_base=country_base)
-    rec["irr12"] = rec.get("er_hi")     # ER at the 12% hurdle is the Gate-1 IRR
+    rec["irr12"] = rec.get("er_hi")           # ER at the 12% hurdle is the Gate-1 IRR
+    floor_ratio = _num(_get(row, idx, "Value per share without growth/share price"))
+    rec["gate1_irr12"] = F.gate1_pass(rec.get("irr12"))
+    rec["gate2_floor"] = floor_ratio
+    rec["gate2_pass"] = F.gate2_pass(floor_ratio)
+    rec["er_artifact"] = F.er_is_artifact(rec.get("irr12"))     # guardrail flag
+    rec["clears_gauntlet"] = bool(rec["gate1_irr12"] and rec["gate2_pass"]
+                                  and not rec["er_artifact"])
+    return rec
 
-    # ---- qualitative inputs: sheet first, research only if missing ----
+
+def attach_qualitative(rec, idx, research_rec):
+    """Add moat / core / ownership / risk to a deterministic record. Uses scores
+    already in the sheet when present; otherwise the (sanitized) research record."""
+    row = rec["_row"]
+    fin_net_debt = _num(_get(row, idx, "Net debt"))
     comp_ch = _present_scores(row, idx, NCC_COMPANY_COLS)
     core_ch = _present_scores(row, idx, NCC_CORE_COLS)
     tags = _present_tags(row, idx)
-    research_rec = None
-    need = (comp_ch is None) or (core_ch is None) or (tags is None) or True  # always want core id + owners
-    if need and do_research:
-        hint = _get(row, idx, "GICS Industry Group Name")
-        research_rec = analyst.research(ticker, name, hint=str(hint) if hint else None)
-
+    detach = {}
     if research_rec:
-        comp_ch = comp_ch or research_rec.get("chapters_company")
-        core_ch = core_ch or research_rec.get("chapters_core")
-        tags = tags or research_rec.get("risk_tags")
+        comp_ch = comp_ch or _coerce_vec(research_rec.get("chapters_company"), 10)
+        core_ch = core_ch or _coerce_vec(research_rec.get("chapters_core"), 10)
+        tags = tags or _coerce_vec(research_rec.get("risk_tags"), 11)
         rec["core_business"] = research_rec.get("core_business")
         rec["owner_bloc_pct"] = research_rec.get("largest_bloc_pct")
         rec["owner_notes"] = research_rec.get("ownership_notes")
         detach = research_rec.get("core_detach") or {}
-    else:
-        detach = {}
 
     # ---- Niche Compounder v3.2 ----
     if comp_ch and len(comp_ch) == 10:
@@ -139,7 +156,7 @@ def process_row(row, idx, *, re, re2, do_research, country_base):
 
     # ---- Risk tags (+ funding tag computable from financials) ----
     if tags and len(tags) == 11:
-        ft = F.funding_tag_from_financials(fin.get("Net debt"),
+        ft = F.funding_tag_from_financials(fin_net_debt,
                                            _num(_get(row, idx, "EBITA_Avg_Last_7yr")))
         if ft is not None:
             tags[5] = ft                         # override #6 with the hard number
@@ -148,13 +165,6 @@ def process_row(row, idx, *, re, re2, do_research, country_base):
 
     # ---- Ownership block verdict ----
     rec["owner_verdict"] = F.ownership_verdict(rec.get("owner_bloc_pct"), rec.get("country"))
-
-    # ---- Entry Gauntlet ----
-    floor_ratio = _num(_get(row, idx, "Value per share without growth/share price"))
-    rec["gate1_irr12"] = F.gate1_pass(rec.get("irr12"))
-    rec["gate2_floor"] = floor_ratio
-    rec["gate2_pass"] = F.gate2_pass(floor_ratio)
-    rec["clears_gauntlet"] = bool(rec["gate1_irr12"] and rec["gate2_pass"])
     return rec
 
 
@@ -204,7 +214,7 @@ def write_output(records, path, exclude_tags=()):
             "KeepScore", "Detachability", "EO_Action",
             "OwnerVerdict", "OwnerBloc%", "OwnerNotes",
             "AIP_WACC", "AIP_Rating", "OpValue", "OpVal/EV", "ER@7%", "ER@12%", "ImpliedMoat",
-            "Gate1(IRR>=12)", "Gate2(floor)", "Gate2pass", "ClearsGauntlet", "RiskTags"]
+            "Gate1(IRR>=12)", "Gate2(floor)", "Gate2pass", "ER_Artifact", "ClearsGauntlet", "RiskTags"]
     ws.append(cols)
     for r in sorted(records, key=lambda r: (r.get("irr12") is not None, r.get("irr12") or -9), reverse=True):
         ws.append([
@@ -217,16 +227,17 @@ def write_output(records, path, exclude_tags=()):
             r.get("er_lo"), r.get("er_hi"), r.get("implied_moat"),
             "PASS" if r.get("gate1_irr12") else "fail",
             r.get("gate2_floor"), "PASS" if r.get("gate2_pass") else "fail",
+            "ARTIFACT" if r.get("er_artifact") else "",
             "YES" if r.get("clears_gauntlet") else "no",
             ", ".join(r.get("risk_tag_names", [])),
         ])
     _style_header(ws)
     for row in ws.iter_rows(min_row=2):
-        for j in (16, 19, 20, 21):       # wacc, opval/ev, er, er
+        for j in (15, 18, 19, 20):       # wacc, opval/ev, er7, er12
             if row[j].value is not None:
                 row[j].number_format = "0.0%"
     widths = [9, 26, 24, 12, 14, 16, 30, 13, 14, 10, 12, 22, 13, 10, 40,
-              9, 9, 12, 9, 8, 8, 9, 13, 11, 10, 14, 40]
+              9, 9, 12, 9, 8, 8, 9, 13, 11, 10, 11, 14, 40]
     for i, w in enumerate(widths, 1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
 
@@ -259,26 +270,60 @@ def write_output(records, path, exclude_tags=()):
 
 # ---------------------------------------------------------------------------
 def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
-        research=True, limit=None, country_base=None, exclude_tags=()):
+        research=True, limit=None, country_base=None, exclude_tags=(),
+        workers=6, research_all=False):
+    """Two-pass, hands-off run.
+
+    Pass 1 (cheap, no network): value every company and apply the gates.
+    Pass 2 (the only paid step): research the moat/ownership/risk for the names
+    that survive Gate 1 (or all, with research_all) — concurrently, so a full
+    universe completes unattended. Researching only gate-survivors is itself a
+    guardrail: no spend on names that already fail the return hurdle.
+    """
     wb = openpyxl.load_workbook(input_path, data_only=True)
     ws = wb[sheet] if sheet else wb.worksheets[0]
     idx, _ = _index(ws)
+
+    # ---- Pass 1: deterministic ----
     records = []
-    n = 0
     for row in ws.iter_rows(min_row=2, values_only=True):
-        rec = process_row(row, idx, re=re, re2=re2, do_research=research,
-                          country_base=country_base)
+        rec = deterministic_part(row, idx, re=re, re2=re2, country_base=country_base)
         if rec:
             records.append(rec)
-            n += 1
-            print(f"  [{n}] {rec.get('ticker')} {rec.get('company')[:32]:<32} "
-                  f"moat={rec.get('company_moat')} core={rec.get('core_moat')} "
-                  f"ER12={_fmt(rec.get('irr12'))} {rec.get('owner_verdict')} "
-                  f"{'CLEARS' if rec.get('clears_gauntlet') else ''}")
-        if limit and n >= limit:
+        if limit and len(records) >= limit:
             break
+    survivors = [r for r in records if (research_all or r["gate1_irr12"])]
+    print(f"Pass 1: valued {len(records)} companies | {len(survivors)} cleared Gate 1 "
+          f"(researching {'all' if research_all else 'survivors only'})")
+
+    # ---- Pass 2: concurrent research (only when enabled) ----
+    fetched = {}
+    if research:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        def fetch(r):
+            return r["ticker"], analyst.research(r["ticker"], r["company"],
+                                                 hint=str(r.get("industry") or ""))
+        with ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
+            futs = [ex.submit(fetch, r) for r in survivors]
+            for i, fut in enumerate(as_completed(futs), 1):
+                try:
+                    t, rr = fut.result()
+                    fetched[t] = rr
+                except Exception as e:                      # one failure can't sink the run
+                    print(f"  research error: {e}")
+                if i % 10 == 0 or i == len(futs):
+                    print(f"  researched {i}/{len(futs)}")
+
+    # ---- Finalize qualitative scoring ----
+    for r in records:
+        attach_qualitative(r, idx, fetched.get(r["ticker"]))
+    for r in records:                                       # drop the row handle before writing
+        r.pop("_row", None)
+
     book, weights = write_output(records, output_path, exclude_tags)
     print(f"\nScored {len(records)} companies -> {output_path}")
+    art = sum(1 for r in records if r.get("er_artifact"))
+    print(f"Flagged {art} ER-artifact names (IRR > {F.MAX_PLAUSIBLE_IRR:.0%}, excluded from book)")
     print(f"Satellite book ({len(book)} names): " +
           ", ".join(f"{by}={weights[by]:.0%}" for by in sorted(book, key=lambda t: -weights[t])))
     return records
@@ -301,10 +346,14 @@ def main():
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--country-base", default=None, help='e.g. "JPY=0.0265,USD=0.041"')
     ap.add_argument("--exclude-tags", default="", help="comma short tags excluded from the 20%% rule, e.g. FX")
+    ap.add_argument("--workers", type=int, default=6, help="concurrent research calls")
+    ap.add_argument("--research-all", action="store_true",
+                    help="research every name, not just Gate-1 survivors (slower/costlier)")
     args = ap.parse_args()
     run(args.input, args.output, sheet=args.sheet, re=args.re, re2=args.re2,
         research=not args.no_research, limit=args.limit, country_base=args.country_base,
-        exclude_tags=tuple(t.strip() for t in args.exclude_tags.split(',') if t.strip()))
+        exclude_tags=tuple(t.strip() for t in args.exclude_tags.split(',') if t.strip()),
+        workers=args.workers, research_all=args.research_all)
 
 
 if __name__ == "__main__":

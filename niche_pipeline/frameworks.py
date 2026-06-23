@@ -178,6 +178,20 @@ def gate2_pass(no_growth_floor_over_price) -> bool:
     return f is not None and f >= GATE2_FLOOR_RATIO
 
 
+# ---- Guardrail: implausible-return / normalization-artifact screen -----------
+# The ROIIC DCF extrapolates "New Operating Income" forward. On cyclically
+# depressed, distressed or loss-normalising names that figure can be far above
+# the run-rate the price reflects, throwing off a triple-digit "expected return"
+# that is an artifact, not an opportunity (e.g. an AI-disrupted publisher at a
+# nominal 110% IRR). Any IRR above this ceiling is flagged and kept out of the
+# concentrated book — it would otherwise dominate the return-interpolation.
+MAX_PLAUSIBLE_IRR = 0.50
+
+
+def er_is_artifact(expected_irr) -> bool:
+    return expected_irr is not None and expected_irr > MAX_PLAUSIBLE_IRR
+
+
 # ---- TAM Exhaustion screen (Phase 1) --------------------------------------
 def tam_exhausted(payout_to_fcf=None, reinv_now=None, reinv_3y_avg=None,
                   rev_g_1y=None, rev_cagr_3y=None) -> bool:

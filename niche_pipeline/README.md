@@ -72,6 +72,27 @@ that is the "fill in the missing information" behaviour.
   sized by return interpolation (5–20%) with the 20% tag rule enforced by the
   Trim Protocol (a log of every liquidation is appended).
 
+## Guardrails (fully hands-off)
+A whole-universe run completes unattended:
+
+- **Two-pass execution.** Pass 1 values every company and applies the gates with
+  no network calls; Pass 2 (the only paid step) researches **only the Gate-1
+  survivors** — so you never spend tokens scoring moats for names that already
+  fail the 12% return hurdle. `--research-all` overrides this.
+- **Concurrent research** with `--workers N` (default 6); a single failed or
+  rate-limited call is logged and skipped, never sinking the run. `analyst.py`
+  retries with backoff and caches every success.
+- **ER-artifact screen.** The ROIIC DCF can print triple-digit "expected returns"
+  on cyclically depressed / distressed names (e.g. an AI-disrupted publisher at a
+  nominal 110% IRR). Any IRR above `MAX_PLAUSIBLE_IRR` (50%) is flagged
+  `ER_Artifact` and kept out of the concentrated book, where it would otherwise
+  dominate the return-interpolation.
+- **High-moat Phase-1 filter.** The Satellite only draws from names with a core
+  moat ≥ 6.5 (Watchlist+), capped at the doc's 8–12 by IRR before sizing.
+- **Output sanitization.** A researched score vector of the wrong length or with
+  non-numeric values is coerced (or dropped as NEEDS_RESEARCH) rather than
+  silently corrupting a moat score.
+
 ## Notes
 - **Gate 2 proxy.** The hard-valuation-floor downside test is approximated by
   the screener's no-growth value / price (≥0.70 ⇒ a 30% fall lands at/below the
