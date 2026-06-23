@@ -159,16 +159,25 @@ def process_row(row, idx, *, re, re2, do_research, country_base):
 
 
 # ---------------------------------------------------------------------------
-def build_satellite(records, exclude_tags=()):
+def build_satellite(records, exclude_tags=(), min_core_moat=6.5, max_names=12):
     """From the gauntlet survivors, build the concentrated book: return-sized,
     20%-tag-capped via the Trim Protocol. Drops HARD-BLOCK names (can't force change).
+
+    Phase 1 of the framework screens for HIGH-MOAT compounders, so eligibility also
+    requires a core moat at or above Watchlist (>=6.5) — without it the AIP DCF's
+    triple-digit "expected returns" on deep-cyclical/distressed names would dominate
+    the return-interpolation. The concentrated book is then capped at `max_names`
+    (the doc's 8-12) by IRR before sizing.
     `exclude_tags` (short names) are not counted toward the 20% rule — e.g. pass
     ("FX",) for an all-domestic book where FX is a shared, not idiosyncratic, factor."""
     elig = [r for r in records
             if r.get("clears_gauntlet") and r.get("irr12")
-            and r.get("risk_tags") and r.get("owner_verdict") != "HARD-BLOCK"]
+            and r.get("risk_tags") and r.get("owner_verdict") != "HARD-BLOCK"
+            and (r.get("core_moat") or 0) >= min_core_moat]
     if not elig:
         return [], {}, []
+    elig.sort(key=lambda r: -r["irr12"])
+    elig = elig[:max_names]
     ex = set(exclude_tags)
     irr = {r["ticker"]: r["irr12"] for r in elig}
     tags_by = {r["ticker"]: set(r["risk_tag_names"]) - ex for r in elig}
