@@ -45,16 +45,32 @@ set_text(P[17],
 # --- insert performance-units paragraph as a separate paragraph after the fixed fee ---
 units_text=(
  "Utöver den fasta ersättningen tilldelas Konsulten 8 prestationsenheter (performance units) i enlighet med "
- "Uppdragsgivarens vid var tid gällande ersättningssystem. Prestationsenheterna berättigar Konsulten till en andel "
- "av den prestationsbaserade ersättningspool som utgörs av 60 % av fondens resultatbaserade avgift (performance "
- "fee). Konsultens andel beräknas som antalet tilldelade prestationsenheter (8) multiplicerat med värdet av en "
- "prestationsenhet, där värdet av en prestationsenhet utgörs av ersättningspoolen delad med det totala antalet "
- "prestationsenheter i firman. Antalet prestationsenheter och systemets närmare utformning kan komma att justeras "
- "över tid i enlighet med ersättningssystemet.")
+ "Uppdragsgivarens vid var tid gällande ersättningssystem, ”Roles, Responsibilities & Performance Compensation "
+ "Framework”. Prestationsenheterna är giltiga endast så länge [Konsultens namn] personligen arbetar för och utför "
+ "tjänsterna åt Uppdragsgivaren. När [Konsultens namn] upphör att arbeta för Uppdragsgivaren upphör samtliga "
+ "prestationsenheter och därtill hörande rättigheter att gälla med omedelbar verkan, oavsett om [Konsultens namn] "
+ "anses vara en good leaver eller bad leaver. Prestationsenheterna kan inte överlåtas.")
 newp=P[18].insert_paragraph_before("")          # insert between 17 and the blank line at 18
 newp.style=P[17].style
 r=newp.add_run(units_text)
 if P[17].runs and P[17].runs[0].font.size is not None: r.font.size=P[17].runs[0].font.size
+
+# --- insert "Personligt åtagande" clause after Uppdraget (before Avtalstid at P[13]) ---
+SZ=P[12].runs[0].font.size if P[12].runs else None
+ph=P[13].insert_paragraph_before("")             # heading
+ph.style=P[16].style                             # match "Body Text 2" section heading
+hr=ph.add_run("Personligt åtagande"); hr.font.bold=True
+if SZ is not None: hr.font.size=SZ
+pb=P[13].insert_paragraph_before("")             # body (goes after heading, before Avtalstid)
+pb.style=P[14].style                             # "Body Text"
+br=pb.add_run(
+ "Tjänsterna är av personlig natur och ska utföras personligen av [Konsultens namn]. [Konsultens namn] gör genom "
+ "detta avtal ett personligt åtagande gentemot Uppdragsgivaren att utföra uppdraget och att iaktta de skyldigheter "
+ "som följer av avtalet, inklusive sekretess och de villkor som gäller för prestationsenheterna. Konsulten får inte "
+ "ersätta [Konsultens namn] med annan person eller överlåta utförandet av tjänsterna utan Uppdragsgivarens "
+ "skriftliga medgivande. [Konsultens namn] undertecknar detta avtal såväl för Konsultens räkning som personligen "
+ "för att bekräfta detta åtagande.")
+if SZ is not None: br.font.size=SZ
 
 # --- 19: invoicing (Konsulten; specify fixed fee) ---
 set_text(P[19],
@@ -109,10 +125,14 @@ set_text(P[37],
 # --- 44: place and date placeholder ---
 set_text(P[44],"[Ort] den [datum]")
 
-# --- 51: signature line (replace Mattias, keep tabs) ---
+# --- 51: signature line (replace Mattias, keep tabs) + capacity line ---
 for r in P[51].runs:
     if "Mattias Gustawsson" in r.text:
         r.text=r.text.replace("Mattias Gustawsson","[Konsultens namn]")
+cap=d.add_paragraph()                            # capacity labels under the names
+cap.style=P[51].style
+cr=cap.add_run("för Uppdragsgivaren\t\t\tför [Bolagsnamn] och personligen")
+if P[51].runs and P[51].runs[0].font.size is not None: cr.font.size=P[51].runs[0].font.size
 
 d.save(OUT)
 print("Saved",OUT)

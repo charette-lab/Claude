@@ -180,8 +180,15 @@ story+=[Paragraph("7.&nbsp; Career progression",HD),
    "<b>Analyst &rarr; Senior Analyst &rarr; Junior PM &rarr; Portfolio Manager &rarr; CIO</b> &mdash; with each step "
    "carrying a meaningfully higher weight. Progression is how your share of the pool grows alongside the firm.")]
 
-# 8. governance
-story+=[Paragraph("8.&nbsp; Governance",HD),
+# 8. units and leaving
+story+=[Paragraph("8.&nbsp; Performance units and leaving the firm",HD),
+ B("Performance units are not a vested or transferable entitlement. They are valid only for as long as you are "
+   "working at the firm. If you leave &mdash; for any reason, and regardless of whether you are treated as a "
+   "<b>good leaver or a bad leaver</b> &mdash; your performance units lapse with immediate effect and no further "
+   "award is payable in respect of them. Units cannot be transferred or assigned.")]
+
+# 9. governance
+story+=[Paragraph("9.&nbsp; Governance",HD),
  B("The framework, the list of roles and the weights are reviewed periodically by the firm's leadership. Awards are "
    "determined by this framework; the firm retains reasonable discretion in exceptional circumstances and in line "
    "with regulatory requirements. This document is provided for information and does not form part of any "

@@ -189,8 +189,16 @@ rich([("Weights increase with responsibility. The investment track in particular
       (" — with each step carrying a meaningfully higher weight. Progression is how your share of the pool grows "
        "alongside the firm.",False)])
 
-# ---------- 8. governance ----------
-heading("8.  Governance")
+# ---------- 8. units and leaving ----------
+heading("8.  Performance units and leaving the firm")
+rich([("Performance units are not a vested or transferable entitlement. They are valid only for as long as you are "
+       "working at the firm. If you leave — for any reason, and regardless of whether you are treated as a ",False),
+      ("good leaver or a bad leaver",True),
+      (" — your performance units lapse with immediate effect and no further award is payable in respect of them. "
+       "Units cannot be transferred or assigned.",False)])
+
+# ---------- 9. governance ----------
+heading("9.  Governance")
 body("The framework, the list of roles and the weights are reviewed periodically by the firm's leadership. Awards are "
      "determined by this framework; the firm retains reasonable discretion in exceptional circumstances and in line "
      "with regulatory requirements. This document is provided for information and does not form part of any "
