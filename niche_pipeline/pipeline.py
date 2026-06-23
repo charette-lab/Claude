@@ -101,6 +101,7 @@ def deterministic_part(row, idx, *, re, re2, country_base):
            "industry": _get(row, idx, "GICS Industry Group Name"),
            "country": _get(row, idx, "Country of Headquarters"),
            "_row": row}
+    rec["_fin"] = fin; rec["_re"] = re; rec["_re2"] = re2; rec["_cb"] = country_base
     val = aip.value_and_return(fin, re=re, re2=re2, country_base=country_base)
     if val:
         rec.update({"wacc": val["wacc"], "aip_rating": val["rating"],
@@ -108,15 +109,34 @@ def deterministic_part(row, idx, *, re, re2, country_base):
                     "er_lo": val.get("er1"), "er_hi": val.get("er2"),
                     "op_over_ev": (val["op_value"] / val["ev"]) if val.get("op_value") and val.get("ev") else None})
         rec["implied_moat"] = aip.implied_moat(fin, r=re2 or 0.12, country_base=country_base)
-    rec["irr12"] = rec.get("er_hi")           # ER at the 12% hurdle is the Gate-1 IRR
+    rec["irr12"] = rec.get("er_hi")           # whole-company ER at the 12% hurdle (as-is)
+    rec["er_effective"] = rec.get("irr12")    # may be raised to the separated return later
+    # Cheap pre-screen: would this clear the hurdle IF its core were a top compounder?
+    vc = aip.value_and_return(fin, re=re, re2=re2, country_base=country_base,
+                              moat_override=F.RESTRUCTURE_MIN_CORE + 1.3)   # ~7.8 "Compounder"
+    rec["er_ceiling"] = vc.get("er2") if vc else None
     floor_ratio = _num(_get(row, idx, "Value per share without growth/share price"))
-    rec["gate1_irr12"] = F.gate1_pass(rec.get("irr12"))
     rec["gate2_floor"] = floor_ratio
     rec["gate2_pass"] = F.gate2_pass(floor_ratio)
-    rec["er_artifact"] = F.er_is_artifact(rec.get("irr12"))     # guardrail flag
-    rec["clears_gauntlet"] = bool(rec["gate1_irr12"] and rec["gate2_pass"]
-                                  and not rec["er_artifact"])
+    _finalize_gates(rec)
+    # Research-worthy if it clears Gate 1 as-is OR could clear once a high-quality
+    # core is recognised (the trapped-jewel case) — both deterministic, no spend.
+    rec["research_worthy"] = bool(
+        (F.gate1_pass(rec.get("irr12")) or F.gate1_pass(rec.get("er_ceiling")))
+        and not F.er_is_artifact(rec.get("irr12")))
     return rec
+
+
+def _finalize_gates(rec):
+    """Set Gate 1, the ER-artifact flag and the gauntlet verdict. Gate 1 uses the
+    effective return (as-is, or the separated return for a restructuring candidate);
+    the artifact flag screens the AS-IS return only — that is where a depressed-
+    earnings trap shows up, whereas a high separated return is a legitimate moat
+    re-rating, not an artifact."""
+    rec["gate1_irr12"] = F.gate1_pass(rec.get("er_effective"))
+    rec["er_artifact"] = F.er_is_artifact(rec.get("irr12"))
+    rec["clears_gauntlet"] = bool(rec["gate1_irr12"] and rec.get("gate2_pass")
+                                  and not rec["er_artifact"])
 
 
 def attach_qualitative(rec, idx, research_rec):
@@ -165,6 +185,27 @@ def attach_qualitative(rec, idx, research_rec):
 
     # ---- Ownership block verdict ----
     rec["owner_verdict"] = F.ownership_verdict(rec.get("owner_bloc_pct"), rec.get("country"))
+
+    # ---- Restructuring lens: re-rate a trapped core when change is feasible ----
+    cm, km = rec.get("company_moat"), rec.get("core_moat")
+    if cm is not None and km is not None:
+        rec["moat_gap"] = round(km - cm, 2)
+        rec["restructuring"] = F.is_restructuring_candidate(cm, km, rec["owner_verdict"])
+        # Value the durable core on its OWN moat (a longer competitive-advantage
+        # period) — the separated re-rating the whole-company return misses.
+        vc = aip.value_and_return(rec["_fin"], re=rec["_re"], re2=rec["_re2"],
+                                  country_base=rec["_cb"], moat_override=km)
+        rec["er_core"] = vc.get("er2") if vc else None
+        if rec.get("irr12") is not None and rec.get("er_core") is not None:
+            rec["separation_uplift"] = round(rec["er_core"] - rec["irr12"], 4)
+        # If a high-quality core is trapped AND the register permits a break-up,
+        # the separated return is the one that matters for selection and sizing.
+        if rec["restructuring"] and rec.get("er_core") is not None:
+            rec["er_effective"] = rec["er_core"]
+            rec["return_basis"] = "separated"
+        else:
+            rec["return_basis"] = "as-is"
+        _finalize_gates(rec)
     return rec
 
 
@@ -181,15 +222,18 @@ def build_satellite(records, exclude_tags=(), min_core_moat=6.5, max_names=12):
     `exclude_tags` (short names) are not counted toward the 20% rule — e.g. pass
     ("FX",) for an all-domestic book where FX is a shared, not idiosyncratic, factor."""
     elig = [r for r in records
-            if r.get("clears_gauntlet") and r.get("irr12")
+            if r.get("clears_gauntlet") and r.get("er_effective")
             and r.get("risk_tags") and r.get("owner_verdict") != "HARD-BLOCK"
             and (r.get("core_moat") or 0) >= min_core_moat]
     if not elig:
         return [], {}, []
-    elig.sort(key=lambda r: -r["irr12"])
+    elig.sort(key=lambda r: -r["er_effective"])
     elig = elig[:max_names]
     ex = set(exclude_tags)
-    irr = {r["ticker"]: r["irr12"] for r in elig}
+    # Size on the effective return (separated re-rating for a trapped jewel, else
+    # as-is), capped at the plausibility ceiling so an optimistic separated return
+    # cannot dominate the interpolation.
+    irr = {r["ticker"]: min(r["er_effective"], F.MAX_PLAUSIBLE_IRR) for r in elig}
     tags_by = {r["ticker"]: set(r["risk_tag_names"]) - ex for r in elig}
     book = list(irr)
     book, weights, log = F.trim_to_tag_cap(book, irr, tags_by)
@@ -213,10 +257,11 @@ def write_output(records, path, exclude_tags=()):
             "CompanyMoat(v3.2)", "Band", "CoreBusiness", "CoreMoat(v3.2)", "CoreBand",
             "KeepScore", "Detachability", "EO_Action",
             "OwnerVerdict", "OwnerBloc%", "OwnerNotes",
-            "AIP_WACC", "AIP_Rating", "OpValue", "OpVal/EV", "ER@7%", "ER@12%", "ImpliedMoat",
+            "AIP_WACC", "AIP_Rating", "OpValue", "OpVal/EV", "ER@7%", "ER@12%(as-is)", "ImpliedMoat",
+            "MoatGap", "ER@12%(separated)", "SeparationUplift", "ReturnBasis", "Restructuring",
             "Gate1(IRR>=12)", "Gate2(floor)", "Gate2pass", "ER_Artifact", "ClearsGauntlet", "RiskTags"]
     ws.append(cols)
-    for r in sorted(records, key=lambda r: (r.get("irr12") is not None, r.get("irr12") or -9), reverse=True):
+    for r in sorted(records, key=lambda r: (r.get("er_effective") is not None, r.get("er_effective") or -9), reverse=True):
         ws.append([
             r.get("ticker"), r.get("company"), r.get("industry"), r.get("country"),
             r.get("company_moat"), r.get("company_band"), r.get("core_business"),
@@ -224,7 +269,9 @@ def write_output(records, path, exclude_tags=()):
             r.get("detachability"), r.get("eo_action"),
             r.get("owner_verdict"), r.get("owner_bloc_pct"), r.get("owner_notes"),
             r.get("wacc"), r.get("aip_rating"), r.get("op_value"), r.get("op_over_ev"),
-            r.get("er_lo"), r.get("er_hi"), r.get("implied_moat"),
+            r.get("er_lo"), r.get("irr12"), r.get("implied_moat"),
+            r.get("moat_gap"), r.get("er_core"), r.get("separation_uplift"),
+            r.get("return_basis"), "TRAPPED-JEWEL" if r.get("restructuring") else "",
             "PASS" if r.get("gate1_irr12") else "fail",
             r.get("gate2_floor"), "PASS" if r.get("gate2_pass") else "fail",
             "ARTIFACT" if r.get("er_artifact") else "",
@@ -233,31 +280,32 @@ def write_output(records, path, exclude_tags=()):
         ])
     _style_header(ws)
     for row in ws.iter_rows(min_row=2):
-        for j in (15, 18, 19, 20):       # wacc, opval/ev, er7, er12
+        for j in (15, 18, 19, 20, 23, 24):   # wacc, opval/ev, er7, er12-asis, er12-sep, uplift
             if row[j].value is not None:
                 row[j].number_format = "0.0%"
     widths = [9, 26, 24, 12, 14, 16, 30, 13, 14, 10, 12, 22, 13, 10, 40,
-              9, 9, 12, 9, 8, 8, 9, 13, 11, 10, 11, 14, 40]
+              9, 9, 12, 9, 8, 12, 9, 8, 14, 12, 11, 14, 13, 11, 10, 11, 14, 40]
     for i, w in enumerate(widths, 1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
 
     # ---- Satellite Book ----
     book, weights, log = build_satellite(records, exclude_tags)
     ws2 = wb.create_sheet("Satellite Book")
-    ws2.append(["TargetWeight", "Ticker", "Company", "ER@12%", "Gate2 floor", "OwnerVerdict", "RiskTags"])
+    ws2.append(["TargetWeight", "Ticker", "Company", "ER@12%(eff)", "Basis", "CoreMoat",
+                "OwnerVerdict", "RiskTags"])
     by = {r["ticker"]: r for r in records}
     for t in sorted(book, key=lambda t: -weights[t]):
         r = by[t]
-        ws2.append([weights[t], t, r["company"], r.get("irr12"), r.get("gate2_floor"),
-                    r.get("owner_verdict"), ", ".join(r.get("risk_tag_names", []))])
+        ws2.append([weights[t], t, r["company"], r.get("er_effective"), r.get("return_basis"),
+                    r.get("core_moat"), r.get("owner_verdict"), ", ".join(r.get("risk_tag_names", []))])
     tot = sum(weights.values())
-    ws2.append([tot, "TOTAL CONCENTRATED", f"Core sweep {1-tot:.1%}", "", "", "", ""])
+    ws2.append([tot, "TOTAL CONCENTRATED", f"Core sweep {1-tot:.1%}", "", "", "", "", ""])
     _style_header(ws2)
     for row in ws2.iter_rows(min_row=2):
         for j in (0, 3):
             if isinstance(row[j].value, (int, float)):
                 row[j].number_format = "0.0%"
-    for i, w in enumerate([13, 9, 26, 8, 11, 14, 40], 1):
+    for i, w in enumerate([13, 9, 26, 11, 11, 9, 14, 40], 1):
         ws2.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
     if log:
         ws2.append([]); ws2.append(["Trim Protocol log (tag, bucket%, liquidated, its IRR):"])
@@ -292,9 +340,11 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
             records.append(rec)
         if limit and len(records) >= limit:
             break
-    survivors = [r for r in records if (research_all or r["gate1_irr12"])]
-    print(f"Pass 1: valued {len(records)} companies | {len(survivors)} cleared Gate 1 "
-          f"(researching {'all' if research_all else 'survivors only'})")
+    survivors = [r for r in records if (research_all or r.get("research_worthy"))]
+    jewels = sum(1 for r in survivors if not r["gate1_irr12"])
+    print(f"Pass 1: valued {len(records)} companies | researching {len(survivors)} "
+          f"(Gate-1 survivors + {jewels} potential trapped-jewels)"
+          + (" [research-all]" if research_all else ""))
 
     # ---- Pass 2: concurrent research (only when enabled) ----
     fetched = {}
@@ -317,8 +367,9 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
     # ---- Finalize qualitative scoring ----
     for r in records:
         attach_qualitative(r, idx, fetched.get(r["ticker"]))
-    for r in records:                                       # drop the row handle before writing
-        r.pop("_row", None)
+    for r in records:                                       # drop internal handles before writing
+        for k in ("_row", "_fin", "_re", "_re2", "_cb"):
+            r.pop(k, None)
 
     book, weights = write_output(records, output_path, exclude_tags)
     print(f"\nScored {len(records)} companies -> {output_path}")

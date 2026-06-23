@@ -72,6 +72,34 @@ that is the "fill in the missing information" behaviour.
   sized by return interpolation (5–20%) with the 20% tag rule enforced by the
   Trim Protocol (a log of every liquidation is appended).
 
+## The restructuring lens (core vs whole company)
+
+A high-quality core buried in a mediocre group is the central Engaged-Ownership
+case: the whole-company AIP return *understates* the opportunity, and whether you
+can capture it depends on the shareholder register. The pipeline now models this
+directly:
+
+- **Separated re-rating.** Every researched name is valued a second time on its
+  **core** moat (a longer competitive-advantage period) — `ER@12%(separated)` —
+  alongside the as-is whole-company `ER@12%(as-is)`. The difference is
+  `SeparationUplift`.
+- **Trapped-jewel flag.** A name is flagged `TRAPPED-JEWEL` when the core moat is
+  Watchlist+ (≥6.5), the **moat gap** (core − company) is ≥1.0, **and** the
+  register is `separable` (anything short of a HARD-BLOCK). A HARD-BLOCK kills the
+  flag no matter how big the gap — you cannot force the separation (e.g. a
+  founder with >25% in the UK / >1/3 in Japan).
+- **Effective return.** For a trapped jewel the **separated** return drives Gate 1
+  and the position sizing (`ReturnBasis = separated`); otherwise the as-is return
+  is used. So a jewel whose as-is return is below the 12% hurdle can still earn a
+  place on the strength of the unlockable value — and the cheap pre-screen
+  ("would this clear if its core were a top compounder?") makes sure it gets
+  researched in the first place.
+
+Limitation: the separated return captures the **moat-longevity** re-rating from
+pricing the core's own CAP; it does not add the margin/ROIC uplift from divesting
+a loss-making "rest" (no segment financials in the screener), so it is a *floor*
+on the true break-up value.
+
 ## Guardrails (fully hands-off)
 A whole-universe run completes unattended:
 

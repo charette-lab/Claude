@@ -75,8 +75,14 @@ def _glide_path(m, glide, n1, n2):
 
 
 def value_and_return(fin, re=0.07, re2=0.12, lever_glide=True, gterm=0.025,
-                     horizon=5, sales_floor=True, country_base=None, country_crp=None):
-    """Run the DCF for one company. `fin` keys are the screener field names."""
+                     horizon=5, sales_floor=True, country_base=None, country_crp=None,
+                     moat_override=None):
+    """Run the DCF for one company. `fin` keys are the screener field names.
+
+    moat_override (0-10) replaces the file's Moat Score for the competitive-
+    advantage period only — used to value the durable CORE on its own moat
+    (a longer CAP) rather than the blended group, i.e. the separated re-rating.
+    """
     m = engine()
     nopat0 = fin.get(FIELDS["nopat"]); roiic0 = fin.get(FIELDS["roiic"])
     rr0 = fin.get(FIELDS["rr"]); mktcap = fin.get(FIELDS["mktcap"])
@@ -84,7 +90,8 @@ def value_and_return(fin, re=0.07, re2=0.12, lever_glide=True, gterm=0.025,
     if None in (nopat0, roiic0, rr0) or not mktcap:
         return None
     gross = fin.get(FIELDS["gross"]); tax = fin.get(FIELDS["tax"])
-    moat = fin.get(FIELDS["moat"]); country = fin.get(FIELDS["country"])
+    moat = moat_override if moat_override is not None else fin.get(FIELDS["moat"])
+    country = fin.get(FIELDS["country"])
     ind = " ".join(str(fin.get(FIELDS["industry"]) or "").split())
     mp = m.moat_to_cap_persistence(moat); phi = mp[1] if mp else 0.75
     life = m.moat_to_life(moat) or 15
@@ -120,7 +127,7 @@ def value_and_return(fin, re=0.07, re2=0.12, lever_glide=True, gterm=0.025,
 
 
 def implied_moat(fin, r=0.12, lever_glide=True, gterm=0.025, max_n2=150,
-                 country_base=None, country_crp=None):
+                 country_base=None, country_crp=None, moat_override=None):
     """Reverse DCF: solve total moat life so model op-value == market EV at r."""
     m = engine()
     nopat0 = fin.get(FIELDS["nopat"]); roiic0 = fin.get(FIELDS["roiic"])
@@ -129,7 +136,8 @@ def implied_moat(fin, r=0.12, lever_glide=True, gterm=0.025, max_n2=150,
     if None in (nopat0, roiic0, rr0) or not mktcap:
         return None
     gross = fin.get(FIELDS["gross"]); tax = fin.get(FIELDS["tax"])
-    moat = fin.get(FIELDS["moat"]); country = fin.get(FIELDS["country"])
+    moat = moat_override if moat_override is not None else fin.get(FIELDS["moat"])
+    country = fin.get(FIELDS["country"])
     ind = " ".join(str(fin.get(FIELDS["industry"]) or "").split())
     mp = m.moat_to_cap_persistence(moat); phi = mp[1] if mp else 0.75
     base = m.base_rate_for(ind, None)[0]

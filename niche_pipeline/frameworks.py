@@ -274,3 +274,28 @@ def ownership_verdict(largest_bloc_pct, country=None) -> str:
     if largest_bloc_pct >= soft:
         return "SOFT-BLOCK"
     return "CONTESTABLE"
+
+
+def separable(verdict) -> bool:
+    """Can an engaged owner force a separation? Anything short of a HARD-BLOCK
+    (a >1/3 or, in the UK, >25% holder) leaves room — outright with a CONTESTABLE
+    register, or with the holder's cooperation under a SOFT-BLOCK."""
+    return verdict in ("CONTESTABLE", "SOFT-BLOCK")
+
+
+# ---- Restructuring lens: a high-quality core trapped in a mediocre group ----
+# The whole-company AIP return understates the opportunity when a durable core is
+# buried under low-keep "rest" AND the shareholder register permits a break-up.
+# We re-rate the core on its OWN moat (a longer competitive-advantage period) and,
+# when the register allows change, treat that separated return as the one that
+# matters. The moat-gap is the "how much quality is trapped" signal.
+RESTRUCTURE_MOAT_GAP = 1.0        # core must exceed company moat by this (points)
+RESTRUCTURE_MIN_CORE = 6.5        # and the core must itself be Watchlist+
+
+
+def is_restructuring_candidate(company_moat, core_moat, verdict) -> bool:
+    if company_moat is None or core_moat is None:
+        return False
+    return (core_moat >= RESTRUCTURE_MIN_CORE
+            and (core_moat - company_moat) >= RESTRUCTURE_MOAT_GAP
+            and separable(verdict))
