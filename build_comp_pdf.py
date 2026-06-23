@@ -182,10 +182,13 @@ story+=[Paragraph("7.&nbsp; Career progression",HD),
 
 # 8. units and leaving
 story+=[Paragraph("8.&nbsp; Performance units and leaving the firm",HD),
- B("Performance units are not a vested or transferable entitlement. They are valid only for as long as you are "
-   "working at the firm. If you leave &mdash; for any reason, and regardless of whether you are treated as a "
-   "<b>good leaver or a bad leaver</b> &mdash; your performance units lapse with immediate effect and no further "
-   "award is payable in respect of them. Units cannot be transferred or assigned.")]
+ B("Performance units are the firm's <b>performance-related bonus mechanism</b>: they are funded entirely from the "
+   "firm's performance fees and represent a share of that bonus pool. They are <b>not</b> equity, ownership, or a "
+   "vested or transferable asset."),
+ B("Performance units are valid only for as long as you are working at the firm. When you leave &mdash; for any "
+   "reason, and regardless of whether you are treated as a <b>good leaver or a bad leaver</b> &mdash; your "
+   "performance units are <b>relinquished in full</b> and lapse with immediate effect, and no further award is "
+   "payable in respect of them. Units cannot be transferred or assigned.")]
 
 # 9. governance
 story+=[Paragraph("9.&nbsp; Governance",HD),

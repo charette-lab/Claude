@@ -191,11 +191,15 @@ rich([("Weights increase with responsibility. The investment track in particular
 
 # ---------- 8. units and leaving ----------
 heading("8.  Performance units and leaving the firm")
-rich([("Performance units are not a vested or transferable entitlement. They are valid only for as long as you are "
-       "working at the firm. If you leave — for any reason, and regardless of whether you are treated as a ",False),
+rich([("Performance units are the firm's ",False),("performance-related bonus mechanism",True),
+      (": they are funded entirely from the firm's performance fees and represent a share of that bonus pool. They "
+       "are not equity, ownership, or a vested or transferable asset.",False)])
+rich([("Performance units are valid only for as long as you are working at the firm. When you leave — for any reason, "
+       "and regardless of whether you are treated as a ",False),
       ("good leaver or a bad leaver",True),
-      (" — your performance units lapse with immediate effect and no further award is payable in respect of them. "
-       "Units cannot be transferred or assigned.",False)])
+      (" — your performance units are ",False),("relinquished in full",True),
+      (" and lapse with immediate effect, and no further award is payable in respect of them. Units cannot be "
+       "transferred or assigned.",False)])
 
 # ---------- 9. governance ----------
 heading("9.  Governance")
