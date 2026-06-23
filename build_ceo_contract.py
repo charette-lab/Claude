@@ -31,12 +31,14 @@ set_text(P[12],
  "ansvara för bolagets löpande verksamhet och förvaltning i enlighet med styrelsens och Uppdragsgivarens "
  "instruktioner samt gällande rätt.")
 
-# --- 14: Avtalstid (dates -> placeholders) ---
+# --- 14: Avtalstid (dates -> placeholders; termination cuts off all remuneration) ---
 set_text(P[14],
  "Detta avtal träder i kraft den [startdatum] och upphör automatiskt den [slutdatum]. Båda parter, "
- "Uppdragsgivaren och Konsulten, har rätt att avsluta uppdraget omedelbart om vissa kriterier uppfylls, såsom om "
- "verksamhetens behov förändras, vid bristande prestation, eller om projektet avslutas i förtid. Om kontraktet "
- "avslutas i förtid sker det utan ytterligare kostnader.")
+ "Uppdragsgivaren och Konsulten, har rätt att säga upp och avsluta avtalet med Konsulten omedelbart om vissa "
+ "kriterier uppfylls, såsom om verksamhetens behov förändras, vid bristande prestation, eller om projektet avslutas "
+ "i förtid. Om kontraktet avslutas i förtid sker det utan ytterligare kostnader. Vid avtalets upphörande, oavsett "
+ "orsak, upphör samtliga ersättningar enligt detta avtal – inklusive den fasta ersättningen och prestationsenheterna "
+ "– att utgå med omedelbar verkan.")
 
 # --- 16: Ersättning heading stays; 17: fixed fee in brackets ---
 set_text(P[17],
@@ -46,10 +48,11 @@ set_text(P[17],
 units_text=(
  "Utöver den fasta ersättningen tilldelas Konsulten 8 prestationsenheter (performance units) i enlighet med "
  "Uppdragsgivarens vid var tid gällande ersättningssystem, ”Roles, Responsibilities & Performance Compensation "
- "Framework”. Prestationsenheterna är giltiga endast så länge [Konsultens namn] personligen arbetar för och utför "
- "tjänsterna åt Uppdragsgivaren. När [Konsultens namn] upphör att arbeta för Uppdragsgivaren upphör samtliga "
- "prestationsenheter och därtill hörande rättigheter att gälla med omedelbar verkan, oavsett om [Konsultens namn] "
- "anses vara en good leaver eller bad leaver. Prestationsenheterna kan inte överlåtas.")
+ "Framework”. Prestationsenheterna är giltiga endast under avtalstiden och så länge [Konsultens namn] personligen "
+ "utför tjänsterna åt Uppdragsgivaren. När detta avtal upphör eller sägs upp – oavsett orsak och oavsett om "
+ "[Konsultens namn] anses vara en good leaver eller bad leaver – upphör samtliga prestationsenheter och därtill "
+ "hörande rättigheter att gälla med omedelbar verkan, och ingen ytterligare ersättning utgår avseende dessa. "
+ "Prestationsenheterna kan inte överlåtas.")
 newp=P[18].insert_paragraph_before("")          # insert between 17 and the blank line at 18
 newp.style=P[17].style
 r=newp.add_run(units_text)
@@ -125,14 +128,34 @@ set_text(P[37],
 # --- 44: place and date placeholder ---
 set_text(P[44],"[Ort] den [datum]")
 
-# --- 51: signature line (replace Mattias, keep tabs) + capacity line ---
+# --- 51: signature line (replace Mattias, keep tabs) + capacity labels ---
+SIGSZ=P[51].runs[0].font.size if P[51].runs else None
 for r in P[51].runs:
     if "Mattias Gustawsson" in r.text:
         r.text=r.text.replace("Mattias Gustawsson","[Konsultens namn]")
-cap=d.add_paragraph()                            # capacity labels under the names
-cap.style=P[51].style
-cr=cap.add_run("för Uppdragsgivaren\t\t\tför [Bolagsnamn] och personligen")
-if P[51].runs and P[51].runs[0].font.size is not None: cr.font.size=P[51].runs[0].font.size
+cap=d.add_paragraph(); cap.style=P[51].style     # capacity labels under the two party names
+cr=cap.add_run("för Uppdragsgivaren\t\t\tför [Bolagsnamn]")
+if SIGSZ is not None: cr.font.size=SIGSZ
+
+# --- personal signature block for the individual (key person) ---
+def addp(text="",bold=False):
+    p=d.add_paragraph(); p.style=P[51].style
+    if text:
+        rr=p.add_run(text); rr.font.bold=bold
+        if SIGSZ is not None: rr.font.size=SIGSZ
+    return p
+addp()
+addp("Jag, [Konsultens namn], undertecknar detta avtal även personligen för att bekräfta mitt personliga "
+     "åtagande enligt avtalet.")
+addp()
+addp("______________________")
+addp("[Konsultens namn] (personligen)")
+
+# --- fill in the named individual (company name stays a placeholder) ---
+for p in d.paragraphs:
+    for r in p.runs:
+        if "[Konsultens namn]" in r.text:
+            r.text=r.text.replace("[Konsultens namn]","Michael Wahren")
 
 d.save(OUT)
 print("Saved",OUT)
