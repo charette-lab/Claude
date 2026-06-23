@@ -234,14 +234,29 @@ def trim_to_tag_cap(book, irr, tags_by_name):
         book.remove(drop)
 
 
-# ---- Japan ownership block test -------------------------------------------
-# Special resolutions (merger, company split, share transfer, squeeze-out)
-# need 2/3 of votes cast; a holder/bloc > 1/3 can veto a break-up.
-def ownership_verdict(largest_bloc_pct) -> str:
+# ---- Ownership block test (jurisdiction-aware) ----------------------------
+# The blocking stake depends on the special-resolution / scheme threshold:
+#   Japan  : special resolutions need 2/3 of votes  -> a >1/3 holder vetoes.
+#   UK     : a scheme of arrangement needs 75%       -> a >25% holder vetoes.
+#   US/EU  : commonly 2/3 by default.
+BLOCK_THRESHOLDS = {            # (HARD-BLOCK >=, SOFT-BLOCK >=)
+    "Japan": (33.4, 20.0),
+    "United Kingdom": (25.0, 10.0),
+    "United States": (33.4, 20.0),
+    "_default": (33.4, 20.0),
+}
+
+
+def block_thresholds(country):
+    return BLOCK_THRESHOLDS.get((country or "").strip(), BLOCK_THRESHOLDS["_default"])
+
+
+def ownership_verdict(largest_bloc_pct, country=None) -> str:
     if largest_bloc_pct is None:
         return "UNKNOWN"
-    if largest_bloc_pct >= 33.4:
+    hard, soft = block_thresholds(country)
+    if largest_bloc_pct >= hard:
         return "HARD-BLOCK"
-    if largest_bloc_pct >= 20.0:
+    if largest_bloc_pct >= soft:
         return "SOFT-BLOCK"
     return "CONTESTABLE"

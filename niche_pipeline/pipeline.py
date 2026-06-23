@@ -147,7 +147,7 @@ def process_row(row, idx, *, re, re2, do_research, country_base):
         rec["risk_tag_names"] = [F.RISK_TAGS_SHORT[i] for i, v in enumerate(tags) if v]
 
     # ---- Ownership block verdict ----
-    rec["owner_verdict"] = F.ownership_verdict(rec.get("owner_bloc_pct"))
+    rec["owner_verdict"] = F.ownership_verdict(rec.get("owner_bloc_pct"), rec.get("country"))
 
     # ---- Entry Gauntlet ----
     floor_ratio = _num(_get(row, idx, "Value per share without growth/share price"))
