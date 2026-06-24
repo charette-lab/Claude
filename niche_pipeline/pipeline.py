@@ -232,6 +232,19 @@ def attach_qualitative(rec, idx, research_rec):
         rec["er_effective"] = eff
         rec["gate1_irr12"] = F.gate1_pass(asis)
         rec["er_artifact"] = F.er_is_artifact(asis)
+
+    # ---- Implied-moat regime: is the return cheapness, or borrowed from the discount? ----
+    moat_for_life = rec.get("core_moat") if rec.get("core_moat") is not None else rec.get("company_moat")
+    if moat_for_life is not None:
+        iy = F.implied_moat_years(rec.get("implied_moat"))
+        warr = aip.warranted_life(moat_for_life)
+        rec["implied_years"] = iy
+        rec["warranted_life"] = warr
+        rec["valuation_cushion"] = F.valuation_cushion(iy, warr)
+        rec["priced_for"] = "durability" if F.priced_for_perfection(iy, warr) else "fade"
+        # ER@re (realistic, = as_is_ret when gate_basis='re') vs ER@re2 (conservative, irr12)
+        rec["return_leans_on_discount"] = F.return_leans_on_discount(
+            rec.get("as_is_ret"), rec.get("irr12"), rec.get("valuation_cushion"))
     return rec
 
 
@@ -324,6 +337,37 @@ def build_satellite(records, exclude_tags=(), max_names=12, segment_tags=True):
 
 
 # ---------------------------------------------------------------------------
+def build_core(records, n=F.CORE_N, slot_cap=F.CORE_SLOT_CAP, exclude_tags=(),
+               segment_tags=True):
+    """The Core Index — the diversified, EQUAL-weighted book (vs the return-sized
+    Satellite). Same eligibility as the Satellite (clears the gauntlet, has tags,
+    not history-CONTRADICTED), ranked by effective return, filled under the 20%
+    tag rule as a slot cap: no tag in more than `slot_cap` of the `n` names.
+
+    `segment_tags` (default) qualifies each tag by industry so the cap bounds only
+    correlated wipeout risk; pass segment_tags=False for the STRICT raw-tag budget
+    (the framework's literal reading), which in a quality universe binds hard and
+    typically yields far fewer than `n` names — that shortfall is the real signal.
+    Returns (tickers, weight_each, skipped_log, achievable_n)."""
+    elig = [r for r in records
+            if r.get("clears_gauntlet") and r.get("er_effective") and r.get("risk_tags")
+            and r.get("moat_vs_history") != "CONTRADICTED"]
+    if not elig:
+        return [], 0.0, [], 0
+    elig.sort(key=lambda r: -min(r["er_effective"], F.MAX_PLAUSIBLE_IRR))
+    ex = set(exclude_tags)
+
+    def tagset(r):
+        ind = " ".join(str(r.get("industry") or "?").split())
+        return {(f"{t}:{ind}" if segment_tags else t)
+                for t in r.get("risk_tag_names", []) if t not in ex}
+
+    book, skipped = F.fill_under_slot_cap(elig, tagset, n, slot_cap)
+    w = 1.0 / len(book) if book else 0.0
+    log = [(tag, r["ticker"], round(r["er_effective"], 4)) for tag, r in skipped]
+    return [r["ticker"] for r in book], w, log, len(book)
+
+
 def _style_header(ws):
     fill = PatternFill("solid", fgColor="1F4E78"); font = Font(color="FFFFFF", bold=True, size=10)
     thin = Side(style="thin", color="CCCCCC"); border = Border(left=thin, right=thin, top=thin, bottom=thin)
@@ -333,7 +377,8 @@ def _style_header(ws):
     ws.freeze_panes = "C2"
 
 
-def write_output(records, path, exclude_tags=(), segment_tags=True):
+def write_output(records, path, exclude_tags=(), segment_tags=True,
+                 core_n=F.CORE_N, core_strict=False):
     wb = openpyxl.Workbook()
     ws = wb.active; ws.title = "Scored"
     cols = ["Ticker", "Company", "Industry", "Country",
@@ -343,7 +388,8 @@ def write_output(records, path, exclude_tags=(), segment_tags=True):
             "AIP_WACC", "AIP_Rating", "OpValue", "OpVal/EV", "ER@7%", "ER@12%(as-is)", "ImpliedMoat",
             "MoatGap", "ER(separated)", "SeparationUplift", "ReturnBasis", "Restructuring",
             "Gate1(IRR>=12)", "Gate2(floor)", "Gate2pass", "ER_Artifact", "ClearsGauntlet", "RiskTags",
-            "MargROIC7y", "MarginTrend", "NormEV/EBITA", "MoatVsHistory", "HistoryNote"]
+            "MargROIC7y", "MarginTrend", "NormEV/EBITA", "MoatVsHistory", "HistoryNote",
+            "ImpliedYrs", "WarrantedYrs", "ValuationCushion", "PricedFor", "ReturnFromDiscount"]
     ws.append(cols)
     for r in sorted(records, key=lambda r: (r.get("er_effective") is not None, r.get("er_effective") or -9), reverse=True):
         ws.append([
@@ -363,6 +409,8 @@ def write_output(records, path, exclude_tags=(), segment_tags=True):
             ", ".join(r.get("risk_tag_names", [])),
             r.get("hist_marginal_roic"), r.get("hist_margin_trend"),
             r.get("hist_norm_ev_ebita"), r.get("moat_vs_history"), r.get("hist_reasons"),
+            r.get("implied_years"), r.get("warranted_life"), r.get("valuation_cushion"),
+            r.get("priced_for"), "YES" if r.get("return_leans_on_discount") else "",
         ])
     _style_header(ws)
     for row in ws.iter_rows(min_row=2):
@@ -371,7 +419,7 @@ def write_output(records, path, exclude_tags=(), segment_tags=True):
                 row[j].number_format = "0.0%"
     widths = [9, 26, 24, 12, 14, 16, 30, 13, 14, 10, 12, 22, 13, 10, 40,
               9, 9, 12, 9, 8, 12, 9, 8, 14, 12, 11, 14, 13, 11, 10, 11, 14, 40,
-              11, 11, 12, 14, 44]
+              11, 11, 12, 14, 44, 10, 12, 16, 11, 17]
     for i, w in enumerate(widths, 1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
 
@@ -399,15 +447,74 @@ def write_output(records, path, exclude_tags=(), segment_tags=True):
         for tag, bw, drop, dirr in log:
             ws2.append(["", tag, f"{bw:.0%}", by[drop]["company"], f"{dirr:.1%}"])
 
+    # ---- Core Index (equal-weighted, history-vetoed, 6/30 tag rule) ----
+    core, cw, _, achievable = build_core(records, n=core_n,
+                                         exclude_tags=exclude_tags,
+                                         segment_tags=not core_strict and segment_tags)
+    ws3 = wb.create_sheet("Core Index")
+    rule = "strict raw-tag" if core_strict else "industry-segmented"
+    ws3.append(["Rank", "Weight", "Ticker", "Company", "Industry", "ER(eff)", "CoreMoat",
+                "ImpliedMoat", "ValuationCushion", "PricedFor", "RetFromDiscount",
+                "History", "Basis", "Ownership", "RiskTags"])
+    core_recs = [by[t] for t in core]
+    er_book = (sum(min(r["er_effective"], F.MAX_PLAUSIBLE_IRR) for r in core_recs)
+               / len(core_recs)) if core_recs else 0.0
+    for i, r in enumerate(core_recs, 1):
+        ws3.append([i, cw, r["ticker"], r["company"], r.get("industry"),
+                    r.get("er_effective"), r.get("core_moat"), r.get("implied_moat"),
+                    r.get("valuation_cushion"), r.get("priced_for"),
+                    "YES" if r.get("return_leans_on_discount") else "",
+                    r.get("moat_vs_history"), r.get("return_basis"), r.get("owner_verdict"),
+                    ", ".join(r.get("risk_tag_names", []))])
+    ws3.append([])
+    ws3.append(["", "", f"{achievable} names", f"({rule} 20% budget, target {core_n})",
+                "", er_book, "", "", "", "", "", "", "", "EQUAL-WT EXPECTED RETURN", ""])
+    _style_header(ws3)
+    for row in ws3.iter_rows(min_row=2):
+        for j in (1, 5):
+            if isinstance(row[j].value, (int, float)):
+                row[j].number_format = "0.0%"
+    for i, w in enumerate([5, 8, 9, 26, 30, 9, 9, 11, 16, 11, 15, 11, 11, 12, 42], 1):
+        ws3.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
+
+    # ---- Risk Exposure of the Core Index (raw factor counts) ----
+    ws4 = wb.create_sheet("Risk Exposure")
+    nb = max(1, len(core_recs))
+    counts = {t: 0 for t in F.RISK_TAGS_SHORT}
+    for r in core_recs:
+        for t in r.get("risk_tag_names", []):
+            counts[t] += 1
+    ws4.append(["Risk Tag", f"Names (of {len(core_recs)})", "% of book",
+                "within 20%? (raw)", "Note"])
+    ex = set(exclude_tags)
+    for t in F.RISK_TAGS_SHORT:
+        c = counts[t]; frac = c / nb
+        within = "excluded" if t in ex else ("YES" if frac <= 0.2001 else "no (raw)")
+        ws4.append([t, c, frac, within, ""])
+    ws4.append([])
+    seg_note = ("Selection enforces the 20% cap on INDUSTRY-SEGMENTED tags, so raw "
+                "aggregates above 20% (Demand/Regulatory/KeyPerson) are spread across "
+                "uncorrelated industries/founders — not a single correlated wipeout."
+                if not core_strict else
+                "STRICT mode: the 20% cap is enforced on RAW tags; the book size is "
+                "capped wherever the universe cannot supply more names within budget.")
+    ws4.append([seg_note])
+    _style_header(ws4)
+    for row in ws4.iter_rows(min_row=2, max_row=1 + len(F.RISK_TAGS_SHORT)):
+        if isinstance(row[2].value, (int, float)):
+            row[2].number_format = "0%"
+    for i, w in enumerate([14, 14, 10, 18, 60], 1):
+        ws4.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
+
     wb.save(path)
-    return book, weights
+    return book, weights, core, achievable
 
 
 # ---------------------------------------------------------------------------
 def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
         research=True, limit=None, country_base=None, exclude_tags=(),
         workers=6, research_all=False, history_path=None, apply_gate2=False,
-        segment_tags=True, gate_basis="re"):
+        segment_tags=True, gate_basis="re", core_n=F.CORE_N, core_strict=False):
     """Two-pass, hands-off run.
 
     Pass 1 (cheap, no network): value every company and apply the gates.
@@ -482,12 +589,19 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
         for k in ("_row", "_fin", "_re", "_re2", "_cb", "_apply_gate2", "_gb"):
             r.pop(k, None)
 
-    book, weights = write_output(records, output_path, exclude_tags, segment_tags=segment_tags)
+    book, weights, core, achievable = write_output(
+        records, output_path, exclude_tags, segment_tags=segment_tags,
+        core_n=core_n, core_strict=core_strict)
     print(f"\nScored {len(records)} companies -> {output_path}")
     art = sum(1 for r in records if r.get("er_artifact"))
     print(f"Flagged {art} ER-artifact names (IRR > {F.MAX_PLAUSIBLE_IRR:.0%}, excluded from book)")
+    lean = sum(1 for r in records if r.get("clears_gauntlet") and r.get("return_leans_on_discount"))
+    print(f"Flagged {lean} priced-for-perfection names (return leans on the discount rate, no valuation cushion)")
     print(f"Satellite book ({len(book)} names): " +
           ", ".join(f"{by}={weights[by]:.0%}" for by in sorted(book, key=lambda t: -weights[t])))
+    rule = "strict raw-tag" if core_strict else "segmented"
+    print(f"Core Index ({rule} 20% budget, target {core_n}): {achievable} names, "
+          f"equal-weighted {1.0/max(1,achievable):.1%} each")
     return records
 
 
@@ -520,13 +634,19 @@ def main():
     ap.add_argument("--conservative-er", action="store_true",
                     help="gate on the ER@re2 (12%% discount) read instead of the realistic "
                          "ER@re (7%%) read; the 12%% hurdle is unchanged either way")
+    ap.add_argument("--core-n", type=int, default=F.CORE_N,
+                    help="target size of the equal-weighted Core Index (default 30)")
+    ap.add_argument("--core-strict", action="store_true",
+                    help="enforce the 20%% tag rule on RAW (un-segmented) tags in the Core "
+                         "Index — the stringent budget; usually yields fewer than --core-n names")
     args = ap.parse_args()
     run(args.input, args.output, sheet=args.sheet, re=args.re, re2=args.re2,
         research=not args.no_research, limit=args.limit, country_base=args.country_base,
         exclude_tags=tuple(t.strip() for t in args.exclude_tags.split(',') if t.strip()),
         workers=args.workers, research_all=args.research_all, history_path=args.history,
         apply_gate2=args.gate2, segment_tags=not args.no_segment_tags,
-        gate_basis="re2" if args.conservative_er else "re")
+        gate_basis="re2" if args.conservative_er else "re",
+        core_n=args.core_n, core_strict=args.core_strict)
 
 
 if __name__ == "__main__":

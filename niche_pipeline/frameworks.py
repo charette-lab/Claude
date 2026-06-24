@@ -12,6 +12,7 @@ register) are produced by analyst.py; this module only turns those inputs into
 the framework's numbers, bands and verdicts.
 """
 from __future__ import annotations
+import re
 
 # ----------------------------------------------------------------------------
 # 1. UNIFIED NICHE COMPOUNDER v3.2
@@ -300,6 +301,101 @@ def is_restructuring_candidate(company_moat, core_moat, verdict) -> bool:
     return (core_moat >= RESTRUCTURE_MIN_CORE
             and (core_moat - company_moat) >= RESTRUCTURE_MOAT_GAP
             and separable(verdict))
+
+
+# ---- Implied-moat regime: where does the expected return actually come from? --
+# The reverse DCF (aip.implied_moat) returns the competitive-advantage period the
+# PRICE implies at the 12% required return. Comparing it to the moat the research
+# warrants tells you whether a high expected return is CHEAPNESS (the market prices
+# far fewer excess-return years than the moat deserves -> a real margin of safety)
+# or whether it is being borrowed from a low discount rate (the market already
+# prices the full moat, so there is no valuation cushion -- the Lasertec case: a
+# high ER@realistic-hurdle but a >150y implied moat means the price needs the
+# advantage to last essentially forever).
+IMPLIED_MOAT_CEILING_Y = 150.0       # reverse-DCF search ceiling; at/above => priced for perpetuity
+PRICED_FOR_DURABILITY_FRAC = 0.90    # implied >= 90% of warranted life => little cushion left
+DISCOUNT_LEAN_SPREAD = 0.10          # ER@re minus ER@re2 above this => return rests on the low discount
+
+
+def implied_moat_years(s):
+    """Parse an implied-moat string ('27y', '<=3y', '>150y') to a float of years."""
+    if s is None:
+        return None
+    s = str(s)
+    if "<=" in s:
+        return 3.0
+    if ">" in s:
+        return IMPLIED_MOAT_CEILING_Y + 1.0
+    m = re.match(r"\s*([0-9]+(?:\.[0-9]+)?)", s)
+    return float(m.group(1)) if m else None
+
+
+def valuation_cushion(implied_years, warranted_life):
+    """How much of the warranted competitive-advantage period is still un-priced.
+      'none'   - the market already prices the full moat (no margin of safety)
+      'thin'   - it prices most of it
+      'buffer' - it prices materially less than warranted (cheapness cushion)
+    """
+    if implied_years is None or not warranted_life:
+        return None
+    if implied_years >= IMPLIED_MOAT_CEILING_Y or implied_years >= warranted_life:
+        return "none"
+    if implied_years >= PRICED_FOR_DURABILITY_FRAC * warranted_life:
+        return "thin"
+    return "buffer"
+
+
+def priced_for_perfection(implied_years, warranted_life=None) -> bool:
+    """True when the price already implies the full (or a perpetual) moat."""
+    if implied_years is None:
+        return False
+    if implied_years >= IMPLIED_MOAT_CEILING_Y:
+        return True
+    return warranted_life is not None and implied_years >= warranted_life
+
+
+def return_leans_on_discount(er_realistic, er_conservative, cushion,
+                             min_spread=DISCOUNT_LEAN_SPREAD) -> bool:
+    """Flag a name whose expected return is coming from the low cost of capital
+    rather than from a depressed price: most of the realistic-basis return
+    evaporates at the conservative discount AND the moat is already fully priced
+    (no cheapness cushion). Not an exclusion — a 'no margin of safety' warning."""
+    if er_realistic is None or er_conservative is None:
+        return False
+    return cushion == "none" and (er_realistic - er_conservative) >= min_spread
+
+
+# ---- Core Index (the equal-weighted "Constrained Quality Compounder" book) ----
+# Distinct from the return-sized Satellite: the Core is the diversified index —
+# N names, EQUAL-weighted, under the 20% risk-tag rule expressed as a slot cap
+# (no single tag held by more than CORE_SLOT_CAP of the N names; 6/30 = 20%).
+CORE_N = 30
+CORE_SLOT_CAP = 6        # 20% of 30: no tag in more than 6 of the 30 names
+
+
+def fill_under_slot_cap(ranked, tagset_of, n, slot_cap):
+    """Greedy, return-ranked fill: walk `ranked` (already best-first) and add each
+    item whose tags all stay within `slot_cap` holders, until `n` names are held.
+    Returns (book, skipped) where skipped is [(breached_tag, item), ...].
+
+    `tagset_of(item)` returns the item's (optionally industry-segmented) tag set.
+    Buckets only grow, so the fill is stable: a name that would breach a maxed tag
+    is skipped for the next that fits. The achievable book may be < n when the tag
+    budget is exhausted before n names are reached — that is the binding signal,
+    not a bug (the universe cannot supply n names within the budget)."""
+    book, buckets, skipped = [], {}, []
+    for item in ranked:
+        if len(book) >= n:
+            break
+        ts = tagset_of(item)
+        breach = next((t for t in ts if buckets.get(t, 0) + 1 > slot_cap), None)
+        if breach is None:
+            book.append(item)
+            for t in ts:
+                buckets[t] = buckets.get(t, 0) + 1
+        else:
+            skipped.append((breach, item))
+    return book, skipped
 
 
 def select(er_asis, er_core, company_moat, core_moat, verdict,

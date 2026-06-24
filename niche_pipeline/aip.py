@@ -126,6 +126,12 @@ def value_and_return(fin, re=0.07, re2=0.12, lever_glide=True, gterm=0.025,
     return out
 
 
+def warranted_life(moat):
+    """The competitive-advantage period the engine assigns to a moat score —
+    the benchmark the implied (price-derived) moat length is compared against."""
+    return engine().moat_to_life(moat) or 15
+
+
 def implied_moat(fin, r=0.12, lever_glide=True, gterm=0.025, max_n2=150,
                  country_base=None, country_crp=None, moat_override=None):
     """Reverse DCF: solve total moat life so model op-value == market EV at r."""

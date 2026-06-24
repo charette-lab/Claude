@@ -15,7 +15,9 @@ For each company it produces:
 | **AIP valuation** — operating value, ER@7%, ER@12% | aip-value ROIIC persistence-fade DCF |
 | **Implied moat length** (years of excess return the price implies) | aip-calc-moat-length reverse DCF |
 | **11 binary risk tags** + the two **entry gates** | Risk Framework / Constrained Quality Compounder |
+| **Implied-moat regime** — is the return cheapness or a discount-rate artifact? | reverse DCF vs warranted CAP |
 | **Satellite Book** — gated, 20%-tag-capped, return-sized | Risk Framework portfolio construction |
+| **Core Index** — gated, equal-weighted, 6/30 tag rule | Constrained Quality Compounder Index |
 
 ## How it works
 
@@ -66,11 +68,19 @@ that is the "fill in the missing information" behaviour.
 
 ### Output
 - **Scored** — one row per company: company moat, core moat, Keep/Detachability/
-  action, ownership verdict, AIP value, ER@7%/ER@12%, implied moat, both gates,
-  and the risk tags.
-- **Satellite Book** — the names that clear both gates and are not HARD-BLOCK,
-  sized by return interpolation (5–20%) with the 20% tag rule enforced by the
-  Trim Protocol (a log of every liquidation is appended).
+  action, ownership verdict, AIP value, ER@7%/ER@12%, implied moat, the
+  implied-moat regime (`ValuationCushion` / `PricedFor` / `ReturnFromDiscount`),
+  both gates, and the risk tags.
+- **Satellite Book** — the high-conviction sleeve: names that clear the gauntlet,
+  sized by return interpolation (5–20%) with the 20% tag rule enforced greedily.
+- **Core Index** — the diversified, **equal-weighted** book: the gauntlet-clearers
+  (history-vetoed) ranked by return and filled to `--core-n` (default 30) under the
+  20% tag rule as a slot cap (no tag in more than 6 of 30). `--core-strict` enforces
+  the cap on **raw** tags (the stringent budget) — in a quality universe this binds
+  hard and usually yields fewer than `--core-n` names, which is the real signal that
+  the universe cannot diversify the correlated factors any further.
+- **Risk Exposure** — the Core Index's raw factor counts (each tag's share of the
+  book), with a note on why segmented aggregates can exceed 20%.
 
 ## The restructuring lens (core vs whole company)
 
@@ -103,6 +113,33 @@ Limitation: the separated return captures the **moat-longevity** re-rating from
 pricing the core's own CAP; it does not add the margin/ROIC uplift from divesting
 a loss-making "rest" (no segment financials in the screener), so it is a *floor*
 on the true break-up value.
+
+## Expected-return basis (the gate hurdle vs the discount rate)
+
+Each name is valued at two costs of capital: `ER@re` (default 7%) and `ER@re2`
+(12%). A lower discount rate lifts intrinsic value, so `ER@re` is the higher read.
+Gate 1 tests the **realistic** read (`ER@re`) against the **12% hurdle** — for a
+market with a low risk-free rate (Japan ~2.65%) a 7% cost of equity is the
+appropriate discount, and gating on the 12%-discount read would double-count
+conservatism and screen out genuine compounders. The hurdle (12%) is unchanged
+either way. Pass `--conservative-er` to gate on the `ER@re2` read instead.
+
+## Implied-moat regime — cheapness vs a discount-rate artifact
+
+A high expected return can mean two very different things, and the reverse DCF
+tells them apart. `aip.implied_moat` solves the competitive-advantage period the
+**price** implies (at 12%); `aip.warranted_life` is the CAP the **moat** deserves.
+Comparing them sets `ValuationCushion`:
+
+- **buffer** — the price implies far fewer excess-return years than the moat
+  warrants (the market is sceptical): the return is *cheapness*, a real margin of
+  safety. This is the typical case for the book.
+- **none** — the price already implies the full (or a perpetual, `>150y`) moat:
+  there is *no* valuation cushion. When such a name still shows a high `ER@re` that
+  collapses at the 12% discount, `ReturnFromDiscount=YES` flags it — the return is
+  **borrowed from the low cost of capital, not earned from a depressed price** (the
+  Lasertec case: high headline ER, but the price needs the advantage to last
+  essentially forever). Not an exclusion — a "priced for perfection" warning.
 
 ## Empirical history cross-check (`--history`)
 
