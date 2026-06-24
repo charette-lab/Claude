@@ -221,7 +221,7 @@ def attach_qualitative(rec, idx, research_rec):
 
 
 # ---------------------------------------------------------------------------
-def build_satellite(records, exclude_tags=(), max_names=12):
+def build_satellite(records, exclude_tags=(), max_names=12, segment_tags=True):
     """From the names that clear the gauntlet, build the concentrated book:
     return-sized, 20%-tag-capped via the Trim Protocol, capped at `max_names`.
 
@@ -230,6 +230,13 @@ def build_satellite(records, exclude_tags=(), max_names=12):
     ownership, while a FREED-CORE pick must be separable. So a founder-controlled
     name with a high as-is return belongs here; one that needs a break-up to work
     does not.
+
+    `segment_tags` (default True) qualifies each business risk tag by the name's
+    industry regime, so the 20% rule only caps genuinely correlated exposure
+    (pharma drug-pricing risk does not collide with gambling-licence risk); the
+    market-wide tags Macro and Funding stay un-segmented. Without it, one coarse
+    "Regulatory"/"Demand" tag shared across most quality names collapses the
+    sized book to a single position.
     `exclude_tags` (short names) are not counted toward the 20% rule — e.g. pass
     ("FX",) for an all-domestic/heavy-exporter book where FX is shared, not idiosyncratic."""
     elig = [r for r in records
@@ -240,11 +247,22 @@ def build_satellite(records, exclude_tags=(), max_names=12):
     elig.sort(key=lambda r: -r["er_effective"])
     elig = elig[:max_names]
     ex = set(exclude_tags)
+    systemic = {"Macro", "Funding"}    # correlated across industries -> keep market-wide
+
+    def tagset(r):
+        ind = " ".join(str(r.get("industry") or "?").split())
+        out = set()
+        for t in r.get("risk_tag_names", []):
+            if t in ex:
+                continue
+            out.add(f"{t}:{ind}" if (segment_tags and t not in systemic) else t)
+        return out
+
     # Size on the effective return (separated re-rating for a trapped jewel, else
     # as-is), capped at the plausibility ceiling so an optimistic separated return
     # cannot dominate the interpolation.
     irr = {r["ticker"]: min(r["er_effective"], F.MAX_PLAUSIBLE_IRR) for r in elig}
-    tags_by = {r["ticker"]: set(r["risk_tag_names"]) - ex for r in elig}
+    tags_by = {r["ticker"]: tagset(r) for r in elig}
     book = list(irr)
     book, weights, log = F.trim_to_tag_cap(book, irr, tags_by)
     return book, weights, log
@@ -260,7 +278,7 @@ def _style_header(ws):
     ws.freeze_panes = "C2"
 
 
-def write_output(records, path, exclude_tags=()):
+def write_output(records, path, exclude_tags=(), segment_tags=True):
     wb = openpyxl.Workbook()
     ws = wb.active; ws.title = "Scored"
     cols = ["Ticker", "Company", "Industry", "Country",
@@ -303,7 +321,7 @@ def write_output(records, path, exclude_tags=()):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
 
     # ---- Satellite Book ----
-    book, weights, log = build_satellite(records, exclude_tags)
+    book, weights, log = build_satellite(records, exclude_tags, segment_tags=segment_tags)
     ws2 = wb.create_sheet("Satellite Book")
     ws2.append(["TargetWeight", "Ticker", "Company", "ER@12%(eff)", "Basis", "CoreMoat",
                 "OwnerVerdict", "RiskTags"])
@@ -333,7 +351,7 @@ def write_output(records, path, exclude_tags=()):
 # ---------------------------------------------------------------------------
 def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
         research=True, limit=None, country_base=None, exclude_tags=(),
-        workers=6, research_all=False, history_path=None, apply_gate2=False):
+        workers=6, research_all=False, history_path=None, apply_gate2=False, segment_tags=True):
     """Two-pass, hands-off run.
 
     Pass 1 (cheap, no network): value every company and apply the gates.
@@ -408,7 +426,7 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
         for k in ("_row", "_fin", "_re", "_re2", "_cb", "_apply_gate2"):
             r.pop(k, None)
 
-    book, weights = write_output(records, output_path, exclude_tags)
+    book, weights = write_output(records, output_path, exclude_tags, segment_tags=segment_tags)
     print(f"\nScored {len(records)} companies -> {output_path}")
     art = sum(1 for r in records if r.get("er_artifact"))
     print(f"Flagged {art} ER-artifact names (IRR > {F.MAX_PLAUSIBLE_IRR:.0%}, excluded from book)")
@@ -441,12 +459,14 @@ def main():
                     help="long-run panel (time-series) xlsx to cross-check moats vs actual ROIC")
     ap.add_argument("--gate2", action="store_true",
                     help="re-enable the Gate-2 no-growth-floor downside screen (off by default)")
+    ap.add_argument("--no-segment-tags", action="store_true",
+                    help="disable industry-regime tag segmentation for the 20%% rule")
     args = ap.parse_args()
     run(args.input, args.output, sheet=args.sheet, re=args.re, re2=args.re2,
         research=not args.no_research, limit=args.limit, country_base=args.country_base,
         exclude_tags=tuple(t.strip() for t in args.exclude_tags.split(',') if t.strip()),
         workers=args.workers, research_all=args.research_all, history_path=args.history,
-        apply_gate2=args.gate2)
+        apply_gate2=args.gate2, segment_tags=not args.no_segment_tags)
 
 
 if __name__ == "__main__":
