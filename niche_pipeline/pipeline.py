@@ -245,9 +245,12 @@ def build_satellite(records, exclude_tags=(), max_names=12, segment_tags=True):
     if not elig:
         return [], {}, []
     elig.sort(key=lambda r: -r["er_effective"])
-    elig = elig[:max_names]
     ex = set(exclude_tags)
-    systemic = {"Macro", "Funding"}    # correlated across industries -> keep market-wide
+    # All business tags are regime-specific: aluminium-price, interest-rate and
+    # auto-cycle "Macro" exposures are uncorrelated, as are pharma-pricing vs
+    # gambling-licence "Regulatory". Segment every tag by industry so the 20% rule
+    # caps only genuinely correlated wipeout risk.
+    systemic = set()
 
     def tagset(r):
         ind = " ".join(str(r.get("industry") or "?").split())
@@ -263,8 +266,45 @@ def build_satellite(records, exclude_tags=(), max_names=12, segment_tags=True):
     # cannot dominate the interpolation.
     irr = {r["ticker"]: min(r["er_effective"], F.MAX_PLAUSIBLE_IRR) for r in elig}
     tags_by = {r["ticker"]: tagset(r) for r in elig}
-    book = list(irr)
-    book, weights, log = F.trim_to_tag_cap(book, irr, tags_by)
+
+    # Fixed return-interpolated weights anchored to the 12% hurdle (5% floor) and
+    # the best eligible return (20% ceiling). Fixing the scale — rather than
+    # re-deriving R_min from the book each step — keeps a name's weight independent
+    # of which others are held, so adding a name never re-weights the rest.
+    rmax = max(irr.values())
+    rmin = F.GATE1_IRR
+
+    def wt(er):
+        if rmax <= rmin:
+            return F.W_MIN
+        return min(F.W_MAX, max(F.W_MIN,
+                   F.W_MIN + (er - rmin) / (rmax - rmin) * (F.W_MAX - F.W_MIN)))
+
+    # Greedy return-ranked fill: walk highest-return first and add each name only
+    # if it keeps every (industry-segmented) tag bucket within the 20% cap, until
+    # the book reaches `max_names`. Buckets only grow, so the fill is stable and
+    # builds a full, diversified 8-12 name book — a name that would breach a maxed
+    # tag-regime is skipped for the next that fits.
+    book, log, weights, buckets = [], [], {}, {}
+    for r in elig:                                    # already sorted by return
+        t = r["ticker"]; w = wt(irr[t])
+        breach = next((tag for tag in tags_by[t]
+                       if buckets.get(tag, 0.0) + w > F.TAG_CAP + 1e-9), None)
+        if breach is None:
+            book.append(t); weights[t] = w
+            for tag in tags_by[t]:
+                buckets[tag] = buckets.get(tag, 0.0) + w
+        else:
+            log.append((breach, round(buckets.get(breach, 0.0) + w, 4), t, round(irr[t], 4)))
+        if len(book) >= max_names:
+            break
+    # The concentrated book cannot exceed 100% of capital. When the return-sized
+    # weights sum above 1.0 (many high-return ideas), scale them to a 100% ceiling,
+    # preserving their return-based relative emphasis; otherwise leave them and the
+    # remainder sweeps to the Core index.
+    tot = sum(weights.values())
+    if tot > 1.0:
+        weights = {t: w / tot for t, w in weights.items()}
     return book, weights, log
 
 
