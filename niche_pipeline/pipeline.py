@@ -88,8 +88,16 @@ def _coerce_vec(v, n):
     return [int(round(x)) for x in out[:n]]
 
 
-def deterministic_part(row, idx, *, re, re2, country_base, apply_gate2=False):
-    """Cheap, no-network: AIP valuation, implied moat, both gates. Always runs."""
+def deterministic_part(row, idx, *, re, re2, country_base, apply_gate2=False,
+                       gate_basis="re"):
+    """Cheap, no-network: AIP valuation, implied moat, both gates. Always runs.
+
+    gate_basis picks which cost-of-capital read is the company's *expected return*
+    for the gate and sizing: "re" = the ER@`re` read (default; the realistic read —
+    with a ~2.65% JPY risk-free a 7% cost of equity is appropriate, and a 12%
+    discount would imply a ~9% equity-risk premium), "re2" = the conservative
+    ER@`re2` read. Gate 1 always tests this return against the 12% HURDLE; the
+    other read is still computed and displayed."""
     name = _get(row, idx, "Company Name")
     ticker = _get(row, idx, "Instrument")
     if not name:
@@ -101,7 +109,7 @@ def deterministic_part(row, idx, *, re, re2, country_base, apply_gate2=False):
     rec = {"ticker": ticker, "company": name,
            "industry": _get(row, idx, "GICS Industry Group Name"),
            "country": _get(row, idx, "Country of Headquarters"),
-           "_row": row, "_apply_gate2": apply_gate2}
+           "_row": row, "_apply_gate2": apply_gate2, "_gb": gate_basis}
     rec["_fin"] = fin; rec["_re"] = re; rec["_re2"] = re2; rec["_cb"] = country_base
     val = aip.value_and_return(fin, re=re, re2=re2, country_base=country_base)
     if val:
@@ -110,12 +118,15 @@ def deterministic_part(row, idx, *, re, re2, country_base, apply_gate2=False):
                     "er_lo": val.get("er1"), "er_hi": val.get("er2"),
                     "op_over_ev": (val["op_value"] / val["ev"]) if val.get("op_value") and val.get("ev") else None})
         rec["implied_moat"] = aip.implied_moat(fin, r=re2 or 0.12, country_base=country_base)
-    rec["irr12"] = rec.get("er_hi")           # whole-company ER at the 12% hurdle (as-is)
-    rec["er_effective"] = rec.get("irr12")    # may be raised to the separated return later
+    rec["irr12"] = rec.get("er_hi")           # ER at the 12% discount (conservative read; display)
+    bkey = "er1" if gate_basis == "re" else "er2"
+    # The as-is expected return that drives the gate, the artifact screen and sizing.
+    rec["as_is_ret"] = rec.get("er_lo") if gate_basis == "re" else rec.get("er_hi")
+    rec["er_effective"] = rec.get("as_is_ret")   # may be raised to the separated return later
     # Cheap pre-screen: would this clear the hurdle IF its core were a top compounder?
     vc = aip.value_and_return(fin, re=re, re2=re2, country_base=country_base,
                               moat_override=F.RESTRUCTURE_MIN_CORE + 1.3)   # ~7.8 "Compounder"
-    rec["er_ceiling"] = vc.get("er2") if vc else None
+    rec["er_ceiling"] = vc.get(bkey) if vc else None
     floor_ratio = _num(_get(row, idx, "Value per share without growth/share price"))
     rec["gate2_floor"] = floor_ratio
     rec["gate2_pass"] = F.gate2_pass(floor_ratio)
@@ -123,8 +134,8 @@ def deterministic_part(row, idx, *, re, re2, country_base, apply_gate2=False):
     # Research-worthy if it clears Gate 1 as-is OR could clear once a high-quality
     # core is recognised (the trapped-jewel case) — both deterministic, no spend.
     rec["research_worthy"] = bool(
-        (F.gate1_pass(rec.get("irr12")) or F.gate1_pass(rec.get("er_ceiling")))
-        and not F.er_is_artifact(rec.get("irr12")))
+        (F.gate1_pass(rec.get("as_is_ret")) or F.gate1_pass(rec.get("er_ceiling")))
+        and not F.er_is_artifact(rec.get("as_is_ret")))
     return rec
 
 
@@ -142,7 +153,7 @@ def _finalize_gates(rec):
     earnings trap shows up, whereas a high separated return is a legitimate moat
     re-rating, not an artifact."""
     rec["gate1_irr12"] = F.gate1_pass(rec.get("er_effective"))
-    rec["er_artifact"] = F.er_is_artifact(rec.get("irr12"))
+    rec["er_artifact"] = F.er_is_artifact(rec.get("as_is_ret"))
     rec["clears_gauntlet"] = bool(rec["gate1_irr12"] and _gate2_effective(rec)
                                   and not rec["er_artifact"])
 
@@ -202,21 +213,25 @@ def attach_qualitative(rec, idx, research_rec):
         # already clears as-is (the separation is then optional upside, not needed).
         rec["restructuring"] = F.is_restructuring_candidate(cm, km, rec["owner_verdict"])
         # Value the durable core on its OWN moat (a longer competitive-advantage
-        # period) — the separated re-rating the whole-company return misses.
+        # period) — the separated re-rating the whole-company return misses. Use
+        # the same cost-of-capital basis as the as-is return so they compare like
+        # for like.
+        bkey = "er1" if rec.get("_gb", "re") == "re" else "er2"
         vc = aip.value_and_return(rec["_fin"], re=rec["_re"], re2=rec["_re2"],
                                   country_base=rec["_cb"], moat_override=km)
-        rec["er_core"] = vc.get("er2") if vc else None
-        if rec.get("irr12") is not None and rec.get("er_core") is not None:
-            rec["separation_uplift"] = round(rec["er_core"] - rec["irr12"], 4)
+        rec["er_core"] = vc.get(bkey) if vc else None
+        asis = rec.get("as_is_ret")
+        if asis is not None and rec.get("er_core") is not None:
+            rec["separation_uplift"] = round(rec["er_core"] - asis, 4)
         # AS-IS winner (any ownership) OR freed-core (separable only).
         clears, basis, eff = F.select(
-            rec.get("irr12"), rec.get("er_core"), cm, km, rec["owner_verdict"],
-            _gate2_effective(rec), F.er_is_artifact(rec.get("irr12")))
+            asis, rec.get("er_core"), cm, km, rec["owner_verdict"],
+            _gate2_effective(rec), F.er_is_artifact(asis))
         rec["clears_gauntlet"] = clears
         rec["return_basis"] = basis
         rec["er_effective"] = eff
-        rec["gate1_irr12"] = F.gate1_pass(rec.get("irr12"))
-        rec["er_artifact"] = F.er_is_artifact(rec.get("irr12"))
+        rec["gate1_irr12"] = F.gate1_pass(asis)
+        rec["er_artifact"] = F.er_is_artifact(asis)
     return rec
 
 
@@ -326,7 +341,7 @@ def write_output(records, path, exclude_tags=(), segment_tags=True):
             "KeepScore", "Detachability", "EO_Action",
             "OwnerVerdict", "OwnerBloc%", "OwnerNotes",
             "AIP_WACC", "AIP_Rating", "OpValue", "OpVal/EV", "ER@7%", "ER@12%(as-is)", "ImpliedMoat",
-            "MoatGap", "ER@12%(separated)", "SeparationUplift", "ReturnBasis", "Restructuring",
+            "MoatGap", "ER(separated)", "SeparationUplift", "ReturnBasis", "Restructuring",
             "Gate1(IRR>=12)", "Gate2(floor)", "Gate2pass", "ER_Artifact", "ClearsGauntlet", "RiskTags",
             "MargROIC7y", "MarginTrend", "NormEV/EBITA", "MoatVsHistory", "HistoryNote"]
     ws.append(cols)
@@ -391,7 +406,8 @@ def write_output(records, path, exclude_tags=(), segment_tags=True):
 # ---------------------------------------------------------------------------
 def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
         research=True, limit=None, country_base=None, exclude_tags=(),
-        workers=6, research_all=False, history_path=None, apply_gate2=False, segment_tags=True):
+        workers=6, research_all=False, history_path=None, apply_gate2=False,
+        segment_tags=True, gate_basis="re"):
     """Two-pass, hands-off run.
 
     Pass 1 (cheap, no network): value every company and apply the gates.
@@ -408,7 +424,7 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
     records = []
     for row in ws.iter_rows(min_row=2, values_only=True):
         rec = deterministic_part(row, idx, re=re, re2=re2, country_base=country_base,
-                                 apply_gate2=apply_gate2)
+                                 apply_gate2=apply_gate2, gate_basis=gate_basis)
         if rec:
             records.append(rec)
         if limit and len(records) >= limit:
@@ -463,7 +479,7 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
             print(f"history cross-check skipped: {e}")
 
     for r in records:                                       # drop internal handles before writing
-        for k in ("_row", "_fin", "_re", "_re2", "_cb", "_apply_gate2"):
+        for k in ("_row", "_fin", "_re", "_re2", "_cb", "_apply_gate2", "_gb"):
             r.pop(k, None)
 
     book, weights = write_output(records, output_path, exclude_tags, segment_tags=segment_tags)
@@ -501,12 +517,16 @@ def main():
                     help="re-enable the Gate-2 no-growth-floor downside screen (off by default)")
     ap.add_argument("--no-segment-tags", action="store_true",
                     help="disable industry-regime tag segmentation for the 20%% rule")
+    ap.add_argument("--conservative-er", action="store_true",
+                    help="gate on the ER@re2 (12%% discount) read instead of the realistic "
+                         "ER@re (7%%) read; the 12%% hurdle is unchanged either way")
     args = ap.parse_args()
     run(args.input, args.output, sheet=args.sheet, re=args.re, re2=args.re2,
         research=not args.no_research, limit=args.limit, country_base=args.country_base,
         exclude_tags=tuple(t.strip() for t in args.exclude_tags.split(',') if t.strip()),
         workers=args.workers, research_all=args.research_all, history_path=args.history,
-        apply_gate2=args.gate2, segment_tags=not args.no_segment_tags)
+        apply_gate2=args.gate2, segment_tags=not args.no_segment_tags,
+        gate_basis="re2" if args.conservative_er else "re")
 
 
 if __name__ == "__main__":
