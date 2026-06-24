@@ -29,6 +29,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 import frameworks as F
 import aip
 import analyst
+import history
 
 # ---- input column resolution ----------------------------------------------
 NCC_COMPANY_COLS = [f"NCC_{c}" for c in F.NCC_CHAPTERS]          # optional pre-scored
@@ -225,7 +226,8 @@ def build_satellite(records, exclude_tags=(), max_names=12):
     `exclude_tags` (short names) are not counted toward the 20% rule — e.g. pass
     ("FX",) for an all-domestic/heavy-exporter book where FX is shared, not idiosyncratic."""
     elig = [r for r in records
-            if r.get("clears_gauntlet") and r.get("er_effective") and r.get("risk_tags")]
+            if r.get("clears_gauntlet") and r.get("er_effective") and r.get("risk_tags")
+            and r.get("moat_vs_history") != "CONTRADICTED"]   # economics veto the moat
     if not elig:
         return [], {}, []
     elig.sort(key=lambda r: -r["er_effective"])
@@ -260,7 +262,8 @@ def write_output(records, path, exclude_tags=()):
             "OwnerVerdict", "OwnerBloc%", "OwnerNotes",
             "AIP_WACC", "AIP_Rating", "OpValue", "OpVal/EV", "ER@7%", "ER@12%(as-is)", "ImpliedMoat",
             "MoatGap", "ER@12%(separated)", "SeparationUplift", "ReturnBasis", "Restructuring",
-            "Gate1(IRR>=12)", "Gate2(floor)", "Gate2pass", "ER_Artifact", "ClearsGauntlet", "RiskTags"]
+            "Gate1(IRR>=12)", "Gate2(floor)", "Gate2pass", "ER_Artifact", "ClearsGauntlet", "RiskTags",
+            "MargROIC7y", "MarginTrend", "NormEV/EBITA", "MoatVsHistory", "HistoryNote"]
     ws.append(cols)
     for r in sorted(records, key=lambda r: (r.get("er_effective") is not None, r.get("er_effective") or -9), reverse=True):
         ws.append([
@@ -278,14 +281,17 @@ def write_output(records, path, exclude_tags=()):
             "ARTIFACT" if r.get("er_artifact") else "",
             "YES" if r.get("clears_gauntlet") else "no",
             ", ".join(r.get("risk_tag_names", [])),
+            r.get("hist_marginal_roic"), r.get("hist_margin_trend"),
+            r.get("hist_norm_ev_ebita"), r.get("moat_vs_history"), r.get("hist_reasons"),
         ])
     _style_header(ws)
     for row in ws.iter_rows(min_row=2):
-        for j in (15, 18, 19, 20, 23, 24):   # wacc, opval/ev, er7, er12-asis, er12-sep, uplift
+        for j in (15, 18, 19, 20, 23, 24, 33, 34):   # wacc, opval/ev, ers, marg-roic, margin-trend
             if row[j].value is not None:
                 row[j].number_format = "0.0%"
     widths = [9, 26, 24, 12, 14, 16, 30, 13, 14, 10, 12, 22, 13, 10, 40,
-              9, 9, 12, 9, 8, 12, 9, 8, 14, 12, 11, 14, 13, 11, 10, 11, 14, 40]
+              9, 9, 12, 9, 8, 12, 9, 8, 14, 12, 11, 14, 13, 11, 10, 11, 14, 40,
+              11, 11, 12, 14, 44]
     for i, w in enumerate(widths, 1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
 
@@ -320,7 +326,7 @@ def write_output(records, path, exclude_tags=()):
 # ---------------------------------------------------------------------------
 def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
         research=True, limit=None, country_base=None, exclude_tags=(),
-        workers=6, research_all=False):
+        workers=6, research_all=False, history_path=None):
     """Two-pass, hands-off run.
 
     Pass 1 (cheap, no network): value every company and apply the gates.
@@ -368,6 +374,28 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
     # ---- Finalize qualitative scoring ----
     for r in records:
         attach_qualitative(r, idx, fetched.get(r["ticker"]))
+
+    # ---- Empirical history cross-check (Domain B: actual ROIC beats narrative) ----
+    if history_path:
+        try:
+            by, hidx = history.load_panel(history_path)
+            for r in records:
+                rows = by.get(r["ticker"])
+                if not rows:
+                    continue
+                s = history.summarize(rows, hidx)
+                v, reasons = history.verdict(s, r.get("core_moat"))
+                r["hist_marginal_roic"] = s["roic_marginal_7y"]
+                r["hist_margin_trend"] = s["margin_ratio"]
+                r["hist_norm_ev_ebita"] = s["norm_ev_ebita"]
+                r["moat_vs_history"] = v
+                r["hist_reasons"] = "; ".join(reasons)
+            tally = {k: sum(1 for r in records if r.get("moat_vs_history") == k)
+                     for k in ("CONFIRMED", "SOFT", "CONTRADICTED")}
+            print(f"History cross-check: {tally}  (CONTRADICTED names are vetoed from the book)")
+        except Exception as e:
+            print(f"history cross-check skipped: {e}")
+
     for r in records:                                       # drop internal handles before writing
         for k in ("_row", "_fin", "_re", "_re2", "_cb"):
             r.pop(k, None)
@@ -401,11 +429,13 @@ def main():
     ap.add_argument("--workers", type=int, default=6, help="concurrent research calls")
     ap.add_argument("--research-all", action="store_true",
                     help="research every name, not just Gate-1 survivors (slower/costlier)")
+    ap.add_argument("--history", default=None,
+                    help="long-run panel (time-series) xlsx to cross-check moats vs actual ROIC")
     args = ap.parse_args()
     run(args.input, args.output, sheet=args.sheet, re=args.re, re2=args.re2,
         research=not args.no_research, limit=args.limit, country_base=args.country_base,
         exclude_tags=tuple(t.strip() for t in args.exclude_tags.split(',') if t.strip()),
-        workers=args.workers, research_all=args.research_all)
+        workers=args.workers, research_all=args.research_all, history_path=args.history)
 
 
 if __name__ == "__main__":

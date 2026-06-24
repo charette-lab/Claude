@@ -104,6 +104,31 @@ pricing the core's own CAP; it does not add the margin/ROIC uplift from divestin
 a loss-making "rest" (no segment financials in the screener), so it is a *floor*
 on the true break-up value.
 
+## Empirical history cross-check (`--history`)
+
+The qualitative moat scores are a narrative read; pass a long-run time-series
+panel and `history.py` tests them against each company's actual multi-year
+economics — the v3.2 Domain-B rule that *real ROIC takes precedence over the
+corporate narrative*. Per name it reads:
+
+- **marginal ROIC** (`ROICm 7y`) — return on the capital actually deployed (the
+  forward-compounding signal; the ROIC *level* is ignored as a disqualifier
+  because legacy goodwill on acquisitive names depresses it);
+- **margin trend** — latest EBITA margin vs its 10-year average;
+- **cycle-normalised EV/EBITA** (`current_multiple`, mid-cycle margin × current
+  sales) for a clean valuation read.
+
+It emits a verdict per name — **CONFIRMED / SOFT / CONTRADICTED** — and a
+**CONTRADICTED name is vetoed from the book**: a Watchlist+ moat was claimed but
+the economics don't support it (marginal ROIC below the cost of capital, or
+margins materially eroded). This auto-corrects exactly the case where research
+over-rates a business — e.g. a "specification-led lighting compounder" that has
+actually earned ~1% on incremental capital while its margin halved. Run:
+
+```bash
+python3 pipeline.py screener.xlsx -o scored.xlsx --history panel_timeseries.xlsx ...
+```
+
 ## Guardrails (fully hands-off)
 A whole-universe run completes unattended:
 
