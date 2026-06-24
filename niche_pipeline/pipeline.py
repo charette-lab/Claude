@@ -88,7 +88,7 @@ def _coerce_vec(v, n):
     return [int(round(x)) for x in out[:n]]
 
 
-def deterministic_part(row, idx, *, re, re2, country_base):
+def deterministic_part(row, idx, *, re, re2, country_base, apply_gate2=False):
     """Cheap, no-network: AIP valuation, implied moat, both gates. Always runs."""
     name = _get(row, idx, "Company Name")
     ticker = _get(row, idx, "Instrument")
@@ -101,7 +101,7 @@ def deterministic_part(row, idx, *, re, re2, country_base):
     rec = {"ticker": ticker, "company": name,
            "industry": _get(row, idx, "GICS Industry Group Name"),
            "country": _get(row, idx, "Country of Headquarters"),
-           "_row": row}
+           "_row": row, "_apply_gate2": apply_gate2}
     rec["_fin"] = fin; rec["_re"] = re; rec["_re2"] = re2; rec["_cb"] = country_base
     val = aip.value_and_return(fin, re=re, re2=re2, country_base=country_base)
     if val:
@@ -128,6 +128,13 @@ def deterministic_part(row, idx, *, re, re2, country_base):
     return rec
 
 
+def _gate2_effective(rec):
+    """Gate 2 is disabled by default (its no-growth-floor proxy is not a sound
+    downside measure). The floor is still computed and reported; it only gates
+    selection when --gate2 is passed."""
+    return rec.get("gate2_pass") if rec.get("_apply_gate2") else True
+
+
 def _finalize_gates(rec):
     """Set Gate 1, the ER-artifact flag and the gauntlet verdict. Gate 1 uses the
     effective return (as-is, or the separated return for a restructuring candidate);
@@ -136,7 +143,7 @@ def _finalize_gates(rec):
     re-rating, not an artifact."""
     rec["gate1_irr12"] = F.gate1_pass(rec.get("er_effective"))
     rec["er_artifact"] = F.er_is_artifact(rec.get("irr12"))
-    rec["clears_gauntlet"] = bool(rec["gate1_irr12"] and rec.get("gate2_pass")
+    rec["clears_gauntlet"] = bool(rec["gate1_irr12"] and _gate2_effective(rec)
                                   and not rec["er_artifact"])
 
 
@@ -204,7 +211,7 @@ def attach_qualitative(rec, idx, research_rec):
         # AS-IS winner (any ownership) OR freed-core (separable only).
         clears, basis, eff = F.select(
             rec.get("irr12"), rec.get("er_core"), cm, km, rec["owner_verdict"],
-            rec.get("gate2_pass"), F.er_is_artifact(rec.get("irr12")))
+            _gate2_effective(rec), F.er_is_artifact(rec.get("irr12")))
         rec["clears_gauntlet"] = clears
         rec["return_basis"] = basis
         rec["er_effective"] = eff
@@ -326,7 +333,7 @@ def write_output(records, path, exclude_tags=()):
 # ---------------------------------------------------------------------------
 def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
         research=True, limit=None, country_base=None, exclude_tags=(),
-        workers=6, research_all=False, history_path=None):
+        workers=6, research_all=False, history_path=None, apply_gate2=False):
     """Two-pass, hands-off run.
 
     Pass 1 (cheap, no network): value every company and apply the gates.
@@ -342,7 +349,8 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
     # ---- Pass 1: deterministic ----
     records = []
     for row in ws.iter_rows(min_row=2, values_only=True):
-        rec = deterministic_part(row, idx, re=re, re2=re2, country_base=country_base)
+        rec = deterministic_part(row, idx, re=re, re2=re2, country_base=country_base,
+                                 apply_gate2=apply_gate2)
         if rec:
             records.append(rec)
         if limit and len(records) >= limit:
@@ -397,7 +405,7 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
             print(f"history cross-check skipped: {e}")
 
     for r in records:                                       # drop internal handles before writing
-        for k in ("_row", "_fin", "_re", "_re2", "_cb"):
+        for k in ("_row", "_fin", "_re", "_re2", "_cb", "_apply_gate2"):
             r.pop(k, None)
 
     book, weights = write_output(records, output_path, exclude_tags)
@@ -431,11 +439,14 @@ def main():
                     help="research every name, not just Gate-1 survivors (slower/costlier)")
     ap.add_argument("--history", default=None,
                     help="long-run panel (time-series) xlsx to cross-check moats vs actual ROIC")
+    ap.add_argument("--gate2", action="store_true",
+                    help="re-enable the Gate-2 no-growth-floor downside screen (off by default)")
     args = ap.parse_args()
     run(args.input, args.output, sheet=args.sheet, re=args.re, re2=args.re2,
         research=not args.no_research, limit=args.limit, country_base=args.country_base,
         exclude_tags=tuple(t.strip() for t in args.exclude_tags.split(',') if t.strip()),
-        workers=args.workers, research_all=args.research_all, history_path=args.history)
+        workers=args.workers, research_all=args.research_all, history_path=args.history,
+        apply_gate2=args.gate2)
 
 
 if __name__ == "__main__":
