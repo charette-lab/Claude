@@ -291,6 +291,7 @@ def separable(verdict) -> bool:
 # matters. The moat-gap is the "how much quality is trapped" signal.
 RESTRUCTURE_MOAT_GAP = 1.0        # core must exceed company moat by this (points)
 RESTRUCTURE_MIN_CORE = 6.5        # and the core must itself be Watchlist+
+SAT_MIN_MOAT = 6.5                # quality floor for an as-is pick (company OR core)
 
 
 def is_restructuring_candidate(company_moat, core_moat, verdict) -> bool:
@@ -299,3 +300,31 @@ def is_restructuring_candidate(company_moat, core_moat, verdict) -> bool:
     return (core_moat >= RESTRUCTURE_MIN_CORE
             and (core_moat - company_moat) >= RESTRUCTURE_MOAT_GAP
             and separable(verdict))
+
+
+def select(er_asis, er_core, company_moat, core_moat, verdict,
+           gate2_pass, er_artifact) -> tuple:
+    """Decide whether a name belongs in the concentrated book, and on what basis.
+
+    Two independent, additive paths:
+      * AS-IS  — the return already clears the hurdle WITHOUT any action. Ownership
+        is irrelevant here (you are not relying on a transaction), so even a
+        founder-controlled HARD-BLOCK qualifies. Needs a Watchlist+ moat somewhere
+        (company OR core).
+      * FREED-CORE — the as-is return does NOT clear, but a strong, separable core
+        re-rates over the hurdle. This is the only path that requires the register
+        to permit change (not a HARD-BLOCK) and a Watchlist+ CORE.
+
+    Returns (clears: bool, basis: str, effective_return: float|None).
+    """
+    if not gate2_pass or er_artifact:
+        return False, "-", er_asis
+    cm, km = company_moat or 0, core_moat or 0
+    as_is = gate1_pass(er_asis) and max(cm, km) >= SAT_MIN_MOAT
+    if as_is:
+        return True, "as-is", er_asis
+    freed = (not gate1_pass(er_asis) and gate1_pass(er_core)
+             and separable(verdict) and km >= RESTRUCTURE_MIN_CORE)
+    if freed:
+        return True, "freed-core", er_core
+    return False, "-", er_asis

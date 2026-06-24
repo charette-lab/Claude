@@ -186,10 +186,12 @@ def attach_qualitative(rec, idx, research_rec):
     # ---- Ownership block verdict ----
     rec["owner_verdict"] = F.ownership_verdict(rec.get("owner_bloc_pct"), rec.get("country"))
 
-    # ---- Restructuring lens: re-rate a trapped core when change is feasible ----
+    # ---- Restructuring lens + two-path selection ----
     cm, km = rec.get("company_moat"), rec.get("core_moat")
     if cm is not None and km is not None:
         rec["moat_gap"] = round(km - cm, 2)
+        # "Has a strong, freeable core" — informational; flagged even when the name
+        # already clears as-is (the separation is then optional upside, not needed).
         rec["restructuring"] = F.is_restructuring_candidate(cm, km, rec["owner_verdict"])
         # Value the durable core on its OWN moat (a longer competitive-advantage
         # period) — the separated re-rating the whole-company return misses.
@@ -198,33 +200,32 @@ def attach_qualitative(rec, idx, research_rec):
         rec["er_core"] = vc.get("er2") if vc else None
         if rec.get("irr12") is not None and rec.get("er_core") is not None:
             rec["separation_uplift"] = round(rec["er_core"] - rec["irr12"], 4)
-        # If a high-quality core is trapped AND the register permits a break-up,
-        # the separated return is the one that matters for selection and sizing.
-        if rec["restructuring"] and rec.get("er_core") is not None:
-            rec["er_effective"] = rec["er_core"]
-            rec["return_basis"] = "separated"
-        else:
-            rec["return_basis"] = "as-is"
-        _finalize_gates(rec)
+        # AS-IS winner (any ownership) OR freed-core (separable only).
+        clears, basis, eff = F.select(
+            rec.get("irr12"), rec.get("er_core"), cm, km, rec["owner_verdict"],
+            rec.get("gate2_pass"), F.er_is_artifact(rec.get("irr12")))
+        rec["clears_gauntlet"] = clears
+        rec["return_basis"] = basis
+        rec["er_effective"] = eff
+        rec["gate1_irr12"] = F.gate1_pass(rec.get("irr12"))
+        rec["er_artifact"] = F.er_is_artifact(rec.get("irr12"))
     return rec
 
 
 # ---------------------------------------------------------------------------
-def build_satellite(records, exclude_tags=(), min_core_moat=6.5, max_names=12):
-    """From the gauntlet survivors, build the concentrated book: return-sized,
-    20%-tag-capped via the Trim Protocol. Drops HARD-BLOCK names (can't force change).
+def build_satellite(records, exclude_tags=(), max_names=12):
+    """From the names that clear the gauntlet, build the concentrated book:
+    return-sized, 20%-tag-capped via the Trim Protocol, capped at `max_names`.
 
-    Phase 1 of the framework screens for HIGH-MOAT compounders, so eligibility also
-    requires a core moat at or above Watchlist (>=6.5) — without it the AIP DCF's
-    triple-digit "expected returns" on deep-cyclical/distressed names would dominate
-    the return-interpolation. The concentrated book is then capped at `max_names`
-    (the doc's 8-12) by IRR before sizing.
+    Eligibility (the moat floor and the HARD-BLOCK rule) is decided per-name in
+    frameworks.select(): an AS-IS winner qualifies on its own return regardless of
+    ownership, while a FREED-CORE pick must be separable. So a founder-controlled
+    name with a high as-is return belongs here; one that needs a break-up to work
+    does not.
     `exclude_tags` (short names) are not counted toward the 20% rule — e.g. pass
-    ("FX",) for an all-domestic book where FX is a shared, not idiosyncratic, factor."""
+    ("FX",) for an all-domestic/heavy-exporter book where FX is shared, not idiosyncratic."""
     elig = [r for r in records
-            if r.get("clears_gauntlet") and r.get("er_effective")
-            and r.get("risk_tags") and r.get("owner_verdict") != "HARD-BLOCK"
-            and (r.get("core_moat") or 0) >= min_core_moat]
+            if r.get("clears_gauntlet") and r.get("er_effective") and r.get("risk_tags")]
     if not elig:
         return [], {}, []
     elig.sort(key=lambda r: -r["er_effective"])
