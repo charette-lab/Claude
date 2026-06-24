@@ -96,17 +96,25 @@ def verdict(summary, core_moat):
     rl = summary.get("roic_level")
     mr = summary.get("margin_ratio")
     reasons = []
-    # A NEGATIVE ROIC level is genuine capital destruction (distinct from a merely
-    # low-but-positive level depressed by acquisition goodwill) and is disqualifying.
+    # The veto rests on RETURNS ON CAPITAL, not margins. A negative ROIC level is
+    # capital destruction; a sub-cost-of-capital marginal ROIC means new capital
+    # doesn't earn. Margin erosion ALONE is NOT a veto — when marginal ROIC is
+    # healthy it signals growth investment (front-loaded costs), a cyclical trough
+    # (a peak-inflated 10y average), or a low-margin group diluting a strong core —
+    # none of which is deterioration. It is reported as a caution and caps the name
+    # at SOFT.
     neg_roic = rl is not None and rl < 0
-    weak = (rm is not None and rm < COST_OF_CAPITAL) or (mr is not None and mr < MARGIN_ERODING) or neg_roic
-    strong = (rm is not None and rm >= ROIC_STRONG) and (mr is None or mr >= MARGIN_ERODING) and not neg_roic
+    weak = (rm is not None and rm < COST_OF_CAPITAL) or neg_roic
+    eroding = mr is not None and mr < MARGIN_ERODING
+    strong = (rm is not None and rm >= ROIC_STRONG) and not neg_roic and not eroding
     if neg_roic:
         reasons.append(f"ROIC level NEGATIVE ({rl*100:.0f}%) — destroying capital")
     if rm is not None and rm < COST_OF_CAPITAL:
         reasons.append(f"marginal ROIC {rm*100:.0f}% below ~{COST_OF_CAPITAL*100:.0f}% cost of capital")
-    if mr is not None and mr < MARGIN_ERODING:
-        reasons.append(f"EBITA margin eroded to {mr*100:.0f}% of its 10y average")
+    if eroding:
+        reasons.append(f"caution: EBITA margin at {mr*100:.0f}% of its 10y average "
+                       + ("(but marginal ROIC healthy — growth/cyclical, not decline)"
+                          if not weak else ""))
     if rl is not None and 0 <= rl < ROIC_WEAK and weak:
         reasons.append(f"ROIC level only {rl*100:.0f}%")
     claimed = core_moat is not None and core_moat >= 6.5
