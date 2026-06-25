@@ -40,20 +40,53 @@ def _num(v):
 
 
 def load_panel(path, sheet=None):
-    """Return {ticker: [rows sorted by date]} and the column index."""
-    wb = openpyxl.load_workbook(path, data_only=True)
-    ws = wb[sheet] if sheet else wb.worksheets[0]
-    hdr = [c.value for c in next(ws.iter_rows(min_row=1, max_row=1))]
+    """Return {ticker: [rows sorted by date]} and the column index.
+
+    Reads .xlsx via openpyxl and .xlsb (binary) via pyxlsb — the large
+    whole-universe panels are often exported as .xlsb to stay under size limits."""
+    if str(path).lower().endswith(".xlsb"):
+        hdr, rowiter = _load_xlsb(path, sheet)
+    else:
+        wb = openpyxl.load_workbook(path, data_only=True)
+        ws = wb[sheet] if sheet else wb.worksheets[0]
+        hdr = [c.value for c in next(ws.iter_rows(min_row=1, max_row=1))]
+        rowiter = ws.iter_rows(min_row=2, values_only=True)
     idx = {h: i for i, h in enumerate(hdr) if h is not None}
     by = {}
     ti, di = idx.get("Instrument"), idx.get("Date")
-    for r in ws.iter_rows(min_row=2, values_only=True):
-        t = r[ti]
+    for r in rowiter:
+        t = r[ti] if (ti is not None and ti < len(r)) else None
         if t:
             by.setdefault(t, []).append(r)
+    keyd = (lambda r: (di is not None and di < len(r) and r[di] is not None,
+                       r[di] if (di is not None and di < len(r)) else None))
     for t in by:
-        by[t].sort(key=lambda r: (r[di] is not None, r[di]))
+        by[t].sort(key=keyd)
     return by, idx
+
+
+def _load_xlsb(path, sheet=None):
+    """(header_list, row_value_iterator) for an .xlsb panel via pyxlsb.
+    Rows are padded to the header width; pyxlsb yields sparse cells."""
+    import pyxlsb
+    wb = pyxlsb.open_workbook(path)
+    ws = wb.get_sheet(sheet or wb.sheets[0])
+    rows = ws.rows()
+    hdr_cells = next(rows)
+    ncol = max((c.c for c in hdr_cells), default=-1) + 1
+    hdr = [None] * ncol
+    for c in hdr_cells:
+        if c.c < ncol:
+            hdr[c.c] = c.v
+
+    def gen():
+        for rcells in rows:
+            row = [None] * ncol
+            for c in rcells:
+                if c.c < ncol:
+                    row[c.c] = c.v
+            yield row
+    return hdr, gen()
 
 
 def summarize(rows, idx):
