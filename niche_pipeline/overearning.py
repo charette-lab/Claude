@@ -161,6 +161,22 @@ def panel_signals(rows, idx):
     intang_base = g('R&D Capital Base') + g('SG&A Capital Base')
     intang_share = (intang_base / icv) if icv else 0.0
 
+    # --- capacity response (CapEx-to-capacity, K_t = K_{t-1}+f(C_{t-L})-δ) ---
+    # Gross PP&E stock growth is the reliable capacity-addition signal (the cash-
+    # flow CapEx line is sparse/unreliable in this panel). A scarcity rent where
+    # capacity is being aggressively added is transient (relief arrives at lead
+    # time L); flat capacity means supply is not responding. Only meaningful for
+    # asset-heavy capacity owners, so it is weighted by the physical share — a
+    # fabless firm's own PP&E is not the constraining capacity (that is its
+    # foundry's), so its signal is correctly muted.
+    ppe_series = [p for p in _col(rows, idx, "Property Plant & Equipment - Gross - Total")]
+    cap_growth = None
+    valid_ppe = [(i, p) for i, p in enumerate(ppe_series) if p and p > 0]
+    if len(valid_ppe) >= 4:
+        p0 = valid_ppe[-4][1]; p1 = valid_ppe[-1][1]
+        if p0 > 0:
+            cap_growth = (p1 / p0) ** (1.0 / 3) - 1
+
     romic = _last(_col(rows, idx, "ROICm_total - 7 years"))
 
     # --- margin corroboration (Betancourt scarcity-rent signature) ---
@@ -186,7 +202,7 @@ def panel_signals(rows, idx):
         "roic_star": roic_star, "asset_sweat": asset_sweat,
         "repro_prem": repro_prem, "phys_share": phys_share,
         "intang_share": intang_share, "romic": romic,
-        "margin_elev": margin_elev,
+        "margin_elev": margin_elev, "cap_growth": cap_growth,
     }
 
 
@@ -239,10 +255,20 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12):
     # margin (price detaching from cost). 30%+ margin elevation = full rent.
     SCARCITY_FULL = 0.30
     scarcity = max(0.0, min(1.0, sig.get("margin_elev", 0.0) / SCARCITY_FULL))
-    faded_frac = rev_excess * (1.0 - barrier) * scarcity   # transient supply-erodable rent
+    # capacity response erodes the barrier: a rent being flooded with new
+    # capacity is less durable (relief arrives at lead time L). 12%/yr gross-PP&E
+    # growth = full response, weighted by physical share so a fabless firm's own
+    # PP&E growth (not the constraining capacity) does not erode its moat.
+    CAP_FULL = 0.12
+    cg = sig.get("cap_growth")
+    cap_resp = (max(0.0, min(1.0, cg / CAP_FULL)) * min(1.0, sig.get("phys_share", 0.0))
+                if cg is not None else 0.0)
+    eff_barrier = barrier * (1.0 - 0.6 * cap_resp)
+    faded_frac = rev_excess * (1.0 - eff_barrier) * scarcity   # transient supply-erodable rent
     if faded_frac <= 1e-4:
         return {"er_current": er_current, "er_adj": er_current, "faded_frac": 0.0,
-                "H": 0.0, "barrier": barrier, "rev_excess": rev_excess, "scarcity": scarcity}
+                "H": 0.0, "barrier": barrier, "rev_excess": rev_excess,
+                "scarcity": scarcity, "cap_resp": cap_resp}
 
     ind = fin.get(aip.FIELDS["industry"])
     H = max(2.0, min(15.0, supply_lag(ind) * (0.5 + barrier)))   # entry delay, barrier-scaled
@@ -263,7 +289,7 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12):
     er_adj = adj["er1"] if adj else er_current
     return {"er_current": er_current, "er_adj": er_adj, "faded_frac": faded_frac,
             "H": H, "barrier": barrier, "rev_excess": rev_excess, "scarcity": scarcity,
-            "er_s2": v2["er1"]}   # full-revert (no Stage-1 credit)
+            "cap_resp": cap_resp, "er_s2": v2["er1"]}   # full-revert (no Stage-1 credit)
 
 
 def run(tickers, panel_path, fins_by_ticker, moats_by_ticker=None,
