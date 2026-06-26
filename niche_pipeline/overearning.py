@@ -20,10 +20,13 @@ Knobs map to the literature:
   * fade horizon H = entry delay        -> Savagar & Dixon (2020)
   * through-cycle quality anchor ROIC*  -> CAPITAL_SPEC (base-consistent, keep-10% cash)
 
-What is COMPUTABLE here (panel only): the revenue spike, the quality/reproduction
-barrier, H, ROIC*. What is NOT (needs research, left as default-neutral hooks):
-relationship-specificity, the intangible reproduction barrier for asset-light
-moats, and demand-durability (take-or-pay / channel inventory).
+What is COMPUTABLE here (panel only): the revenue spike, the through-cycle
+quality anchor ROIC*, H, and the reproduction barrier for BOTH asset-heavy
+(physical reproduction premium) and asset-light moats (the capitalized R&D/SG&A
+capital base — the same intangible stock that sits in invested capital). What is
+NOT (needs research, left as default-neutral hooks): qualitative relationship-
+specificity beyond the capital base, and demand-durability (take-or-pay /
+channel inventory, Check C).
 """
 from __future__ import annotations
 import math
@@ -137,7 +140,14 @@ def panel_signals(rows, idx):
         return v or 0.0
     grc = g('Gross Reproduction Cost'); ppe_g = g('Property Plant & Equipment - Gross - Total')
     repro_prem = ((grc / ppe_g) - 1) if ppe_g else 0.0
-    phys_share = (ppe_g / ic_star(r, idx)) if ic_star(r, idx) else 0.0
+    icv = ic_star(r, idx)
+    phys_share = (ppe_g / icv) if icv else 0.0
+    # intangible reproduction barrier: the capitalized R&D + SG&A capital base is
+    # an asset a competitor must rebuild over years (CUDA-type ecosystem, brand,
+    # IP). It is the SAME stock the rest of the model carries in invested
+    # capital, so crediting it here keeps the barrier consistent with IC.
+    intang_base = g('R&D Capital Base') + g('SG&A Capital Base')
+    intang_share = (intang_base / icv) if icv else 0.0
 
     romic = _last(_col(rows, idx, "ROICm_total - 7 years"))
 
@@ -155,7 +165,8 @@ def panel_signals(rows, idx):
     return {
         "rev_excess_frac": rev_excess_frac, "past_peak": past_peak,
         "roic_star": roic_star, "asset_sweat": asset_sweat,
-        "repro_prem": repro_prem, "phys_share": phys_share, "romic": romic,
+        "repro_prem": repro_prem, "phys_share": phys_share,
+        "intang_share": intang_share, "romic": romic,
         "margin_elev": margin_elev,
     }
 
@@ -163,10 +174,11 @@ def panel_signals(rows, idx):
 def durability_barrier(sig, moat, wacc):
     """Fraction of the revenue spike that is structurally defensible (kept in the
     base). Blends through-cycle quality, moat band, and the physical
-    reproduction barrier (weighted by how physical the asset base is). In [0,1].
-    Research inputs (relationship-specificity, intangible reproduction) would
-    raise this for asset-light monopolies; absent them this is a conservative
-    floor (it under-credits CUDA-type intangible moats)."""
+    reproduction barrier (physical premium + intangible capital base). In [0,1].
+    The reproduction leg now credits asset-light moats via the R&D/SG&A capital
+    base, so CUDA/EUV/brand-type moats are no longer under-credited. A remaining
+    research hook (qualitative relationship-specificity / demand-durability)
+    would refine it further but is not required for the quantitative barrier."""
     rs = sig.get("roic_star")
     # quality: excess return over cost of capital, saturating at ~+20pp
     q = 0.0
@@ -176,8 +188,15 @@ def durability_barrier(sig, moat, wacc):
     m = 0.0
     if moat is not None:
         m = max(0.0, min(1.0, (moat - 6.0) / (8.5 - 6.0)))
-    # physical reproduction barrier, only credited to the physical share of IC
-    repro = max(0.0, min(1.0, sig.get("repro_prem", 0.0) / 1.0)) * sig.get("phys_share", 0.0)
+    # reproduction barrier = hard-to-reproduce capital / total capital. Two legs,
+    # symmetric: the PHYSICAL premium over book (reproduction-cost dislocation,
+    # credited to the physical share) PLUS the intangible capital base (CUDA/EUV/
+    # brand/IP — the asset-light moat, the same stock that sits in invested
+    # capital). This makes the barrier consistent across asset-heavy and
+    # asset-light moats instead of only crediting physical capacity.
+    repro = (max(0.0, sig.get("repro_prem", 0.0)) * sig.get("phys_share", 0.0)
+             + sig.get("intang_share", 0.0))
+    repro = max(0.0, min(1.0, repro))
     barrier = 0.45 * q + 0.40 * m + 0.15 * repro
     return max(0.0, min(1.0, barrier))
 
