@@ -169,13 +169,22 @@ def panel_signals(rows, idx):
     # asset-heavy capacity owners, so it is weighted by the physical share — a
     # fabless firm's own PP&E is not the constraining capacity (that is its
     # foundry's), so its signal is correctly muted.
-    ppe_series = [p for p in _col(rows, idx, "Property Plant & Equipment - Gross - Total")]
-    cap_growth = None
-    valid_ppe = [(i, p) for i, p in enumerate(ppe_series) if p and p > 0]
-    if len(valid_ppe) >= 4:
-        p0 = valid_ppe[-4][1]; p1 = valid_ppe[-1][1]
-        if p0 > 0:
-            cap_growth = (p1 / p0) ** (1.0 / 3) - 1
+    def _cagr3(series):
+        v = [(i, x) for i, x in enumerate(series) if x and x > 0]
+        if len(v) >= 4 and v[-4][1] > 0:
+            return (v[-1][1] / v[-4][1]) ** (1.0 / 3) - 1
+        return None
+    cap_growth = _cagr3(_col(rows, idx, "Property Plant & Equipment - Gross - Total"))
+    # intangible capacity: R&D + SG&A capital base growth. For an intangible-
+    # intensive firm the capacity being built is the product/pipeline/ecosystem,
+    # not PP&E — and the model capitalizes it, so the capacity signal must see it.
+    # (Stock = durability, credited in the barrier; GROWTH = capacity/competitive
+    # investment flooding in, credited here as rent-eroding.)
+    rd_series = _col(rows, idx, "R&D Capital Base")
+    sga_series = _col(rows, idx, "SG&A Capital Base")
+    intang_ser = [((rd_series[i] or 0) + (sga_series[i] or 0)) if (i < len(rd_series))
+                  else None for i in range(len(rows))]
+    intang_cap_growth = _cagr3(intang_ser)
 
     romic = _last(_col(rows, idx, "ROICm_total - 7 years"))
 
@@ -203,6 +212,7 @@ def panel_signals(rows, idx):
         "repro_prem": repro_prem, "phys_share": phys_share,
         "intang_share": intang_share, "romic": romic,
         "margin_elev": margin_elev, "cap_growth": cap_growth,
+        "intang_cap_growth": intang_cap_growth,
     }
 
 
@@ -259,10 +269,14 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12):
     # capacity is less durable (relief arrives at lead time L). 12%/yr gross-PP&E
     # growth = full response, weighted by physical share so a fabless firm's own
     # PP&E growth (not the constraining capacity) does not erode its moat.
+    # total capacity response = physical + intangible capacity additions, each
+    # weighted by where the firm's capacity actually lives (physical vs intangible
+    # share of invested capital). Symmetric with the reproduction barrier.
     CAP_FULL = 0.12
-    cg = sig.get("cap_growth")
-    cap_resp = (max(0.0, min(1.0, cg / CAP_FULL)) * min(1.0, sig.get("phys_share", 0.0))
-                if cg is not None else 0.0)
+    def _leg(growth, share):
+        return (max(0.0, min(1.0, growth / CAP_FULL)) * min(1.0, share)) if growth is not None else 0.0
+    cap_resp = min(1.0, _leg(sig.get("cap_growth"), sig.get("phys_share", 0.0))
+                   + _leg(sig.get("intang_cap_growth"), sig.get("intang_share", 0.0)))
     eff_barrier = barrier * (1.0 - 0.6 * cap_resp)
     faded_frac = rev_excess * (1.0 - eff_barrier) * scarcity   # transient supply-erodable rent
     if faded_frac <= 1e-4:
