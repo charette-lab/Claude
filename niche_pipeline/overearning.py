@@ -66,21 +66,32 @@ def _last(xs):
     return next((v for v in reversed(xs) if v is not None), None)
 
 
-def _loglinear_current(series):
-    """Fit log(y) ~ a + b·t over the valid history; return the fitted CURRENT
-    value (the structural trend level today). A steady exponential grower has
-    current≈fitted (no spike); a recent surge above its own trend shows
-    current>fitted. Returns None if <4 positive points."""
-    pts = [(i, math.log(y)) for i, y in enumerate(series) if y is not None and y > 0]
+def _loglinear_current(series, weights=None):
+    """Weighted fit of log(y) ~ a + b·t over the valid history; return the fitted
+    CURRENT value (the structural trend level today). A steady exponential grower
+    has current≈fitted (no spike); a recent surge above its own trend shows
+    current>fitted. Returns None if <4 positive points.
+
+    `weights` (macro-cyclical year weights, Finck shock-identification) down-
+    weight macro-shock years so a shock-inflated boom does not define the trend
+    baseline — the shock revenue then shows as above-trend excess. Defaults to
+    equal weights."""
+    pts = []
+    for i, y in enumerate(series):
+        if y is not None and y > 0:
+            w = 1.0
+            if weights is not None and i < len(weights) and weights[i]:
+                w = weights[i]
+            pts.append((i, math.log(y), w))
     if len(pts) < 4:
         return None
-    n = len(pts)
-    mx = sum(p[0] for p in pts) / n
-    my = sum(p[1] for p in pts) / n
-    den = sum((p[0] - mx) ** 2 for p in pts)
+    W = sum(p[2] for p in pts)
+    mx = sum(p[0] * p[2] for p in pts) / W
+    my = sum(p[1] * p[2] for p in pts) / W
+    den = sum(p[2] * (p[0] - mx) ** 2 for p in pts)
     if den == 0:
         return None
-    b = sum((p[0] - mx) * (p[1] - my) for p in pts) / den
+    b = sum(p[2] * (p[0] - mx) * (p[1] - my) for p in pts) / den
     a = my - b * mx
     t_now = pts[-1][0]
     return math.exp(a + b * t_now)
@@ -106,8 +117,9 @@ def panel_signals(rows, idx):
     noi = _col(rows, idx, "New Operating Income")
     cur_sales = _last(sales)
 
-    # --- revenue spike: current vs its own log-trend ---
-    trend = _loglinear_current(sales)
+    # --- revenue spike: current vs its own macro-shock-weighted log-trend ---
+    macro_w = _col(rows, idx, "Macro Weight")
+    trend = _loglinear_current(sales, macro_w)
     rev_excess_frac = 0.0
     if trend and cur_sales and cur_sales > 0:
         rev_excess_frac = max(0.0, (cur_sales - trend) / cur_sales)
@@ -159,8 +171,15 @@ def panel_signals(rows, idx):
     # merger-driven revenue jump at flat margin is not faded).
     em = _col(rows, idx, "EBITA_Margin")
     em_cur = _last(em)
-    em7 = [x for x in em[-7:] if x is not None]
-    em_avg = sum(em7) / len(em7) if em7 else None
+    # macro-shock-weighted margin baseline over the full history: down-weighting
+    # boom years lowers the baseline so a SUSTAINED multi-year scarcity rent
+    # (which contaminates a plain trailing average) still shows as elevated.
+    pairs = [(m, (macro_w[i] if i < len(macro_w) and macro_w[i] else 1.0))
+             for i, m in enumerate(em) if m is not None]
+    em_avg = None
+    if pairs:
+        Wm = sum(w for _, w in pairs)
+        em_avg = sum(m * w for m, w in pairs) / Wm if Wm else None
     margin_elev = ((em_cur - em_avg) / em_avg) if (em_cur is not None and em_avg and em_avg > 0) else 0.0
     return {
         "rev_excess_frac": rev_excess_frac, "past_peak": past_peak,
