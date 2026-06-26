@@ -389,7 +389,8 @@ def write_output(records, path, exclude_tags=(), segment_tags=True,
             "MoatGap", "ER(separated)", "SeparationUplift", "ReturnBasis", "Restructuring",
             "Gate1(IRR>=12)", "Gate2(floor)", "Gate2pass", "ER_Artifact", "ClearsGauntlet", "RiskTags",
             "MargROIC7y", "MarginTrend", "NormEV/EBITA", "MoatVsHistory", "HistoryNote",
-            "ImpliedYrs", "WarrantedYrs", "ValuationCushion", "PricedFor", "ReturnFromDiscount"]
+            "ImpliedYrs", "WarrantedYrs", "ValuationCushion", "PricedFor", "ReturnFromDiscount",
+            "ROIC*(7y)", "OE_RevExcess", "OE_Barrier", "OE_Faded%", "OE_H(y)", "OE_ER_adj"]
     ws.append(cols)
     for r in sorted(records, key=lambda r: (r.get("er_effective") is not None, r.get("er_effective") or -9), reverse=True):
         ws.append([
@@ -411,6 +412,8 @@ def write_output(records, path, exclude_tags=(), segment_tags=True,
             r.get("hist_norm_ev_ebita"), r.get("moat_vs_history"), r.get("hist_reasons"),
             r.get("implied_years"), r.get("warranted_life"), r.get("valuation_cushion"),
             r.get("priced_for"), "YES" if r.get("return_leans_on_discount") else "",
+            r.get("roic_star"), r.get("oe_rev_excess"), r.get("oe_barrier"),
+            r.get("oe_faded"), r.get("oe_H"), r.get("oe_er_adj"),
         ])
     _style_header(ws)
     for row in ws.iter_rows(min_row=2):
@@ -419,7 +422,8 @@ def write_output(records, path, exclude_tags=(), segment_tags=True,
                 row[j].number_format = "0.0%"
     widths = [9, 26, 24, 12, 14, 16, 30, 13, 14, 10, 12, 22, 13, 10, 40,
               9, 9, 12, 9, 8, 12, 9, 8, 14, 12, 11, 14, 13, 11, 10, 11, 14, 40,
-              11, 11, 12, 14, 44, 10, 12, 16, 11, 17]
+              11, 11, 12, 14, 44, 10, 12, 16, 11, 17,
+              10, 12, 11, 10, 8, 11]
     for i, w in enumerate(widths, 1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
 
@@ -514,7 +518,8 @@ def write_output(records, path, exclude_tags=(), segment_tags=True,
 def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
         research=True, limit=None, country_base=None, exclude_tags=(),
         workers=6, research_all=False, history_path=None, apply_gate2=False,
-        segment_tags=True, gate_basis="re", core_n=F.CORE_N, core_strict=False):
+        segment_tags=True, gate_basis="re", core_n=F.CORE_N, core_strict=False,
+        apply_overearning=True):
     """Two-pass, hands-off run.
 
     Pass 1 (cheap, no network): value every company and apply the gates.
@@ -585,6 +590,44 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
         except Exception as e:
             print(f"history cross-check skipped: {e}")
 
+        # ---- Over-earning normalization (revenue scarcity-rent two-stage) ----
+        # NOI applies a 7yr-averaged margin to CURRENT revenue, so a name over-
+        # earning on a transient supply/demand imbalance is priced off an inflated
+        # base. overearning.py fades the supply-erodable rent over its lead time and
+        # the books rank on the adjusted return. Needs the same panel as --history.
+        if apply_overearning:
+            try:
+                import overearning
+                n_faded = 0
+                for r in records:
+                    rows = by.get(r["ticker"]); fin = r.get("_fin")
+                    if not rows or not fin or r.get("er_effective") is None:
+                        continue
+                    f = dict(fin)
+                    if r.get("core_moat") is not None:        # use the researched moat
+                        f[aip.FIELDS["moat"]] = r["core_moat"]
+                    sig = overearning.panel_signals(rows, hidx)
+                    ts = overearning.two_stage_return(f, sig, re=re, re2=re2)
+                    if not ts:
+                        continue
+                    r["roic_star"] = sig.get("roic_star")
+                    r["oe_rev_excess"] = ts.get("rev_excess")
+                    r["oe_barrier"] = ts.get("barrier")
+                    r["oe_faded"] = ts.get("faded_frac")
+                    r["oe_H"] = ts.get("H")
+                    r["oe_er_adj"] = ts.get("er_adj")
+                    dn = ts["er_current"] - ts["er_adj"]      # over-earning downgrade
+                    if dn > 1e-4:
+                        r["er_effective"] = r["er_effective"] - dn
+                        n_faded += 1
+                        if not F.gate1_pass(r["er_effective"]):
+                            r["gate1_irr12"] = False
+                            r["clears_gauntlet"] = False
+                print(f"Over-earning: faded {n_faded} revenue scarcity-rents; "
+                      f"books rank on the adjusted return")
+            except Exception as e:
+                print(f"over-earning normalization skipped: {e}")
+
     for r in records:                                       # drop internal handles before writing
         for k in ("_row", "_fin", "_re", "_re2", "_cb", "_apply_gate2", "_gb"):
             r.pop(k, None)
@@ -639,6 +682,10 @@ def main():
     ap.add_argument("--core-strict", action="store_true",
                     help="enforce the 20%% tag rule on RAW (un-segmented) tags in the Core "
                          "Index — the stringent budget; usually yields fewer than --core-n names")
+    ap.add_argument("--no-overearning", action="store_true",
+                    help="disable the revenue over-earning normalization (requires --history); "
+                         "by default, when a panel is supplied the books rank on the over-"
+                         "earning-adjusted return")
     args = ap.parse_args()
     run(args.input, args.output, sheet=args.sheet, re=args.re, re2=args.re2,
         research=not args.no_research, limit=args.limit, country_base=args.country_base,
@@ -646,7 +693,8 @@ def main():
         workers=args.workers, research_all=args.research_all, history_path=args.history,
         apply_gate2=args.gate2, segment_tags=not args.no_segment_tags,
         gate_basis="re2" if args.conservative_er else "re",
-        core_n=args.core_n, core_strict=args.core_strict)
+        core_n=args.core_n, core_strict=args.core_strict,
+        apply_overearning=not args.no_overearning)
 
 
 if __name__ == "__main__":

@@ -26,6 +26,7 @@ the qualitative core moat:
 """
 from __future__ import annotations
 import openpyxl
+import capital
 
 # thresholds (returns-on-capital are judged vs a ~8% cost of capital, not the 12% hurdle)
 COST_OF_CAPITAL = 0.08
@@ -102,6 +103,11 @@ def summarize(rows, idx):
     margin_ratio = (m_last / m_avg10) if (m_last and m_avg10 and m_avg10 > 0) else None
 
     s = {
+        # The through-cycle, base-consistent quality anchor (CAPITAL_SPEC §5):
+        # NOI / invested-capital-with-intangibles-and-10%-cash, 7yr-rolling. This
+        # is the binding veto signal — cycle-stable, unlike the trough-distorted
+        # marginal ROIC. Recomputed here, not read from the panel's full-cash Ratio.
+        "roic_star": capital.roic_star(rows, idx),
         "roic_level": last("Ratio_rolling_avg_7yr") or last("Ratio"),
         "roic_marginal_7y": last("ROICm_total - 7 years"),
         "roic_marginal_14y": last("ROICm_total - 14 years"),
@@ -121,35 +127,31 @@ def summarize(rows, idx):
 def verdict(summary, core_moat):
     """Cross-check the qualitative core moat against the economics.
 
-    The binding evidence is MARGINAL ROIC (return on the capital actually deployed)
-    and the margin trend. The ROIC *level* is deliberately not a disqualifier — on
-    acquisitive names legacy goodwill in invested capital depresses it even when new
-    capital compounds well (e.g. Enea: 8% level but 30% marginal)."""
-    rm = summary.get("roic_marginal_7y")
-    rl = summary.get("roic_level")
+    The binding evidence is the THROUGH-CYCLE quality anchor ROIC* (the base-
+    consistent level ROIC, 7yr-rolling — CAPITAL_SPEC §5), NOT a single trough-
+    distorted marginal ROIC. Averaging levels avoids the endpoint collapse that
+    knifes a quality cyclical caught at its trough (Somero: 7y marginal 2% but
+    ROIC* ~29%). A long-window marginal that is also negative only CONFIRMS
+    genuine capital destruction; it does not by itself veto."""
+    rs = summary.get("roic_star")            # the binding through-cycle anchor
+    rm14 = summary.get("roic_marginal_14y")  # cycle-robust destruction confirmation
+    rm = summary.get("roic_marginal_7y")     # trough-sensitive; reported, not binding
     mr = summary.get("margin_ratio")
     reasons = []
-    # The veto rests on RETURNS ON CAPITAL, not margins. A negative ROIC level is
-    # capital destruction; a sub-cost-of-capital marginal ROIC means new capital
-    # doesn't earn. Margin erosion ALONE is NOT a veto — when marginal ROIC is
-    # healthy it signals growth investment (front-loaded costs), a cyclical trough
-    # (a peak-inflated 10y average), or a low-margin group diluting a strong core —
-    # none of which is deterioration. It is reported as a caution and caps the name
-    # at SOFT.
-    neg_roic = rl is not None and rl < 0
-    weak = (rm is not None and rm < COST_OF_CAPITAL) or neg_roic
+    # Weak = the franchise does not earn its cost of capital THROUGH THE CYCLE.
+    weak = rs is not None and rs < COST_OF_CAPITAL
+    destroying = weak and (rm14 is not None and rm14 < 0)
     eroding = mr is not None and mr < MARGIN_ERODING
-    strong = (rm is not None and rm >= ROIC_STRONG) and not neg_roic and not eroding
-    if neg_roic:
-        reasons.append(f"ROIC level NEGATIVE ({rl*100:.0f}%) — destroying capital")
-    if rm is not None and rm < COST_OF_CAPITAL:
-        reasons.append(f"marginal ROIC {rm*100:.0f}% below ~{COST_OF_CAPITAL*100:.0f}% cost of capital")
+    strong = (rs is not None and rs >= ROIC_STRONG) and not eroding
+    if rs is not None:
+        reasons.append(f"through-cycle ROIC* {rs*100:.0f}%"
+                       + (f" below ~{COST_OF_CAPITAL*100:.0f}% cost of capital" if weak else ""))
+    if destroying:
+        reasons.append(f"long-window (14y) marginal ROIC NEGATIVE ({rm14*100:.0f}%) — destroying capital")
     if eroding:
         reasons.append(f"caution: EBITA margin at {mr*100:.0f}% of its 10y average "
-                       + ("(but marginal ROIC healthy — growth/cyclical, not decline)"
+                       + ("(but through-cycle ROIC* healthy — growth/cyclical, not decline)"
                           if not weak else ""))
-    if rl is not None and 0 <= rl < ROIC_WEAK and weak:
-        reasons.append(f"ROIC level only {rl*100:.0f}%")
     claimed = core_moat is not None and core_moat >= 6.5
     if claimed and weak:
         return "CONTRADICTED", reasons

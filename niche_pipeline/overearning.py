@@ -32,6 +32,7 @@ from __future__ import annotations
 import math
 import aip
 import history
+import capital
 
 # Industry supply lag (years to create competing capacity) — the entry-delay
 # clock from Bilbiie. Matched on a GICS-Industry-Group substring.
@@ -97,18 +98,8 @@ def _loglinear_current(series, weights=None):
     return math.exp(a + b * t_now)
 
 
-def ic_star(r, idx):
-    """Base-consistent invested capital, keeping 10% of cash (CAPITAL_SPEC)."""
-    def g(name):
-        v = _num(r[idx[name]]) if idx.get(name) is not None else None
-        return v or 0.0
-    return (g('Debt - Long-Term - Total')
-            + g('Short-Term Debt & Current Portion of Long-Term Debt')
-            + g('Minority Interest - Total')
-            + g("Shareholders' Equity - Attributable to Parent ShHold - Total")
-            - g('Funded Status (ASR)')
-            - 0.9 * g('Cash & Short Term Investments')
-            + g('R&D Capital Base') + g('SG&A Capital Base'))
+# Base-consistent invested capital (keep-10% cash) — defined in capital.py.
+ic_star = capital.ic_star
 
 
 def panel_signals(rows, idx):
@@ -129,13 +120,7 @@ def panel_signals(rows, idx):
         rev_excess_frac = 0.0  # already correcting; no live spike
 
     # --- through-cycle quality anchor ROIC* (base-consistent, keep-10% cash) ---
-    ratios = []
-    for r in rows:
-        ic = ic_star(r, idx)
-        n = _num(r[idx['New Operating Income']]) if idx.get('New Operating Income') is not None else None
-        ratios.append((n / ic) if (n is not None and ic) else None)
-    rs7 = [x for x in ratios[-7:] if x is not None]
-    roic_star = sum(rs7) / len(rs7) if rs7 else None
+    roic_star = capital.roic_star(rows, idx)
 
     # --- scarcity corroboration: asset-sweat above trend (Betancourt) ---
     ppe = _col(rows, idx, "Property Plant & Equipment - Gross - Total")

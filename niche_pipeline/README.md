@@ -28,6 +28,19 @@ For each company it produces:
 - `aip.py` — thin wrapper over the proven `aip-value` engine (`roiic_dcf.py`):
   per-company WACC, lever-glide, expected return at two hurdles, and the
   reverse-DCF implied moat length. The engine is reused, not re-derived.
+- `capital.py` — the locked capital & quality definitions as code (see
+  `CAPITAL_SPEC.md`): base-consistent invested capital (intangible capital base
+  in, 10% of cash retained) and the through-cycle quality anchor **ROIC\***.
+  Single source of truth, imported by `history.py` and `overearning.py`.
+- `overearning.py` — revenue over-earning normalization. NOI applies a
+  7yr-averaged margin to *current* revenue, so a name over-earning on a transient
+  supply/demand imbalance is priced off an inflated base. Detects the revenue
+  spike, gates it on margin corroboration (a real scarcity rent shows margin
+  *and* revenue elevated; a structural step lifts revenue at flat margin), sizes
+  the durable kept fraction from the reproduction barrier (physical + intangible
+  capital base) and the capacity response (is supply being built?), and fades the
+  transient remainder over the industry lead time. Wired into `pipeline.run()`
+  when `--history` is supplied (disable with `--no-overearning`).
 - `analyst.py` — the qualitative research backend. One structured Claude call
   per company (Anthropic Messages API + the `web_search` server tool) returns
   the ten moat chapter scores (company **and** core), the core identification,

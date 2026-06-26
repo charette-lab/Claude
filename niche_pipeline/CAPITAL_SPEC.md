@@ -139,11 +139,20 @@ canonical case the anchor must get right — and does.
   capital base may partially overlap acquired goodwill already in equity. Minor
   for low-intangible names; check before relying on ROIC\* for heavy acquirers.
 
-## 7. Wire-in sites
+## 7. Code home & wire-in status
 
-1. **TAM runway signal** — replace `RR × ROICm7` (trough-distorted) with
-   `RR × (ROIC* − hurdle)` so capital-light high-return names (NVIDIA, ASML) are
-   not mistaken for saturated, and spent cyclicals (low ROIC\*) are.
-2. **`history.py` veto** — anchor on ROIC\* (level, through-cycle), not the raw
-   7yr marginal, so quality cyclicals at their trough are not falsely
-   CONTRADICTED.
+The definitions in §2/§5 live in **`capital.py`** (`invested_capital`,
+`roic_star`) — the single code source of truth, imported by both `history.py`
+and `overearning.py`. Validated anchor: NVIDIA 34.1%, ASML 28.3%, MSFT 21.3%,
+Somero 29.3%, KO 8.6%.
+
+Wire-in (both **done**):
+
+1. **`history.py` veto** — `verdict()` anchors on ROIC\* (through-cycle level),
+   not the raw 7yr marginal, so quality cyclicals at their trough are not falsely
+   CONTRADICTED (Somero: 7y marginal swings 2%/55% but ROIC\* ~29% → SOFT not
+   vetoed; C-RAD ROIC\* 1% → CONTRADICTED, which the marginal would have missed).
+2. **Over-earning engine** (`overearning.py`) — wired into `pipeline.run()`
+   whenever the `--history` panel is supplied (disable with `--no-overearning`).
+   The books rank on the over-earning-adjusted return; the Scored sheet carries
+   `ROIC*(7y)`, `OE_RevExcess`, `OE_Barrier`, `OE_Faded%`, `OE_H(y)`, `OE_ER_adj`.
