@@ -1,0 +1,254 @@
+"""
+overearning.py — revenue/over-earning normalization from the long-run panel.
+
+Implements the computable spine of the over-earning architecture (see
+CAPITAL_SPEC.md and the cyclicality research thread): New Operating Income
+applies a 7-yr-averaged margin to CURRENT revenue, so margin cyclicality is
+already handled but REVENUE-level cyclicality is not. When current revenue rests
+on a transient supply/demand imbalance (Betancourt scarcity trap), the excess
+should fade; when it rests on a durable barrier (Bilbiie sunk-entry-cost moat /
+Acemoglu bargaining position), it is kept.
+
+Per name it produces a two-stage expected return:
+  Stage 2 — the existing ROIIC DCF on the SUSTAINABLE revenue base
+  Stage 1 — the transient revenue excess, faded to zero over horizon H
+             (H = industry supply lag scaled by the durability barrier)
+
+Knobs map to the literature:
+  * scarcity / revenue spike            -> Betancourt et al. (2024)
+  * durability barrier (kept fraction)  -> Bilbiie/Ghironi/Melitz (2007), Acemoglu & Tahbaz-Salehi (2024)
+  * fade horizon H = entry delay        -> Savagar & Dixon (2020)
+  * through-cycle quality anchor ROIC*  -> CAPITAL_SPEC (base-consistent, keep-10% cash)
+
+What is COMPUTABLE here (panel only): the revenue spike, the quality/reproduction
+barrier, H, ROIC*. What is NOT (needs research, left as default-neutral hooks):
+relationship-specificity, the intangible reproduction barrier for asset-light
+moats, and demand-durability (take-or-pay / channel inventory).
+"""
+from __future__ import annotations
+import math
+import aip
+import history
+
+# Industry supply lag (years to create competing capacity) — the entry-delay
+# clock from Bilbiie. Matched on a GICS-Industry-Group substring.
+SUPPLY_LAG = {
+    "Materials": 10, "Energy": 8, "Utilities": 15, "Transportation": 12,
+    "Capital Goods": 5, "Semiconductors": 5, "Technology Hardware": 5,
+    "Pharmaceuticals": 8, "Biotechnology": 8, "Health Care Equipment": 6,
+    "Software": 2, "Media": 2, "Food": 3, "Consumer": 4, "Automobiles": 5,
+    "Real Estate": 12, "Telecommunication": 10,
+}
+DEFAULT_LAG = 6
+
+
+def _num(v):
+    return v if isinstance(v, (int, float)) else None
+
+
+def supply_lag(industry):
+    ind = industry or ""
+    for k, v in SUPPLY_LAG.items():
+        if k.lower() in ind.lower():
+            return v
+    return DEFAULT_LAG
+
+
+def _col(rows, idx, name):
+    i = idx.get(name)
+    return [_num(r[i]) if (i is not None and i < len(r)) else None for r in rows]
+
+
+def _last(xs):
+    return next((v for v in reversed(xs) if v is not None), None)
+
+
+def _loglinear_current(series):
+    """Fit log(y) ~ a + b·t over the valid history; return the fitted CURRENT
+    value (the structural trend level today). A steady exponential grower has
+    current≈fitted (no spike); a recent surge above its own trend shows
+    current>fitted. Returns None if <4 positive points."""
+    pts = [(i, math.log(y)) for i, y in enumerate(series) if y is not None and y > 0]
+    if len(pts) < 4:
+        return None
+    n = len(pts)
+    mx = sum(p[0] for p in pts) / n
+    my = sum(p[1] for p in pts) / n
+    den = sum((p[0] - mx) ** 2 for p in pts)
+    if den == 0:
+        return None
+    b = sum((p[0] - mx) * (p[1] - my) for p in pts) / den
+    a = my - b * mx
+    t_now = pts[-1][0]
+    return math.exp(a + b * t_now)
+
+
+def ic_star(r, idx):
+    """Base-consistent invested capital, keeping 10% of cash (CAPITAL_SPEC)."""
+    def g(name):
+        v = _num(r[idx[name]]) if idx.get(name) is not None else None
+        return v or 0.0
+    return (g('Debt - Long-Term - Total')
+            + g('Short-Term Debt & Current Portion of Long-Term Debt')
+            + g('Minority Interest - Total')
+            + g("Shareholders' Equity - Attributable to Parent ShHold - Total")
+            - g('Funded Status (ASR)')
+            - 0.9 * g('Cash & Short Term Investments')
+            + g('R&D Capital Base') + g('SG&A Capital Base'))
+
+
+def panel_signals(rows, idx):
+    """History-derived over-earning signals for one company."""
+    sales = _col(rows, idx, "Sales")
+    noi = _col(rows, idx, "New Operating Income")
+    cur_sales = _last(sales)
+
+    # --- revenue spike: current vs its own log-trend ---
+    trend = _loglinear_current(sales)
+    rev_excess_frac = 0.0
+    if trend and cur_sales and cur_sales > 0:
+        rev_excess_frac = max(0.0, (cur_sales - trend) / cur_sales)
+    past_peak = bool(cur_sales is not None and sales
+                     and cur_sales < max(v for v in sales if v is not None))
+    if past_peak:
+        rev_excess_frac = 0.0  # already correcting; no live spike
+
+    # --- through-cycle quality anchor ROIC* (base-consistent, keep-10% cash) ---
+    ratios = []
+    for r in rows:
+        ic = ic_star(r, idx)
+        n = _num(r[idx['New Operating Income']]) if idx.get('New Operating Income') is not None else None
+        ratios.append((n / ic) if (n is not None and ic) else None)
+    rs7 = [x for x in ratios[-7:] if x is not None]
+    roic_star = sum(rs7) / len(rs7) if rs7 else None
+
+    # --- scarcity corroboration: asset-sweat above trend (Betancourt) ---
+    ppe = _col(rows, idx, "Property Plant & Equipment - Gross - Total")
+    turns = [(s / p) if (s and p) else None for s, p in zip(sales, ppe)]
+    t_now = _last(turns)
+    tv = [x for x in turns if x is not None]
+    turns_trend = (sum(tv[:-1]) / len(tv[:-1])) if len(tv) > 1 else None
+    asset_sweat = ((t_now - turns_trend) / turns_trend) if (t_now and turns_trend) else 0.0
+
+    # --- physical reproduction barrier (Check B) ---
+    r = rows[-1]
+    def g(name):
+        v = _num(r[idx[name]]) if idx.get(name) is not None else None
+        return v or 0.0
+    grc = g('Gross Reproduction Cost'); ppe_g = g('Property Plant & Equipment - Gross - Total')
+    repro_prem = ((grc / ppe_g) - 1) if ppe_g else 0.0
+    phys_share = (ppe_g / ic_star(r, idx)) if ic_star(r, idx) else 0.0
+
+    romic = _last(_col(rows, idx, "ROICm_total - 7 years"))
+
+    # --- margin corroboration (Betancourt scarcity-rent signature) ---
+    # A true over-earning rent shows the operating margin DETACHED above its own
+    # run-rate. A structural revenue step (M&A, share gain, ordinary volume
+    # growth) lifts revenue at NORMAL margins. Gating the revenue fade on margin
+    # elevation isolates scarcity rents and exempts structural steps (e.g. a
+    # merger-driven revenue jump at flat margin is not faded).
+    em = _col(rows, idx, "EBITA_Margin")
+    em_cur = _last(em)
+    em7 = [x for x in em[-7:] if x is not None]
+    em_avg = sum(em7) / len(em7) if em7 else None
+    margin_elev = ((em_cur - em_avg) / em_avg) if (em_cur is not None and em_avg and em_avg > 0) else 0.0
+    return {
+        "rev_excess_frac": rev_excess_frac, "past_peak": past_peak,
+        "roic_star": roic_star, "asset_sweat": asset_sweat,
+        "repro_prem": repro_prem, "phys_share": phys_share, "romic": romic,
+        "margin_elev": margin_elev,
+    }
+
+
+def durability_barrier(sig, moat, wacc):
+    """Fraction of the revenue spike that is structurally defensible (kept in the
+    base). Blends through-cycle quality, moat band, and the physical
+    reproduction barrier (weighted by how physical the asset base is). In [0,1].
+    Research inputs (relationship-specificity, intangible reproduction) would
+    raise this for asset-light monopolies; absent them this is a conservative
+    floor (it under-credits CUDA-type intangible moats)."""
+    rs = sig.get("roic_star")
+    # quality: excess return over cost of capital, saturating at ~+20pp
+    q = 0.0
+    if rs is not None and wacc:
+        q = max(0.0, min(1.0, (rs - wacc) / 0.20))
+    # moat band: >7.8 compounder -> strong; 6.5 watchlist -> weak
+    m = 0.0
+    if moat is not None:
+        m = max(0.0, min(1.0, (moat - 6.0) / (8.5 - 6.0)))
+    # physical reproduction barrier, only credited to the physical share of IC
+    repro = max(0.0, min(1.0, sig.get("repro_prem", 0.0) / 1.0)) * sig.get("phys_share", 0.0)
+    barrier = 0.45 * q + 0.40 * m + 0.15 * repro
+    return max(0.0, min(1.0, barrier))
+
+
+def two_stage_return(fin, sig, re=0.07, re2=0.12):
+    """ER on the two-stage path: Stage-2 DCF on the sustainable revenue base plus
+    the PV of the transient revenue excess fading over H. Returns a dict with the
+    unadjusted and adjusted expected returns and the components used."""
+    base = aip.value_and_return(fin, re=re, re2=re2)
+    if not base:
+        return None
+    er_current = base["er1"]
+    cur_noi = fin.get(aip.FIELDS["nopat"])
+    if not cur_noi:
+        return {"er_current": er_current, "er_adj": er_current, "faded_frac": 0.0,
+                "H": 0.0, "barrier": None, "rev_excess": sig.get("rev_excess_frac", 0.0)}
+
+    barrier = durability_barrier(sig, fin.get(aip.FIELDS["moat"]), base["wacc"])
+    rev_excess = sig.get("rev_excess_frac", 0.0)
+    # scarcity-rent gate: only fade revenue excess corroborated by an elevated
+    # margin (price detaching from cost). 30%+ margin elevation = full rent.
+    SCARCITY_FULL = 0.30
+    scarcity = max(0.0, min(1.0, sig.get("margin_elev", 0.0) / SCARCITY_FULL))
+    faded_frac = rev_excess * (1.0 - barrier) * scarcity   # transient supply-erodable rent
+    if faded_frac <= 1e-4:
+        return {"er_current": er_current, "er_adj": er_current, "faded_frac": 0.0,
+                "H": 0.0, "barrier": barrier, "rev_excess": rev_excess, "scarcity": scarcity}
+
+    ind = fin.get(aip.FIELDS["industry"])
+    H = max(2.0, min(15.0, supply_lag(ind) * (0.5 + barrier)))   # entry delay, barrier-scaled
+
+    base_noi = cur_noi * (1.0 - faded_frac)
+    f2 = dict(fin); f2[aip.FIELDS["nopat"]] = base_noi
+    v2 = aip.value_and_return(f2, re=re, re2=None)
+    if not v2 or not v2.get("op_value"):
+        return {"er_current": er_current, "er_adj": er_current, "faded_frac": faded_frac,
+                "H": H, "barrier": barrier, "rev_excess": rev_excess}
+    V2 = v2["op_value"]; wacc = v2["wacc"]
+    excess0 = cur_noi * faded_frac
+    V1 = sum(excess0 * max(0.0, 1.0 - tt / H) / (1 + wacc) ** tt
+             for tt in range(1, math.ceil(H) + 1))
+    comb_noi = base_noi * ((V2 + V1) / V2)
+    f3 = dict(fin); f3[aip.FIELDS["nopat"]] = comb_noi
+    adj = aip.value_and_return(f3, re=re, re2=None)
+    er_adj = adj["er1"] if adj else er_current
+    return {"er_current": er_current, "er_adj": er_adj, "faded_frac": faded_frac,
+            "H": H, "barrier": barrier, "rev_excess": rev_excess, "scarcity": scarcity,
+            "er_s2": v2["er1"]}   # full-revert (no Stage-1 credit)
+
+
+def run(tickers, panel_path, fins_by_ticker, moats_by_ticker=None,
+        sheet=None, re=0.07, re2=0.12):
+    """Run the over-earning two-stage on a list of tickers.
+
+    fins_by_ticker: {ticker: fin dict with aip screener field names}
+    moats_by_ticker: optional {ticker: researched moat} overriding fin's Moat Score
+    Returns a list of result dicts (one per ticker, in input order)."""
+    panel, idx = history.load_panel(panel_path, sheet)
+    out = []
+    for t in tickers:
+        fin = dict(fins_by_ticker.get(t, {}))
+        if moats_by_ticker and moats_by_ticker.get(t) is not None:
+            fin[aip.FIELDS["moat"]] = moats_by_ticker[t]
+        rows = panel.get(t)
+        rec = {"ticker": t, "company": fin.get(aip.FIELDS["name"])}
+        if not rows or not fin:
+            rec["error"] = "no panel/fin"; out.append(rec); continue
+        sig = panel_signals(rows, idx)
+        ts = two_stage_return(fin, sig, re=re, re2=re2)
+        if ts:
+            rec.update(ts); rec["roic_star"] = sig.get("roic_star")
+            rec["industry"] = fin.get(aip.FIELDS["industry"])
+        out.append(rec)
+    return out
