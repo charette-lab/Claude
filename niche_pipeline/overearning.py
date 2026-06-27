@@ -78,6 +78,14 @@ def _last(xs):
     return next((v for v in reversed(xs) if v is not None), None)
 
 
+def _median(xs):
+    v = sorted(x for x in xs if x is not None)
+    n = len(v)
+    if n == 0:
+        return None
+    return v[n // 2] if n % 2 else 0.5 * (v[n // 2 - 1] + v[n // 2])
+
+
 def _loglinear_current(series, weights=None):
     """Weighted fit of log(y) ~ a + b·t over the valid history; return the fitted
     CURRENT value (the structural trend level today). A steady exponential grower
@@ -240,18 +248,21 @@ def panel_signals(rows, idx):
     # of current. Capturing only the margin (and holding revenue at the scarcity
     # price) leaves normalized NOI ~2x too high for a price-spiked name (NVIDIA).
     gm = _col(rows, idx, "Gross Profit Margin")
-    gpairs = [(g, (macro_w[i] if i < len(macro_w) and macro_w[i] else 1.0))
-              for i, g in enumerate(gm) if g is not None and g < 1]
     gm3 = [g for g in gm[-3:] if g is not None and g < 1]
     gm_recent = sum(gm3) / len(gm3) if gm3 else None
-    gm_long = (sum(g * w for g, w in gpairs) / sum(w for _, w in gpairs)) if gpairs else None
+    # MEDIAN equilibria (robust to loss-year outliers): the long-run MEAN margin
+    # collapses toward zero for a cyclical/loss-making name (a few deep-loss years),
+    # which made cc_rent blow up to hundreds of %. The median is the mid-cycle level.
+    gm_eq = _median([g for g in gm if g is not None and g < 1])
+    em_eq = _median([x for x in em if x is not None])
     price_norm = 1.0
-    if gm_recent is not None and gm_long is not None and (1 - gm_long) > 0:
-        price_norm = max(0.2, min(1.0, (1 - gm_recent) / (1 - gm_long)))   # rev_eq / rev_cur
-    # Full capital-cycle rent: the NOI fraction that fades to reach the long-run
-    # (intangible-inclusive) equilibrium, normalizing BOTH margin AND price.
-    cc_rent_frac = (max(0.0, 1.0 - (em_avg / m_recent7) * price_norm)
-                    if (m_recent7 and em_avg and m_recent7 > 0) else 0.0)
+    if gm_recent is not None and gm_eq is not None and (1 - gm_eq) > 0:
+        price_norm = max(0.2, min(1.0, (1 - gm_recent) / (1 - gm_eq)))     # rev_eq / rev_cur
+    # Full capital-cycle rent: the NOI fraction that fades to reach the mid-cycle
+    # (intangible-inclusive) equilibrium, normalizing BOTH margin AND price. Bounded.
+    cc_rent_frac = 0.0
+    if m_recent7 and em_eq is not None and m_recent7 > 0 and em_eq > 0:
+        cc_rent_frac = max(0.0, min(0.70, 1.0 - (em_eq / m_recent7) * price_norm))
     return {
         "rev_excess_frac": rev_excess_frac, "past_peak": past_peak,
         "roic_star": roic_star, "asset_sweat": asset_sweat,

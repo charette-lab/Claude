@@ -73,18 +73,22 @@ def industry_phase(industry):
 # This is a hand-maintained judgment list — extend it as the supply chain evolves.
 EXPLICIT_CYCLES = {
     "AI infrastructure 2024-2028": {
+        # Only names whose CONSOLIDATED economics ARE the AI-chip scarcity rent.
+        # Excludes diversified names whose margin is structural, not a chip-price
+        # rent: Broadcom (software-heavy via VMware), Eaton (broad electrical),
+        # Marvell — those are left to the detector+reversion, which spares them.
         "tickers": {
-            # compute & accelerators
-            "NVDA.OQ", "AMD.OQ", "AVGO.OQ", "MRVL.OQ", "TSM.N", "2330.TW",
+            # compute & accelerators (pure)
+            "NVDA.OQ", "AMD.OQ", "TSM.N", "2330.TW",
             # HBM / memory
             "000660.KS", "MU.OQ", "005930.KS",
-            # semicap / metrology / packaging tools
+            # pure semicap / metrology / packaging tools
             "ASML.AS", "6920.T", "6857.T", "8035.T", "AMAT.OQ", "LRCX.OQ",
             "KLAC.OQ", "BESI.AS", "8036.T", "ACLS.OQ", "ONTO.N", "CAMT.OQ",
-            # AI networking & optical
+            # AI networking & optical (pure-play)
             "ANET.N", "COHR.N", "LITE.OQ",
-            # datacenter power & thermal
-            "VRT.N", "ETN.N",
+            # datacenter power & thermal (pure-play)
+            "VRT.N",
         },
         "phase": "component", "gestation": 4,
     },
