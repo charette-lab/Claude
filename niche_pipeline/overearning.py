@@ -33,6 +33,7 @@ import math
 import aip
 import history
 import capital
+import capitalcycle
 
 # Industry supply lag (years to create competing capacity) — the entry-delay
 # clock from Bilbiie. Matched on a GICS-Industry-Group substring.
@@ -225,6 +226,14 @@ def panel_signals(rows, idx):
         Wm = sum(w for _, w in pairs)
         em_avg = sum(m * w for m, w in pairs) / Wm if Wm else None
     margin_elev = ((em_cur - em_avg) / em_avg) if (em_cur is not None and em_avg and em_avg > 0) else 0.0
+    # Reproduction-cost margin rent: the recent (NOI-relevant 7yr) margin above the
+    # long-run through-cycle equilibrium (em_avg, where RMIC -> WACC). For a
+    # physical-bottleneck name in a build-out this is the scarcity premium that
+    # capital competes away as it reproduces the constrained asset.
+    em7 = [x for x in em[-7:] if x is not None]
+    m_recent7 = sum(em7) / len(em7) if em7 else None
+    margin_rent_frac = (max(0.0, (m_recent7 - em_avg) / m_recent7)
+                        if (m_recent7 and em_avg and m_recent7 > 0) else 0.0)
     return {
         "rev_excess_frac": rev_excess_frac, "past_peak": past_peak,
         "roic_star": roic_star, "asset_sweat": asset_sweat,
@@ -233,6 +242,7 @@ def panel_signals(rows, idx):
         "margin_elev": margin_elev, "cap_growth": cap_growth,
         "intang_cap_growth": intang_cap_growth,
         "mean_reversion": mean_reversion, "cycle_window": W,
+        "margin_rent_frac": margin_rent_frac, "industry": industry,
     }
 
 
@@ -253,20 +263,17 @@ def durability_barrier(sig, moat, wacc):
     m = 0.0
     if moat is not None:
         m = max(0.0, min(1.0, (moat - 6.0) / (8.5 - 6.0)))
-    # reproduction barrier = hard-to-reproduce capital / total capital. Two legs,
-    # symmetric: the PHYSICAL premium over book (reproduction-cost dislocation,
-    # credited to the physical share) PLUS the intangible capital base (CUDA/EUV/
-    # brand/IP — the asset-light moat, the same stock that sits in invested
-    # capital). This makes the barrier consistent across asset-heavy and
-    # asset-light moats instead of only crediting physical capacity.
-    repro = (max(0.0, sig.get("repro_prem", 0.0)) * sig.get("phys_share", 0.0)
-             + sig.get("intang_share", 0.0))
-    repro = max(0.0, min(1.0, repro))
-    barrier = 0.45 * q + 0.40 * m + 0.15 * repro
-    return max(0.0, min(1.0, barrier))
+    # Durability is INTANGIBLE-only. A high *physical* reproduction cost during a
+    # shortage is not a durable barrier — it is the signature of a temporary
+    # scarcity rent that capital reproduces away over the gestation period (handled
+    # in the capital-cycle margin-rent fade). Only the intangible capital base
+    # (CUDA/EUV/brand/IP) is irreproducible and therefore durable.
+    repro = max(0.0, min(1.0, sig.get("intang_share", 0.0)))
+    durability = 0.45 * q + 0.40 * m + 0.15 * repro
+    return max(0.0, min(1.0, durability))
 
 
-def two_stage_return(fin, sig, re=0.07, re2=0.12):
+def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
     """ER on the two-stage path: Stage-2 DCF on the sustainable revenue base plus
     the PV of the transient revenue excess fading over H. Returns a dict with the
     unadjusted and adjusted expected returns and the components used."""
@@ -301,14 +308,40 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12):
     # (Guard 3) gate by mean-reversion evidence: a business that has never
     # reverted is treated as structural growth, not a fadeable cyclical rent.
     reversion = sig.get("mean_reversion", 1.0)
-    faded_frac = rev_excess * (1.0 - eff_barrier) * scarcity * reversion
+    volume_faded = rev_excess * (1.0 - eff_barrier) * scarcity * reversion
+
+    # --- Capital-cycle reproduction-equilibrium margin rent ---
+    # A physical-bottleneck name in an active build-out fades the margin ABOVE its
+    # long-run reproduction equilibrium, over the gestation period, REGARDLESS of
+    # intangible durability (the rent is a physical shortage, not a moat). This
+    # catches memory/semicap and — via the explicit AI tag — fabless rent-holders
+    # (NVIDIA) whose upstream bottleneck is invisible on their own balance sheet.
+    ticker = fin.get(aip.FIELDS["ticker"])
+    industry = fin.get(aip.FIELDS["industry"]) or sig.get("industry")
+    phase, gestation, in_buildout, cyc_src = capitalcycle.classify(industry, cycle_map, ticker)
+    margin_rent = 0.0
+    if phase != "intangible" and in_buildout > 0:
+        mr = min(0.50, sig.get("margin_rent_frac", 0.0))    # cap: avoid value collapse
+        # An explicit name-level tag ASSERTS the cycle (e.g. NVIDIA's upstream AI
+        # bottleneck, invisible on its own books) and applies at full strength; the
+        # data-driven industry detector is gated by the firm's own reversion
+        # evidence, so a structural margin-improver is not over-faded as a cyclical.
+        gate = 1.0 if cyc_src.startswith("AI") else reversion
+        margin_rent = mr * in_buildout * gate
+
+    # combine the volume rent and the margin rent into one normalization
+    faded_frac = 1.0 - (1.0 - volume_faded) * (1.0 - margin_rent)
     if faded_frac <= 1e-4:
         return {"er_current": er_current, "er_adj": er_current, "faded_frac": 0.0,
                 "H": 0.0, "barrier": barrier, "rev_excess": rev_excess,
-                "scarcity": scarcity, "cap_resp": cap_resp}
+                "scarcity": scarcity, "cap_resp": cap_resp, "margin_rent": 0.0,
+                "phase": phase, "cycle": cyc_src}
 
     ind = fin.get(aip.FIELDS["industry"])
-    H = max(2.0, min(15.0, supply_lag(ind) * (0.5 + barrier)))   # entry delay, barrier-scaled
+    if margin_rent > 1e-4 and gestation:
+        H = float(gestation)                                     # empirical capital-cycle gestation
+    else:
+        H = max(2.0, min(15.0, supply_lag(ind) * (0.5 + barrier)))   # entry delay, barrier-scaled
 
     base_noi = cur_noi * (1.0 - faded_frac)
     f2 = dict(fin); f2[aip.FIELDS["nopat"]] = base_noi
@@ -326,7 +359,8 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12):
     er_adj = adj["er1"] if adj else er_current
     return {"er_current": er_current, "er_adj": er_adj, "faded_frac": faded_frac,
             "H": H, "barrier": barrier, "rev_excess": rev_excess, "scarcity": scarcity,
-            "cap_resp": cap_resp, "er_s2": v2["er1"]}   # full-revert (no Stage-1 credit)
+            "cap_resp": cap_resp, "margin_rent": margin_rent, "phase": phase,
+            "cycle": cyc_src, "er_s2": v2["er1"]}   # full-revert (no Stage-1 credit)
 
 
 def run(tickers, panel_path, fins_by_ticker, moats_by_ticker=None,
