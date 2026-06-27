@@ -327,7 +327,13 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
         # data-driven industry detector is gated by the firm's own reversion
         # evidence, so a structural margin-improver is not over-faded as a cyclical.
         gate = 1.0 if cyc_src.startswith("AI") else reversion
-        margin_rent = mr * in_buildout * gate
+        # Relieving a know-how-intensive bottleneck requires reproducing the
+        # INTANGIBLE (process IP / yield / ecosystem) as well as the physical
+        # capacity. The intangible-protected portion of the rent does NOT fade —
+        # only the physical-bottleneck portion does. So a deep-know-how supply
+        # chain (ASML, CUDA) fades far less than a near-commodity one (memory).
+        intangible_protection = min(0.80, 1.5 * sig.get("intang_share", 0.0))
+        margin_rent = mr * in_buildout * gate * (1.0 - intangible_protection)
 
     # combine the volume rent and the margin rent into one normalization
     faded_frac = 1.0 - (1.0 - volume_faded) * (1.0 - margin_rent)
@@ -339,7 +345,12 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
 
     ind = fin.get(aip.FIELDS["industry"])
     if margin_rent > 1e-4 and gestation:
-        H = float(gestation)                                     # empirical capital-cycle gestation
+        # The supply-side rent persists until BOTH the physical capacity AND the
+        # intangible know-how (process IP / yield engineering / ecosystem) are
+        # reproduced — and the intangible build is the slower, binding leg for a
+        # know-how-intensive component. So a pure-physical gestation understates
+        # the duration; extend it by the supply chain's intangible intensity.
+        H = min(12.0, float(gestation) * (1.0 + 2.5 * sig.get("intang_share", 0.0)))
     else:
         H = max(2.0, min(15.0, supply_lag(ind) * (0.5 + barrier)))   # entry delay, barrier-scaled
 
