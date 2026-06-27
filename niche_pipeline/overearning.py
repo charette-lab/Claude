@@ -58,6 +58,16 @@ def supply_lag(industry):
     return DEFAULT_LAG
 
 
+def cycle_window(industry):
+    """Years of history the revenue trend is fit over — a business-appropriate
+    cycle length, NOT the full 30-year record. Fitting a single log-trend across
+    a very long exponential ramp flags any sustained structural acceleration as a
+    'spike'; a cycle-length window tracks recent structure, so a steady compounder
+    shows ~no spike while a true cyclical surge still deviates. ~1.6x the supply
+    lag, clamped to [8, 21]."""
+    return max(8, min(21, round(supply_lag(industry) * 1.6)))
+
+
 def _col(rows, idx, name):
     i = idx.get(name)
     return [_num(r[i]) if (i is not None and i < len(r)) else None for r in rows]
@@ -107,10 +117,19 @@ def panel_signals(rows, idx):
     sales = _col(rows, idx, "Sales")
     noi = _col(rows, idx, "New Operating Income")
     cur_sales = _last(sales)
+    industry = None
+    ii = idx.get("GICS Industry Group Name")
+    if ii is not None and rows and ii < len(rows[-1]):
+        industry = rows[-1][ii]
 
-    # --- revenue spike: current vs its own macro-shock-weighted log-trend ---
+    # --- (Guard 2) revenue spike vs a CYCLE-WINDOW macro-weighted log-trend ---
+    # Fit the trend over a business-appropriate window, not the full record, so a
+    # steady structural ramp is not mistaken for a cyclical spike.
     macro_w = _col(rows, idx, "Macro Weight")
-    trend = _loglinear_current(sales, macro_w)
+    W = cycle_window(industry)
+    s_win = sales[-W:] if len(sales) > W else sales
+    w_win = macro_w[-W:] if len(macro_w) > W else macro_w
+    trend = _loglinear_current(s_win, w_win)
     rev_excess_frac = 0.0
     if trend and cur_sales and cur_sales > 0:
         rev_excess_frac = max(0.0, (cur_sales - trend) / cur_sales)
@@ -118,6 +137,21 @@ def panel_signals(rows, idx):
                      and cur_sales < max(v for v in sales if v is not None))
     if past_peak:
         rev_excess_frac = 0.0  # already correcting; no live spike
+
+    # --- (Guard 3) mean-reversion evidence from the firm's OWN long history ---
+    # Only fade where the business has actually reverted before. A monotone
+    # structural grower (shallow recession dips only) has no reversion precedent
+    # and should be spared; a cyclical with deep, repeated drawdowns should fade.
+    rev_hist = [v for v in sales if v is not None and v > 0]
+    mean_reversion = 0.0
+    if len(rev_hist) >= 6:
+        peak = rev_hist[0]; maxdd = 0.0
+        for v in rev_hist:
+            peak = max(peak, v)
+            if peak > 0:
+                maxdd = max(maxdd, (peak - v) / peak)
+        # 15% drawdown = recession noise floor (no reversion credit); full at 45%.
+        mean_reversion = max(0.0, min(1.0, (maxdd - 0.15) / 0.30))
 
     # --- through-cycle quality anchor ROIC* (base-consistent, keep-10% cash) ---
     roic_star = capital.roic_star(rows, idx)
@@ -198,6 +232,7 @@ def panel_signals(rows, idx):
         "intang_share": intang_share, "romic": romic,
         "margin_elev": margin_elev, "cap_growth": cap_growth,
         "intang_cap_growth": intang_cap_growth,
+        "mean_reversion": mean_reversion, "cycle_window": W,
     }
 
 
@@ -263,7 +298,10 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12):
     cap_resp = min(1.0, _leg(sig.get("cap_growth"), sig.get("phys_share", 0.0))
                    + _leg(sig.get("intang_cap_growth"), sig.get("intang_share", 0.0)))
     eff_barrier = barrier * (1.0 - 0.6 * cap_resp)
-    faded_frac = rev_excess * (1.0 - eff_barrier) * scarcity   # transient supply-erodable rent
+    # (Guard 3) gate by mean-reversion evidence: a business that has never
+    # reverted is treated as structural growth, not a fadeable cyclical rent.
+    reversion = sig.get("mean_reversion", 1.0)
+    faded_frac = rev_excess * (1.0 - eff_barrier) * scarcity * reversion
     if faded_frac <= 1e-4:
         return {"er_current": er_current, "er_adj": er_current, "faded_frac": 0.0,
                 "H": 0.0, "barrier": barrier, "rev_excess": rev_excess,
