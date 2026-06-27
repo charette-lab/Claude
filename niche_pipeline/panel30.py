@@ -31,6 +31,7 @@ ALIAS = {
     "Marginal Investments_rolling_sum_7yr": "Marginal_Investments_rolling_sum_7yr",
     "Marginal Investments_rolling_sum_3yr": "Marginal_Investments_rolling_sum_3yr",
     "EBITA_Margin": "EBITA_Margin",
+    "Gross Profit Margin": "Gross_Profit_Margin",
     "EBITA_Average_Margin 10 yr": "EBITA_Average_Margin_Last_10_yr",
     "Macro Weight": "Macro_Weight",
     "current_multiple": "current_multiple",

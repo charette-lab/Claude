@@ -234,6 +234,24 @@ def panel_signals(rows, idx):
     m_recent7 = sum(em7) / len(em7) if em7 else None
     margin_rent_frac = (max(0.0, (m_recent7 - em_avg) / m_recent7)
                         if (m_recent7 and em_avg and m_recent7 > 0) else 0.0)
+    # Price-level normalization: the scarcity premium overstates REVENUE, not just
+    # the margin. With unit cost ~fixed, an inflated price shows up in the GROSS
+    # margin, so when the price reverts revenue falls to (1-gm_recent)/(1-gm_long)
+    # of current. Capturing only the margin (and holding revenue at the scarcity
+    # price) leaves normalized NOI ~2x too high for a price-spiked name (NVIDIA).
+    gm = _col(rows, idx, "Gross Profit Margin")
+    gpairs = [(g, (macro_w[i] if i < len(macro_w) and macro_w[i] else 1.0))
+              for i, g in enumerate(gm) if g is not None and g < 1]
+    gm3 = [g for g in gm[-3:] if g is not None and g < 1]
+    gm_recent = sum(gm3) / len(gm3) if gm3 else None
+    gm_long = (sum(g * w for g, w in gpairs) / sum(w for _, w in gpairs)) if gpairs else None
+    price_norm = 1.0
+    if gm_recent is not None and gm_long is not None and (1 - gm_long) > 0:
+        price_norm = max(0.2, min(1.0, (1 - gm_recent) / (1 - gm_long)))   # rev_eq / rev_cur
+    # Full capital-cycle rent: the NOI fraction that fades to reach the long-run
+    # (intangible-inclusive) equilibrium, normalizing BOTH margin AND price.
+    cc_rent_frac = (max(0.0, 1.0 - (em_avg / m_recent7) * price_norm)
+                    if (m_recent7 and em_avg and m_recent7 > 0) else 0.0)
     return {
         "rev_excess_frac": rev_excess_frac, "past_peak": past_peak,
         "roic_star": roic_star, "asset_sweat": asset_sweat,
@@ -243,6 +261,7 @@ def panel_signals(rows, idx):
         "intang_cap_growth": intang_cap_growth,
         "mean_reversion": mean_reversion, "cycle_window": W,
         "margin_rent_frac": margin_rent_frac, "industry": industry,
+        "price_norm": price_norm, "cc_rent_frac": cc_rent_frac,
     }
 
 
@@ -321,19 +340,16 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
     phase, gestation, in_buildout, cyc_src = capitalcycle.classify(industry, cycle_map, ticker)
     margin_rent = 0.0
     if phase != "intangible" and in_buildout > 0:
-        mr = min(0.50, sig.get("margin_rent_frac", 0.0))    # cap: avoid value collapse
+        # Full rent to the long-run (intangible-inclusive) equilibrium: normalizes
+        # BOTH the margin AND the price level (revenue), so a price-spiked name is
+        # not left with revenue at the scarcity price. Capped to avoid collapse.
+        mr = min(0.60, sig.get("cc_rent_frac", 0.0))
         # An explicit name-level tag ASSERTS the cycle (e.g. NVIDIA's upstream AI
         # bottleneck, invisible on its own books) and applies at full strength; the
         # data-driven industry detector is gated by the firm's own reversion
         # evidence, so a structural margin-improver is not over-faded as a cyclical.
         gate = 1.0 if cyc_src.startswith("AI") else reversion
-        # Relieving a know-how-intensive bottleneck requires reproducing the
-        # INTANGIBLE (process IP / yield / ecosystem) as well as the physical
-        # capacity. The intangible-protected portion of the rent does NOT fade —
-        # only the physical-bottleneck portion does. So a deep-know-how supply
-        # chain (ASML, CUDA) fades far less than a near-commodity one (memory).
-        intangible_protection = min(0.80, 1.5 * sig.get("intang_share", 0.0))
-        margin_rent = mr * in_buildout * gate * (1.0 - intangible_protection)
+        margin_rent = mr * in_buildout * gate
 
     # combine the volume rent and the margin rent into one normalization
     faded_frac = 1.0 - (1.0 - volume_faded) * (1.0 - margin_rent)
