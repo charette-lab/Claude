@@ -351,16 +351,19 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
     phase, gestation, in_buildout, cyc_src = capitalcycle.classify(industry, cycle_map, ticker)
     margin_rent = 0.0
     if phase != "intangible" and in_buildout > 0:
-        # Full rent to the long-run (intangible-inclusive) equilibrium: normalizes
-        # BOTH the margin AND the price level (revenue), so a price-spiked name is
-        # not left with revenue at the scarcity price. Capped to avoid collapse.
+        # Full rent to the long-run (mid-cycle, intangible-inclusive) equilibrium:
+        # normalizes BOTH the margin AND the price level (revenue) toward the
+        # median, so a price/margin-spiked name is not left at the scarcity level.
+        # Applied only to a TAGGED live cycle or a DETECTED industry build-out (not
+        # to every physical cyclical above its median — see CALIBRATION note below).
         mr = min(0.60, sig.get("cc_rent_frac", 0.0))
-        # An explicit name-level tag ASSERTS the cycle (e.g. NVIDIA's upstream AI
-        # bottleneck, invisible on its own books) and applies at full strength; the
-        # data-driven industry detector is gated by the firm's own reversion
-        # evidence, so a structural margin-improver is not over-faded as a cyclical.
         gate = 1.0 if cyc_src.startswith("AI") else reversion
         margin_rent = mr * in_buildout * gate
+    # CALIBRATION (open): extending the margin rent to ANY physical cyclical at a
+    # margin peak (gated by reversion) catches capital-goods peaks the detector
+    # misses (Mikron, IES, Powell) but, in a late-cycle year, fades ~1/4 of the
+    # physical universe — a philosophy choice (targeted scarcity-rents vs broad
+    # cyclical-margin normalization) left for explicit decision.
 
     # combine the volume rent and the margin rent into one normalization
     faded_frac = 1.0 - (1.0 - volume_faded) * (1.0 - margin_rent)
