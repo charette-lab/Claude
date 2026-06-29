@@ -49,6 +49,9 @@ For each company it produces:
 - `pipeline.py` — the orchestrator. Reads the screener, runs every deterministic
   module, calls the analyst **only for fields the sheet does not already
   contain**, then writes the output workbook (`Scored` + `Satellite Book`).
+- `decompose.py` — splits each name's expected return into **carry** (internal
+  ROIIC compounding) vs **re-rating** (price closing to intrinsic), and builds a
+  carry-ranked alternative Core index. See *Return decomposition* below.
 
 ## Usage
 
@@ -153,6 +156,41 @@ Comparing them sets `ValuationCushion`:
   **borrowed from the low cost of capital, not earned from a depressed price** (the
   Lasertec case: high headline ER, but the price needs the advantage to last
   essentially forever). Not an exclusion — a "priced for perfection" warning.
+
+## Return decomposition — carry vs re-rating (`decompose.py`)
+
+Is a name's modelled return the **internal drive of ROIIC**, or a **revaluation**?
+`decompose.py` splits each company's expected return into two additive parts
+(`ER = carry + re-rate`), straight from the engine's `er1_carry` / `er1_rerate`:
+
+- **carry** — the IRR if you **exit at the price you paid** (entry EV held
+  constant): interim distributions + ROIIC-funded growth. The internal return,
+  earned even if the multiple never moves. A fairly-valued compounder is almost
+  all carry.
+- **re-rate** — `ER − carry` — the bonus from the price **closing to intrinsic
+  value** over the horizon. The cheapness/revaluation component. A deep-value
+  name is almost all re-rate; a name priced above value has a *negative* re-rate.
+
+It also builds a **carry-ranked alternative Core index** (the "compounder" book)
+under the same 6/30 segmented-tag rule as the production index — just swapping the
+ranking key from total return to carry — so you can compare a compounder book to
+the default value-ranked one.
+
+```bash
+# Decompose a book's Core Index (or --scope clears / all):
+AIP_VALUE_ENGINE=/path/to/roiic_dcf.py python3 decompose.py \
+    --book Universe_final.xlsx --ltm LTM_current.xlsx --out decomposition.xlsx
+
+# Carry-ranked compounder index — same pool re-ranked (gate=value),
+# or quality-only with the total-ER gauntlet dropped (gate=loose):
+python3 decompose.py --book Universe_final.xlsx --ltm LTM_current.xlsx \
+    --mode compounder --gate loose --carry-min 0.12 --out compounder.xlsx
+```
+
+Programmatic: `from decompose import decompose, build_carry_book` — `decompose(fin)`
+returns `{er, carry, rerate, carry_share, driver, ...}`. Financials come from the
+LTM screener (the columns `aip` already uses); the engine and the slot-cap rule are
+reused, so the decomposition stays in lockstep with the valuation and the book.
 
 ## Empirical history cross-check (`--history`)
 
