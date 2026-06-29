@@ -275,7 +275,12 @@ def panel_signals(rows, idx):
         "roic_star": roic_star, "asset_sweat": asset_sweat,
         "repro_prem": repro_prem, "phys_share": phys_share,
         "intang_share": intang_share, "tech_share": tech_share,
-        "network_share": network_share, "romic": romic,
+        "network_share": network_share,
+        # durable share of the software reproduction barrier (K_network leg);
+        # softwarecycle uses it to size genAI moat compression. None if no barrier.
+        "durable_moat_frac": (network_share / (tech_share + network_share))
+            if (tech_share + network_share) > 1e-6 else None,
+        "romic": romic,
         "margin_elev": margin_elev, "cap_growth": cap_growth,
         "intang_cap_growth": intang_cap_growth,
         "mean_reversion": mean_reversion, "cycle_window": W,
