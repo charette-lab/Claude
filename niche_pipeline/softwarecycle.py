@@ -64,6 +64,16 @@ GENAI_SEVERITY = 3.0
 EXPLICIT_DISRUPTION = {
     "ADBE.OQ": ("both",    "Adobe — Firefly/Sora/Midjourney clone K_tech; workflow shift "
                            "erodes .psd/.ai format gravity (K_network)"),
+    "FIG.N":   ("tech",    "Figma — genAI generates UI/designs from prompts (product clone); "
+                           "the multiplayer collaboration network is the surviving defense"),
+    "WIX.OQ":  ("tech",    "Wix — genAI builds a whole site from a prompt; thin switching costs, "
+                           "so the cloneable product leg is the exposure"),
+    "SSTK.N":  ("network", "Shutterstock — generated imagery commoditizes the stock-content "
+                           "library/marketplace (the K_network moat itself)"),
+    "GETY.N":  ("network", "Getty Images — generic imagery commoditized; editorial/licensed "
+                           "content more defensible, but the library is the leg at risk"),
+    "CHGG.N":  ("network", "Chegg — homework/answer content directly substituted by ChatGPT "
+                           "(already past-tense: operating income negative, no going-concern value)"),
     "PSON.L":  ("network", "Pearson — education content is directly generatable; the threat "
                            "is content/distribution commoditization, not a product clone"),
 }
@@ -71,7 +81,6 @@ EXPLICIT_DISRUPTION = {
 #   ADSK.OQ  Autodesk      — CAD/BIM: strong format+engineering-data moat (network-leaning)
 #   EA.OQ    Electronic Arts — franchise IP/network; content-gen exposure partial
 #   PEGA.OQ  Pegasystems   — low-code/BPM vs AI agents (tech)
-#   SSTK / GETY / CHGG / WIX / Canva / Figma — genAI-exposed but not in the panel
 
 
 def durable_moat_frac(sig):
