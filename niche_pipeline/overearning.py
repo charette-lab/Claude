@@ -188,6 +188,13 @@ def panel_signals(rows, idx):
     # capital, so crediting it here keeps the barrier consistent with IC.
     intang_base = g('R&D Capital Base') + g('SG&A Capital Base')
     intang_share = (intang_base / icv) if icv else 0.0
+    # K_tech vs K_network split (Medley/reproduction framework): the R&D capital
+    # base is the cost to CLONE the tech (K_tech — reproducible, competes away to
+    # equilibrium), while the SG&A capital base is the accumulated brand / customer-
+    # acquisition spend ≈ K_network = U_min·CAC (the cost to reproduce the network /
+    # liquidity / switching costs — durable). Only K_network is a lasting moat.
+    tech_share = (g('R&D Capital Base') / icv) if icv else 0.0       # K_tech
+    network_share = (g('SG&A Capital Base') / icv) if icv else 0.0   # K_network
 
     # --- capacity response (CapEx-to-capacity, K_t = K_{t-1}+f(C_{t-L})-δ) ---
     # Gross PP&E stock growth is the reliable capacity-addition signal (the cash-
@@ -267,7 +274,8 @@ def panel_signals(rows, idx):
         "rev_excess_frac": rev_excess_frac, "past_peak": past_peak,
         "roic_star": roic_star, "asset_sweat": asset_sweat,
         "repro_prem": repro_prem, "phys_share": phys_share,
-        "intang_share": intang_share, "romic": romic,
+        "intang_share": intang_share, "tech_share": tech_share,
+        "network_share": network_share, "romic": romic,
         "margin_elev": margin_elev, "cap_growth": cap_growth,
         "intang_cap_growth": intang_cap_growth,
         "mean_reversion": mean_reversion, "cycle_window": W,
@@ -293,14 +301,51 @@ def durability_barrier(sig, moat, wacc):
     m = 0.0
     if moat is not None:
         m = max(0.0, min(1.0, (moat - 6.0) / (8.5 - 6.0)))
-    # Durability is INTANGIBLE-only. A high *physical* reproduction cost during a
-    # shortage is not a durable barrier — it is the signature of a temporary
-    # scarcity rent that capital reproduces away over the gestation period (handled
-    # in the capital-cycle margin-rent fade). Only the intangible capital base
-    # (CUDA/EUV/brand/IP) is irreproducible and therefore durable.
-    repro = max(0.0, min(1.0, sig.get("intang_share", 0.0)))
-    durability = 0.45 * q + 0.40 * m + 0.15 * repro
+    # Durability comes from the IRREPRODUCIBLE moat only. A high *physical*
+    # reproduction cost in a shortage is a temporary rent (faded by the capital-
+    # cycle margin rent). And an *intangible* moat is durable ONLY when it is
+    # K_network (brand / liquidity / switching costs ≈ the SG&A capital base) —
+    # NOT K_tech (the R&D capital base = cost to clone the code, which competes
+    # away to equilibrium). So credit the network/brand leg, not the R&D leg.
+    network = max(0.0, min(1.0, sig.get("network_share", 0.0)))
+    durability = 0.45 * q + 0.40 * m + 0.15 * network
     return max(0.0, min(1.0, durability))
+
+
+# Sector "mature, dominant" EV/EBIT bands — above these the structural business is
+# priced beyond what a mature franchise warrants (the dialogue's 20-25x for
+# hardware, higher for durable software/network moats).
+MATURE_EV_EBIT = {"component": 22, "installation": 18, "infrastructure": 14, "intangible": 30}
+
+
+def normalized_ev_ebit(ev, nopat, faded_frac, H, wacc, tax, phase):
+    """The two-tranche reality check (expectations-investing). Give the company
+    FULL credit for banking the scarcity rent as a temporary after-tax annuity,
+    then test the multiple on the STRUCTURAL business only — the rent is never
+    capitalized into a perpetual multiple:
+
+        Norm EV/EBIT = [ EV − PV(after-tax scarcity rent over H) ] / equilibrium EBIT
+
+    Returns (multiple, overpriced_bool). A multiple above the sector's mature band
+    means the price requires the scarcity premium to last forever."""
+    if ev is None or nopat in (None, 0) or not wacc:
+        return None, False
+    t = tax if (tax is not None and 0 <= tax < 1) else 0.20
+    eq_nopat = nopat * (1.0 - faded_frac)                 # structural after-tax earnings
+    if eq_nopat <= 0:
+        return None, False
+    eq_ebit = eq_nopat / (1.0 - t)                        # pre-tax structural EBIT
+    excess_nopat = nopat * faded_frac                     # scarcity rent (after-tax)
+    Hh = int(round(H)) if H else 0
+    annuity = sum(1.0 / (1 + wacc) ** k for k in range(1, Hh + 1)) if Hh > 0 else 0.0
+    mult = (ev - excess_nopat * annuity) / eq_ebit
+    # The OVERPRICED flag is a scarcity-detachment signal, not a generic
+    # high-multiple call: it fires only when a name has a real scarcity rent AND
+    # the STRUCTURAL business still trades above its mature band — i.e. the market
+    # is pricing the temporary rent as permanent. A high multiple with no rent is a
+    # growth/quality judgement, not a capital-cycle detachment, so it is not flagged.
+    overpriced = mult > MATURE_EV_EBIT.get(phase, 22) and faded_frac > 0.10
+    return mult, overpriced
 
 
 def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
@@ -368,10 +413,12 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
     # combine the volume rent and the margin rent into one normalization
     faded_frac = 1.0 - (1.0 - volume_faded) * (1.0 - margin_rent)
     if faded_frac <= 1e-4:
+        nm0, op0 = normalized_ev_ebit(base.get("ev"), cur_noi, 0.0, 0.0, base["wacc"],
+                                      fin.get(aip.FIELDS["tax"]), phase)
         return {"er_current": er_current, "er_adj": er_current, "faded_frac": 0.0,
                 "H": 0.0, "barrier": barrier, "rev_excess": rev_excess,
                 "scarcity": scarcity, "cap_resp": cap_resp, "margin_rent": 0.0,
-                "phase": phase, "cycle": cyc_src}
+                "phase": phase, "cycle": cyc_src, "norm_ev_ebit": nm0, "overpriced": op0}
 
     ind = fin.get(aip.FIELDS["industry"])
     if margin_rent > 1e-4 and gestation:
@@ -398,10 +445,13 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
     f3 = dict(fin); f3[aip.FIELDS["nopat"]] = comb_noi
     adj = aip.value_and_return(f3, re=re, re2=None)
     er_adj = adj["er1"] if adj else er_current
+    nm_mult, overpriced = normalized_ev_ebit(base.get("ev"), cur_noi, faded_frac, H,
+                                             base["wacc"], fin.get(aip.FIELDS["tax"]), phase)
     return {"er_current": er_current, "er_adj": er_adj, "faded_frac": faded_frac,
             "H": H, "barrier": barrier, "rev_excess": rev_excess, "scarcity": scarcity,
             "cap_resp": cap_resp, "margin_rent": margin_rent, "phase": phase,
-            "cycle": cyc_src, "er_s2": v2["er1"]}   # full-revert (no Stage-1 credit)
+            "cycle": cyc_src, "norm_ev_ebit": nm_mult, "overpriced": overpriced,
+            "er_s2": v2["er1"]}   # full-revert (no Stage-1 credit)
 
 
 def run(tickers, panel_path, fins_by_ticker, moats_by_ticker=None,
