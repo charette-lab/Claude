@@ -52,6 +52,10 @@ For each company it produces:
 - `decompose.py` — splits each name's expected return into **carry** (internal
   ROIIC compounding) vs **re-rating** (price closing to intrinsic), and builds a
   carry-ranked alternative Core index. See *Return decomposition* below.
+- `revalue.py` — re-run the engine on **fresh prices**: an analyst uploads current
+  Market Cap + EV, this patches them onto the existing fundamentals and returns the
+  expected return + carry/re-rate split. The price-refresh entry point. See
+  *Revaluing on fresh prices* below.
 
 ## Usage
 
@@ -192,7 +196,31 @@ returns `{er, carry, rerate, carry_share, driver, ...}`. Financials come from th
 LTM screener (the columns `aip` already uses); the engine and the slot-cap rule are
 reused, so the decomposition stays in lockstep with the valuation and the book.
 
-## Empirical history cross-check (`--history`)
+## Revaluing on fresh prices (`revalue.py`)
+
+The only input that goes stale in this model is **price** — fundamentals, the
+researched moats, and the long-run history are stable. So a price refresh needs
+only a small upload from the analyst: one row per stock with the current
+**Market Cap** and **Enterprise Value** (`Net debt = EV − Market Cap`).
+
+```
+Instrument | Market Cap | EV
+7203.T     | 38500000   | 41000000
+NOVOb.CO   | 250000000  | 248000000
+```
+
+```bash
+AIP_VALUE_ENGINE=/path/to/roiic_dcf.py python3 revalue.py \
+    --ltm    LTM_baseline.xlsx \      # fundamentals (NOPAT/ROIC/RR/tax/moat) — stable
+    --prices analyst_prices.xlsx \    # the analyst's fresh Market Cap + EV
+    --out    revalued.xlsx \
+    [--moats Universe_final.xlsx]     # value on the researched moat, not the screener Moat Score
+```
+
+Output: per name — WACC, AIP rating, `ER@7%`, `ER@12%`, **carry**, **re-rate**,
+carry-share and driver — plus an equal-weight summary. The per-name valuation uses
+only the screener fields the engine needs, so a price refresh is fast and needs no
+history panel. This is the function a price-upload app (desktop or web) wraps.
 
 The qualitative moat scores are a narrative read; pass a long-run time-series
 panel and `history.py` tests them against each company's actual multi-year
