@@ -107,22 +107,45 @@ def value_and_return(fin, re=0.07, re2=0.12, lever_glide=True, gterm=0.025,
                               wacc_path=wp, wacc_terminal=wt)
         L = m.target_leverage(ind, None) if glide else None
         t = tax if (tax is not None and tax < 1) else 0.25
-        val, method = m.equity_return(res, mktcap, netdebt, horizon, tax=t, lever_L=L)[:2]
-        return val, method, res.get("op_value", res.get("total"))
+        val, method, flows, eqv_n, nd_n = m.equity_return(res, mktcap, netdebt,
+                                                          horizon, tax=t, lever_L=L)
+        # carry vs re-rating decomposition, on the engine's own convergence framing
+        # (the headline ER places intrinsic value at the horizon and discounts back).
+        # CARRY = the return WITHOUT any convergence: same interim distributions, but
+        # exit at the ENTRY enterprise value (the price you paid) instead of intrinsic.
+        # We reuse the engine's own flows and swap only the terminal: the last flow
+        # carries eqv_n = intrinsic - nd_n; replace it with (entry EV - nd_n). Then
+        #   rerate = ER - carry = the bonus from the price closing to intrinsic over H.
+        # Maps directly to "price moving to intrinsic value in 5 years": a fairly
+        # valued name has rerate ~ 0 (all carry); a cheap name a large positive
+        # rerate; a name priced above value a negative rerate (priced to de-rate).
+        # Done in the wrapper (not the engine) so it works against any engine build.
+        cval = None
+        if val is not None and flows and eqv_n is not None and nd_n is not None and mktcap:
+            ev0 = mktcap + netdebt
+            fc = list(flows)
+            fc[-1] = fc[-1] - eqv_n + (ev0 - nd_n)      # exit at entry EV, not intrinsic
+            cval = m.solve_irr(mktcap, fc)
+            if cval is None:                            # mirror the engine's CAGR fallback
+                w = sum(fc)
+                cval = (w / mktcap) ** (1.0 / horizon) - 1.0 if w > 0 else None
+        rerate = (val - cval) if (val is not None and cval is not None) else None
+        return val, method, res.get("op_value", res.get("total")), cval, rerate
 
     r1, rd, rating, glide1 = _discount_rate(m, re, nopat0, mktcap, netdebt, gross,
                                             tax, country, ind, lever_glide, gterm,
                                             country_base, country_crp)
     r1 = r1 if re is not None else 0.12
-    er1, mth1, opval = exp_ret(r1, glide1)
+    er1, mth1, opval, er1_carry, er1_rerate = exp_ret(r1, glide1)
     out = {"wacc": r1, "rd": rd, "rating": rating, "op_value": opval, "ev": mktcap + netdebt,
            "er1": er1, "er1_method": mth1, "moat": moat, "mktcap": mktcap, "netdebt": netdebt,
+           "er1_carry": er1_carry, "er1_rerate": er1_rerate,
            "is_financial": ind in m.FINANCIAL_SECTORS}
     if re2 is not None:
         r2, _, _, glide2 = _discount_rate(m, re2, nopat0, mktcap, netdebt, gross,
                                           tax, country, ind, lever_glide, gterm,
                                           country_base, country_crp)
-        out["er2"], out["er2_method"], _ = exp_ret(r2, glide2)
+        out["er2"], out["er2_method"], _, out["er2_carry"], out["er2_rerate"] = exp_ret(r2, glide2)
     return out
 
 

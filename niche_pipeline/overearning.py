@@ -367,10 +367,17 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
     if not base:
         return None
     er_current = base["er1"]
+    # carry vs re-rating decomposition (defaults to the unadjusted base; overridden
+    # by the fade-adjusted valuation in the main path below so the split is on the
+    # same basis as er_adj). carry = cash + earnings growth at an unchanged multiple;
+    # rerate = the part of the return that needs the price to converge to intrinsic.
+    er_carry = base.get("er1_carry")
+    er_rerate = base.get("er1_rerate")
     cur_noi = fin.get(aip.FIELDS["nopat"])
     if not cur_noi:
         return {"er_current": er_current, "er_adj": er_current, "faded_frac": 0.0,
-                "H": 0.0, "barrier": None, "rev_excess": sig.get("rev_excess_frac", 0.0)}
+                "H": 0.0, "barrier": None, "rev_excess": sig.get("rev_excess_frac", 0.0),
+                "er_carry": er_carry, "er_rerate": er_rerate}
 
     barrier = durability_barrier(sig, fin.get(aip.FIELDS["moat"]), base["wacc"])
     rev_excess = sig.get("rev_excess_frac", 0.0)
@@ -429,7 +436,8 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
         return {"er_current": er_current, "er_adj": er_current, "faded_frac": 0.0,
                 "H": 0.0, "barrier": barrier, "rev_excess": rev_excess,
                 "scarcity": scarcity, "cap_resp": cap_resp, "margin_rent": 0.0,
-                "phase": phase, "cycle": cyc_src, "norm_ev_ebit": nm0, "overpriced": op0}
+                "phase": phase, "cycle": cyc_src, "norm_ev_ebit": nm0, "overpriced": op0,
+                "er_carry": er_carry, "er_rerate": er_rerate}
 
     ind = fin.get(aip.FIELDS["industry"])
     if margin_rent > 1e-4 and gestation:
@@ -456,12 +464,15 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
     f3 = dict(fin); f3[aip.FIELDS["nopat"]] = comb_noi
     adj = aip.value_and_return(f3, re=re, re2=None)
     er_adj = adj["er1"] if adj else er_current
+    if adj:                                  # decomposition on the fade-adjusted basis
+        er_carry = adj.get("er1_carry"); er_rerate = adj.get("er1_rerate")
     nm_mult, overpriced = normalized_ev_ebit(base.get("ev"), cur_noi, faded_frac, H,
                                              base["wacc"], fin.get(aip.FIELDS["tax"]), phase)
     return {"er_current": er_current, "er_adj": er_adj, "faded_frac": faded_frac,
             "H": H, "barrier": barrier, "rev_excess": rev_excess, "scarcity": scarcity,
             "cap_resp": cap_resp, "margin_rent": margin_rent, "phase": phase,
             "cycle": cyc_src, "norm_ev_ebit": nm_mult, "overpriced": overpriced,
+            "er_carry": er_carry, "er_rerate": er_rerate,
             "er_s2": v2["er1"]}   # full-revert (no Stage-1 credit)
 
 
