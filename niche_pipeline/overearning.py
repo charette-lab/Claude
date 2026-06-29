@@ -33,7 +33,8 @@ import math
 import aip
 import history
 import capital
-import capitalcycle
+import capitalcycle      # supply side — reproduction-cost scarcity-rent fade
+import softwarecycle     # demand side — genAI moat compression
 
 # Industry supply lag (years to create competing capacity) — the entry-delay
 # clock from Bilbiie. Matched on a GICS-Industry-Group substring.
@@ -365,26 +366,47 @@ def normalized_ev_ebit(ev, nopat, faded_frac, H, wacc, tax, phase):
 
 
 def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
-    """ER on the two-stage path: Stage-2 DCF on the sustainable revenue base plus
-    the PV of the transient revenue excess fading over H. Returns a dict with the
-    unadjusted and adjusted expected returns and the components used."""
-    base = aip.value_and_return(fin, re=re, re2=re2)
-    if not base:
+    """ER on the two-stage path, applying BOTH normalization models:
+
+      DEMAND SIDE (softwarecycle) — a genAI-tagged software name's moat is being
+        structurally compressed; the competitive-advantage period fades faster.
+        Applied as a moat override threaded through every valuation below.
+      SUPPLY SIDE (capitalcycle) — a transient scarcity rent fades the over-earning
+        revenue/margin DOWN to the reproduction equilibrium over the gestation H.
+
+    er_current is the STATED return (no adjustment); er_adj reflects both models, so
+    the book's downgrade (er_current - er_adj) captures supply + demand together.
+    A name on neither tag is byte-for-byte unchanged from the supply-only path."""
+    # ---- DEMAND SIDE: genAI moat compression (softwarecycle) ----
+    ticker = fin.get(aip.FIELDS["ticker"])
+    stated_moat = fin.get(aip.FIELDS["moat"])
+    eff_moat, moat_comp, dmf, dchannel = softwarecycle.moat_compression(ticker, sig, stated_moat)
+    fin_d = fin
+    if moat_comp > 1e-9 and eff_moat is not None:        # compressed copy for all valuations
+        fin_d = dict(fin); fin_d[aip.FIELDS["moat"]] = eff_moat
+
+    stated = aip.value_and_return(fin, re=re, re2=re2)
+    if not stated:
         return None
-    er_current = base["er1"]
-    # carry vs re-rating decomposition (defaults to the unadjusted base; overridden
-    # by the fade-adjusted valuation in the main path below so the split is on the
-    # same basis as er_adj). carry = cash + earnings growth at an unchanged multiple;
-    # rerate = the part of the return that needs the price to converge to intrinsic.
+    er_current = stated["er1"]                            # STATED moat — the reference
+    base = aip.value_and_return(fin_d, re=re, re2=re2) if fin_d is not fin else stated
+    if not base:
+        base = stated
+    er_demand = base["er1"]                               # after demand compression
+    demand = {"moat_comp": moat_comp, "eff_moat": eff_moat, "durable_moat_frac": dmf,
+              "demand_channel": dchannel,
+              "demand_drop": ((er_current or 0) - (er_demand or 0)) if fin_d is not fin else 0.0}
+    # carry vs re-rating decomposition (on the demand-adjusted base; overridden by the
+    # fade-adjusted valuation in the main path below so the split is on the er_adj basis).
     er_carry = base.get("er1_carry")
     er_rerate = base.get("er1_rerate")
     cur_noi = fin.get(aip.FIELDS["nopat"])
     if not cur_noi:
-        return {"er_current": er_current, "er_adj": er_current, "faded_frac": 0.0,
+        return {"er_current": er_current, "er_adj": er_demand, "faded_frac": 0.0,
                 "H": 0.0, "barrier": None, "rev_excess": sig.get("rev_excess_frac", 0.0),
-                "er_carry": er_carry, "er_rerate": er_rerate}
+                "er_carry": er_carry, "er_rerate": er_rerate, **demand}
 
-    barrier = durability_barrier(sig, fin.get(aip.FIELDS["moat"]), base["wacc"])
+    barrier = durability_barrier(sig, fin_d.get(aip.FIELDS["moat"]), base["wacc"])
     rev_excess = sig.get("rev_excess_frac", 0.0)
     # scarcity-rent gate: only fade revenue excess corroborated by an elevated
     # margin (price detaching from cost). 30%+ margin elevation = full rent.
@@ -414,7 +436,6 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
     # intangible durability (the rent is a physical shortage, not a moat). This
     # catches memory/semicap and — via the explicit AI tag — fabless rent-holders
     # (NVIDIA) whose upstream bottleneck is invisible on their own balance sheet.
-    ticker = fin.get(aip.FIELDS["ticker"])
     industry = fin.get(aip.FIELDS["industry"]) or sig.get("industry")
     phase, gestation, in_buildout, cyc_src = capitalcycle.classify(industry, cycle_map, ticker)
     margin_rent = 0.0
@@ -435,14 +456,14 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
 
     # combine the volume rent and the margin rent into one normalization
     faded_frac = 1.0 - (1.0 - volume_faded) * (1.0 - margin_rent)
-    if faded_frac <= 1e-4:
+    if faded_frac <= 1e-4:                                # no supply rent; demand only
         nm0, op0 = normalized_ev_ebit(base.get("ev"), cur_noi, 0.0, 0.0, base["wacc"],
                                       fin.get(aip.FIELDS["tax"]), phase)
-        return {"er_current": er_current, "er_adj": er_current, "faded_frac": 0.0,
+        return {"er_current": er_current, "er_adj": er_demand, "faded_frac": 0.0,
                 "H": 0.0, "barrier": barrier, "rev_excess": rev_excess,
                 "scarcity": scarcity, "cap_resp": cap_resp, "margin_rent": 0.0,
                 "phase": phase, "cycle": cyc_src, "norm_ev_ebit": nm0, "overpriced": op0,
-                "er_carry": er_carry, "er_rerate": er_rerate}
+                "er_carry": er_carry, "er_rerate": er_rerate, **demand}
 
     ind = fin.get(aip.FIELDS["industry"])
     if margin_rent > 1e-4 and gestation:
@@ -456,20 +477,20 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
         H = max(2.0, min(15.0, supply_lag(ind) * (0.5 + barrier)))   # entry delay, barrier-scaled
 
     base_noi = cur_noi * (1.0 - faded_frac)
-    f2 = dict(fin); f2[aip.FIELDS["nopat"]] = base_noi
+    f2 = dict(fin_d); f2[aip.FIELDS["nopat"]] = base_noi       # demand-compressed moat
     v2 = aip.value_and_return(f2, re=re, re2=None)
     if not v2 or not v2.get("op_value"):
-        return {"er_current": er_current, "er_adj": er_current, "faded_frac": faded_frac,
-                "H": H, "barrier": barrier, "rev_excess": rev_excess}
+        return {"er_current": er_current, "er_adj": er_demand, "faded_frac": faded_frac,
+                "H": H, "barrier": barrier, "rev_excess": rev_excess, **demand}
     V2 = v2["op_value"]; wacc = v2["wacc"]
     excess0 = cur_noi * faded_frac
     V1 = sum(excess0 * max(0.0, 1.0 - tt / H) / (1 + wacc) ** tt
              for tt in range(1, math.ceil(H) + 1))
     comb_noi = base_noi * ((V2 + V1) / V2)
-    f3 = dict(fin); f3[aip.FIELDS["nopat"]] = comb_noi
+    f3 = dict(fin_d); f3[aip.FIELDS["nopat"]] = comb_noi      # demand-compressed moat
     adj = aip.value_and_return(f3, re=re, re2=None)
-    er_adj = adj["er1"] if adj else er_current
-    if adj:                                  # decomposition on the fade-adjusted basis
+    er_adj = adj["er1"] if adj else er_demand
+    if adj:                                  # decomposition on the fully-adjusted basis
         er_carry = adj.get("er1_carry"); er_rerate = adj.get("er1_rerate")
     nm_mult, overpriced = normalized_ev_ebit(base.get("ev"), cur_noi, faded_frac, H,
                                              base["wacc"], fin.get(aip.FIELDS["tax"]), phase)
@@ -477,7 +498,7 @@ def two_stage_return(fin, sig, re=0.07, re2=0.12, cycle_map=None):
             "H": H, "barrier": barrier, "rev_excess": rev_excess, "scarcity": scarcity,
             "cap_resp": cap_resp, "margin_rent": margin_rent, "phase": phase,
             "cycle": cyc_src, "norm_ev_ebit": nm_mult, "overpriced": overpriced,
-            "er_carry": er_carry, "er_rerate": er_rerate,
+            "er_carry": er_carry, "er_rerate": er_rerate, **demand,
             "er_s2": v2["er1"]}   # full-revert (no Stage-1 credit)
 
 

@@ -390,7 +390,8 @@ def write_output(records, path, exclude_tags=(), segment_tags=True,
             "Gate1(IRR>=12)", "Gate2(floor)", "Gate2pass", "ER_Artifact", "ClearsGauntlet", "RiskTags",
             "MargROIC7y", "MarginTrend", "NormEV/EBITA", "MoatVsHistory", "HistoryNote",
             "ImpliedYrs", "WarrantedYrs", "ValuationCushion", "PricedFor", "ReturnFromDiscount",
-            "ROIC*(7y)", "OE_RevExcess", "OE_Barrier", "OE_Faded%", "OE_H(y)", "OE_ER_adj"]
+            "ROIC*(7y)", "OE_RevExcess", "OE_Barrier", "OE_Faded%", "OE_H(y)", "OE_ER_adj",
+            "Dmd_Channel", "Dmd_EffMoat", "Dmd_Comp", "Dmd_Drop%"]
     ws.append(cols)
     for r in sorted(records, key=lambda r: (r.get("er_effective") is not None, r.get("er_effective") or -9), reverse=True):
         ws.append([
@@ -414,6 +415,7 @@ def write_output(records, path, exclude_tags=(), segment_tags=True,
             r.get("priced_for"), "YES" if r.get("return_leans_on_discount") else "",
             r.get("roic_star"), r.get("oe_rev_excess"), r.get("oe_barrier"),
             r.get("oe_faded"), r.get("oe_H"), r.get("oe_er_adj"),
+            r.get("dmd_channel"), r.get("dmd_eff_moat"), r.get("dmd_comp"), r.get("dmd_drop"),
         ])
     _style_header(ws)
     for row in ws.iter_rows(min_row=2):
@@ -590,15 +592,20 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
         except Exception as e:
             print(f"history cross-check skipped: {e}")
 
-        # ---- Over-earning normalization (revenue scarcity-rent two-stage) ----
-        # NOI applies a 7yr-averaged margin to CURRENT revenue, so a name over-
-        # earning on a transient supply/demand imbalance is priced off an inflated
-        # base. overearning.py fades the supply-erodable rent over its lead time and
-        # the books rank on the adjusted return. Needs the same panel as --history.
+        # ---- Supply + demand normalization (two-stage) ----
+        # Two mirror models, both run inside overearning.two_stage_return:
+        #  SUPPLY SIDE (capitalcycle): NOI applies a 7yr-averaged margin to CURRENT
+        #    revenue, so a name over-earning on a transient supply shortage is priced
+        #    off an inflated base; the scarcity rent is faded DOWN to the reproduction
+        #    equilibrium over its gestation lead time.
+        #  DEMAND SIDE (softwarecycle): a genAI-tagged software franchise's moat is
+        #    being structurally compressed; its competitive-advantage period fades
+        #    FASTER (a moat override on the valuation).
+        # er_adj reflects both; the books rank on it. Needs the same panel as --history.
         if apply_overearning:
             try:
                 import overearning
-                n_faded = 0
+                n_faded = 0; n_compressed = 0
                 for r in records:
                     rows = by.get(r["ticker"]); fin = r.get("_fin")
                     if not rows or not fin or r.get("er_effective") is None:
@@ -616,14 +623,24 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
                     r["oe_faded"] = ts.get("faded_frac")
                     r["oe_H"] = ts.get("H")
                     r["oe_er_adj"] = ts.get("er_adj")
-                    dn = ts["er_current"] - ts["er_adj"]      # over-earning downgrade
+                    # demand side (softwarecycle genAI moat compression)
+                    r["dmd_channel"] = ts.get("demand_channel")
+                    r["dmd_eff_moat"] = ts.get("eff_moat")
+                    r["dmd_comp"] = ts.get("moat_comp")
+                    r["dmd_drop"] = ts.get("demand_drop")
+                    # er_adj reflects BOTH models, so this single downgrade captures the
+                    # supply-side scarcity-rent fade AND the demand-side moat compression.
+                    dn = ts["er_current"] - ts["er_adj"]
                     if dn > 1e-4:
                         r["er_effective"] = r["er_effective"] - dn
                         n_faded += 1
+                        if ts.get("moat_comp", 0) > 1e-9:
+                            n_compressed += 1
                         if not F.gate1_pass(r["er_effective"]):
                             r["gate1_irr12"] = False
                             r["clears_gauntlet"] = False
-                print(f"Over-earning: faded {n_faded} revenue scarcity-rents; "
+                print(f"Supply+demand normalization: adjusted {n_faded} names "
+                      f"({n_compressed} via genAI demand-side moat compression); "
                       f"books rank on the adjusted return")
             except Exception as e:
                 print(f"over-earning normalization skipped: {e}")
