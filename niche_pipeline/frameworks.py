@@ -184,13 +184,28 @@ def gate2_pass(no_growth_floor_over_price) -> bool:
 # depressed, distressed or loss-normalising names that figure can be far above
 # the run-rate the price reflects, throwing off a triple-digit "expected return"
 # that is an artifact, not an opportunity (e.g. an AI-disrupted publisher at a
-# nominal 110% IRR). Any IRR above this ceiling is flagged and kept out of the
+# nominal 110% IRR). Any IRR above the ceiling is flagged and kept out of the
 # concentrated book — it would otherwise dominate the return-interpolation.
+#
+# QUALITY-AWARE: the artifact concern is "a high ER extrapolated off a distorted
+# earnings base." The defence against that is the THROUGH-CYCLE return: when the
+# empirical history CONFIRMS the moat and the base-consistent ROIC* is structurally
+# high, the earnings base is real and a high modelled ER is genuine cheapness (a
+# quality compounder on sale), not a cyclical/distressed extrapolation. Such names
+# get a higher ceiling before they are screened out; everything else keeps the
+# strict ceiling, so true cyclical convergence-bets (SOFT/low-ROIC*) stay excluded.
 MAX_PLAUSIBLE_IRR = 0.50
+MAX_PLAUSIBLE_IRR_QUALITY = 1.00          # ceiling for history-CONFIRMED, high-ROIC* names
+QUALITY_ARTIFACT_ROIC = 0.12              # ROIC* floor to earn the higher ceiling
 
 
-def er_is_artifact(expected_irr) -> bool:
-    return expected_irr is not None and expected_irr > MAX_PLAUSIBLE_IRR
+def er_is_artifact(expected_irr, roic_star=None, moat_vs_history=None) -> bool:
+    if expected_irr is None:
+        return False
+    quality = (moat_vs_history == "CONFIRMED"
+               and roic_star is not None and roic_star >= QUALITY_ARTIFACT_ROIC)
+    ceiling = MAX_PLAUSIBLE_IRR_QUALITY if quality else MAX_PLAUSIBLE_IRR
+    return expected_irr > ceiling
 
 
 # ---- TAM Exhaustion screen (Phase 1) --------------------------------------

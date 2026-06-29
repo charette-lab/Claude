@@ -223,15 +223,18 @@ def attach_qualitative(rec, idx, research_rec):
         asis = rec.get("as_is_ret")
         if asis is not None and rec.get("er_core") is not None:
             rec["separation_uplift"] = round(rec["er_core"] - asis, 4)
-        # AS-IS winner (any ownership) OR freed-core (separable only).
+        # AS-IS winner (any ownership) OR freed-core (separable only). The artifact
+        # screen is quality-aware (roic*/history set in Pass 1.5), so a CONFIRMED,
+        # high-ROIC* name on sale is not screened out as a cyclical extrapolation.
+        art = F.er_is_artifact(asis, rec.get("roic_star"), rec.get("moat_vs_history"))
         clears, basis, eff = F.select(
             asis, rec.get("er_core"), cm, km, rec["owner_verdict"],
-            _gate2_effective(rec), F.er_is_artifact(asis))
+            _gate2_effective(rec), art)
         rec["clears_gauntlet"] = clears
         rec["return_basis"] = basis
         rec["er_effective"] = eff
         rec["gate1_irr12"] = F.gate1_pass(asis)
-        rec["er_artifact"] = F.er_is_artifact(asis)
+        rec["er_artifact"] = art
 
     # ---- Implied-moat regime: is the return cheapness, or borrowed from the discount? ----
     moat_for_life = rec.get("core_moat") if rec.get("core_moat") is not None else rec.get("company_moat")
@@ -543,6 +546,32 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
             records.append(rec)
         if limit and len(records) >= limit:
             break
+    # ---- Pass 1.5: preliminary quality read (so the artifact screen is quality-aware
+    # BEFORE research). A history-CONFIRMED, high-ROIC* name with a high modelled ER is
+    # genuine cheapness, not a cyclical artifact, and must still be researched so it has
+    # a moat to compete. Load the panel once here and reuse it in the history block. ----
+    panel = panel_idx = None
+    if history_path:
+        try:
+            import overearning
+            panel, panel_idx = history.load_panel(history_path)
+            for r in records:
+                rows = panel.get(r["ticker"])
+                if not rows:
+                    continue
+                try:
+                    r["roic_star"] = overearning.panel_signals(rows, panel_idx).get("roic_star")
+                except Exception:
+                    pass
+                r["moat_vs_history"] = history.verdict(history.summarize(rows, panel_idx), None)[0]
+                # re-screen with quality awareness now that roic*/history are known
+                r["research_worthy"] = (
+                    (F.gate1_pass(r.get("as_is_ret")) or F.gate1_pass(r.get("er_ceiling")))
+                    and not F.er_is_artifact(r.get("as_is_ret"), r.get("roic_star"),
+                                             r.get("moat_vs_history")))
+        except Exception as e:
+            print(f"prelim quality read skipped: {e}")
+
     survivors = [r for r in records if (research_all or r.get("research_worthy"))]
     jewels = sum(1 for r in survivors if not r["gate1_irr12"])
     print(f"Pass 1: valued {len(records)} companies | researching {len(survivors)} "
@@ -574,13 +603,13 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
     # ---- Empirical history cross-check (Domain B: actual ROIC beats narrative) ----
     if history_path:
         try:
-            by, hidx = history.load_panel(history_path)
+            by, hidx = (panel, panel_idx) if panel is not None else history.load_panel(history_path)
             for r in records:
                 rows = by.get(r["ticker"])
                 if not rows:
                     continue
                 s = history.summarize(rows, hidx)
-                v, reasons = history.verdict(s, r.get("core_moat"))
+                v, reasons = history.verdict(s, r.get("core_moat"))   # now with the researched moat
                 r["hist_marginal_roic"] = s["roic_marginal_7y"]
                 r["hist_margin_trend"] = s["margin_ratio"]
                 r["hist_norm_ev_ebita"] = s["norm_ev_ebita"]
@@ -589,6 +618,27 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
             tally = {k: sum(1 for r in records if r.get("moat_vs_history") == k)
                      for k in ("CONFIRMED", "SOFT", "CONTRADICTED")}
             print(f"History cross-check: {tally}  (CONTRADICTED names are vetoed from the book)")
+            # Re-evaluate the quality-aware artifact screen with the FINAL history verdict
+            # (moat now researched), and reinstate any name that is no longer an artifact.
+            reinstated = 0
+            for r in records:
+                art = F.er_is_artifact(r.get("as_is_ret"), r.get("roic_star"),
+                                       r.get("moat_vs_history"))
+                was = r.get("er_artifact")
+                r["er_artifact"] = art
+                if was and not art:                       # quality name freed from the screen
+                    clears, basis, eff = F.select(
+                        r.get("as_is_ret"), r.get("er_core"), r.get("company_moat"),
+                        r.get("core_moat"), r.get("owner_verdict"), _gate2_effective(r), art)
+                    r["clears_gauntlet"] = clears; r["return_basis"] = basis
+                    r["er_effective"] = eff
+                    if clears:
+                        reinstated += 1
+                elif art:
+                    r["clears_gauntlet"] = False
+            if reinstated:
+                print(f"Quality-aware artifact screen: reinstated {reinstated} "
+                      f"history-CONFIRMED high-ROIC* names from the >50% IRR ceiling")
         except Exception as e:
             print(f"history cross-check skipped: {e}")
 
