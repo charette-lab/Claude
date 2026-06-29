@@ -1,0 +1,3497 @@
+[
+ {
+  "ticker": "000720.KS",
+  "company": "Hyundai Engineering & Construction Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "002100.KS",
+  "company": "Kyungnong Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "018260.KS",
+  "company": "Samsung SDS Co Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "053030.KQ",
+  "company": "Binex Co Ltd",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "053610.KQ",
+  "company": "Protec Co Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "058650.KS",
+  "company": "SeAH Holdings Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "058970.KQ",
+  "company": "Emro Incorporated",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "059090.KQ",
+  "company": "MiCo Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "060150.KQ",
+  "company": "Insun Environmental New Technology Co Ltd",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "060370.KQ",
+  "company": "LS Marine Solution Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "060720.KQ",
+  "company": "KH Vatec Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "060980.KS",
+  "company": "HL Holdings Corp",
+  "industry": "Consumer Discretionary Distribution & Retail"
+ },
+ {
+  "ticker": "061970.KQ",
+  "company": "LB Semicon Inc",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "064290.KQ",
+  "company": "Intekplus Co Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "064400.KS",
+  "company": "LG CNS Co Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "064760.KQ",
+  "company": "Tokai Carbon Korea Co Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "064820.KQ",
+  "company": "Cape Industries Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "064960.KS",
+  "company": "SNT Motiv Co Ltd",
+  "industry": "Automobiles & Components"
+ },
+ {
+  "ticker": "065710.KQ",
+  "company": "Seoho Electric Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "066570.KS",
+  "company": "LG Electronics Inc",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "066620.KQ",
+  "company": "Kukbo Design Co Ltd",
+  "industry": "Consumer Services"
+ },
+ {
+  "ticker": "066970.KS",
+  "company": "L&F Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "067160.KQ",
+  "company": "Soop Co Ltd",
+  "industry": "Media & Entertainment"
+ },
+ {
+  "ticker": "067310.KQ",
+  "company": "Hana Micron Inc",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "068270.KS",
+  "company": "Celltrion Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "068760.KQ",
+  "company": "Celltrion Pharm Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "068930.KQ",
+  "company": "Digital Daesung Co Ltd",
+  "industry": "Consumer Services"
+ },
+ {
+  "ticker": "069260.KS",
+  "company": "TKG Huchems Co Ltd",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "071200.KQ",
+  "company": "Infinitt Healthcare Co Ltd",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "071320.KS",
+  "company": "Korea District Heating Corp",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "071970.KS",
+  "company": "HD-Hyundai Marine Engine Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "072710.KS",
+  "company": "Nongshim Holdings Co Ltd",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "073010.KQ",
+  "company": "KSP Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "073240.KS",
+  "company": "Kumho Tire Co Inc",
+  "industry": "Automobiles & Components"
+ },
+ {
+  "ticker": "073490.KQ",
+  "company": "InnoWirelessCo Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "074600.KQ",
+  "company": "Wonik QnC Corp",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "077360.KQ",
+  "company": "DuksanHiMetal Co Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "077970.KS",
+  "company": "STX Engine Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "078070.KQ",
+  "company": "Ubiquoss Holdings Inc",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "078160.KQ",
+  "company": "Medipost Co Ltd",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "078600.KQ",
+  "company": "Daejoo Electronic Materials Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "078930.KS",
+  "company": "GS Holdings Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "079370.KQ",
+  "company": "ZeusCo Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "079940.KQ",
+  "company": "Gabia Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "080220.KQ",
+  "company": "Jeju Semiconductor Corp",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "081000.KS",
+  "company": "Iljin Diamond Co Ltd",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "082740.KS",
+  "company": "Hanwha Engine Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "083310.KQ",
+  "company": "LOT Vacuum Co Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "083450.KQ",
+  "company": "Global Standard Technology Co Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "083650.KQ",
+  "company": "BHI Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "084110.KQ",
+  "company": "Huons Global Co Ltd",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "084370.KQ",
+  "company": "Eugene Technology Co Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "084690.KS",
+  "company": "Daesang Holdings Co Ltd",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "086280.KS",
+  "company": "Hyundai Glovis Co Ltd",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "086390.KQ",
+  "company": "UniTest Inc",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "086450.KQ",
+  "company": "Dongkook Pharmaceutical Co Ltd",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "086520.KQ",
+  "company": "Ecopro Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "086900.KQ",
+  "company": "Medy Tox Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "089010.KQ",
+  "company": "Chemtronics Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "089890.KQ",
+  "company": "Koses Co Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "089980.KQ",
+  "company": "Sang-A Frontec Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "090350.KS",
+  "company": "NOROO Paint & Coatings Co Ltd",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "090360.KQ",
+  "company": "Robostar Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "117580.KS",
+  "company": "Daesung Energy Co Ltd",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "1663.T",
+  "company": "K&O Energy Group Inc",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "298830.KQ",
+  "company": "SureSoftTech Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "307950.KS",
+  "company": "Hyundai Autoever Corp",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "350A.T",
+  "company": "Digital Grid Corp",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "3569.T",
+  "company": "Seiren Co Ltd",
+  "industry": "Automobiles & Components"
+ },
+ {
+  "ticker": "3649.T",
+  "company": "Findex Inc",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "3661.T",
+  "company": "M-up Holdings Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "3663.T",
+  "company": "CELSYS Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "3673.T",
+  "company": "Broadleaf Co Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "3741.T",
+  "company": "Systems Engineering Consultants Co Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "3762.T",
+  "company": "Techmatrix Corp",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "3763.T",
+  "company": "Pro-Ship Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "3778.T",
+  "company": "Sakura Internet Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "37B.MI",
+  "company": "B&C Speakers SpA",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "3835.T",
+  "company": "eBASE Co Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "3836.T",
+  "company": "Avant Group Corp",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "3861.T",
+  "company": "Oji Holdings Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "3891.T",
+  "company": "Nippon Kodoshi Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "3923.T",
+  "company": "Rakus Co Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "3941.T",
+  "company": "Rengo Co Ltd",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "3951.T",
+  "company": "Asahi Printing Co Ltd",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "3962.T",
+  "company": "Change Holdings Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "4004.T",
+  "company": "Resonac Holdings Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "4008.T",
+  "company": "Sumitomo Seika Chemicals Co Ltd",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "4021.T",
+  "company": "Nissan Chemical Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "4022.T",
+  "company": "Rasa Industries Ltd",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "4023.T",
+  "company": "Kureha Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "4025.T",
+  "company": "Taki Chemical Co Ltd",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "4027.T",
+  "company": "Tayca Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "4041.T",
+  "company": "Nippon Soda Co Ltd",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "4042.T",
+  "company": "Tosoh Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "4043.T",
+  "company": "Tokuyama Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "4058.T",
+  "company": "Toyokumo Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "4071.T",
+  "company": "Plus Alpha Consulting Co Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "4373.T",
+  "company": "Simplex Holdings Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "4375.T",
+  "company": "Safie Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "4419.T",
+  "company": "Finatext Holdings Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "4431.T",
+  "company": "Smaregi Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "4432.T",
+  "company": "WingArc1st Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "4443.T",
+  "company": "Sansan Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "4475.T",
+  "company": "Hennge KK",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "4478.T",
+  "company": "freee KK",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "4493.T",
+  "company": "Cyber Security Cloud Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "4498.T",
+  "company": "Cybertrust Japan Co Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "5246.T",
+  "company": "ELEMENTS Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "5254.T",
+  "company": "Arent Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "6118.T",
+  "company": "Aida Engineering Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6134.T",
+  "company": "Fuji Corp (Aichi)",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6135.T",
+  "company": "Makino Milling Machine Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6136.T",
+  "company": "OSG Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6140.T",
+  "company": "Asahi Diamond Industrial Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6144.T",
+  "company": "Seibu Electric & Machinery Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6145.T",
+  "company": "Nittoku Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6203.T",
+  "company": "Howa Machinery Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6222.T",
+  "company": "Shima Seiki Mfg. Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6246.T",
+  "company": "Techno Smart Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6264.T",
+  "company": "Marumae Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6269.T",
+  "company": "Modec Inc",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "6272.T",
+  "company": "Rheon Automatic Machinery Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6273.T",
+  "company": "SMC Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6277.T",
+  "company": "Hosokawa Micron Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6278.T",
+  "company": "Union Tool Co",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6279.T",
+  "company": "Zuiko Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6282.T",
+  "company": "Oiles Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6284.T",
+  "company": "Nissei ASB Machine Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6289.T",
+  "company": "Giken Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6298.T",
+  "company": "YAC Holdings Co Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "6301.T",
+  "company": "Komatsu Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6315.T",
+  "company": "Towa Corp",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "6324.T",
+  "company": "Harmonic Drive Systems Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6330.T",
+  "company": "Toyo Engineering Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6332.T",
+  "company": "Tsukishima Holdings Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6333.T",
+  "company": "Teikoku Electric Mfg. Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6339.T",
+  "company": "Sintokogio Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6345.T",
+  "company": "Aichi Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6351.T",
+  "company": "Tsurumi Manufacturing Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6357.T",
+  "company": "Sansei Technologies Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6358.T",
+  "company": "Sakai Heavy Industries Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6366.T",
+  "company": "Chiyoda Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6367.T",
+  "company": "Daikin Industries Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6368.T",
+  "company": "Organo Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6369.T",
+  "company": "Toyo Kanetsu KK",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "6370.T",
+  "company": "Kurita Water Industries Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6371.T",
+  "company": "Tsubakimoto Chain Co",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6379.T",
+  "company": "Raiznext Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6387.T",
+  "company": "Samco Inc",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "6407.T",
+  "company": "CKD Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6418.T",
+  "company": "Japan Cash Machine Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6430.T",
+  "company": "Daikoku Denki Co Ltd",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "6436.T",
+  "company": "Amano Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6440.T",
+  "company": "Juki Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6445.T",
+  "company": "Janome Corp",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "6454.T",
+  "company": "Max Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6455.T",
+  "company": "Morita Holdings Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6457.T",
+  "company": "Glory Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6458.T",
+  "company": "Sinko Industries Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6459.T",
+  "company": "Daiwa Industries Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6469.T",
+  "company": "Hoden Seimitsu Kako Kenkyusho Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6470.T",
+  "company": "Taiho Kogyo Co Ltd",
+  "industry": "Automobiles & Components"
+ },
+ {
+  "ticker": "6471.T",
+  "company": "NSK Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6472.T",
+  "company": "NTN Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6473.T",
+  "company": "JTEKT Corp",
+  "industry": "Automobiles & Components"
+ },
+ {
+  "ticker": "6474.T",
+  "company": "Nachi-Fujikoshi Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6479.T",
+  "company": "Minebea Mitsumi Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6480.T",
+  "company": "Nippon Thompson Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6485.T",
+  "company": "Maezawa Kyuso Industries Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6486.T",
+  "company": "Eagle Industry Co Ltd",
+  "industry": "Automobiles & Components"
+ },
+ {
+  "ticker": "6490.T",
+  "company": "PILLAR Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "6496.T",
+  "company": "Nakakita Seisakusho Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6501.T",
+  "company": "Hitachi Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6503.T",
+  "company": "Mitsubishi Electric Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6504.T",
+  "company": "Fuji Electric Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6505.T",
+  "company": "Toyo Denki Seizo KK",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6506.T",
+  "company": "Yaskawa Electric Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6507.T",
+  "company": "Sinfonia Technology Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6508.T",
+  "company": "Meidensha Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6516.T",
+  "company": "Sanyo Denki Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6517.T",
+  "company": "Denyo Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6584.T",
+  "company": "Sanoh Industrial Co Ltd",
+  "industry": "Automobiles & Components"
+ },
+ {
+  "ticker": "6586.T",
+  "company": "Makita Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6592.T",
+  "company": "Mabuchi Motor Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6594.T",
+  "company": "Nidec Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6622.T",
+  "company": "Daihen Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6623.NG",
+  "company": "Aichi Electric Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6643.T",
+  "company": "Togami Electric Mfg Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6644.T",
+  "company": "Osaki Electric Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6645.T",
+  "company": "Omron Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6651.T",
+  "company": "Nitto Kogyo Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6652.T",
+  "company": "IDEC Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6653.T",
+  "company": "Seiko Electric Co Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "6674.T",
+  "company": "GS Yuasa Corp",
+  "industry": "Automobiles & Components"
+ },
+ {
+  "ticker": "6701.T",
+  "company": "NEC Corp",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "6706.T",
+  "company": "DKK Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6707.T",
+  "company": "Sanken Electric Co Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "6727.T",
+  "company": "Wacom Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6728.T",
+  "company": "Ulvac Inc",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "6736.T",
+  "company": "Sun Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6737.T",
+  "company": "Eizo Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6741.T",
+  "company": "Nippon Signal Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6742.T",
+  "company": "Kyosan Electric Manufacturing Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6744.T",
+  "company": "Nohmi Bosai Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6745.T",
+  "company": "Hochiki Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6752.T",
+  "company": "Panasonic Holdings Corp",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "6754.T",
+  "company": "Anritsu Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6762.T",
+  "company": "TDK Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6768.T",
+  "company": "Tamura Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6779.T",
+  "company": "Nihon Dempa Kogyo Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6787.T",
+  "company": "Meiko Electronics Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6800.T",
+  "company": "Yokowo Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6806.T",
+  "company": "Hirose Electric Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6807.T",
+  "company": "Japan Aviation Electronics Industry Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6809.T",
+  "company": "TOA Corp (Hyogo)",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "6814.T",
+  "company": "Furuno Electric Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6817.T",
+  "company": "Sumida Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6820.T",
+  "company": "Icom Inc",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6834.T",
+  "company": "Seikoh Giken Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6841.T",
+  "company": "Yokogawa Electric Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6844.T",
+  "company": "Shindengen Electric Manufacturing Co Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "6845.T",
+  "company": "Azbil Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6853.T",
+  "company": "Kyowa Electronic Instruments Co Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "6855.T",
+  "company": "Japan Electronic Materials Corp",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "9505.T",
+  "company": "Hokuriku Electric Power Co",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "9506.T",
+  "company": "Tohoku Electric Power Co Inc",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "ACSO.L",
+  "company": "accesso Technology Group PLC",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ADBE.OQ",
+  "company": "Adobe Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ADMCM.HE",
+  "company": "Admicom Oyj",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ADMr.AT",
+  "company": "Holding Company ADMIE IPTO SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "AIP.OQ",
+  "company": "Arteris Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ALFAAL.L",
+  "company": "Alfa Financial Software Holdings PLC",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ALKT.OQ",
+  "company": "Alkami Technology Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ALRM.OQ",
+  "company": "Alarm.com Holdings Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ALTS.BU",
+  "company": "Alteo Energiaszolgaltato Nyrt",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "ALUP11.SA",
+  "company": "Alupar Investimento SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "AMG1L.VL",
+  "company": "Amber Grid AB",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "APP.OQ",
+  "company": "Applovin Corp",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "APPF.OQ",
+  "company": "Appfolio Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ASEP.WA",
+  "company": "Asseco South Eastern Europe SA",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ATSI.MC",
+  "company": "Aplicaciones y Tratamiento de Sistemas SA",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "AUR.OQ",
+  "company": "Aurora Innovation Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "AURE3.SA",
+  "company": "Auren Energia SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "BEPC.N",
+  "company": "Brookfield Renewable Corp",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "BEP_u.TO",
+  "company": "Brookfield Renewable Partners LP",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "BIP.N",
+  "company": "Brookfield Infrastructure Partners LP",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "BKSB.L",
+  "company": "Beeks Financial Cloud Group PLC",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "BL.OQ",
+  "company": "BlackLine Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "BSY.OQ",
+  "company": "Bentley Systems Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "CCC.OQ",
+  "company": "CCC Intelligent Solutions Holdings Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "CCSI.OQ",
+  "company": "Consensus Cloud Solutions Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "CDNS.OQ",
+  "company": "Cadence Design Systems Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "CEG.OQ",
+  "company": "Constellation Energy Corp",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "CGET.SN",
+  "company": "CGE Transmision SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "CLBT.OQ",
+  "company": "Cellebrite DI Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "CRCL.N",
+  "company": "Circle Internet Group Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "CRWD.OQ",
+  "company": "CrowdStrike Holdings Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "CRWV.OQ",
+  "company": "CoreWeave Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "CUPu.TO",
+  "company": "Caribbean Utilities Company Ltd",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "CWAN.N",
+  "company": "Clearwater Analytics Holdings Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "CY4.MI",
+  "company": "CY4GATE SpA",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "DDOG.OQ",
+  "company": "Datadog Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "DOCU.OQ",
+  "company": "DocuSign Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "DT.N",
+  "company": "Dynatrace Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ENELCHILE.SN",
+  "company": "Enel Chile SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "ENGP.WA",
+  "company": "Energa S A",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "EQMA5B.SO",
+  "company": "Equatorial Maranhao Distribuidora de Energia SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "ESTC.N",
+  "company": "Elastic NV",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "EXOD.A",
+  "company": "Exodus Movement Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "FIG.N",
+  "company": "Figma Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "FROG.OQ",
+  "company": "Jfrog Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "GEB.CN",
+  "company": "Grupo Energia Bogota SA ESP",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "GTLB.OQ",
+  "company": "GitLab Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "GWRE.N",
+  "company": "Guidewire Software Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "GWRS.OQ",
+  "company": "Global Water Resources Inc",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "H.TO",
+  "company": "Hydro One Ltd",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "HUBS.N",
+  "company": "HubSpot Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "IG.MI",
+  "company": "Italgas SpA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "IGN1L.VL",
+  "company": "Ignitis Grupe AB",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "IIIV.OQ",
+  "company": "I3 Verticals Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "INF1T.TL",
+  "company": "Infortar AS",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "INTA.OQ",
+  "company": "Intapp Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "KARO.OQ",
+  "company": "Karooooo Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "KVYO.N",
+  "company": "Klaviyo Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "KXS.TO",
+  "company": "Kinaxis Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "LGD1L.VL",
+  "company": "Litgrid AB",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "LIF.OQ",
+  "company": "Life360 Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "LMN.V",
+  "company": "Lumine Group Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "LWSA3.SA",
+  "company": "Lwsa SA",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "MCG.L",
+  "company": "Mobico Group PLC",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "MDB.OQ",
+  "company": "MongoDB Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "MEDI.OL",
+  "company": "Medistim ASA",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "MEDICAB.MX",
+  "company": "Medica Sur SAB de CV",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "MEGACPO.MX",
+  "company": "Megacable Holdings SAB de CV",
+  "industry": "Media & Entertainment"
+ },
+ {
+  "ticker": "MEKO.ST",
+  "company": "Meko AB",
+  "industry": "Consumer Discretionary Distribution & Retail"
+ },
+ {
+  "ticker": "MELON.SN",
+  "company": "Melon SA",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "MEQ.TO",
+  "company": "Mainstreet Equity Corp",
+  "industry": "Real Estate Management & Development"
+ },
+ {
+  "ticker": "MERG.L",
+  "company": "Mears Group PLC",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "MERM.MKE",
+  "company": "Mermeren Kombinat AD Prilep",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "METG.S",
+  "company": "Meier Tobler Group AG",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "MRK.N",
+  "company": "Merck & Co Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "MVVGn.DE",
+  "company": "MVV Energie AG",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "MWA.N",
+  "company": "Mueller Water Products Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "MXL.OQ",
+  "company": "Maxlinear Inc",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "MYCR.ST",
+  "company": "Mycronic AB (publ)",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "MYE.N",
+  "company": "Myers Industries Inc",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "MYPK3.SA",
+  "company": "Iochpe Maxion SA",
+  "industry": "Automobiles & Components"
+ },
+ {
+  "ticker": "MYRG.OQ",
+  "company": "MYR Group Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "MZTI.OQ",
+  "company": "Marzetti Co",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "MZXG.DE",
+  "company": "Masterflex SE",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NAFG.DE",
+  "company": "Aurubis AG",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "NAVIERA.SN",
+  "company": "Grupo Empresas Navieras SA",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "NBIS.OQ",
+  "company": "Nebius Group NV",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "NBIX.OQ",
+  "company": "Neurocrine Biosciences Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "NCNO.OQ",
+  "company": "nCino Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "NESTE.HE",
+  "company": "Neste Oyj",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "NET.N",
+  "company": "Cloudflare Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "NETC.L",
+  "company": "Netcall PLC",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "NEUP.WA",
+  "company": "Neuca SA",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "NEXS.PA",
+  "company": "Nexans SA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NFG.N",
+  "company": "National Fuel Gas Co",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "NFLX.OQ",
+  "company": "Netflix Inc",
+  "industry": "Media & Entertainment"
+ },
+ {
+  "ticker": "NG.L",
+  "company": "National Grid PLC",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "NGS.N",
+  "company": "Natural Gas Services Group Inc",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "NHC.A",
+  "company": "National Healthcare Corp",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "NHY.OL",
+  "company": "Norsk Hydro ASA",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "NI.N",
+  "company": "NiSource Inc",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "NIBEb.ST",
+  "company": "Nibe Industrier AB",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NICL.L",
+  "company": "Nichols PLC",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "NIM.V",
+  "company": "Nicola Mining Inc",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "NJR.N",
+  "company": "New Jersey Resources Corp",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "NKR.OL",
+  "company": "Nekkar ASA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NKT.CO",
+  "company": "Nkt A/S",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NL.N",
+  "company": "NL Industries Inc",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "NMAN.ST",
+  "company": "Nederman Holding AB",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NN.OQ",
+  "company": "NextNav Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "NOA.TO",
+  "company": "North American Construction Group Ltd",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "NOC.N",
+  "company": "Northrop Grumman Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NOD.OL",
+  "company": "Nordic Semiconductor ASA",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "NOHAL.OL",
+  "company": "Nordic Halibut AS",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "NOKIA.HE",
+  "company": "Nokia Oyj",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "NOLAb.ST",
+  "company": "Nolato AB",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NORTHM.CO",
+  "company": "North Media A/S",
+  "industry": "Media & Entertainment"
+ },
+ {
+  "ticker": "NOS.LS",
+  "company": "NOS SGPS SA",
+  "industry": "Telecommunication Services"
+ },
+ {
+  "ticker": "NOTE.ST",
+  "company": "Note AB (publ)",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "NOV.N",
+  "company": "Nov Inc",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "NOVN.S",
+  "company": "Novartis AG",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "NOVOb.CO",
+  "company": "Novo Nordisk A/S",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "NOVT.OQ",
+  "company": "Novanta Inc",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "NOW.N",
+  "company": "ServiceNow Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "NPI.TO",
+  "company": "Northland Power Inc (Ontario)",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "NPKI.N",
+  "company": "NPK International Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NPO.N",
+  "company": "Enpro Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NRC.OL",
+  "company": "NRC Group ASA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NRC.OQ",
+  "company": "National Research Corp",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "NRG.N",
+  "company": "NRG Energy Inc",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "NRP.N",
+  "company": "Natural Resource Partners LP",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "NSC.N",
+  "company": "Norfolk Southern Corp",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "NSP.N",
+  "company": "Insperity Inc",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "NSSC.OQ",
+  "company": "NAPCO Security Technologies Inc",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "NTAP.OQ",
+  "company": "NetApp Inc",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "NTCT.OQ",
+  "company": "Netscout Systems Inc",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "NTES.OQ",
+  "company": "NetEase Inc",
+  "industry": "Media & Entertainment"
+ },
+ {
+  "ticker": "NTGCLGAS.SN",
+  "company": "Naturgy Chile Gas Natural SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "NTGG.DE",
+  "company": "Nabaltec AG",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "NTGNT.CO",
+  "company": "NTG Nordic Transport Group AS",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "NTGY.MC",
+  "company": "Naturgy Energy Group SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "NTNX.OQ",
+  "company": "Nutanix Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "NTSK.OQ",
+  "company": "Netskope Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "NUE.N",
+  "company": "Nucor Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "NVAX.OQ",
+  "company": "Novavax Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "NVEC.OQ",
+  "company": "NVE Corp",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "NVMI.OQ",
+  "company": "Nova Ltd",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "NVR.N",
+  "company": "NVR Inc",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "NVRI.N",
+  "company": "Enviri Corp",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "NWC.TO",
+  "company": "North West Company Inc",
+  "industry": "Consumer Staples Distribution & Retail"
+ },
+ {
+  "ticker": "NWE.OQ",
+  "company": "NorthWestern Energy Group Inc",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "NWN.N",
+  "company": "Northwest Natural Holding Co",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "NWPX.OQ",
+  "company": "NWPX Infrastructure Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NX.N",
+  "company": "Quanex Building Products Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NXR.L",
+  "company": "Norcros PLC",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "NXST.OQ",
+  "company": "Nexstar Media Group Inc",
+  "industry": "Media & Entertainment"
+ },
+ {
+  "ticker": "NXT.L",
+  "company": "Next PLC",
+  "industry": "Consumer Discretionary Distribution & Retail"
+ },
+ {
+  "ticker": "NYT.N",
+  "company": "New York Times Co",
+  "industry": "Media & Entertainment"
+ },
+ {
+  "ticker": "OBEL.BR",
+  "company": "Orange Belgium NV",
+  "industry": "Telecommunication Services"
+ },
+ {
+  "ticker": "OC.N",
+  "company": "Owens Corning",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "ODC.N",
+  "company": "Oil-Dri Corporation of America",
+  "industry": "Household & Personal Products"
+ },
+ {
+  "ticker": "ODET.PA",
+  "company": "Compagnie De l'odet SE",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "ODF.OL",
+  "company": "Odfjell SE",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "ODFL.OQ",
+  "company": "Old Dominion Freight Line Inc",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "OEMb.ST",
+  "company": "OEM International AB",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "OERL.S",
+  "company": "OC Oerlikon Corporation AG Pfaeffikon",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "OFIX.OQ",
+  "company": "Orthofix Medical Inc",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "OFLX.OQ",
+  "company": "Omega Flex Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "OFN.S",
+  "company": "Orell Fuessli AG",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "OGE.N",
+  "company": "OGE Energy Corp",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "OGN.I",
+  "company": "Origin Enterprises PLC",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "OGS.N",
+  "company": "ONE Gas Inc",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "OHBG.DE",
+  "company": "OHB SE",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "OIS.N",
+  "company": "Oil States International Inc",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "OKE.N",
+  "company": "ONEOK Inc",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "OKTA.OQ",
+  "company": "Okta Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "OLN.N",
+  "company": "Olin Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "OLVAS.HE",
+  "company": "Olvi Oyj",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "OMCL.OQ",
+  "company": "Omnicell Inc",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "OMVV.VI",
+  "company": "OMV AG",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "ON.OQ",
+  "company": "ON Semiconductor Corp",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "OPCH.OQ",
+  "company": "Option Care Health Inc",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "OPL.WA",
+  "company": "Orange Polska SA",
+  "industry": "Telecommunication Services"
+ },
+ {
+  "ticker": "OPM.PA",
+  "company": "Opmobility SE",
+  "industry": "Automobiles & Components"
+ },
+ {
+  "ticker": "OPN.WA",
+  "company": "Oponeo.pl SA",
+  "industry": "Consumer Discretionary Distribution & Retail"
+ },
+ {
+  "ticker": "OPUSG.BU",
+  "company": "Opus Global Nyrt",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "ORA.N",
+  "company": "Ormat Technologies Inc",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "ORAN.PA",
+  "company": "Orange SA",
+  "industry": "Telecommunication Services"
+ },
+ {
+  "ticker": "ORBIA.MX",
+  "company": "Orbia Advance Corporation SAB de CV",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "ORCL.N",
+  "company": "Oracle Corp",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ORIOLA.HE",
+  "company": "Oriola Oyj",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "ORK.OL",
+  "company": "Orkla ASA",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "ORLY.OQ",
+  "company": "O'Reilly Automotive Inc",
+  "industry": "Consumer Discretionary Distribution & Retail"
+ },
+ {
+  "ticker": "ORNBV.HE",
+  "company": "Orion Oyj",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "ORSTED.CO",
+  "company": "Oersted A/S",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "ORYGENC1.LM",
+  "company": "Orygen Peru SAA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "OSIS.OQ",
+  "company": "OSI Systems Inc",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "OSUR.OQ",
+  "company": "OraSure Technologies Inc",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "OTEX.TO",
+  "company": "Open Text Corp",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "OTEr.AT",
+  "company": "Hellenic Telecommunications Organization SA",
+  "industry": "Telecommunication Services"
+ },
+ {
+  "ticker": "OTTR.OQ",
+  "company": "Otter Tail Corp",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "OUT1V.HE",
+  "company": "Outokumpu Oyj",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "OXB.L",
+  "company": "Oxford Biomedica PLC",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "OXIG.L",
+  "company": "Oxford Instruments PLC",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "OXY.N",
+  "company": "Occidental Petroleum Corp",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PAA.OQ",
+  "company": "Plains All American Pipeline LP",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PAALb.CO",
+  "company": "Per Aarsleff Holding A/S",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PACB.OQ",
+  "company": "Pacific Biosciences of California Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "PAHC.OQ",
+  "company": "Phibro Animal Health Corp",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "PALF.VI",
+  "company": "Palfinger AG",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PAMPm.BA",
+  "company": "Pampa Energia SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PANP.BU",
+  "company": "PannErgy Nyrt",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PANW.OQ",
+  "company": "Palo Alto Networks Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "PAPL.BR",
+  "company": "Payton Planar Magnetics Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "PAR.N",
+  "company": "PAR Technology Corp",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "PARAUCO.SN",
+  "company": "Parque Arauco SA",
+  "industry": "Real Estate Management & Development"
+ },
+ {
+  "ticker": "PARR.N",
+  "company": "Par Pacific Holdings Inc",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PASAB.MX",
+  "company": "Promotora Ambiental SAB de CV",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "PATAm.BA",
+  "company": "Importadora y Exportadora de la Patagonia SA",
+  "industry": "Consumer Staples Distribution & Retail"
+ },
+ {
+  "ticker": "PATK.OQ",
+  "company": "Patrick Industries Inc",
+  "industry": "Automobiles & Components"
+ },
+ {
+  "ticker": "PAYX.OQ",
+  "company": "Paychex Inc",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "PBH.N",
+  "company": "Prestige Consumer Healthcare Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "PBH.TO",
+  "company": "Premium Brands Holdings Corp",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "PBL.TO",
+  "company": "Pollard Banknote Ltd",
+  "industry": "Consumer Services"
+ },
+ {
+  "ticker": "PCAR.OQ",
+  "company": "Paccar Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PCG.N",
+  "company": "PG&E Corp",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PCOR.N",
+  "company": "Procore Technologies Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "PCRX.OQ",
+  "company": "Pacira Biosciences Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "PD.N",
+  "company": "PagerDuty Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "PD.TO",
+  "company": "Precision Drilling Corporation(Calgary)",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PDEX.OQ",
+  "company": "Pro-Dex Inc",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "PDFS.OQ",
+  "company": "PDF Solutions Inc",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "PEABb.ST",
+  "company": "Peab AB",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PEG.N",
+  "company": "Public Service Enterprise Group Inc",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PEGA.OQ",
+  "company": "Pegasystems Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "PEHUENCHE.SN",
+  "company": "Empresa Electrica Pehuenche SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PEOLES.MX",
+  "company": "Industrias Penoles SAB de CV",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "PEP.OQ",
+  "company": "PepsiCo Inc",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "PEPP.WA",
+  "company": "Polenergia SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PERP.PA",
+  "company": "Pernod Ricard SA",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "PESI.OQ",
+  "company": "Perma-Fix Environmental Services Inc",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "PETR4.SA",
+  "company": "Petroleo Brasileiro SA Petrobras",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PFE.N",
+  "company": "Pfizer Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "PG.N",
+  "company": "Procter & Gamble Co",
+  "industry": "Household & Personal Products"
+ },
+ {
+  "ticker": "PGE.WA",
+  "company": "PGE Polska Grupa Energetyczna SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PH.N",
+  "company": "Parker-Hannifin Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PHAR.AS",
+  "company": "Pharming Group NV",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "PHG.AS",
+  "company": "Koninklijke Philips NV",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "PHHGn.F",
+  "company": "Paul Hartmann AG",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "PHL.CY",
+  "company": "Petrolina Holdings Public Ltd",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PHM.N",
+  "company": "Pultegroup Inc",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "PHMR.MC",
+  "company": "Pharma Mar SA",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "PHO.OL",
+  "company": "Photocure ASA",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "PHX.TO",
+  "company": "PHX Energy Services Corp",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PIF.TO",
+  "company": "Polaris Renewable Energy Inc",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PII.N",
+  "company": "Polaris Inc",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "PINE.L",
+  "company": "Pinewood Technologies Group PLC",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "PINFRA.MX",
+  "company": "Promotora y Operadora de Infraestructura SAB de CV",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "PIRC.MI",
+  "company": "Pirelli and C. S.p.a",
+  "industry": "Automobiles & Components"
+ },
+ {
+  "ticker": "PJAM.JS",
+  "company": "Pan Jamaica Group Ltd",
+  "industry": "Real Estate Management & Development"
+ },
+ {
+  "ticker": "PKE.N",
+  "company": "Park Aerospace Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PKG.N",
+  "company": "Packaging Corp of America",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "PKN.WA",
+  "company": "Orlen SA",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PKOH.OQ",
+  "company": "Park Ohio Holdings Corp",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PLAB.OQ",
+  "company": "Photronics Inc",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "PLAKR.AT",
+  "company": "Crete Plastics SA",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "PLOW.N",
+  "company": "Douglas Dynamics Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PLTR.OQ",
+  "company": "Palantir Technologies Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "PLX.A",
+  "company": "Protalix Biotherapeutics Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "PLXS.OQ",
+  "company": "Plexus Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "PM.N",
+  "company": "Philip Morris International Inc",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "PMN.S",
+  "company": "Phoenix Mecano AG",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PNEGn.DE",
+  "company": "PNE AG",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PNN.L",
+  "company": "Pennon Group PLC",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PNR.N",
+  "company": "Pentair PLC",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PNVL3.SA",
+  "company": "Dimed SA Distribuidora de Medicamentos",
+  "industry": "Consumer Staples Distribution & Retail"
+ },
+ {
+  "ticker": "PNW.N",
+  "company": "Pinnacle West Capital Corp",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PODD.OQ",
+  "company": "Insulet Corp",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "PODR.ZA",
+  "company": "Podravka dd",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "POET.OQ",
+  "company": "POET Technologies Inc",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "POLPAICO.SN",
+  "company": "Cemento Polpaico SA",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "POMO4.SA",
+  "company": "Marcopolo SA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PON1V.HE",
+  "company": "Ponsse Oyj",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "POOL.OQ",
+  "company": "Pool Corp",
+  "industry": "Consumer Discretionary Distribution & Retail"
+ },
+ {
+  "ticker": "POR.N",
+  "company": "Portland General Electric Co",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PORV.L",
+  "company": "Porvair PLC",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "POST.VI",
+  "company": "Oesterreichische Post AG",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "POWI.OQ",
+  "company": "Power Integrations Inc",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "POWL.OQ",
+  "company": "Powell Industries Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PPG.N",
+  "company": "PPG Industries Inc",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "PPIH.OQ",
+  "company": "Perma-Pipe International Holdings Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PPL.N",
+  "company": "PPL Corp",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PPL.TO",
+  "company": "Pembina Pipeline Corp",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PREMr.AT",
+  "company": "Premia SA",
+  "industry": "Real Estate Management & Development"
+ },
+ {
+  "ticker": "PRFr.AT",
+  "company": "Profile Systems and Software SA",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "PRGS.OQ",
+  "company": "Progress Software Corp",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "PRIM.MC",
+  "company": "Prim SA",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "PROX.BR",
+  "company": "Proximus NV",
+  "industry": "Telecommunication Services"
+ },
+ {
+  "ticker": "PRSO.OL",
+  "company": "Prosafe SE",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PRSU.N",
+  "company": "Pursuit Attractions and Hospitality Inc",
+  "industry": "Consumer Services"
+ },
+ {
+  "ticker": "PRY.MI",
+  "company": "Prysmian SpA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PSAGn.DE",
+  "company": "PSI Software SE",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "PSALr.AT",
+  "company": "Papoutsanis Industrial and Commercial of Consumer Goods SA",
+  "industry": "Household & Personal Products"
+ },
+ {
+  "ticker": "PSD.TO",
+  "company": "Pulse Seismic Inc",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PSG.MC",
+  "company": "Prosegur Compania de Seguridad SA",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "PSI.TO",
+  "company": "Pason Systems Inc",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PSIX.OQ",
+  "company": "Power Solutions International Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PSMT.OQ",
+  "company": "PriceSmart Inc",
+  "industry": "Consumer Staples Distribution & Retail"
+ },
+ {
+  "ticker": "PSON.L",
+  "company": "Pearson PLC",
+  "industry": "Consumer Services"
+ },
+ {
+  "ticker": "PSPN.S",
+  "company": "PSP Swiss Property AG",
+  "industry": "Real Estate Management & Development"
+ },
+ {
+  "ticker": "PTC.OQ",
+  "company": "PTC Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "PTEC.L",
+  "company": "Playtech PLC",
+  "industry": "Consumer Services"
+ },
+ {
+  "ticker": "PTEN.OQ",
+  "company": "Patterson-UTI Energy Inc",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "PUBP.PA",
+  "company": "Publicis Groupe SA",
+  "industry": "Media & Entertainment"
+ },
+ {
+  "ticker": "PUMG.DE",
+  "company": "Puma SE",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "PUNTILLA.SN",
+  "company": "Electrica Puntilla SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "PV.DE",
+  "company": "Pfeiffer Vacuum Technology AG",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PWR.N",
+  "company": "Quanta Services Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "PZA.TO",
+  "company": "Pizza Pizza Royalty Corp",
+  "industry": "Consumer Services"
+ },
+ {
+  "ticker": "QBRb.TO",
+  "company": "Quebecor Inc",
+  "industry": "Telecommunication Services"
+ },
+ {
+  "ticker": "QDT.PA",
+  "company": "Quadient SA",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "QLYS.OQ",
+  "company": "Qualys Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "QQ.L",
+  "company": "QinetiQ Group PLC",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "QRVO.OQ",
+  "company": "Qorvo Inc",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "QTCOM.HE",
+  "company": "Qt Group Oyj",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "QTWO.N",
+  "company": "Q2 Holdings Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "QUEMCHI.SN",
+  "company": "Quemchi SA",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "QUINENCO.SN",
+  "company": "Quinenco SA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "QXO.N",
+  "company": "QXO Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "R.N",
+  "company": "Ryder System Inc",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "RAIL3.SA",
+  "company": "Rumo SA",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "RAMA.LS",
+  "company": "Ramada Investimentos e Industria SA",
+  "industry": "Real Estate Management & Development"
+ },
+ {
+  "ticker": "RANI3.SA",
+  "company": "Irani Papel e Embalagem SA",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "RAPT4.SA",
+  "company": "Randoncorp SA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "RAYb.ST",
+  "company": "RaySearch Laboratories AB (publ)",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "RBA.TO",
+  "company": "RB Global Inc",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "RBAV.VI",
+  "company": "Rosenbauer International AG",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "RBBN.OQ",
+  "company": "Ribbon Communications Inc",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "RBC.N",
+  "company": "RBC Bearings Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "RBREW.CO",
+  "company": "Royal Unibrew A/S",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "RBRK.N",
+  "company": "Rubrik Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "RCH.TO",
+  "company": "Richelieu Hardware Ltd",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "RCIb.TO",
+  "company": "Rogers Communications Inc",
+  "industry": "Telecommunication Services"
+ },
+ {
+  "ticker": "RCKY.OQ",
+  "company": "Rocky Brands Inc",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "RCL.N",
+  "company": "Royal Caribbean Cruises Ltd",
+  "industry": "Consumer Services"
+ },
+ {
+  "ticker": "RCOP.PA",
+  "company": "Remy Cointreau SA",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "RDVT.OQ",
+  "company": "Red Violet Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "RDWR.OQ",
+  "company": "Radware Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "REACH.OL",
+  "company": "Reach Subsea ASA",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "RECI.MI",
+  "company": "Recordati Industria Chimica e Farmaceutica SpA",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "REG1V.HE",
+  "company": "Revenio Group Oyj",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "REGN.OQ",
+  "company": "Regeneron Pharmaceuticals Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "REHN.S",
+  "company": "Romande Energie Holding SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "RELL.OQ",
+  "company": "Richardson Electronics Ltd",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "RENT3.SA",
+  "company": "Localiza Rent a Car SA",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "REP.MC",
+  "company": "Repsol SA",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "REY.MI",
+  "company": "Reply SpA",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "RGCO.OQ",
+  "company": "RGC Resources Inc",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "RGR.N",
+  "company": "Sturm Ruger & Company Inc",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "RH.N",
+  "company": "RH",
+  "industry": "Consumer Discretionary Distribution & Retail"
+ },
+ {
+  "ticker": "RHIM.L",
+  "company": "RHI Magnesita NV",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "RHKG.DE",
+  "company": "Rhoen Klinikum AG",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "RHMG.DE",
+  "company": "Rheinmetall AG",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "RICK.OQ",
+  "company": "RCI Hospitality Holdings Inc",
+  "industry": "Consumer Services"
+ },
+ {
+  "ticker": "RIEN.S",
+  "company": "Rieter Holding AG",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "RIG.N",
+  "company": "Transocean Ltd",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "RIVP.ZA",
+  "company": "Valamar Riviera dd",
+  "industry": "Consumer Services"
+ },
+ {
+  "ticker": "RMBS.OQ",
+  "company": "Rambus Inc",
+  "industry": "Semiconductors & Semiconductor Equipment"
+ },
+ {
+  "ticker": "RMD.N",
+  "company": "Resmed Inc",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "RNW.OQ",
+  "company": "Renew Energy Global PLC",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "RNWH.L",
+  "company": "Renew Holdings PLC",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "ROBF.PA",
+  "company": "Robertet SA",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "ROBIO.BX",
+  "company": "Biofarm SA",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "ROCK.OQ",
+  "company": "Gibraltar Industries Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "ROCKb.CO",
+  "company": "Rockwool A/S",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "ROEL.BX",
+  "company": "Societatea Energetica Electrica SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "ROG.N",
+  "company": "Rogers Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "ROGREEN.BX",
+  "company": "Green Tech International SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "ROK.N",
+  "company": "Rockwell Automation Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "ROL.N",
+  "company": "Rollins Inc",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "ROMI3.SA",
+  "company": "Romi SA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "ROPE.BX",
+  "company": "Premier Energy PLC",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "ROSNN.BX",
+  "company": "Societatea Nationala Nuclearelectrica SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "ROST.OQ",
+  "company": "Ross Stores Inc",
+  "industry": "Consumer Discretionary Distribution & Retail"
+ },
+ {
+  "ticker": "ROVI.MC",
+  "company": "Laboratorios Farmaceuticos ROVI SA",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "RPM.N",
+  "company": "RPM International Inc",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "RR.L",
+  "company": "Rolls-Royce Holdings PLC",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "RS.N",
+  "company": "Reliance Inc",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "RS1R.L",
+  "company": "RS Group PLC",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "RSG.N",
+  "company": "Republic Services Inc",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "RSI.TO",
+  "company": "Rogers Sugar Inc",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "RSL2.DE",
+  "company": "R. STAHL AG",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "RSW.L",
+  "company": "Renishaw PLC",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "RTX.CO",
+  "company": "Rtx A/S",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "RUSHA.OQ",
+  "company": "Rush Enterprises Inc",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "RWEG.DE",
+  "company": "RWE AG",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "RWLP.WA",
+  "company": "Rawlplug SA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "RWS.L",
+  "company": "RWS Holdings PLC",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "RX.V",
+  "company": "BioSyent Inc",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "RXL.PA",
+  "company": "Rexel SA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "RYA.I",
+  "company": "Ryanair Holdings PLC",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "S.N",
+  "company": "SentinelOne Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "S92G.DE",
+  "company": "SMA Solar Technology AG",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "SAABb.ST",
+  "company": "Saab AB",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "SABF.MI",
+  "company": "Sabaf SpA",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "SAF.PA",
+  "company": "Safran SA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "SAGAb.ST",
+  "company": "Sagax AB",
+  "industry": "Real Estate Management & Development"
+ },
+ {
+  "ticker": "SAGS.L",
+  "company": "Science Group PLC",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "SAIA.OQ",
+  "company": "Saia Inc",
+  "industry": "Transportation"
+ },
+ {
+  "ticker": "SAIL.OQ",
+  "company": "SailPoint Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "SALFACORP.SN",
+  "company": "SalfaCorp SA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "SALM.OL",
+  "company": "SalMar ASA",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "SALR.LJ",
+  "company": "Salus Ljubljana dd",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "SAMIm.BA",
+  "company": "SA San Miguel AGICI y F",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "SAMS.PA",
+  "company": "Samse SA",
+  "industry": "Consumer Discretionary Distribution & Retail"
+ },
+ {
+  "ticker": "SAND.ST",
+  "company": "Sandvik AB",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "SANM.OQ",
+  "company": "Sanmina Corp",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "SANN.S",
+  "company": "Santhera Pharmaceuticals Holding AG",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "SANOMA.HE",
+  "company": "Sanoma Oyj",
+  "industry": "Media & Entertainment"
+ },
+ {
+  "ticker": "SAPG.DE",
+  "company": "SAP SE",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "SAPR4.SA",
+  "company": "Companhia de Saneamento do Parana Sanepar",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "SASY.PA",
+  "company": "Sanofi SA",
+  "industry": "Pharmaceuticals, Biotechnology & Life Sciences"
+ },
+ {
+  "ticker": "SAXG.DE",
+  "company": "Stroeer SE & Co KgaA",
+  "industry": "Media & Entertainment"
+ },
+ {
+  "ticker": "SBH.N",
+  "company": "Sally Beauty Holdings Inc",
+  "industry": "Consumer Discretionary Distribution & Retail"
+ },
+ {
+  "ticker": "SBMO.AS",
+  "company": "SBM Offshore NV",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "SBOE.VI",
+  "company": "SBO AG",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "SBSG.DE",
+  "company": "Stratec Se",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "SCAb.ST",
+  "company": "Svenska Cellulosa Aktiebolaget SCA",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "SCCO.N",
+  "company": "Southern Copper Corp",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "SCHL.OQ",
+  "company": "Scholastic Corp",
+  "industry": "Media & Entertainment"
+ },
+ {
+  "ticker": "SCHO.CO",
+  "company": "Schouw & Co A/S",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "SCHP.S",
+  "company": "Schindler Holding AG",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "SCI.N",
+  "company": "Service Corporation International",
+  "industry": "Consumer Services"
+ },
+ {
+  "ticker": "SCL.N",
+  "company": "Stepan Co",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "SCMN.S",
+  "company": "Swisscom AG",
+  "industry": "Telecommunication Services"
+ },
+ {
+  "ticker": "SCYR.MC",
+  "company": "Sacyr SA",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "SDFGn.DE",
+  "company": "K+S AG",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "SDIS.L",
+  "company": "Sdi Group PLC",
+  "industry": "Technology Hardware & Equipment"
+ },
+ {
+  "ticker": "SDRL.N",
+  "company": "Seadrill Ltd",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "SDSYA.PK",
+  "company": "South Dakota Soybean Processors LLC",
+  "industry": "Food, Beverage & Tobacco"
+ },
+ {
+  "ticker": "SDY.L",
+  "company": "Speedy Hire PLC",
+  "industry": "Capital Goods"
+ },
+ {
+  "ticker": "SEA1.OL",
+  "company": "Sea1 Offshore Inc",
+  "industry": "Energy"
+ },
+ {
+  "ticker": "SEBF.PA",
+  "company": "SEB SA",
+  "industry": "Consumer Durables & Apparel"
+ },
+ {
+  "ticker": "SECUb.ST",
+  "company": "Securitas AB",
+  "industry": "Commercial  & Professional Services"
+ },
+ {
+  "ticker": "SELP.WA",
+  "company": "Selena FM SA",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "SEM.LS",
+  "company": "SEMAPA Sociedade de Investimento e Gestao SGPS SA",
+  "industry": "Materials"
+ },
+ {
+  "ticker": "SEM.N",
+  "company": "Select Medical Holdings Corp",
+  "industry": "Health Care Equipment & Services"
+ },
+ {
+  "ticker": "SHO1.WA",
+  "company": "Shoper SA",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "SHOP.OQ",
+  "company": "Shopify Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "SMWB.N",
+  "company": "Similarweb Ltd",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "SNOW.N",
+  "company": "Snowflake Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "SPSC.OQ",
+  "company": "SPS Commerce Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "SVCO.OQ",
+  "company": "Silvaco Group Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "TCS.TO",
+  "company": "Tecsys Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "TEAM.OQ",
+  "company": "Atlassian Corp",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "TENB.OQ",
+  "company": "Tenable Holdings Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "TGN.BX",
+  "company": "Societatea Nationala de Transport Gaze Naturale Transgaz SA",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "TOI.V",
+  "company": "Topicus.Com Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "TRMB.OQ",
+  "company": "Trimble Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "TRUEb.ST",
+  "company": "Truecaller AB",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "TTAN.OQ",
+  "company": "ServiceTitan Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "U.N",
+  "company": "Unity Software Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "VERX.OQ",
+  "company": "Vertex Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "VIA.N",
+  "company": "Via Transportation Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "VRNS.OQ",
+  "company": "Varonis Systems Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "VST.N",
+  "company": "Vistra Corp",
+  "industry": "Utilities"
+ },
+ {
+  "ticker": "WDAY.OQ",
+  "company": "Workday Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "WIIT.MI",
+  "company": "Wiit SpA",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "WK.N",
+  "company": "Workiva Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "YUBICO.ST",
+  "company": "Yubico AB",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ZPTA.PK",
+  "company": "Zapata Quantum Inc",
+  "industry": "Software & Services"
+ },
+ {
+  "ticker": "ZS.OQ",
+  "company": "Zscaler Inc",
+  "industry": "Software & Services"
+ }
+]
