@@ -596,6 +596,24 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
                 if i % 10 == 0 or i == len(futs):
                     print(f"  researched {i}/{len(futs)}")
 
+    # Attach any EXISTING cached record for names the research gate skipped — a plain
+    # file read, never an API call — so prior research is never wasted just because a
+    # name fell outside this run's survivor set (e.g. a strict-ceiling artifact that
+    # the quality-aware screen may later reinstate).
+    import json as _json
+    recovered = 0
+    for r in records:
+        if r["ticker"] in fetched:
+            continue
+        cp = analyst._cache_path(r["ticker"])
+        if os.path.exists(cp):
+            try:
+                fetched[r["ticker"]] = _json.load(open(cp)); recovered += 1
+            except Exception:
+                pass
+    if recovered:
+        print(f"Recovered {recovered} cached research records the survivor set had skipped")
+
     # ---- Finalize qualitative scoring ----
     for r in records:
         attach_qualitative(r, idx, fetched.get(r["ticker"]))
@@ -680,6 +698,8 @@ def run(input_path, output_path, *, sheet=None, re=0.07, re2=0.12,
                     r["dmd_drop"] = ts.get("demand_drop")
                     # er_adj reflects BOTH models, so this single downgrade captures the
                     # supply-side scarcity-rent fade AND the demand-side moat compression.
+                    if ts.get("er_current") is None or ts.get("er_adj") is None:
+                        continue                              # name not valuable on this basis
                     dn = ts["er_current"] - ts["er_adj"]
                     if dn > 1e-4:
                         r["er_effective"] = r["er_effective"] - dn
