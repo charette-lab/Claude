@@ -222,6 +222,25 @@ carry-share and driver — plus an equal-weight summary. The per-name valuation 
 only the screener fields the engine needs, so a price refresh is fast and needs no
 history panel. This is the function a price-upload app (desktop or web) wraps.
 
+### Desktop app for analysts (`revalue_gui.py`)
+
+A Tkinter GUI wraps `revalue.py` so a non-technical analyst can do the refresh with
+no command line: pick the price file → **Revalue** → results spreadsheet (with an
+**Open results** button). Run from source with `python revalue_gui.py`, or build a
+standalone Windows `.exe`:
+
+```bat
+REM in niche_pipeline\ , with roiic_dcf.py copied in:
+build_revalue_exe.bat
+REM -> dist\AthanaseRevalue.exe
+```
+
+The build bundles the GUI, the modules it imports, the engine, and openpyxl. It does
+**not** bundle data — place `LTM_baseline.xlsx` (the stable fundamentals) next to the
+`.exe` and the analyst only ever supplies the price file. To revalue on the
+researched moats instead of the screener Moat Score, point the optional *moats book*
+at a scored output (e.g. `Universe_final.xlsx`).
+
 The qualitative moat scores are a narrative read; pass a long-run time-series
 panel and `history.py` tests them against each company's actual multi-year
 economics — the v3.2 Domain-B rule that *real ROIC takes precedence over the
