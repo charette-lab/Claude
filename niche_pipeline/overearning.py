@@ -315,6 +315,15 @@ def durability_barrier(sig, moat, wacc):
 # Sector "mature, dominant" EV/EBIT bands — above these the structural business is
 # priced beyond what a mature franchise warrants (the dialogue's 20-25x for
 # hardware, higher for durable software/network moats).
+#
+# DELIBERATELY A FLAG, NOT A VALUATION ANCHOR. A mature-multiple band is a weak
+# anchor: whole markets sit rich or cheap for years, so a fixed/average band
+# mis-times as often as it helps. The actual over-earning normalization (faded_frac
+# -> er_adj -> book ranking) is driven by ROIIC*, reinvestment rate, reproduction
+# equilibrium, mean-reversion and the moat type — NEVER by this multiple. The
+# `overpriced` boolean is surfaced purely as a diagnostic. It is intended to be
+# promoted to a hard SELECTION RULE only at the Core-30 index build, where a wide
+# enough choice set makes "screen out the scarcity-detached names" a sound tie-break.
 MATURE_EV_EBIT = {"component": 22, "installation": 18, "infrastructure": 14, "intangible": 30}
 
 
@@ -326,8 +335,10 @@ def normalized_ev_ebit(ev, nopat, faded_frac, H, wacc, tax, phase):
 
         Norm EV/EBIT = [ EV − PV(after-tax scarcity rent over H) ] / equilibrium EBIT
 
-    Returns (multiple, overpriced_bool). A multiple above the sector's mature band
-    means the price requires the scarcity premium to last forever."""
+    Returns (multiple, overpriced_bool) as a DIAGNOSTIC FLAG only — it does not feed
+    the return adjustment or book selection (see MATURE_EV_EBIT note). A multiple
+    above the sector's mature band means the price requires the scarcity premium to
+    last forever."""
     if ev is None or nopat in (None, 0) or not wacc:
         return None, False
     t = tax if (tax is not None and 0 <= tax < 1) else 0.20
