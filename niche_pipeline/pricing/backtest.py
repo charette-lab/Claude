@@ -36,6 +36,7 @@ PKG = os.path.dirname(HERE)
 SCRATCH = "/tmp/claude-0/-home-user-Claude/58dd72fb-993d-5f0c-ab76-69d17b8d5d70/scratchpad"
 UPLOADS = "/root/.claude/uploads/58dd72fb-993d-5f0c-ab76-69d17b8d5d70"
 ER_PATH = os.path.join(SCRATCH, "daily_expected_return.parquet")
+ER_FULL_PATH = os.path.join(SCRATCH, "daily_expected_return_full.parquet")
 PRICE_FILES = [
     os.path.join(UPLOADS, "972f0581-daily_volume_price_0.parquet"),
     os.path.join(UPLOADS, "257124b3-daily_volume_price_1.parquet"),
@@ -154,10 +155,15 @@ STRATS = {
 }
 
 
-def run(cadence="M", out=SCRATCH):
+def run(cadence="M", out=SCRATCH, full=True):
     ppy = {"M": 12, "Q": 4, "A": 1}[cadence]
-    print(f"[load] ER panel + prices (cadence={cadence})", flush=True)
-    er = pd.read_parquet(ER_PATH)
+    print(f"[load] ER panel + prices (cadence={cadence}, engine={'FULL' if full else 'raw-fade'})", flush=True)
+    if full:
+        er = pd.read_parquet(ER_FULL_PATH)        # supply/demand-normalized ER + artifact flag
+        er.loc[er["artifact"].astype(bool), "expected_return"] = np.nan   # drop unreasonable returns
+        print(f"[full] selecting on supply/demand-normalized ER; {int(er['artifact'].astype(bool).sum())} artifact rows excluded", flush=True)
+    else:
+        er = pd.read_parquet(ER_PATH)
     er["Instrument"] = er["Instrument"].astype(str)
     er["Date"] = er["Date"].astype("datetime64[ns]")
     instruments = er["Instrument"].unique()
@@ -249,5 +255,6 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--cadence", default="M", choices=["M", "Q", "A"])
     ap.add_argument("--out", default=SCRATCH)
+    ap.add_argument("--raw", action="store_true", help="use raw fade ER instead of the full engine (benchmark only)")
     a = ap.parse_args()
-    run(a.cadence, a.out)
+    run(a.cadence, a.out, full=not a.raw)

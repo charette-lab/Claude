@@ -113,7 +113,7 @@ ER_FULL_PATH = os.path.join(SCRATCH, "daily_expected_return_full.parquet")
 CARRY_PATH = os.path.join(SCRATCH, "carry_grid_norm.parquet")   # supply/demand-normalized carry
 
 
-def run(cadence="Q", out=SCRATCH, min_moat=None, full=False, carry=False):
+def run(cadence="Q", out=SCRATCH, min_moat=None, full=True, carry=False):
     ppy = {"M": 12, "Q": 4, "A": 1}[cadence]
     signame = "CARRY (internal compounding)" if carry else ("FULL" if full else "raw-fade")
     print(f"[load] ER panel + prices (cadence={cadence}, selector={signame})", flush=True)
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     ap.add_argument("--cadence", default="Q", choices=["M", "Q", "A"])
     ap.add_argument("--out", default=SCRATCH)
     ap.add_argument("--min-moat", type=float, default=None)
-    ap.add_argument("--full", action="store_true", help="use full engine: supply/demand-normalized ER + artifact screen")
+    ap.add_argument("--raw", action="store_true", help="use raw fade ER instead of the full engine (benchmark only)")
     ap.add_argument("--carry", action="store_true", help="select on the carry (internal-compounding return) instead of total ER")
     a = ap.parse_args()
-    run(a.cadence, a.out, a.min_moat, a.full, a.carry)
+    run(a.cadence, a.out, a.min_moat, full=not a.raw, carry=a.carry)
