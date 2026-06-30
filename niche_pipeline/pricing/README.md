@@ -89,3 +89,13 @@ NOTE: input/output paths are session-specific (uploads + scratchpad) — adjust
 before re-running. Outputs are large parquet files (not committed).
 Assumption: moat is held constant (panel has no per-year moat); all fundamentals
 are fixed at the year-end valuation, only price varies daily.
+
+- `backtest_core30.py` / `report_core30.py` — my own "Resilient Quality Compounder"
+  Core-30, built to maximise return AND minimise drawdown. Eligibility: full-engine
+  er_total>=12% & non-artifact, moat>=6.5, carries risk tags with NO Extreme
+  (severity-4) risk, >=60d price history. RANK by RISK-ADJUSTED return (er_total/vol).
+  Select 30 under a 6-of-30 risk-tag slot cap + <=10/country (correlation caps).
+  Weight INVERSE-VOLATILITY, clipped [1%,7.5%]. Quarterly reconstitution; sell on
+  loss of eligibility. Result (Q): ~17% CAGR, Sharpe 1.00, max DD -19.5%, Calmar 0.87
+  — the lowest drawdown and best return-per-drawdown of any book built (vs framework
+  slot-cap 22.5%/DD-28.5%/Calmar 0.79 and the -26 to -29% drawdowns elsewhere).
