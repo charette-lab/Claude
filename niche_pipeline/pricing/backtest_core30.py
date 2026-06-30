@@ -49,6 +49,7 @@ MIN_HIST = 60
 SLOT_CAP = 6              # the IPS 6-of-30 factor-defense cap (fills ~28 on the full tagged universe)
 COUNTRY_CAP = 10
 W_MIN, W_MAX = 0.010, 0.075   # wide enough that inverse-vol weighting actually tilts to low-vol names
+RISK_MEASURE = os.environ.get("CORE30_RISK", "vol")   # "vol" (std) or "downside" (downside deviation, target 0)
 
 
 def load_meta():
@@ -108,7 +109,11 @@ def run(cadence="Q", out=SCR):
     px = px[px["c"] > 0].dropna().drop_duplicates(["Instrument", "Date"])
     W = px.pivot_table(index="Date", columns="Instrument", values="c", aggfunc="last").sort_index()
     ret = W.pct_change()
-    vol = ret.rolling(VOL_WIN, min_periods=60).std()*np.sqrt(252)
+    if RISK_MEASURE == "downside":
+        neg = ret.clip(upper=0.0)                          # min(r,0): only adverse moves
+        vol = np.sqrt((neg**2).rolling(VOL_WIN, min_periods=60).mean())*np.sqrt(252)   # downside deviation (target 0)
+    else:
+        vol = ret.rolling(VOL_WIN, min_periods=60).std()*np.sqrt(252)
     ma = W.rolling(MA_WIN, min_periods=150).mean()
     trend = W >= ma
     hist = W.notna().cumsum()                              # trading days seen
@@ -180,8 +185,9 @@ def run(cadence="Q", out=SCR):
     idx = pd.DatetimeIndex([d for d, _ in rows])
     ret_s = pd.Series([x for _, x in rows], index=idx, name="Core30_resilient")
     st = perf(ret_s, ppy)
-    ret_s.to_frame().to_parquet(os.path.join(out, f"bt_core30_returns_{cadence}.parquet"))
-    json.dump(holds, open(os.path.join(out, f"bt_core30_holds_{cadence}.json"), "w"))
+    tag = "" if RISK_MEASURE == "vol" else f"_{RISK_MEASURE}"
+    ret_s.to_frame().to_parquet(os.path.join(out, f"bt_core30_returns_{cadence}{tag}.parquet"))
+    json.dump(holds, open(os.path.join(out, f"bt_core30_holds_{cadence}{tag}.json"), "w"))
     ab = np.mean([b for b, _ in bucket]); amb = np.mean([m for _, m in bucket])
     print(f"==== Resilient Quality Compounder Core-30 (cadence={cadence}, {len(ret_s)} periods) ====")
     for k in ["CAGR", "Vol", "Sharpe", "MaxDD", "Calmar", "Pct_1y_ge_12", "FinalNAV"]:
