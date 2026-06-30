@@ -33,6 +33,21 @@ Builds daily series from the yearly panel + the daily price/volume parquet.
   transaction costs); delisted names carry last close (mildly optimistic). The
   robust signal is the RELATIVE ranking (framework vs benchmarks), invariant to FX.
 
+- `backtest_er_bands.py` — pure-ER variant: the SELECTOR is Expected IRR alone
+  (risk tags ignored, since tag coverage is incomplete), so the universe is ALL
+  3,121 priced ER securities. The rest of the IPS is retained — 30 EW names,
+  Gate-1 ER>=12%, and the Phase-4 Quarterly Checkup with Tolerance Bands: trim a
+  name back to 3.33% when it drifts to >=5% (Trigger 2), liquidate and replace
+  with the highest-ER non-held name when it bleeds to <=2% (Trigger 3). Trigger 1
+  (the risk-tag ceiling) is dropped. Because the BANDS, not the calendar, drive
+  trades, turnover collapses to ~15-17%/yr (~4-5 names/yr, ~6-7yr holding period)
+  vs ~150%/yr for full reconstitution. Realized ~25-27% CAGR (Sharpe ~1.4, max DD
+  -21%) — it beats both the slot-cap framework (~21%) and the benchmark (~15%):
+  dropping the diversification constraint lets the highest-ER names compound, and
+  the bands add a let-winners-run / cut-losers tilt. `report_erbands.py` builds
+  the chart + `Backtest_ER_bands.xlsx`. Same return caveats as above (here the low
+  turnover makes the no-cost assumption far less material).
+
 NOTE: input/output paths are session-specific (uploads + scratchpad) — adjust
 before re-running. Outputs are large parquet files (not committed).
 Assumption: moat is held constant (panel has no per-year moat); all fundamentals
