@@ -50,6 +50,30 @@ SLOT_CAP = 6              # the IPS 6-of-30 factor-defense cap (fills ~28 on the
 COUNTRY_CAP = 10
 W_MIN, W_MAX = 0.010, 0.075   # wide enough that inverse-vol weighting actually tilts to low-vol names
 RISK_MEASURE = os.environ.get("CORE30_RISK", "vol")   # "vol" (std) or "downside" (downside deviation, target 0)
+USE_GATE2 = os.environ.get("CORE30_GATE2", "0") == "1"   # IPS Gate 2: P(30% drawdown) <= 20%
+FLOOR_RATIO = 0.70        # no-growth floor / price; >= 0.70 => a 30% fall lands at the floor
+GATE2_PROB = 0.20         # statistical P(30% drawdown over 1yr) ceiling
+DOWN_BARRIER = 0.70
+
+
+def downside_prob(er, sigma, barrier=DOWN_BARRIER, horizon=1.0):
+    """First-passage P(price touches barrier*P0 within horizon) under GBM with drift =
+    capped expected return and vol sigma (reflection-principle barrier formula)."""
+    from scipy.stats import norm
+    if sigma is None or pd.isna(sigma) or sigma <= 0:
+        return 1.0
+    mu = min(max(float(er), 0.0), 0.12)               # conservative: cap the drift credit at the hurdle
+    nu = mu - 0.5*sigma**2; m = np.log(barrier); s = sigma*np.sqrt(horizon)
+    p = norm.cdf((m-nu*horizon)/s) + np.exp(2*nu*m/sigma**2)*norm.cdf((m+nu*horizon)/s)
+    return float(min(max(p, 0.0), 1.0))
+
+
+def gate2_pass(floor_ratio, er, sigma):
+    """Pass if a hard valuation floor is within 30% of price OR the statistical
+    1-yr probability of a 30% drawdown is <= 20%."""
+    if floor_ratio is not None and not pd.isna(floor_ratio) and floor_ratio >= FLOOR_RATIO:
+        return True
+    return downside_prob(er, sigma) <= GATE2_PROB
 WEIGHT_MODE = os.environ.get("CORE30_WEIGHT", "invvol")  # "invvol" or "cvar" (min 95% expected shortfall)
 CVAR_BETA = 0.95
 CVAR_WIN = 252
@@ -164,8 +188,16 @@ def run(cadence="Q", out=SCR):
         return wide.reindex(g, method="ffill")
     er = dec.pivot_table(index="Date", columns="Instrument", values="er_total", aggfunc="last")
     art = dec.pivot_table(index="Date", columns="Instrument", values="artifact", aggfunc="last")
-    er_g, art_g = asof(er, grid), asof(art, grid)
+    mcw = dec.pivot_table(index="Date", columns="Instrument", values="market_cap", aggfunc="last")
+    er_g, art_g, mc_g = asof(er, grid), asof(art, grid), asof(mcw, grid)
     vol_g, trend_g, hist_g, px_g = asof(vol, grid), asof(trend, grid), asof(hist, grid), asof(W, grid)
+    # Gate-2 no-growth floor (per fiscal year) -> floor_ratio at the grid
+    floor_g = None
+    if USE_GATE2:
+        F = pd.read_parquet(SCR+"/floor_equity.parquet")
+        F["Instrument"] = F["Instrument"].astype(str); F["ped"] = pd.to_datetime(F["ped"]).astype("datetime64[ns]")
+        fw = F.pivot_table(index="ped", columns="Instrument", values="floor_equity", aggfunc="last").sort_index()
+        floor_g = fw.reindex(grid, method="ffill")
 
     rows, holds, bucket = [], {}, []
     for i in range(len(grid)-1):
@@ -188,6 +220,12 @@ def run(cadence="Q", out=SCR):
                 continue
             if pd.isna(px_g.loc[t].get(r)):
                 continue
+            if USE_GATE2:                                     # IPS Gate 2: P(30% drawdown) <= 20%
+                fe = floor_g.loc[t].get(r) if floor_g is not None else None
+                mc = mc_g.loc[t].get(r)
+                fr = (float(fe)/float(mc)) if (fe is not None and not pd.isna(fe) and mc and not pd.isna(mc)) else None
+                if not gate2_pass(fr, e, v):
+                    continue
             elig.append((r, float(e)/float(v)))               # select by RISK-ADJUSTED ER (er_total / volatility)
         elig.sort(key=lambda x: -x[1])
         ranked = [r for r, _ in elig]
@@ -224,7 +262,7 @@ def run(cadence="Q", out=SCR):
     idx = pd.DatetimeIndex([d for d, _ in rows])
     ret_s = pd.Series([x for _, x in rows], index=idx, name="Core30_resilient")
     st = perf(ret_s, ppy)
-    tag = ("" if RISK_MEASURE == "vol" else f"_{RISK_MEASURE}") + ("" if WEIGHT_MODE == "invvol" else f"_{WEIGHT_MODE}")
+    tag = ("" if RISK_MEASURE == "vol" else f"_{RISK_MEASURE}") + ("" if WEIGHT_MODE == "invvol" else f"_{WEIGHT_MODE}") + ("_g2" if USE_GATE2 else "")
     ret_s.to_frame().to_parquet(os.path.join(out, f"bt_core30_returns_{cadence}{tag}.parquet"))
     json.dump(holds, open(os.path.join(out, f"bt_core30_holds_{cadence}{tag}.json"), "w"))
     ab = np.mean([b for b, _ in bucket]); amb = np.mean([m for _, m in bucket])
