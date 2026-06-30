@@ -2,3 +2,4 @@ roiic_dcf.py
 .cache/
 *.pyc
 __pycache__/
+.riskcache/
