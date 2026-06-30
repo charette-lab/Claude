@@ -50,6 +50,44 @@ SLOT_CAP = 6              # the IPS 6-of-30 factor-defense cap (fills ~28 on the
 COUNTRY_CAP = 10
 W_MIN, W_MAX = 0.010, 0.075   # wide enough that inverse-vol weighting actually tilts to low-vol names
 RISK_MEASURE = os.environ.get("CORE30_RISK", "vol")   # "vol" (std) or "downside" (downside deviation, target 0)
+WEIGHT_MODE = os.environ.get("CORE30_WEIGHT", "invvol")  # "invvol" or "cvar" (min 95% expected shortfall)
+CVAR_BETA = 0.95
+CVAR_WIN = 252
+
+
+def cvar_weights(book, ret, t, er_row, wmin=0.01, wmax=0.08, floor_frac=1.0):
+    """Rockafellar-Uryasev: minimise the portfolio's 95% CVaR (mean of the worst-5%
+    trailing daily returns) s.t. expected er >= the equal-weight level and box weights.
+    This is downside-CORRELATION aware: names that crash on the SAME days are penalised
+    jointly, so the optimiser tilts toward holdings whose drawdowns offset."""
+    from scipy.optimize import linprog
+    R = ret.reindex(columns=book).loc[:t].tail(CVAR_WIN).dropna(how="all")
+    if len(R) < 60:
+        return None
+    Rm = R.fillna(0.0).to_numpy(dtype=float); T, n = Rm.shape
+    er = np.array([float(er_row.get(b, 0.0)) for b in book])
+    floor = floor_frac*er.mean()
+    nv = n+1+T
+    c = np.concatenate([np.zeros(n), [1.0], np.full(T, 1.0/((1-CVAR_BETA)*T))])
+    A1 = np.zeros((T, nv)); A1[:, :n] = -Rm; A1[:, n] = -1.0
+    A1[np.arange(T), n+1+np.arange(T)] = -1.0; b1 = np.zeros(T)
+    A2 = np.zeros((1, nv)); A2[0, :n] = -er; b2 = np.array([-floor])
+    A_eq = np.zeros((1, nv)); A_eq[0, :n] = 1.0; b_eq = np.array([1.0])
+    bounds = [(wmin, wmax)]*n + [(None, None)] + [(0, None)]*T
+    res = linprog(c, A_ub=np.vstack([A1, A2]), b_ub=np.concatenate([b1, b2]),
+                  A_eq=A_eq, b_eq=b_eq, bounds=bounds, method="highs")
+    if not res.success:
+        res = linprog(c, A_ub=A1, b_ub=b1, A_eq=A_eq, b_eq=b_eq, bounds=bounds, method="highs")
+    if not res.success:
+        return None
+    w = np.clip(res.x[:n], 0, None)
+    if w.sum() <= 0:
+        return None
+    w = w/w.sum()
+    shrink = float(os.environ.get("CVAR_SHRINK", "0.0"))   # shrink toward equal weight (estimation-error control)
+    if shrink > 0:
+        w = (1-shrink)*w + shrink*(np.ones(n)/n)
+    return w
 
 
 def load_meta():
@@ -169,9 +207,10 @@ def run(cadence="Q", out=SCR):
             cc[co] = cc.get(co, 0)+1
         if not book:
             continue
-        # inverse-vol weights, clipped + renormalised
-        iv = np.array([1.0/float(vT[r]) for r in book]); w = iv/iv.sum()
-        w = np.clip(w, W_MIN, W_MAX); w = w/w.sum()
+        # weights: inverse-vol, or downside-correlation-aware CVaR minimisation
+        w = cvar_weights(book, ret, t, erT) if WEIGHT_MODE == "cvar" else None
+        if w is None:
+            iv = np.array([1.0/float(vT[r]) for r in book]); w = np.clip(iv/iv.sum(), W_MIN, W_MAX); w = w/w.sum()
         p0 = px_g.loc[t].reindex(book).to_numpy(dtype="float64")
         p1 = px_g.loc[t1].reindex(book).to_numpy(dtype="float64")
         r_i = p1/p0 - 1.0
@@ -185,7 +224,7 @@ def run(cadence="Q", out=SCR):
     idx = pd.DatetimeIndex([d for d, _ in rows])
     ret_s = pd.Series([x for _, x in rows], index=idx, name="Core30_resilient")
     st = perf(ret_s, ppy)
-    tag = "" if RISK_MEASURE == "vol" else f"_{RISK_MEASURE}"
+    tag = ("" if RISK_MEASURE == "vol" else f"_{RISK_MEASURE}") + ("" if WEIGHT_MODE == "invvol" else f"_{WEIGHT_MODE}")
     ret_s.to_frame().to_parquet(os.path.join(out, f"bt_core30_returns_{cadence}{tag}.parquet"))
     json.dump(holds, open(os.path.join(out, f"bt_core30_holds_{cadence}{tag}.json"), "w"))
     ab = np.mean([b for b, _ in bucket]); amb = np.mean([m for _, m in bucket])
