@@ -12,6 +12,14 @@ Builds daily series from the yearly panel + the daily price/volume parquet.
   ER is monotonic in price, so sampled at 20 price points per (security,year) and
   interpolated to daily — verified exact (<=0.01%) vs direct engine calls.
 
+- `build_daily_extra.py` — values the names that live in the 132-col hist
+  part-file (`hist_20260629_2.xlsx`) rather than the 30-year `.xlsb` panel (e.g.
+  Workday and ~150 others that were absent from the panel, so the engine never
+  valued them). Same rich schema (spaced column names), so it extracts per-year
+  fundamentals identically, pairs them with the Universe_final moats + the 0630
+  daily prices, builds daily MC/EV + ER on the same methodology, and APPENDS to
+  the panels. Net effect: ER universe 3,121 -> 3,260, MC/EV 3,186 -> 3,338.
+
 - `backtest.py` — evaluates the Constrained Quality Compounder Index through time
   (Gate-2 downside hard-stop DISABLED). Investable universe = the high-moat names
   that carry the 11 binary risk tags (severity>=3 from severity_master / notes,

@@ -40,6 +40,7 @@ PRICE_FILES = [
     os.path.join(UPLOADS, "972f0581-daily_volume_price_0.parquet"),
     os.path.join(UPLOADS, "257124b3-daily_volume_price_1.parquet"),
     os.path.join(UPLOADS, "86e54ec3-daily_volume_price_2.parquet"),
+    os.path.join(UPLOADS, "13f82c18-daily_volume_price_0630.parquet"),
 ]
 SEV_THRESHOLD = 3   # severity >= 3 (High/Extreme) == binary "material exposure"
 
