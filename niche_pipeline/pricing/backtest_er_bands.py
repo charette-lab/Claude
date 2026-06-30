@@ -38,7 +38,7 @@ LO_BAND = 0.02             # Trigger 3 thesis violation
 
 
 def simulate(er_w, px_w, grid, n=CORE_N, target=TARGET, gate=GATE1_IRR,
-             hi=HI_BAND, lo=LO_BAND):
+             hi=HI_BAND, lo=LO_BAND, sell_on_fail=True):
     shares, prev_nav = {}, 1.0
     rets, dates, holdings, turn, trig = [], [], {}, [], []
     for i, t in enumerate(grid):
@@ -53,12 +53,15 @@ def simulate(er_w, px_w, grid, n=CORE_N, target=TARGET, gate=GATE1_IRR,
         elig = er[er >= gate].dropna()
         elig = elig[px.reindex(elig.index).notna().values]
         ranked = list(elig.sort_values(ascending=False).index)
+        elig_set = set(elig.index)
         before = set(shares)
         n_liq = n_trim = 0
         cash = nav - sum(val.values())     # uninvested NAV (=nav at inception, ~0 in steady state)
-        # Trigger 3: liquidate bleeders (and any holding that lost its price)
+        # Trigger 3: liquidate bleeders, holdings that lost their price, AND — per the IPS
+        # "blank-slate / treat every position as cash every morning" rule — any holding that
+        # no longer clears the entry gate (er < hurdle / artifact / signal gone).
         for nm in list(shares):
-            if nm not in w or w[nm] <= lo:
+            if nm not in w or w[nm] <= lo or (sell_on_fail and nm not in elig_set):
                 cash += val.get(nm, 0.0); del shares[nm]; n_liq += 1
         # Trigger 2: trim winners back to target
         for nm in list(shares):
@@ -124,7 +127,7 @@ def run(cadence="Q", out=SCRATCH, min_moat=None, full=True, carry=False, growth=
         # per spec: er1 computed as usual (Gate 1 baked in) -> decompose -> rank survivors by
         # the internal-growth (carry) component. expected_return = carry, NaN where ineligible.
         er = pd.read_parquet(GROWTH_PATH)
-        sim_gate = -1e9                            # eligibility already pre-gated on er1>=12% + plausible carry
+        sim_gate = -1.0                            # ineligible rows are the -9.99 sentinel; real carry >= -0.95
         print(f"[growth] gate=full er1>=12%; ranking survivors by internal-growth (carry) value", flush=True)
     elif carry:
         er = pd.read_parquet(CARRY_PATH)          # expected_return == carry (internal-compounding IRR)

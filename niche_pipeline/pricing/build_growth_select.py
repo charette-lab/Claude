@@ -40,7 +40,10 @@ m["artifact"] = m["artifact"].fillna(False).astype(bool)
 # Step 3 eligibility: usual Gate 1 on er1, no artifact, plausible carry; rank = carry
 eligible = (m["er1"] >= GATE1_IRR) & (~m["artifact"]) & (m["carry"] <= MAX_PLAUSIBLE_IRR) & m["er1"].notna() & m["carry"].notna()
 m["carry_raw"] = m["carry"]
-m["expected_return"] = np.where(eligible, m["carry"], np.nan)   # rank metric, pre-gated
+# ineligible -> a non-NaN sentinel (-9.99) so the backtest's as-of forward-fill PROPAGATES
+# the ineligibility instead of resurrecting the last eligible carry across a NaN gap. The
+# growth-mode gate (-1.0) sits below any real carry (IRR floor -0.95) and above the sentinel.
+m["expected_return"] = np.where(eligible, m["carry"], -9.99)    # rank metric, pre-gated
 out = m[["Instrument", "Date", "market_cap", "expected_return", "er1", "carry_raw", "artifact"]].sort_values(["Instrument", "Date"])
 out.to_parquet(SCR+"/growth_select.parquet", index=False)
 print(f"WROTE {len(out)} rows / {out.Instrument.nunique()} securities -> growth_select.parquet")
