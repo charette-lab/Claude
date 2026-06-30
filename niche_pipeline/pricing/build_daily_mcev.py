@@ -4,7 +4,8 @@ import panel30
 SCR="/tmp/claude-0/-home-user-Claude/58dd72fb-993d-5f0c-ab76-69d17b8d5d70/scratchpad"
 U="/root/.claude/uploads/58dd72fb-993d-5f0c-ab76-69d17b8d5d70/"
 XLSB=[U+"fb2aec33-30_file_1.xlsb",U+"a810c35f-30_file_2.xlsb",U+"62545fc2-30_file_3.xlsb"]
-PARQ=[U+"972f0581-daily_volume_price_0.parquet",U+"257124b3-daily_volume_price_1.parquet",U+"86e54ec3-daily_volume_price_2.parquet"]
+PARQ=[U+"972f0581-daily_volume_price_0.parquet",U+"257124b3-daily_volume_price_1.parquet",U+"86e54ec3-daily_volume_price_2.parquet",
+      U+"13f82c18-daily_volume_price_0630.parquet"]
 
 print("loading yearly panel...",flush=True)
 by,idx=panel30.load(XLSB)
