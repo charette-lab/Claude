@@ -109,10 +109,19 @@ def load_moats():
             if r[ci["Ticker"]] and isinstance(r[ci["CompanyMoat(v3.2)"]], (int, float))}
 
 
-def run(cadence="Q", out=SCRATCH, min_moat=None):
+ER_FULL_PATH = os.path.join(SCRATCH, "daily_expected_return_full.parquet")
+
+
+def run(cadence="Q", out=SCRATCH, min_moat=None, full=False):
     ppy = {"M": 12, "Q": 4, "A": 1}[cadence]
-    print(f"[load] ER panel + prices (cadence={cadence})", flush=True)
-    er = pd.read_parquet(ER_PATH)
+    print(f"[load] ER panel + prices (cadence={cadence}, engine={'FULL' if full else 'raw-fade'})", flush=True)
+    if full:
+        er = pd.read_parquet(ER_FULL_PATH)        # er_adj (supply/demand normalized) + artifact flag
+        er.loc[er["artifact"].astype(bool), "expected_return"] = np.nan   # drop unreasonable returns
+        na = int(er["artifact"].astype(bool).sum())
+        print(f"[full] selecting on supply/demand-normalized ER; {na} artifact rows excluded", flush=True)
+    else:
+        er = pd.read_parquet(ER_PATH)
     er["Instrument"] = er["Instrument"].astype(str)
     er["Date"] = er["Date"].astype("datetime64[ns]")
     px = load_close()
@@ -156,7 +165,7 @@ def run(cadence="Q", out=SCRATCH, min_moat=None):
     print(f"  checkups with NO trades    : {notrade} of {len(turn)}")
     print(f"  implied avg holding period : ~{avg_book/(turn.mean()*ppy)*12:.0f} months" if turn.mean() > 0 else "")
 
-    sfx = f"_{cadence}" + (f"_moat{min_moat:g}" if min_moat is not None else "")
+    sfx = f"_{cadence}" + (f"_moat{min_moat:g}" if min_moat is not None else "") + ("_full" if full else "")
     ret.to_frame().to_parquet(os.path.join(out, f"bt_erbands_returns{sfx}.parquet"))
     json.dump(sim["holdings"], open(os.path.join(out, f"bt_erbands_holdings{sfx}.json"), "w"))
     pd.Series(stats).to_csv(os.path.join(out, f"bt_erbands_stats{sfx}.csv"))
@@ -168,5 +177,6 @@ if __name__ == "__main__":
     ap.add_argument("--cadence", default="Q", choices=["M", "Q", "A"])
     ap.add_argument("--out", default=SCRATCH)
     ap.add_argument("--min-moat", type=float, default=None)
+    ap.add_argument("--full", action="store_true", help="use full engine: supply/demand-normalized ER + artifact screen")
     a = ap.parse_args()
-    run(a.cadence, a.out, a.min_moat)
+    run(a.cadence, a.out, a.min_moat, a.full)

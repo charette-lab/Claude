@@ -20,6 +20,23 @@ Builds daily series from the yearly panel + the daily price/volume parquet.
   daily prices, builds daily MC/EV + ER on the same methodology, and APPENDS to
   the panels. Net effect: ER universe 3,121 -> 3,260, MC/EV 3,186 -> 3,338.
 
+- `build_daily_er_full.py` — daily ER from the FULL engine. Adds the two layers
+  the complete pipeline applies on top of the raw fade ER: (1) SUPPLY+DEMAND
+  normalization (`overearning.two_stage_return`) — a capital-cycle scarcity rent
+  is faded to the reproduction equilibrium and a genAI-compressed software moat
+  fades faster, applied as a per-(security,fiscal-year) downgrade dn = er_current
+  - er_adj, point-in-time (signals use only history up to each year-end); (2) an
+  UNREASONABLE-RETURN screen (`frameworks.er_is_artifact`, quality-aware via
+  roic_star + history verdict) flagging extrapolation artifacts. Output
+  `daily_expected_return_full.parquet` [er_current, expected_return(=er_adj),
+  artifact]. Run `backtest_er_bands.py --full` to select on er_adj and exclude
+  artifacts. Effect (monthly): NVIDIA er 180%->131% and artifact-excluded, semicap
+  scarcity rents (Lasertec, Advantest, Lam) faded; the book swaps high-octane names
+  for steady compounders (Amazon, Intuitive Surgical, Heico, Safran). Realized
+  ~22% CAGR / Sharpe 1.2 vs ~28% / 1.5 for the raw book — the engine's conservatism
+  costs return in a 2016-26 boom that rewarded the over-earning it guards against,
+  but still clears 12% in ~72-80% of rolling years and beats the ~16% benchmark.
+
 - `backtest.py` — evaluates the Constrained Quality Compounder Index through time
   (Gate-2 downside hard-stop DISABLED). Investable universe = the high-moat names
   that carry the 11 binary risk tags (severity>=3 from severity_master / notes,
