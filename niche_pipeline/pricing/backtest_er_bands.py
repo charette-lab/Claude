@@ -99,7 +99,17 @@ def simulate(er_w, px_w, grid, n=CORE_N, target=TARGET, gate=GATE1_IRR,
     return dict(rets=rets, dates=dates, holdings=holdings, turn=turn, trig=trig)
 
 
-def run(cadence="Q", out=SCRATCH):
+def load_moats():
+    """moat (CompanyMoat v3.2) per RIC from the unified scored book."""
+    import openpyxl
+    ws = openpyxl.load_workbook(os.path.join(SCRATCH, "Universe_final.xlsx"),
+                                data_only=True, read_only=True)["Scored"]
+    rows = list(ws.iter_rows(values_only=True)); ci = {x: i for i, x in enumerate(rows[0])}
+    return {str(r[ci["Ticker"]]): r[ci["CompanyMoat(v3.2)"]] for r in rows[1:]
+            if r[ci["Ticker"]] and isinstance(r[ci["CompanyMoat(v3.2)"]], (int, float))}
+
+
+def run(cadence="Q", out=SCRATCH, min_moat=None):
     ppy = {"M": 12, "Q": 4, "A": 1}[cadence]
     print(f"[load] ER panel + prices (cadence={cadence})", flush=True)
     er = pd.read_parquet(ER_PATH)
@@ -107,6 +117,10 @@ def run(cadence="Q", out=SCRATCH):
     er["Date"] = er["Date"].astype("datetime64[ns]")
     px = load_close()
     universe = sorted(set(er["Instrument"]) & set(px["Instrument"]))
+    if min_moat is not None:
+        moats = load_moats()
+        universe = sorted(t for t in universe if moats.get(t, 0) > min_moat)
+        print(f"[moat] restricting to moat > {min_moat}: {len(universe)} securities", flush=True)
     print(f"[universe] {len(universe)} priced ER securities (NO tag filter)", flush=True)
 
     grid = rebalance_dates(er["Date"].unique(), cadence)
@@ -142,9 +156,10 @@ def run(cadence="Q", out=SCRATCH):
     print(f"  checkups with NO trades    : {notrade} of {len(turn)}")
     print(f"  implied avg holding period : ~{avg_book/(turn.mean()*ppy)*12:.0f} months" if turn.mean() > 0 else "")
 
-    ret.to_frame().to_parquet(os.path.join(out, f"bt_erbands_returns_{cadence}.parquet"))
-    json.dump(sim["holdings"], open(os.path.join(out, f"bt_erbands_holdings_{cadence}.json"), "w"))
-    pd.Series(stats).to_csv(os.path.join(out, f"bt_erbands_stats_{cadence}.csv"))
+    sfx = f"_{cadence}" + (f"_moat{min_moat:g}" if min_moat is not None else "")
+    ret.to_frame().to_parquet(os.path.join(out, f"bt_erbands_returns{sfx}.parquet"))
+    json.dump(sim["holdings"], open(os.path.join(out, f"bt_erbands_holdings{sfx}.json"), "w"))
+    pd.Series(stats).to_csv(os.path.join(out, f"bt_erbands_stats{sfx}.csv"))
     return ret, stats, sim
 
 
@@ -152,5 +167,6 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--cadence", default="Q", choices=["M", "Q", "A"])
     ap.add_argument("--out", default=SCRATCH)
+    ap.add_argument("--min-moat", type=float, default=None)
     a = ap.parse_args()
-    run(a.cadence, a.out)
+    run(a.cadence, a.out, a.min_moat)
