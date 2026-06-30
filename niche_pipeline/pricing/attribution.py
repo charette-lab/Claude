@@ -118,10 +118,14 @@ def decompose(label, er_df, er_col, **kw):
     return df
 
 
+carry = pd.read_parquet(f"{SCR}/carry_grid_norm.parquet"); carry["Instrument"] = carry["Instrument"].astype(str)
+carry["Date"] = pd.to_datetime(carry["Date"]).astype("datetime64[ns]")
+
 BOOKS = {
-    "Raw ER, full universe": dict(er_df=raw, er_col="expected_return"),
     "Full engine, full universe": dict(er_df=full, er_col="expected_return", drop_artifact=True),
     "Full engine, moat>7.8": dict(er_df=full, er_col="expected_return", drop_artifact=True, min_moat=7.8),
+    "Carry-selected, full universe": dict(er_df=carry, er_col="expected_return", drop_artifact=True),
+    "Carry + moat>7.8": dict(er_df=carry, er_col="expected_return", drop_artifact=True, min_moat=7.8),
 }
 
 tables = {}

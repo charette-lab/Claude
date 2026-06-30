@@ -110,12 +110,18 @@ def load_moats():
 
 
 ER_FULL_PATH = os.path.join(SCRATCH, "daily_expected_return_full.parquet")
+CARRY_PATH = os.path.join(SCRATCH, "carry_grid_norm.parquet")   # supply/demand-normalized carry
 
 
-def run(cadence="Q", out=SCRATCH, min_moat=None, full=False):
+def run(cadence="Q", out=SCRATCH, min_moat=None, full=False, carry=False):
     ppy = {"M": 12, "Q": 4, "A": 1}[cadence]
-    print(f"[load] ER panel + prices (cadence={cadence}, engine={'FULL' if full else 'raw-fade'})", flush=True)
-    if full:
+    signame = "CARRY (internal compounding)" if carry else ("FULL" if full else "raw-fade")
+    print(f"[load] ER panel + prices (cadence={cadence}, selector={signame})", flush=True)
+    if carry:
+        er = pd.read_parquet(CARRY_PATH)          # expected_return == carry (internal-compounding IRR)
+        er.loc[er["artifact"].astype(bool), "expected_return"] = np.nan   # drop unreasonable returns
+        print(f"[carry] selecting on the internal-compounding return; {int(er['artifact'].astype(bool).sum())} artifact rows excluded", flush=True)
+    elif full:
         er = pd.read_parquet(ER_FULL_PATH)        # er_adj (supply/demand normalized) + artifact flag
         er.loc[er["artifact"].astype(bool), "expected_return"] = np.nan   # drop unreasonable returns
         na = int(er["artifact"].astype(bool).sum())
@@ -165,7 +171,7 @@ def run(cadence="Q", out=SCRATCH, min_moat=None, full=False):
     print(f"  checkups with NO trades    : {notrade} of {len(turn)}")
     print(f"  implied avg holding period : ~{avg_book/(turn.mean()*ppy)*12:.0f} months" if turn.mean() > 0 else "")
 
-    sfx = f"_{cadence}" + (f"_moat{min_moat:g}" if min_moat is not None else "") + ("_full" if full else "")
+    sfx = f"_{cadence}" + (f"_moat{min_moat:g}" if min_moat is not None else "") + ("_carry" if carry else ("_full" if full else ""))
     ret.to_frame().to_parquet(os.path.join(out, f"bt_erbands_returns{sfx}.parquet"))
     json.dump(sim["holdings"], open(os.path.join(out, f"bt_erbands_holdings{sfx}.json"), "w"))
     pd.Series(stats).to_csv(os.path.join(out, f"bt_erbands_stats{sfx}.csv"))
@@ -178,5 +184,6 @@ if __name__ == "__main__":
     ap.add_argument("--out", default=SCRATCH)
     ap.add_argument("--min-moat", type=float, default=None)
     ap.add_argument("--full", action="store_true", help="use full engine: supply/demand-normalized ER + artifact screen")
+    ap.add_argument("--carry", action="store_true", help="select on the carry (internal-compounding return) instead of total ER")
     a = ap.parse_args()
-    run(a.cadence, a.out, a.min_moat, a.full)
+    run(a.cadence, a.out, a.min_moat, a.full, a.carry)

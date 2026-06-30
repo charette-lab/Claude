@@ -37,6 +37,18 @@ Builds daily series from the yearly panel + the daily price/volume parquet.
   costs return in a 2016-26 boom that rewarded the over-earning it guards against,
   but still clears 12% in ~72-80% of rolling years and beats the ~16% benchmark.
 
+- `build_carry_grid.py` / `build_carry_norm.py` — CARRY signal: the engine's
+  internal-compounding return (`er1_carry` — the IRR if the price never re-rates,
+  exiting at the entry multiple), at month-end dates, then supply/demand-normalized
+  (the normalization barely moves carry — ~0.02pp — it hits the rerate/terminal, not
+  the near-term carry). `backtest_er_bands.py --carry` selects on it (gate carry>=12%,
+  rank by carry). This builds the book on INTERNAL COMPOUNDING rather than re-rating.
+  Result: ~12.7% CAGR full universe / ~18% with moat>7.8 (Sharpe 1.08, DD -22%,
+  ~2 names/yr turnover) — below the total-ER books (22-28%), which quantifies how
+  much of the period's return was re-rating the carry book forgoes. The carry book
+  tilts to high-cash-return infrastructure (regulated utilities, water, gas, airports)
+  — the businesses whose return genuinely comes from internal cash compounding.
+
 - `backtest.py` — evaluates the Constrained Quality Compounder Index through time
   (Gate-2 downside hard-stop DISABLED). Investable universe = the high-moat names
   that carry the 11 binary risk tags (severity>=3 from severity_master / notes,
