@@ -111,13 +111,22 @@ def load_moats():
 
 ER_FULL_PATH = os.path.join(SCRATCH, "daily_expected_return_full.parquet")
 CARRY_PATH = os.path.join(SCRATCH, "carry_grid_norm.parquet")   # supply/demand-normalized carry
+GROWTH_PATH = os.path.join(SCRATCH, "growth_select.parquet")    # Gate1 on er1, rank metric = carry
 
 
-def run(cadence="Q", out=SCRATCH, min_moat=None, full=True, carry=False):
+def run(cadence="Q", out=SCRATCH, min_moat=None, full=True, carry=False, growth=False):
     ppy = {"M": 12, "Q": 4, "A": 1}[cadence]
-    signame = "CARRY (internal compounding)" if carry else ("FULL" if full else "raw-fade")
+    signame = ("INTERNAL-GROWTH (gate er1>=12%, rank by carry)" if growth else
+               "CARRY (internal compounding)" if carry else ("FULL" if full else "raw-fade"))
     print(f"[load] ER panel + prices (cadence={cadence}, selector={signame})", flush=True)
-    if carry:
+    sim_gate = GATE1_IRR
+    if growth:
+        # per spec: er1 computed as usual (Gate 1 baked in) -> decompose -> rank survivors by
+        # the internal-growth (carry) component. expected_return = carry, NaN where ineligible.
+        er = pd.read_parquet(GROWTH_PATH)
+        sim_gate = -1e9                            # eligibility already pre-gated on er1>=12% + plausible carry
+        print(f"[growth] gate=full er1>=12%; ranking survivors by internal-growth (carry) value", flush=True)
+    elif carry:
         er = pd.read_parquet(CARRY_PATH)          # expected_return == carry (internal-compounding IRR)
         er.loc[er["artifact"].astype(bool), "expected_return"] = np.nan   # drop unreasonable returns
         print(f"[carry] selecting on the internal-compounding return; {int(er['artifact'].astype(bool).sum())} artifact rows excluded", flush=True)
@@ -145,7 +154,7 @@ def run(cadence="Q", out=SCRATCH, min_moat=None, full=True, carry=False):
     grid = list(er_w.index)
     print(f"[grid] {len(grid)} rebalance dates {pd.Timestamp(grid[0]).date()} -> {pd.Timestamp(grid[-1]).date()}", flush=True)
 
-    sim = simulate(er_w, px_w, grid)
+    sim = simulate(er_w, px_w, grid, gate=sim_gate)
     idx = pd.DatetimeIndex(sim["dates"])
     ret = pd.Series(sim["rets"], index=idx, name="ER_bands")
     stats = perf_stats(ret, ppy)
@@ -171,7 +180,7 @@ def run(cadence="Q", out=SCRATCH, min_moat=None, full=True, carry=False):
     print(f"  checkups with NO trades    : {notrade} of {len(turn)}")
     print(f"  implied avg holding period : ~{avg_book/(turn.mean()*ppy)*12:.0f} months" if turn.mean() > 0 else "")
 
-    sfx = f"_{cadence}" + (f"_moat{min_moat:g}" if min_moat is not None else "") + ("_carry" if carry else ("_full" if full else ""))
+    sfx = f"_{cadence}" + (f"_moat{min_moat:g}" if min_moat is not None else "") + ("_growth" if growth else ("_carry" if carry else ("_full" if full else "")))
     ret.to_frame().to_parquet(os.path.join(out, f"bt_erbands_returns{sfx}.parquet"))
     json.dump(sim["holdings"], open(os.path.join(out, f"bt_erbands_holdings{sfx}.json"), "w"))
     pd.Series(stats).to_csv(os.path.join(out, f"bt_erbands_stats{sfx}.csv"))
@@ -185,5 +194,6 @@ if __name__ == "__main__":
     ap.add_argument("--min-moat", type=float, default=None)
     ap.add_argument("--raw", action="store_true", help="use raw fade ER instead of the full engine (benchmark only)")
     ap.add_argument("--carry", action="store_true", help="select on the carry (internal-compounding return) instead of total ER")
+    ap.add_argument("--growth", action="store_true", help="gate on full er1>=12%, then rank survivors by internal-growth (carry) value")
     a = ap.parse_args()
-    run(a.cadence, a.out, a.min_moat, full=not a.raw, carry=a.carry)
+    run(a.cadence, a.out, a.min_moat, full=not a.raw, carry=a.carry, growth=a.growth)
