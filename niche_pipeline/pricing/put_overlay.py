@@ -13,6 +13,7 @@ drawdown. Compares moneyness/tenor against unhedged and Gate 2.
 
   python3 pricing/put_overlay.py
 """
+import os
 import numpy as np, pandas as pd
 from scipy.stats import norm
 
@@ -21,6 +22,7 @@ U = "/root/.claude/uploads/58dd72fb-993d-5f0c-ab76-69d17b8d5d70/"
 PRICE = ["972f0581-daily_volume_price_0", "257124b3-daily_volume_price_1",
          "86e54ec3-daily_volume_price_2", "13f82c18-daily_volume_price_0630"]
 VRP = 0.03            # implied = realized vol + 3 vol points (variance risk premium)
+SKEW = 0.05           # extra implied vol per 10% OTM (real puts trade rich on the skew)
 RF = 0.02
 
 
@@ -49,7 +51,8 @@ def market_proxy(book_index):
 
 
 def overlay(b, u, beta, sig, money, tn):
-    si = sig+VRP; S = np.cumprod(np.r_[1.0, 1+u]); E = 1.0; pv = 0.0; con = None; nav = [1.0]
+    si = sig+VRP+SKEW*(1-money)/0.10          # implied vol: realized + VRP + OTM skew
+    S = np.cumprod(np.r_[1.0, 1+u]); E = 1.0; pv = 0.0; con = None; nav = [1.0]
     for q in range(len(b)):
         if q % tn == 0:
             if con:
@@ -65,9 +68,16 @@ def overlay(b, u, beta, sig, money, tn):
     return np.array(nav)
 
 
+def msci_quarterly(book_index):
+    """REAL MSCI World IMI: monthly returns (uploaded) compounded into the book's quarters."""
+    m = pd.read_parquet(SCR+"/msci_imi_monthly.parquet").set_index("date")["ret"]
+    lvl = (1+m).cumprod().reindex(book_index, method="ffill")
+    return lvl/lvl.shift(1)-1
+
+
 def main():
     book = pd.read_parquet(SCR+"/bt_core30_returns_Q.parquet").iloc[:, 0]; book.index = pd.to_datetime(book.index)
-    mret = market_proxy(book.index)
+    mret = msci_quarterly(book.index) if os.path.exists(SCR+"/msci_imi_monthly.parquet") else market_proxy(book.index)
     df = pd.concat([book.rename("b"), mret.rename("u")], axis=1).dropna()
     b, u = df["b"].values, df["u"].values
     beta = np.cov(b, u)[0, 1]/np.var(u); sig = np.std(u, ddof=1)*np.sqrt(4)
@@ -94,7 +104,7 @@ def main():
         a2.plot(idx[:len(nav)], dd*100, color=c, lw=1.6)
     a1.set_yscale("log"); a1.legend(loc="upper left"); a1.grid(True, which="both", alpha=0.25); a1.set_ylabel("Growth of 1.0 (log)")
     a1.set_title("Risk adjuster: protective-put overlay vs Gate 2 (name screen) vs unhedged\n"
-                 "put on the market proxy (beta-hedged), implied vol = realized + 3 VRP points", fontsize=10.5)
+                 "put on REAL MSCI World IMI (book corr ~0.76), implied vol = realized + VRP + OTM skew", fontsize=10.5)
     a2.grid(True, alpha=0.25); a2.set_ylabel("drawdown (%)")
     plt.tight_layout(); fig.savefig(SCR+"/put_overlay.png", dpi=130); print("\nwrote put_overlay.png")
 
