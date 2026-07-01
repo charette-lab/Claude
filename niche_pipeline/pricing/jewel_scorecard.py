@@ -46,9 +46,11 @@ rows = []
 for t, rs in by.items():
     t = str(t); cm = coremoat.get(t)
     if cm is None or cm < 7.8: continue
+    di = idx.get("Period_End_Date", idx.get("Date"))
     ser = {}
     for i in range(len(rs)):
-        d = pd.to_datetime(G(rs, i, "Period_End_Date", "Date"), errors="coerce")
+        dval = rs[i][di] if (di is not None and di < len(rs[i])) else None
+        d = pd.to_datetime(dval, errors="coerce")
         noi, sal = num(G(rs, i, "New Operating Income")), num(G(rs, i, "Sales"))
         if pd.isna(d) or noi is None or sal is None or sal <= 0: continue
         ser[d.year] = dict(i=i, m=noi/sal, sal=sal)
