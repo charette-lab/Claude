@@ -90,3 +90,33 @@ Where the extra return comes from. Funded by selling the Core pro-rata (the IPS 
   regime; a prolonged bear or a valuation de-rating would compress the rerating component —
   which is exactly why the quality anchor and the hedge exist.
 - Tag/severity coverage is partial; the Core universe is the tagged subset.
+
+## BUILT & TESTED — the empirical verdict (backtest_system.py)
+
+The integrated Core+Satellite+hedge was built and run end-to-end. The result
+overturned part of my own design: **complexity did not help.**
+
+| System (quarterly, full engine) | CAGR | Sharpe | Max DD | Calmar |
+|---|---|---|---|---|
+| **RECOMMENDED — Resilient Core-30 (robust spine, whole book)** | 17.7% | 1.03 | −19.5% | **0.91** |
+| **+ MSCI World IMI put (drawdown-averse variant)** | 13.6% | 1.01 | **−10.8%** | **1.26** |
+| Core + Satellite (as designed) — TESTED, REJECTED | 16.4% | 0.88 | −24.4% | 0.67 |
+| High-return alternative — Framework slot-cap | 21.8% | 1.05 | −28.5% | 0.77 |
+| Universe EW | 14.4% | 0.82 | −26.2% | 0.55 |
+
+- **The Satellite sleeve subtracts value.** Concentrating 25% in the highest-ER names
+  added volatility and drawdown (−24.4%) without a robust return gain — and it made the
+  book more idiosyncratic, so the index put hedged it less well. Dropped.
+- **The winning system is therefore the SIMPLE one:** the **Resilient Core-30** (quality
+  floor + risk-adjusted er/vol selection + factor/country caps + severity screen +
+  inverse-vol weighting + bands) as the whole book — **17.7% CAGR, Sharpe 1.03,
+  Calmar 0.91** — with the **MSCI World IMI put as an OPTIONAL overlay** for the
+  drawdown-averse (Calmar **1.26**, max DD **−10.8%**, ~4% premium).
+- **If maximum return is the mandate** (and −28% drawdowns are acceptable), the Framework
+  slot-cap tilt delivers ~22% — the return/robustness trade-off is explicit, not free.
+
+**Meta-lesson (the whole session in one line):** every added layer — Satellite,
+CVaR optimization, Gate 2, integrated hedge — *failed to beat* the simple robust core.
+Return and robustness came from **quality + simple diversification + inverse-vol + an
+external hedge**, not from machinery. Keep the engine sophisticated; keep the portfolio
+construction boring.
