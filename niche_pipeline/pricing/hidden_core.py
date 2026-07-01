@@ -29,8 +29,12 @@ num = lambda v: v if isinstance(v, (int, float)) else None
 
 ws = openpyxl.load_workbook(SCR+"/Universe_final.xlsx", data_only=True, read_only=True)["Scored"]
 rws = list(ws.iter_rows(values_only=True)); ci = {x: i for i, x in enumerate(rws[0])}
-moat = {str(r[ci["Ticker"]]): r[ci["CompanyMoat(v3.2)"]] for r in rws[1:]
-        if r[ci["Ticker"]] and isinstance(r[ci["CompanyMoat(v3.2)"]], (int, float))}
+def _col(name):
+    return {str(r[ci["Ticker"]]): r[ci[name]] for r in rws[1:]
+            if r[ci["Ticker"]] and name in ci and isinstance(r[ci[name]], (int, float))}
+coremoat = _col("CoreMoat(v3.2)")        # the CORE franchise moat (the thesis driver)
+companymoat = _col("CompanyMoat(v3.2)")  # the consolidated GROUP moat (dragged down by subs)
+moatgap = _col("MoatGap")                # CoreMoat - CompanyMoat: how buried the core is
 
 print("loading deep panel...", flush=True)
 by, idx = panel30.load(XLSB)
@@ -69,7 +73,7 @@ MOAT_HI, GATE_LONG_ROIC, DEP = 7.8, 0.10, 0.80
 cand, ctrl = [], []          # (ticker, year) tuples
 records = []
 for t, ser in COMP.items():
-    m = moat.get(t)
+    cm = coremoat.get(t); com = companymoat.get(t); mg = moatgap.get(t)
     for y, f in ser.items():
         em, emn = pct(f["em"]), pct(f["emn"]); gm, gmn = pct(f["gm"]), pct(f["gmn"])
         r3, r21 = pct(f["r3"]), pct(f["r21"])
@@ -77,7 +81,7 @@ for t, ser in COMP.items():
             continue
         group_wrecked = (em <= DEP*emn) or (r3 is not None and r21 is not None and r3 <= r21-0.05)
         gross_ok = (gm is None or gmn is None) or (gm >= 0.9*gmn)
-        core_strong = (m is not None and m >= MOAT_HI) and (r21 is not None and r21 >= GATE_LONG_ROIC) and gross_ok
+        core_strong = (cm is not None and cm >= MOAT_HI) and (r21 is not None and r21 >= GATE_LONG_ROIC) and gross_ok
         if not group_wrecked:
             continue
         # forward recovery of the EBITA-margin gap-to-normal
@@ -87,16 +91,17 @@ for t, ser in COMP.items():
             g2 = ser.get(y+H)
             if g2 and pct(g2["em"]) is not None and gap0 > 1e-4:
                 rec[H] = (pct(g2["em"]) - em)/gap0        # 1.0 = fully back to 10yr norm
-        row = dict(t=t, y=y, moat=m, em=em, emn=emn, gap=gap0, r3=r3, r21=r21, **{f"rec{H}": rec.get(H) for H in (3, 5)})
+        row = dict(t=t, y=y, coremoat=cm, companymoat=com, moatgap=mg, em=em, emn=emn,
+                   gap=gap0, r3=r3, r21=r21, **{f"rec{H}": rec.get(H) for H in (3, 5)})
         if core_strong:
             cand.append(row)
-        elif m is not None and m < 6.5:                    # control: same depression, weak franchise
+        elif cm is not None and cm < 6.5:                  # control: same depression, WEAK core
             ctrl.append(row)
         records.append(row)
 
 C = pd.DataFrame(cand); K = pd.DataFrame(ctrl)
-print(f"\nCANDIDATES (moat>=7.8, long-run ROIIC>=10%, gross intact, group wrecked): {len(C)} company-years, {C.t.nunique()} names")
-print(f"CONTROL   (moat<6.5, same group depression):                             {len(K)} company-years, {K.t.nunique()} names")
+print(f"\nCANDIDATES (CoreMoat>=7.8, long-run ROIIC>=10%, gross intact, group wrecked): {len(C)} company-years, {C.t.nunique()} names")
+print(f"CONTROL   (CoreMoat<6.5, same group depression):                            {len(K)} company-years, {K.t.nunique()} names")
 print(f"\ncandidates per year (is it a real, populated strategy?):")
 cpy = C.groupby("y").t.nunique()
 print("  " + "  ".join(f"{y}:{n}" for y, n in cpy.items()))
@@ -122,5 +127,18 @@ for H in (3, 5):
             print(f"  T+{H}: high-moat recovery > control, Mann-Whitney p = {p:.3f}")
         except Exception:
             pass
+# DIRECT thesis test: does a bigger CoreMoat-vs-group gap predict more group recovery?
+R = pd.DataFrame(records).dropna(subset=["moatgap"])
+print("\n=== DIRECT TEST: does the MoatGap (core minus group) predict the group closing it? ===")
+try:
+    R["gap_tier"] = pd.qcut(R["moatgap"], 3, labels=["small gap", "mid gap", "LARGE gap (buried core)"])
+    for tier in ["small gap", "mid gap", "LARGE gap (buried core)"]:
+        s = R[R.gap_tier == tier]
+        m5 = s["rec5"].dropna()
+        print(f"  {tier:26s} n={len(s):5d}  median MoatGap {s.moatgap.median():.2f}  "
+              f"margin recovery T+5 = {m5.median()*100:4.0f}% (n={len(m5)})")
+    print("  -> if LARGE-gap names recover more, the market's group-based pricing understates a core that reasserts.")
+except Exception as e:
+    print("  (tercile split failed:", e, ")")
 pd.DataFrame(records).to_parquet(SCR+"/hidden_core_candidates.parquet", index=False)
 print("\nwrote hidden_core_candidates.parquet (candidate list for the Stage-2 return test once prices land)")
