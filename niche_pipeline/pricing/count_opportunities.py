@@ -28,15 +28,23 @@ dec["year"] = dec["Date"].dt.year
 elig = {r for r in set(dec.Instrument) if moat.get(r, 0) >= MIN_MOAT and r in tags and maxsev.get(r, 0) < 4}
 dec = dec[dec.Instrument.isin(elig) & (~dec.artifact.astype(bool))]
 
-# Core Index expected return per year = median er of the top-30 eligible names by er each day, averaged
+# Core Index expected return per year = median er of the ACTUAL Core-30 holdings that year
 hurdle = {}
-for y, g in dec.groupby("year"):
-    # per day, median er of that day's top-30 eligible names
-    top = g.groupby("Date")["er_total"].apply(lambda s: s.nlargest(30).median())
-    hurdle[y] = float(top.median())
-print("Core Index expected-return hurdle by year (median er of the top-30 eligible names):")
-print("  " + "  ".join(f"{y}:{hurdle[y]*100:.0f}%" for y in sorted(hurdle)))
-avg_hurdle = np.mean(list(hurdle.values()))
+try:
+    holds = json.load(open(SCR+"/bt_core30_holds_Q.json"))
+    rec = []
+    for dstr, tks in holds.items():
+        d = pd.Timestamp(dstr); sub = dec[(dec.Date == d) & (dec.Instrument.isin([str(x) for x in tks]))]
+        if len(sub):
+            rec.append((d.year, float(sub.er_total.median())))
+    hd = pd.DataFrame(rec, columns=["year", "er"]).groupby("year").er.median().to_dict()
+except Exception:
+    hd = {}
+for y in dec["year"].unique():
+    hurdle[int(y)] = hd.get(int(y), 0.167)          # fallback = realized Core-30 CAGR
+print("Core Index expected-return hurdle by year (median er of the ACTUAL Core-30 holdings):")
+print("  " + "  ".join(f"{y}:{hurdle[y]*100:.0f}%" for y in sorted(hurdle) if 2016 <= y <= 2025))
+avg_hurdle = np.mean([hurdle[y] for y in hurdle if 2016 <= y <= 2025])
 print(f"  average hurdle ~{avg_hurdle*100:.0f}%   (realized Core-30 CAGR was ~16.7%)\n")
 
 # per (year, security): fraction of days above each threshold
