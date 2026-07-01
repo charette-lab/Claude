@@ -49,11 +49,17 @@ def fin(t, nopat, roic, rr, moat, netdebt, mc):
             "Net debt": netdebt, "Sales": None, "Market Cap": mc}
 
 def er(f, sig):
+    """(er1 raw 5yr convergence, er_adj supply/demand-faded)."""
+    raw = None
     try:
-        ts = overearning.two_stage_return(f, sig, re=0.07, re2=0.12)
-        return ts.get("er_adj") if ts else None
+        v = aip.value_and_return(f, re=0.07, re2=0.12); raw = v.get("er1") if v else None
     except Exception:
-        return None
+        pass
+    try:
+        ts = overearning.two_stage_return(f, sig, re=0.07, re2=0.12); adj = ts.get("er_adj") if ts else None
+    except Exception:
+        adj = None
+    return raw, adj
 
 rows = []
 for t, rs in by.items():
@@ -81,11 +87,12 @@ for t, rs in by.items():
         sig = overearning.panel_signals(rs[:li+1], idx)
     except Exception:
         continue
-    er_rep = er(fin(t, rep_noi, roic, rr, cm, nd, mc), sig)
-    er_free = er(fin(t, freed, roic, rr, cm, nd, mc), sig)
-    er_act = er(fin(t, freed, max(roic, 0.12), 0.40, cm, nd, mc), sig)
+    (raw_rep, adj_rep) = er(fin(t, rep_noi, roic, rr, cm, nd, mc), sig)
+    (raw_free, adj_free) = er(fin(t, freed, roic, rr, cm, nd, mc), sig)
+    (raw_act, adj_act) = er(fin(t, freed, max(roic, 0.12), 0.40, cm, nd, mc), sig)
     rows.append(dict(t=t, cm=cm, rr=rr, roic=roic, uplift=freed/rep_noi if rep_noi > 0 else np.nan,
-                     freed_yield=freed/mc, er_rep=er_rep, er_free=er_free, er_act=er_act))
+                     freed_yield=freed/mc, raw_rep=raw_rep, raw_free=raw_free, raw_act=raw_act,
+                     adj_rep=adj_rep, adj_free=adj_free, adj_act=adj_act))
 D = pd.DataFrame(rows); D.to_parquet(SCR+"/core_freed.parquet")
 m = lambda s: pd.Series(s).dropna().median()
 sh = lambda s, k: (pd.Series(s).dropna() >= k).mean()*100
@@ -94,10 +101,15 @@ print(f"  reinvestment rate (RR) median:       {m(D.rr)*100:4.0f}%")
 print(f"  incremental ROIC median:             {m(D.roic)*100:4.0f}%   <- capital plowed back at ~this return")
 print(f"  NOPAT uplift if core freed (median):  {m(D.uplift):.2f}x")
 print(f"  FREED earnings yield (freedNOPAT/mktcap) median: {m(D.freed_yield)*100:4.0f}%  <- NOT expensive if this is high\n")
-print("=== full-engine implied return (er_adj), median, and % clearing hurdles ===")
-print(f"  {'scenario':34s}{'median er':>10}{'>=12%':>8}{'>=20%':>8}")
-print(f"  {'(1) reported earnings':34s}{m(D.er_rep)*100:9.1f}%{sh(D.er_rep,0.12):7.0f}%{sh(D.er_rep,0.20):7.0f}%")
-print(f"  {'(2) free the margin only':34s}{m(D.er_free)*100:9.1f}%{sh(D.er_free,0.12):7.0f}%{sh(D.er_free,0.20):7.0f}%")
-print(f"  {'(3) + fix capital allocation':34s}{m(D.er_act)*100:9.1f}%{sh(D.er_act,0.12):7.0f}%{sh(D.er_act,0.20):7.0f}%")
-print(f"\n  lift from freeing margin only:      {(m(D.er_free)-m(D.er_rep))*100:+.1f} pts")
-print(f"  lift from ALSO fixing reinvestment: {(m(D.er_act)-m(D.er_free))*100:+.1f} pts  <- the real prize")
+print("=== implied return: RAW er1 (5yr convergence) vs er_adj (supply/demand-faded) ===")
+print(f"  {'scenario':30s}{'RAW er1':>10}{'er_adj':>10}{'fade':>8}")
+print(f"  {'(1) reported earnings':30s}{m(D.raw_rep)*100:9.1f}%{m(D.adj_rep)*100:9.1f}%{(m(D.raw_rep)-m(D.adj_rep))*100:7.1f}")
+print(f"  {'(2) free the margin only':30s}{m(D.raw_free)*100:9.1f}%{m(D.adj_free)*100:9.1f}%{(m(D.raw_free)-m(D.adj_free))*100:7.1f}")
+print(f"  {'(3) + fix capital allocation':30s}{m(D.raw_act)*100:9.1f}%{m(D.adj_act)*100:9.1f}%{(m(D.raw_act)-m(D.adj_act))*100:7.1f}")
+print(f"\n  RAW er1 lift from freeing margin: {(m(D.raw_free)-m(D.raw_rep))*100:+.1f} pts   "
+      f"(if this ~doubles the value's return, the convergence works)")
+print(f"  the 'fade' column = how much the supply/demand normalization downgrades the restored margin.")
+print(f"  % of freed names with RAW er1>=12%: {sh(D.raw_free,0.12):.0f}%  vs er_adj>=12%: {sh(D.adj_free,0.12):.0f}%")
+# sanity: does op_value actually scale with the doubling? report median implied value/price
+print(f"\n  median NOPAT uplift {m(D.uplift):.2f}x  -> if convergence is right, (1+raw_free)/(1+raw_rep) should ~= uplift^(1/5)={m(D.uplift)**0.2:.2f}")
+print(f"  actual (1+raw_free)/(1+raw_rep) median ratio: {m((1+D.raw_free)/(1+D.raw_rep)):.2f}")
