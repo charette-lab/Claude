@@ -58,14 +58,22 @@ for t, rs in by.items():
     if len(ser) < 6:
         continue
     yrs = sorted(ser)
-    marg = pd.Series({y: ser[y]["m"] for y in yrs})
+    sals = pd.Series({y: ser[y]["sal"] for y in yrs})
+    # peak margin only from years with a PLAUSIBLE NOI margin (drop |margin|>60% tiny-sales artifacts)
+    marg = pd.Series({y: ser[y]["m"] for y in yrs if abs(ser[y]["m"]) <= 0.60})
+    if len(marg) < 5:
+        continue
     roll3 = marg.rolling(3, min_periods=2).mean()
     pre = roll3.max()                                   # peak sustained (pre-pivot) core margin
     pre_yr = int(roll3.idxmax())
-    cur = roll3.loc[yrs[-1]]                            # latest 3yr-avg margin
+    cur = pd.Series({y: ser[y]["m"] for y in yrs}).rolling(3, min_periods=1).mean().loc[yrs[-1]]
     last = ser[yrs[-1]]
     ev, mc, sal = last["ev"], last["mc"], last["sal"]
-    if pre is None or pre <= 0 or ev is None or ev <= 0 or mc is None or mc <= 0:
+    if pre is None or not (0 < pre <= 0.50) or ev is None or ev <= 0 or mc is None or mc <= 0 or sal <= 0:
+        continue
+    # the pre-pivot peak must come from a period with real sales (>=25% of current) — kill tiny-denominator flukes
+    peak_sales = sals.loc[max(pre_yr-2, yrs[0]):pre_yr].mean()
+    if pd.isna(peak_sales) or peak_sales < 0.25*sal:
         continue
     g = G_BY_MOAT[9.0] if cm >= 9.0 else G_BY_MOAT[7.8]
     nopat_pre = pre * sal                               # core earnings at pre-pivot margin, current sales
