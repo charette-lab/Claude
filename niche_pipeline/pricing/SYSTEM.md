@@ -100,13 +100,21 @@ overturned part of my own design: **complexity did not help.**
 |---|---|---|---|---|
 | **RECOMMENDED — Resilient Core-30 (robust spine, whole book)** | 17.7% | 1.03 | −19.5% | **0.91** |
 | **+ MSCI World IMI put (drawdown-averse variant)** | 13.6% | 1.01 | **−10.8%** | **1.26** |
-| Core + Satellite (as designed) — TESTED, REJECTED | 16.4% | 0.88 | −24.4% | 0.67 |
+| Satellite ONLY (standalone, return-interpolated) | 20.0% | 0.85 | −29.7% | 0.67 |
+| Core + Satellite 75/25 (proper blend) | 18.0% | 0.98 | −21.8% | 0.83 |
 | High-return alternative — Framework slot-cap | 21.8% | 1.05 | −28.5% | 0.77 |
 | Universe EW | 14.4% | 0.82 | −26.2% | 0.55 |
 
-- **The Satellite sleeve subtracts value.** Concentrating 25% in the highest-ER names
-  added volatility and drawdown (−24.4%) without a robust return gain — and it made the
-  book more idiosyncratic, so the index put hedged it less well. Dropped.
+- **CORRECTION on the Satellite** (measured standalone after the fact). It was *not* a
+  failure — that verdict was a build artifact (the integrated core sleeve was cannibalized
+  of its best names). Standalone the satellite compounds at **20% CAGR** (Sharpe 0.85, DD
+  −29.7%, Calmar 0.67) — the highest-returning single sleeve — and the return-interpolated
+  sizing added +3.5 pts over equal-weighting the same names. A PROPER 75/25 blend (two books
+  held separately) returns **18.0%** vs the core's 17.1% — the satellite is **accretive to
+  return** — but it's high-vol and 0.88-correlated to the core, so it costs a little
+  risk-adjusted quality (Sharpe 1.00→0.98, Calmar 0.87→0.83). A ~10% tilt is Calmar-neutral.
+  → **Include the satellite sized to mandate:** 0% for max Sharpe/Calmar; ~10% for near-free
+  extra return; 20–25% for return-seeking (then the MSCI put earns its keep on the drawdown).
 - **The winning system is therefore the SIMPLE one:** the **Resilient Core-30** (quality
   floor + risk-adjusted er/vol selection + factor/country caps + severity screen +
   inverse-vol weighting + bands) as the whole book — **17.7% CAGR, Sharpe 1.03,
