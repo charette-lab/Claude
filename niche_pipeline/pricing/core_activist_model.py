@@ -20,26 +20,24 @@ HOLD, NPICK, HAIRCUT = 4, 2, 0.5
 
 A = pd.read_parquet(SCR+"/activist_funnel.parquet"); A = A[A.takeable].copy()
 picks = {}
-for y in range(2013, 2026):
+for y in range(1997, 2026):
     sub = A[(A.year == y) & (A["freed_15%"] >= 0.20) & (A["freed_15%"] <= 0.50)]
     sub = sub.dropna(subset=["freed_15%"]).sort_values("freed_15%", ascending=False).head(NPICK)
     picks[y] = [(t, er*HAIRCUT) for t, er in zip(sub.t, sub["freed_15%"])]
 sat_annual = {}
-for z in range(2016, 2026):
+for z in range(2000, 2027):
     active = [er for vy in range(z-HOLD+1, z+1) if vy in picks for (_, er) in picks[vy]]
     if active:
         sat_annual[z] = float(np.mean(active))
 
 core = pd.read_parquet(SCR+"/bt_core30_returns_Q.parquet").iloc[:, 0]; core.index = pd.to_datetime(core.index)
-core = core[(core.index.year >= 2016) & (core.index.year <= 2025)]
+core = core[(core.index.year >= 2000) & (core.index.year <= 2026)]
 # satellite quarterly: fundamental freed return, realized smoothly within the year
 satq = pd.Series({d: (1+sat_annual.get(d.year, np.nan))**0.25-1 for d in core.index})
-# realistic MTM overlay: satellite also takes beta*market shock in crash quarters (fundamental unchanged, price wobbles)
-mm = pd.read_parquet(SCR+"/msci_imi_monthly.parquet").set_index("date")["ret"]; mm.index = pd.to_datetime(mm.index)
-mq = (1+mm).groupby(mm.index.to_period("Q")).prod()-1; mq.index = mq.index.to_timestamp("Q")
-mkt = mq.reindex(core.index).fillna(0.0)
+# realistic MTM overlay: satellite wobbles with the equity market in crashes (fundamental value unchanged).
+# MSCI monthly only exists 2015+, so use the Core-30 itself as the equity-market proxy (available full history).
 BETA = 0.8
-satq_mtm = satq + BETA*np.minimum(mkt - mkt.mean(), 0.0)      # add only the adverse market deviations (drawdown texture)
+satq_mtm = satq + BETA*np.minimum(core - core.mean(), 0.0)    # add adverse market deviations -> crash drawdown texture
 
 df = pd.concat([core.rename("Core"), satq.rename("SatFund"), satq_mtm.rename("SatMTM")], axis=1).dropna()
 
