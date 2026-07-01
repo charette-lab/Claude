@@ -36,7 +36,11 @@ from frameworks import RISK_TAGS_SHORT, fill_under_slot_cap, CORE_N, CORE_SLOT_C
 SCR = "/tmp/claude-0/-home-user-Claude/58dd72fb-993d-5f0c-ab76-69d17b8d5d70/scratchpad"
 U = "/root/.claude/uploads/58dd72fb-993d-5f0c-ab76-69d17b8d5d70/"
 PRICE_FILES = [U+"972f0581-daily_volume_price_0.parquet", U+"257124b3-daily_volume_price_1.parquet",
-               U+"86e54ec3-daily_volume_price_2.parquet", U+"13f82c18-daily_volume_price_0630.parquet"]
+               U+"86e54ec3-daily_volume_price_2.parquet", U+"13f82c18-daily_volume_price_0630.parquet",
+               U+"cf27bad3-two_batches_daily_volume_price_0.parquet", U+"c3621e8f-two_batches_daily_volume_price_1.parquet",
+               U+"35e9a52e-two_batches_daily_volume_price_2.parquet", U+"e397aa9f-two_batches_daily_volume_price_3.parquet",
+               U+"3cfd2814-two_batches_daily_volume_price_4.parquet", U+"25b0cf78-two_batches_daily_volume_price_5.parquet",
+               U+"95c8416b-two_batches_daily_volume_price_6.parquet"]
 PKG = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ---- params (tunable) ----
