@@ -21,7 +21,7 @@ U = "/root/.claude/uploads/58dd72fb-993d-5f0c-ab76-69d17b8d5d70/"
 XLSB = [U+"fb2aec33-30_file_1.xlsb", U+"a810c35f-30_file_2.xlsb", U+"62545fc2-30_file_3.xlsb"]
 num = lambda v: v if isinstance(v, (int, float)) else None
 pct = lambda x: (None if x is None else (x/100.0 if abs(x) > 1.5 else x))
-HURDLE = {2016: .35, 2017: .36, 2018: .33, 2019: .31, 2020: .35, 2021: .33, 2022: .44, 2023: .35, 2024: .34, 2025: .31}
+import json  # HURDLE (Core Index expected return per year) computed from actual Core-30 holdings below
 ROIC = {"12%": 0.12, "15%": 0.15, "20%": 0.20}
 
 tags, maxsev, moat, country = load_meta()
@@ -36,10 +36,21 @@ ctry = {str(r[ci["Ticker"]]): r[ci["Country"]] for r in rws[1:] if r[ci["Ticker"
 print("loading decomposition (reported er + representative market cap per year)...", flush=True)
 dec = pd.read_parquet(SCR+"/daily_return_decomposition.parquet", columns=["Instrument", "Date", "er_total", "market_cap", "artifact"])
 dec["Instrument"] = dec["Instrument"].astype(str); dec["year"] = pd.to_datetime(dec["Date"]).dt.year
-dec = dec[(dec.year >= 2016) & (dec.year <= 2025)]
+dec = dec[(dec.year >= 2000) & (dec.year <= 2026)]
 agg = dec.groupby(["Instrument", "year"]).agg(rep_er=("er_total", "median"), rep_mc=("market_cap", "median"),
                                               art=("artifact", "mean")).reset_index()
 agg = agg[(agg.art < 0.5) & (agg.rep_mc > 0)]
+# Core Index hurdle per year = median reported er of the actual Core-30 holdings that year
+ermap = {(int(r.year), r.Instrument): r.rep_er for r in agg.itertuples()}
+held = {}
+for dstr, tks in json.load(open(SCR+"/bt_core30_holds_Q.json")).items():
+    held.setdefault(pd.Timestamp(dstr).year, set()).update(str(x) for x in tks)
+HURDLE = {}
+for y, names in held.items():
+    e = [ermap[(y, n)] for n in names if (y, n) in ermap]
+    if e: HURDLE[y] = float(np.median(e))
+HDEF = float(np.median(list(HURDLE.values()))) if HURDLE else 0.35
+print(f"  hurdle by year (median): {min(HURDLE.values())*100:.0f}%-{max(HURDLE.values())*100:.0f}% | default {HDEF*100:.0f}%", flush=True)
 
 print("loading panel (pre-pivot margin + fundamentals per year)...", flush=True)
 by, idx = panel30.load(XLSB)
@@ -83,7 +94,7 @@ for _, r in agg.iterrows():
     key = (t, y-1) if (t, y-1) in FUND else ((t, y) if (t, y) in FUND else None)   # 6-mo reporting lag
     if key is None: continue
     f = FUND[key]; freed = f["pre"]*f["sales"]
-    row = dict(t=t, year=y, hurdle=HURDLE[y], rep_er=float(r.rep_er), takeable=(ownv.get(t) != "HARD-BLOCK"))
+    row = dict(t=t, year=y, hurdle=HURDLE.get(y, HDEF), rep_er=float(r.rep_er), takeable=(ownv.get(t) != "HARD-BLOCK"))
     for lab, rv in ROIC.items():
         row[f"freed_{lab}"] = er1(t, freed, rv, f["rr"], f["netdebt"], float(r.rep_mc))
     rec.append(row)
@@ -91,7 +102,7 @@ D = pd.DataFrame(rec); D.to_parquet(SCR+"/activist_funnel.parquet")
 
 def cnt(mask_fn):
     return {y: int(mask_fn(g).sum()) for y, g in D.groupby("year")}
-yrs = list(range(2016, 2026)); mean = lambda d: np.mean([d.get(y, 0) for y in yrs])
+yrs = list(range(2000, 2026)); mean = lambda d: np.mean([d.get(y, 0) for y in yrs])
 passive = cnt(lambda g: g.rep_er > g.hurdle)
 act15 = cnt(lambda g: g["freed_15%"] > g.hurdle)
 pure15 = cnt(lambda g: (g.rep_er <= g.hurdle) & (g["freed_15%"] > g.hurdle))
