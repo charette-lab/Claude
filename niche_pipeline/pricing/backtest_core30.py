@@ -53,6 +53,7 @@ MIN_HIST = 60
 SLOT_CAP = 6              # the IPS 6-of-30 factor-defense cap (fills ~28 on the full tagged universe)
 COUNTRY_CAP = 10
 W_MIN, W_MAX = 0.010, 0.075   # wide enough that inverse-vol weighting actually tilts to low-vol names
+MIN_MCAP = float(os.environ.get("CORE30_MIN_MCAP", "0"))   # point-in-time market-cap floor in USD (0 = off)
 RISK_MEASURE = os.environ.get("CORE30_RISK", "vol")   # "vol" (std) or "downside" (downside deviation, target 0)
 USE_GATE2 = os.environ.get("CORE30_GATE2", "0") == "1"   # IPS Gate 2: P(30% drawdown) <= 20%
 FLOOR_RATIO = 0.70        # no-growth floor / price; >= 0.70 => a 30% fall lands at the floor
@@ -206,7 +207,7 @@ def run(cadence="Q", out=SCR):
     rows, holds, bucket = [], {}, []
     for i in range(len(grid)-1):
         t, t1 = grid[i], grid[i+1]
-        erT = er_g.loc[t]; vT = vol_g.loc[t]
+        erT = er_g.loc[t]; vT = vol_g.loc[t]; mcT = mc_g.loc[t] if MIN_MCAP > 0 else None
         elig = []
         for r in erT.index:
             if r not in moat or moat[r] < MIN_MOAT:
@@ -220,6 +221,10 @@ def run(cadence="Q", out=SCR):
                 continue
             if pd.isna(v) or v <= 0 or pd.isna(h) or h < MIN_HIST:
                 continue
+            if MIN_MCAP > 0:                                  # point-in-time size floor (no look-ahead)
+                mcv = mcT.get(r)
+                if pd.isna(mcv) or float(mcv) < MIN_MCAP:
+                    continue
             if USE_TREND and not bool(tr):
                 continue
             if pd.isna(px_g.loc[t].get(r)):
@@ -266,7 +271,7 @@ def run(cadence="Q", out=SCR):
     idx = pd.DatetimeIndex([d for d, _ in rows])
     ret_s = pd.Series([x for _, x in rows], index=idx, name="Core30_resilient")
     st = perf(ret_s, ppy)
-    tag = ("" if RISK_MEASURE == "vol" else f"_{RISK_MEASURE}") + ("" if WEIGHT_MODE == "invvol" else f"_{WEIGHT_MODE}") + ("_g2" if USE_GATE2 else "")
+    tag = ("" if RISK_MEASURE == "vol" else f"_{RISK_MEASURE}") + ("" if WEIGHT_MODE == "invvol" else f"_{WEIGHT_MODE}") + ("_g2" if USE_GATE2 else "") + (f"_mcap{int(MIN_MCAP/1e6)}M" if MIN_MCAP > 0 else "")
     ret_s.to_frame().to_parquet(os.path.join(out, f"bt_core30_returns_{cadence}{tag}.parquet"))
     json.dump(holds, open(os.path.join(out, f"bt_core30_holds_{cadence}{tag}.json"), "w"))
     ab = np.mean([b for b, _ in bucket]); amb = np.mean([m for _, m in bucket])
