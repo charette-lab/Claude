@@ -25,6 +25,7 @@ MOAT_MIN = 7.8
 ER_BUY = 0.20
 ER_SELL = 0.0
 POS_CAP = 0.10
+MIN_MCAP = float(os.environ.get("BH_MIN_MCAP", "0"))   # market-cap floor at ENTRY, USD (0 = off)
 CASH_RATE = float(os.environ.get("BH_CASH", "0.02"))   # annual cash yield
 ppy = 4; cash_q = (1+CASH_RATE)**0.25 - 1
 
@@ -32,7 +33,7 @@ ppy = 4; cash_q = (1+CASH_RATE)**0.25 - 1
 _, _, moat, _ = B.load_meta()
 
 # ---- decomposition: er_total (=er_adj), artifact ----
-dec = pd.read_parquet(SCR+"/daily_return_decomposition.parquet", columns=["Instrument", "Date", "er_total", "artifact"])
+dec = pd.read_parquet(SCR+"/daily_return_decomposition.parquet", columns=["Instrument", "Date", "er_total", "artifact", "market_cap"])
 dec["Instrument"] = dec["Instrument"].astype(str); dec["Date"] = pd.to_datetime(dec["Date"]).astype("datetime64[ns]")
 
 # ---- price panel (realized returns) ----
@@ -50,6 +51,7 @@ grid = pd.DatetimeIndex(sorted(list(s.groupby(s.dt.to_period("Q")).max().values)
 asof = lambda wide: wide.reindex(grid, method="ffill")
 er_g = asof(dec.pivot_table(index="Date", columns="Instrument", values="er_total", aggfunc="last"))
 art_g = asof(dec.pivot_table(index="Date", columns="Instrument", values="artifact", aggfunc="last"))
+mc_g = asof(dec.pivot_table(index="Date", columns="Instrument", values="market_cap", aggfunc="last")) if MIN_MCAP > 0 else None
 px_g = asof(W)
 
 # wide-moat candidate columns (static moat label)
@@ -90,6 +92,7 @@ for i, t in enumerate(grid):
             cash += holdings[r]["val"]; del holdings[r]
     # 3) BUY: wide-moat, er >= 20%, not artifact, priced, not held -- best er first, 10% chunks from cash
     total = sum(h["val"] for h in holdings.values()) + cash
+    mcT = mc_g.loc[t] if mc_g is not None else None
     cand = []
     for r in wide:
         if r in holdings:
@@ -99,6 +102,10 @@ for i, t in enumerate(grid):
             continue
         if bool(artT.get(r)) or p is None or pd.isna(p) or float(p) <= 0:
             continue
+        if MIN_MCAP > 0:                                # size floor at entry (no look-ahead)
+            mv = mcT.get(r)
+            if mv is None or pd.isna(mv) or float(mv) < MIN_MCAP:
+                continue
         cand.append((r, float(e), float(p)))
     cand.sort(key=lambda x: -x[1])
     buy = POS_CAP*total
@@ -137,12 +144,13 @@ for y in [2000, 2003, 2007, 2009, 2013, 2018, 2021, 2023, 2026]:
     sub = cs[cs.index.year == y]
     if len(sub):
         print(f"  {y}: {sub.iloc[-1]*100:3.0f}% cash")
-ret_s.to_frame().to_parquet(SCR+"/buyhold_wide_Q.parquet")
+FTAG = f"_mcap{int(MIN_MCAP/1e6)}M" if MIN_MCAP > 0 else ""
+ret_s.to_frame().to_parquet(SCR+f"/buyhold_wide_Q{FTAG}.parquet")
 state = pd.DataFrame({"date": grid, "n_pos": ncnt, "cash_pct": cashpct})
 for k in ["top1", "top3", "top5", "hhi", "effN"]:
     state[k] = [c[k] for c in conc]
-state.to_csv(SCR+"/buyhold_wide_state.csv", index=False)
-pd.DataFrame(snaps, columns=["date", "inst", "val", "px"]).to_parquet(SCR+"/buyhold_wide_snaps.parquet")
+state.to_csv(SCR+f"/buyhold_wide_state{FTAG}.csv", index=False)
+pd.DataFrame(snaps, columns=["date", "inst", "val", "px"]).to_parquet(SCR+f"/buyhold_wide_snaps{FTAG}.parquet")
 
 # per-year concentration table (year-end snapshot)
 state["year"] = pd.to_datetime(state["date"]).dt.year
