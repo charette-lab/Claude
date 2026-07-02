@@ -73,6 +73,35 @@ The `hist` panel ALREADY carries the machinery:
    activist thesis (how much of the rescue is asset-covered).
 6. Surface `ReproValue`, `EPV`, `FranchiseValue`, `FranchiseShare`, `AV/EV` as new Scored columns.
 
-Status: method captured; `reproduction_value.py` is a first (honest, not-yet-validated) assembly
-from existing panel components. The real build requires items 1–2 above (esp. the S&M customer-base
-reproduction and the EPV restatement), which the panel does not yet contain.
+## Refinements from the Module quick-reference guides (Meta/PayPal/Booking)
+- **Workforce = 20–25% of the wage bill** (headhunter replacement cost).
+- **Attrition cancels maintenance in the customer/TPV flow**, so *invested capital to grow the base =
+  cumulative S&M spend* (`IC_growth = Σ S&M`); maintenance S&M = churn×base/β offsets attrition exactly.
+- **Marginal ROIC strips ORGANIC growth**: credit only ΔNOPAT attributable to growth *capital*
+  (subtract organic-growth NOPAT), ÷ accumulated growth capex; compare to WACC. Meta 33%, PayPal 20.5%.
+- **Level vs growth-rate shocks** (Gordon `V/E=(1−k)/(r−g)`): a *level* shock moves value proportionally
+  (multiple constant); a *growth-rate* shock moves value AND the multiple. Maps onto our carry/rerate split.
+- **Crisis lens (Booking)**: when AV can't be built, use EPV alone as a *conservative floor*; buy when
+  price dips below conservative EPV (e.g. Booking Q1-2020). "Buy the product/service, not the company."
+
+## KEY FINDING — franchise value is ORTHOGONAL to the moat score (do not use it as a moat validator)
+Empirically (352 names): `FranchiseShare = 1 − AV/EPV` ranks almost perfectly with **ROIC
+(Spearman 0.94)** and is **uncorrelated with CompanyMoat (0.03)** / CoreMoat (0.10). Algebraically
+`FranchiseShare ≈ 1 − WACC/ROIC` — it is a capitalization of the **current excess-return spread**, a
+LEVEL, whereas the moat score is DURABILITY. They are different axes. So reproduction/franchise value
+adds a **new orthogonal dimension**, it does not confirm the moat. Correct uses:
+1. **Asset floor** `AV/EV` — the downside leg, now for the whole book (not just cyclicals).
+2. **The franchise × moat map** (4 quadrants): compounder (earns+durable) · fading (earns, not durable,
+   mean-reversion risk) · **BURIED CORE (durable, under-earning)** · commodity.
+3. **Buried-core / activist screen (the prize)**: `CoreMoat ≥ 7.8` **and** franchise value suppressed
+   (group NOPAT/ROIC ≈ 0 because bad subs crush earnings) = a durable franchise not currently earning
+   its excess. 98 such names in the book; e.g. REHN.S (CoreMoat 8.7, group ROIC ~0), MVVGn.DE
+   (CoreMoat 8.8, MoatGap 2.1). Free the core → NOPAT rises → EPV rises → franchise value materialises.
+   This operationalises the activist thesis with reproduction value: buy suppressed franchise behind a
+   durable core, get paid as it un-buries.
+
+Status: method fully captured (all 6 modules); `reproduction_value.py` computes AV, EPV, FranchiseValue,
+FranchiseShare, AV/EV, the franchise×moat quadrants and the buried-core screen from existing panel
+components (IC + capitalized R&D/SG&A). Remaining for a full CBS build: (a) age/inflation-adjusted PP&E
+tangible reproduction, (b) the S&M customer-base (β/churn) reproduction, (c) the EPV growth/maintenance
+restatement — decisive for asset-light tech names, minor for this tangible-heavy quality universe.
