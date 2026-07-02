@@ -58,7 +58,7 @@ print(f"wide-moat (>= {MOAT_MIN}) names in engine coverage: {len(wide)}")
 
 holdings = {}          # inst -> {"val": value, "px": last price}
 cash = 1.0
-rets, ncnt, cashpct = [], [], []
+rets, ncnt, cashpct, conc = [], [], [], []
 prev_total = 1.0
 for i, t in enumerate(grid):
     erT, artT, pxT = er_g.loc[t], art_g.loc[t], px_g.loc[t]
@@ -72,6 +72,14 @@ for i, t in enumerate(grid):
     if i > 0:
         rets.append((t, total/prev_total - 1.0))
     ncnt.append(len(holdings)); cashpct.append(cash/total if total > 0 else 1.0)
+    # concentration of the invested book (weights as % of total portfolio incl. cash)
+    vv = np.sort(np.array([h["val"] for h in holdings.values()], dtype=float))[::-1]
+    w = vv/total if (total > 0 and len(vv)) else np.array([])
+    hhi = float((w**2).sum()) if len(w) else 0.0
+    conc.append(dict(top1=float(w[0]) if len(w) >= 1 else 0.0,
+                     top3=float(w[:3].sum()) if len(w) else 0.0,
+                     top5=float(w[:5].sum()) if len(w) else 0.0,
+                     hhi=hhi, effN=(1.0/hhi if hhi > 0 else 0.0)))
     # 2) SELL: er has fallen to <= 0
     for r in list(holdings):
         e = erT.get(r)
@@ -127,5 +135,17 @@ for y in [2000, 2003, 2007, 2009, 2013, 2018, 2021, 2023, 2026]:
     if len(sub):
         print(f"  {y}: {sub.iloc[-1]*100:3.0f}% cash")
 ret_s.to_frame().to_parquet(SCR+"/buyhold_wide_Q.parquet")
-pd.DataFrame({"date": grid, "n_pos": ncnt, "cash_pct": cashpct}).to_csv(SCR+"/buyhold_wide_state.csv", index=False)
+state = pd.DataFrame({"date": grid, "n_pos": ncnt, "cash_pct": cashpct})
+for k in ["top1", "top3", "top5", "hhi", "effN"]:
+    state[k] = [c[k] for c in conc]
+state.to_csv(SCR+"/buyhold_wide_state.csv", index=False)
+
+# per-year concentration table (year-end snapshot)
+state["year"] = pd.to_datetime(state["date"]).dt.year
+gy = state.groupby("year").last()
+print("\n=== CONCENTRATION per year (year-end weights, % of total incl. cash) ===")
+print(f"{'year':>4} | {'n':>3} | {'top1':>5} | {'top3':>5} | {'top5':>5} | {'effN':>5} | {'cash':>5}")
+print("-"*50)
+for y, r in gy.iterrows():
+    print(f"{y:>4} | {r.n_pos:3.0f} | {r.top1*100:4.0f}% | {r.top3*100:4.0f}% | {r.top5*100:4.0f}% | {r.effN:5.1f} | {r.cash_pct*100:4.0f}%")
 print("\nwrote buyhold_wide_Q.parquet, buyhold_wide_state.csv")
