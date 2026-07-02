@@ -59,6 +59,7 @@ print(f"wide-moat (>= {MOAT_MIN}) names in engine coverage: {len(wide)}")
 holdings = {}          # inst -> {"val": value, "px": last price}
 cash = 1.0
 rets, ncnt, cashpct, conc = [], [], [], []
+snaps = []             # per-period holdings snapshot (date, inst, val, px) for attribution
 prev_total = 1.0
 for i, t in enumerate(grid):
     erT, artT, pxT = er_g.loc[t], art_g.loc[t], px_g.loc[t]
@@ -80,6 +81,8 @@ for i, t in enumerate(grid):
                      top3=float(w[:3].sum()) if len(w) else 0.0,
                      top5=float(w[:5].sum()) if len(w) else 0.0,
                      hhi=hhi, effN=(1.0/hhi if hhi > 0 else 0.0)))
+    for r, h in holdings.items():                       # snapshot for return attribution
+        snaps.append((t, r, h["val"], h["px"]))
     # 2) SELL: er has fallen to <= 0
     for r in list(holdings):
         e = erT.get(r)
@@ -139,6 +142,7 @@ state = pd.DataFrame({"date": grid, "n_pos": ncnt, "cash_pct": cashpct})
 for k in ["top1", "top3", "top5", "hhi", "effN"]:
     state[k] = [c[k] for c in conc]
 state.to_csv(SCR+"/buyhold_wide_state.csv", index=False)
+pd.DataFrame(snaps, columns=["date", "inst", "val", "px"]).to_parquet(SCR+"/buyhold_wide_snaps.parquet")
 
 # per-year concentration table (year-end snapshot)
 state["year"] = pd.to_datetime(state["date"]).dt.year
