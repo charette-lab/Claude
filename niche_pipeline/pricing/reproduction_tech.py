@@ -40,6 +40,8 @@ C = {  # panel column -> short name
     "Debt - Long-Term - Total": "ltd", "Short-Term Debt & Current Portion of Long-Term Debt": "std",
     "Capitalized Lease Obligations - Long-Term": "ll", "Capitalized Leases - Current Portion": "lc",
     "ROICm_total - 7 years": "roicm7",
+    "Operating Working Capital": "owc", "Gross Reproduction Cost": "ppe_repro",
+    "Base Physical Capital & Leases": "ppe_base",
 }
 
 wb = openpyxl.load_workbook(HIST, data_only=True, read_only=True)["Original"]
@@ -66,8 +68,7 @@ def num(x, default=np.nan):
 
 out = []
 for t, r in d.iterrows():
-    P = num(r.P_rd, 0) + num(r.P_sga, 0)                       # capitalized intangibles
-    av = num(r.bookeq, np.nan) + P                             # AV of equity (reproduction)
+    P = num(r.P_rd, 0) + num(r.P_sga, 0)                       # capitalized intangibles (product + customer/brand)
     w = num(wacc.get(t), DEFAULT_WACC) or DEFAULT_WACC
     tax = num(r.tax, 0.25);  tax = tax if 0 <= tax < 0.6 else 0.25
     adj_oi = num(r.ebita, np.nan) + num(r.g_rd, 0) + num(r.g_sga, 0)   # add back growth intangible spend
@@ -75,43 +76,48 @@ for t, r in d.iterrows():
     debt = num(r.ltd, 0) + num(r.std, 0) + num(r.ll, 0) + num(r.lc, 0)
     epv = adj_nopat / w + num(r.cash, 0) - debt                # EPV of equity
     mc = num(r.mktcap, np.nan)
-    out.append(dict(Instrument=t, Sales=num(r.sales), AV=av, EPV=epv, MktCap=mc,
-                    Franchise=epv-av, FranchiseShare=(epv-av)/epv if epv > 0 else np.nan,
-                    EPV_over_AV=epv/av if av > 0 else np.nan,
-                    MktCap_over_EPV=mc/epv if epv > 0 else np.nan,     # >1 paying for growth; <1 growth free
-                    AV_over_MktCap=av/mc if mc > 0 else np.nan,        # asset floor under the price
+    # AV of equity, two ways:
+    av_kept = num(r.bookeq, np.nan) + P                        # book equity (goodwill INCLUDED) + intangibles -- upper bound
+    tang = num(r.ppe_repro, np.nan)
+    if not np.isfinite(tang):
+        tang = num(r.ppe_base, 0)
+    av_repro = num(r.cash, 0) + num(r.owc, 0) + tang + P - debt  # bottom-up reproduction, NO goodwill -- lower bound
+    out.append(dict(Instrument=t, Sales=num(r.sales), AV_kept=av_kept, AV_repro=av_repro, EPV=epv, MktCap=mc,
+                    Fr_kept=epv-av_kept, Fr_repro=epv-av_repro,
+                    EPVoverAV_kept=epv/av_kept if av_kept > 0 else np.nan,
+                    EPVoverAV_repro=epv/av_repro if av_repro > 0 else np.nan,
+                    MktCap_over_EPV=mc/epv if epv > 0 else np.nan,
+                    AVrepro_over_MktCap=av_repro/mc if mc > 0 else np.nan,
                     ROICm7=num(r.roicm7), WACC=w, CoreMoat=num(coremoat.get(t)), CompanyMoat=num(cmoat.get(t))))
 R = pd.DataFrame(out).set_index("Instrument")
 
-# ---- validate against the course decks ----
-print("=== validation vs Columbia decks (should be close: Adobe AV~$37b EPV~$89b) ===")
-for s in ["ADBE.OQ", "CRM.N", "SAPG.DE"]:
+# ---- goodwill kept vs removed: the acquirers where it matters most ----
+print("=== goodwill KEPT (book equity) vs REMOVED (bottom-up reproduction) — worked names ===")
+print(f"{'ticker':>9} {'AV_kept':>8} {'AV_repro':>8} {'EPV':>6} {'Fr_kept':>8} {'Fr_repro':>8} {'EPV/AV k>r':>12}")
+for s in ["ADBE.OQ", "CRM.N", "SAPG.DE", "ORCL.N", "MSFT.OQ", "INTU.OQ"]:
     if s in R.index:
         x = R.loc[s]
-        print(f"  {s:9s} AV ${x.AV/1e9:5.0f}b  EPV ${x.EPV/1e9:5.0f}b  MktCap ${x.MktCap/1e9:5.0f}b  "
-              f"Franchise ${x.Franchise/1e9:5.0f}b  EPV/AV {x.EPV_over_AV:.1f}x  MC/EPV {x.MktCap_over_EPV:.1f}x")
+        print(f"{s:>9} {x.AV_kept/1e9:7.0f}b {x.AV_repro/1e9:7.0f}b {x.EPV/1e9:5.0f}b {x.Fr_kept/1e9:7.0f}b "
+              f"{x.Fr_repro/1e9:7.0f}b   {x.EPVoverAV_kept:4.1f}x>{x.EPVoverAV_repro:4.1f}x")
 
-# ---- three-tier composition of the tech book ----
-v = R[(R.EPV > 0) & (R.AV > 0) & R.MktCap.notna()].copy()
+# ---- book-level shift ----
+v = R[(R.EPV > 0) & (R.AV_kept > 0) & (R.AV_repro > 0) & R.MktCap.notna()].copy()
 print(f"\ntech names valued: {len(v)}")
-moat = (v.EPV > v.AV).mean()
-print(f"EPV > AV (franchise / barriers to entry present): {moat*100:.0f}% of names")
-print(f"median EPV/AV {v.EPV_over_AV.median():.2f}x   median Market-cap/EPV {v.MktCap_over_EPV.median():.2f}x "
-      f"(>1 ⇒ market pays for growth)")
+print(f"EPV>AV (franchise present):   goodwill-kept {100*(v.EPV>v.AV_kept).mean():.0f}%  ->  goodwill-removed {100*(v.EPV>v.AV_repro).mean():.0f}%")
+print(f"median EPV/AV:                goodwill-kept {v.EPVoverAV_kept.median():.2f}x  ->  goodwill-removed {v.EPVoverAV_repro.median():.2f}x")
+print(f"median goodwill drag (AV_kept/AV_repro): {(v.AV_kept/v.AV_repro).median():.2f}x  "
+      f"(how much book-equity AV overstates reproduction)")
 
-# ---- cheapness screen: trading at/below sustainable earnings power (growth ~free) ----
-cheap = v[(v.MktCap_over_EPV <= 1.0) & (v.EPV > v.AV)].sort_values("MktCap_over_EPV")
-print(f"\n=== CHEAP: price <= EPV with a franchise (growth for free) — {len(cheap)} names ===")
-print(f"{'ticker':>11} {'MC/EPV':>6} {'EPV/AV':>6} {'ROICm':>6} {'WACC':>5} {'AV/MC':>6} {'Moat':>4}")
+# ---- cheapness screen on the goodwill-free reproduction ----
+cheap = v[(v.MktCap_over_EPV <= 1.0) & (v.EPV > v.AV_repro) & (v.CompanyMoat >= 6.5)].sort_values("MktCap_over_EPV")
+print(f"\n=== CHEAP: price<=EPV, franchise (goodwill-free), moat>=6.5 — {len(cheap)} names ===")
+print(f"{'ticker':>11} {'MC/EPV':>6} {'EPV/AVr':>7} {'ROICm':>6} {'WACC':>5} {'AVr/MC':>6} {'Moat':>4}")
 for t, x in cheap.head(15).iterrows():
-    print(f"{t:>11} {x.MktCap_over_EPV:6.2f} {x.EPV_over_AV:6.1f} {x.ROICm7*100 if np.isfinite(x.ROICm7) else 0:5.0f}% "
-          f"{x.WACC*100:4.0f}% {x.AV_over_MktCap:6.2f} {x.CompanyMoat if np.isfinite(x.CompanyMoat) else 0:4.1f}")
-
-# ---- buried-core in tech: durable core, EPV barely above AV (under-earning) ----
-bc = v[(v.CoreMoat >= 7.8) & (v.EPV_over_AV < v.EPV_over_AV.median())].sort_values("EPV_over_AV")
-print(f"\n=== BURIED-CORE (tech): CoreMoat>=7.8 but EPV barely above reproduction — {len(bc)} ===")
-for t, x in bc.head(10).iterrows():
-    print(f"  {t:>11} CoreMoat {x.CoreMoat:.1f}  EPV/AV {x.EPV_over_AV:.2f}x  MC/EPV {x.MktCap_over_EPV:.1f}x  ROICm {x.ROICm7*100 if np.isfinite(x.ROICm7) else 0:.0f}%")
+    print(f"{t:>11} {x.MktCap_over_EPV:6.2f} {x.EPVoverAV_repro:7.1f} {x.ROICm7*100 if np.isfinite(x.ROICm7) else 0:5.0f}% "
+          f"{x.WACC*100:4.0f}% {x.AVrepro_over_MktCap:6.2f} {x.CompanyMoat if np.isfinite(x.CompanyMoat) else 0:4.1f}")
 
 R.reset_index().to_csv(SCR+"/reproduction_tech.csv", index=False)
 print("\nwrote reproduction_tech.csv")
+print("AV_kept = book equity (goodwill IN) + intangibles [upper bound]; AV_repro = cash + working capital")
+print("+ PP&E reproduction + R&D base + SG&A base - debt [bottom-up, NO goodwill, lower bound]. Deck-style")
+print("(keep saleable-product goodwill) sits between; for organic builders the two nearly coincide.")
